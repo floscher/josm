@@ -24,7 +24,7 @@ public class DebugAction extends MapMode implements MouseMotionListener, MouseLi
 	private JLabel label = new JLabel();
 
 	public DebugAction(MapFrame mapFrame) {
-		super("Debug Zones", "images/debug.png", KeyEvent.VK_D, mapFrame);
+		super("Debug Zones", "debug", KeyEvent.VK_D, mapFrame);
 	}
 	
 	public void registerListener(MapView mapView) {

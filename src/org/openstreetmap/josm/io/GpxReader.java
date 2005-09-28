@@ -66,15 +66,6 @@ public class GpxReader {
 	 */
 	private DataSet parseDataSet(Element e) {
 		DataSet data = new DataSet();
-		// read global information
-		data.author = e.getAttributeValue("creator");
-		Element metadata = e.getChild("metadata");
-		if (metadata != null)
-		{
-			data.desc = metadata.getChildText("desc", XSD);
-			data.name = metadata.getChildText("name", XSD);
-		}
-		
 		// read waypoints not contained in tracks or areas
 		data.allNodes = new LinkedList<Node>(); 
 		for (Object o : e.getChildren("wpt", GPX))

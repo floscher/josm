@@ -26,6 +26,7 @@ import javax.swing.event.ChangeListener;
 
 import org.openstreetmap.josm.actions.DebugAction;
 import org.openstreetmap.josm.actions.MapMode;
+import org.openstreetmap.josm.actions.SelectionAction;
 import org.openstreetmap.josm.actions.ZoomAction;
 import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.osm.DataSet;
@@ -124,6 +125,7 @@ public class MapFrame extends JComponent {
 		
 		toolBarActions.setFloatable(false);
 		toolBarActions.add(new IconToggleButton(new ZoomAction(this)));
+		toolBarActions.add(new IconToggleButton(new SelectionAction(this)));
 		toolBarActions.add(new IconToggleButton(new DebugAction(this)));
 
 		// all map modes in one button group

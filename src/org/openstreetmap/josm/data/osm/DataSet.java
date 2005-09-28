@@ -1,5 +1,6 @@
 package org.openstreetmap.josm.data.osm;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.openstreetmap.josm.data.Bounds;
@@ -15,21 +16,6 @@ import org.openstreetmap.josm.data.Bounds;
  * @author imi
  */
 public class DataSet implements Cloneable {
-
-	/**
-	 * human readable name of the data.
-	 */
-	public String name;
-
-	/**
-	 * human readable description of what the data is about. Space for comments.
-	 */
-	public String desc;
-
-	/**
-	 * Who recorded/created it.
-	 */
-	public String author;
 
 	/**
 	 * All nodes goes here, even when included in other data (tracks etc) listed.
@@ -108,6 +94,30 @@ public class DataSet implements Cloneable {
 		return b;
 	}
 
+	/**
+	 * Remove the selection of the whole dataset.
+	 */
+	public void clearSelection() {
+		clearSelection(allNodes);
+		clearSelection(tracks);
+		for (Track t : tracks)
+			clearSelection(t.segments);
+	}
+	
+	/**
+	 * Remove the selection from every value in the collection.
+	 * @param list The collection to remove the selection from.
+	 */
+	private void clearSelection(Collection<? extends OsmPrimitive> list) {
+		if (list == null)
+			return;
+		for (OsmPrimitive osm : list) {
+			osm.selected = false;
+			if (osm.keys != null)
+				clearSelection(osm.keys.keySet());
+		}
+	}
+	
 	public DataSet clone() {
 		try {return (DataSet)super.clone();} catch (CloneNotSupportedException e) {}
 		return null;

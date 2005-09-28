@@ -30,7 +30,7 @@ abstract public class MapMode extends AbstractAction {
 	 * @param mapFrame The parent MapFrame, this MapMode belongs to.
 	 */
 	public MapMode(String name, String iconName, int mnemonic, MapFrame mapFrame) {
-		super(name, new ImageIcon(iconName));
+		super(name, new ImageIcon("images/"+iconName+".png"));
 		putValue(MNEMONIC_KEY, mnemonic);
 		this.mapFrame = mapFrame;
 	}

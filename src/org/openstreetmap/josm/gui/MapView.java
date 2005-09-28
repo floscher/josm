@@ -3,6 +3,7 @@ package org.openstreetmap.josm.gui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -125,6 +126,9 @@ public class MapView extends Component implements ComponentListener, ChangeListe
 		this.dataSet = dataSet;
 		addComponentListener(this);
 		
+		// initialize the movement listener
+		new MapMover(this);
+		
 		// initialize the projection
 		setProjection(Main.pref.projection.clone());
 	}
@@ -151,6 +155,25 @@ public class MapView extends Component implements ComponentListener, ChangeListe
 		if (latlon)
 			getProjection().xy2latlon(p);
 		return p;
+	}
+	
+	/**
+	 * Return the point on the screen where this GeoPoint would be.
+	 * @param point The point, where this geopoint would be drawn.
+	 * @return The point on screen where "point" would be drawn, relative
+	 * 		to the own top/left.
+	 */
+	public Point getScreenPoint(GeoPoint point) {
+		GeoPoint p;
+		if (!Double.isNaN(point.x) && !Double.isNaN(point.y))
+			p = point;
+		else {
+			if (Double.isNaN(point.lat) || Double.isNaN(point.lon))
+				throw new IllegalArgumentException("point: Either lat/lon or x/y must be set.");
+			p = point.clone();
+			projection.latlon2xy(p);
+		}
+		return new Point(toScreenX(p.x), toScreenY(p.y));
 	}
 	
 	/**
@@ -224,16 +247,17 @@ public class MapView extends Component implements ComponentListener, ChangeListe
 		g.fillRect(0,0,getWidth(),getHeight());
 		
 		// draw tracks
-		g.setColor(Color.RED);
 		if (dataSet.tracks != null)
 			for (Track track : dataSet.tracks)
-				for (LineSegment ls : track.segments)
+				for (LineSegment ls : track.segments) {
+					g.setColor(ls.selected ? Color.WHITE : Color.GRAY);
 					g.drawLine(toScreenX(ls.start.coor.x), toScreenY(ls.start.coor.y),
 							toScreenX(ls.end.coor.x), toScreenY(ls.end.coor.y));
+				}
 
 		// draw nodes
-		g.setColor(Color.YELLOW);
 		for (Node w : dataSet.allNodes) {
+			g.setColor(w.selected ? Color.WHITE : Color.RED);
 			g.drawArc(toScreenX(w.coor.x), toScreenY(w.coor.y), 3, 3, 0, 360);
 		}
 	}
