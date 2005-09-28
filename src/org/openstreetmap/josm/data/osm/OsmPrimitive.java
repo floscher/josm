@@ -15,4 +15,14 @@ public class OsmPrimitive {
 	 * The key/value list for this primitive.
 	 */
 	public Map<Key, String> keys;
+	
+	/**
+	 * If set to true, this object has been modified in the current session.
+	 */
+	public boolean modified = false;
+	
+	/**
+	 * If set to true, this object is currently selected.
+	 */
+	public boolean selected = false;
 }

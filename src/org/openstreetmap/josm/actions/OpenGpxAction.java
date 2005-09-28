@@ -53,8 +53,6 @@ public class OpenGpxAction extends AbstractAction {
 		
 		try {
 			DataSet dataSet = new GpxReader().parse(new FileReader(gpxFile));
-			if (dataSet.name == null)
-				dataSet.name = gpxFile.getName();
 			MapFrame map = new MapFrame(dataSet);
 			Main.main.setMapFrame(gpxFile.getName(), map);
 			map.setVisible(true);
