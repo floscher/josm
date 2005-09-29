@@ -1,4 +1,4 @@
-package org.openstreetmap.josm.actions;
+package org.openstreetmap.josm.actions.mapmode;
 
 import java.awt.event.ActionEvent;
 
@@ -29,9 +29,10 @@ abstract public class MapMode extends AbstractAction {
 	 * @param iconName The filename of the icon.
 	 * @param mapFrame The parent MapFrame, this MapMode belongs to.
 	 */
-	public MapMode(String name, String iconName, int mnemonic, MapFrame mapFrame) {
+	public MapMode(String name, String iconName, String tooltip, int mnemonic, MapFrame mapFrame) {
 		super(name, new ImageIcon("images/"+iconName+".png"));
 		putValue(MNEMONIC_KEY, mnemonic);
+		putValue(LONG_DESCRIPTION, tooltip);
 		this.mapFrame = mapFrame;
 	}
 	

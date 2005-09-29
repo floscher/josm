@@ -24,10 +24,10 @@ import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.openstreetmap.josm.actions.DebugAction;
-import org.openstreetmap.josm.actions.MapMode;
-import org.openstreetmap.josm.actions.SelectionAction;
-import org.openstreetmap.josm.actions.ZoomAction;
+import org.openstreetmap.josm.actions.mapmode.DebugAction;
+import org.openstreetmap.josm.actions.mapmode.MapMode;
+import org.openstreetmap.josm.actions.mapmode.SelectionAction;
+import org.openstreetmap.josm.actions.mapmode.ZoomAction;
 import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.projection.Projection;
@@ -124,9 +124,9 @@ public class MapFrame extends JComponent {
 		add(mapView = new MapView(dataSet), BorderLayout.CENTER);
 		
 		toolBarActions.setFloatable(false);
-		toolBarActions.add(new IconToggleButton(new ZoomAction(this)));
-		toolBarActions.add(new IconToggleButton(new SelectionAction(this)));
-		toolBarActions.add(new IconToggleButton(new DebugAction(this)));
+		toolBarActions.add(new IconToggleButton(this, new ZoomAction(this)));
+		toolBarActions.add(new IconToggleButton(this, new SelectionAction(this)));
+		toolBarActions.add(new IconToggleButton(this, new DebugAction(this)));
 
 		// all map modes in one button group
 		ButtonGroup toolGroup = new ButtonGroup();
@@ -137,7 +137,7 @@ public class MapFrame extends JComponent {
 		
 		// autoScale
 		toolBarActions.addSeparator();
-		final JToggleButton autoScaleButton = new IconToggleButton(mapView.new AutoScaleAction());
+		final JToggleButton autoScaleButton = new IconToggleButton(this, mapView.new AutoScaleAction());
 		toolBarActions.add(autoScaleButton);
 		autoScaleButton.setText(null);
 		autoScaleButton.setSelected(mapView.isAutoScale());
@@ -148,7 +148,7 @@ public class MapFrame extends JComponent {
 		});
 
 		// properties
-		toolBarActions.add(new IconToggleButton(new PropertiesAction()));
+		toolBarActions.add(new IconToggleButton(this, new PropertiesAction()));
 	}
 
 	/**

@@ -1,4 +1,4 @@
-package org.openstreetmap.josm.actions;
+package org.openstreetmap.josm.gui;
 
 import java.awt.Color;
 import java.awt.Component;
