@@ -1,8 +1,10 @@
-package org.openstreetmap.josm.actions;
+package org.openstreetmap.josm.actions.mapmode;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -10,7 +12,8 @@ import java.awt.event.MouseMotionListener;
 
 import javax.swing.JLabel;
 
-import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.osm.LineSegment;
+import org.openstreetmap.josm.data.osm.Track;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 
@@ -24,7 +27,7 @@ public class DebugAction extends MapMode implements MouseMotionListener, MouseLi
 	private JLabel label = new JLabel();
 
 	public DebugAction(MapFrame mapFrame) {
-		super("Debug Zones", "debug", KeyEvent.VK_D, mapFrame);
+		super("Debug Zones", "debug", "Debug only. Just ignore.", KeyEvent.VK_D, mapFrame);
 	}
 	
 	public void registerListener(MapView mapView) {
@@ -43,23 +46,26 @@ public class DebugAction extends MapMode implements MouseMotionListener, MouseLi
 	}
 
 	public void mouseMoved(MouseEvent e) {
-		double lon = ((double)e.getX()/mapFrame.mapView.getWidth()*360) - 180;
-		double lat = 90 - (double)e.getY()/mapFrame.mapView.getHeight() * 180;
-		GeoPoint p = new GeoPoint(lat, lon);
-		mapFrame.mapView.getProjection().latlon2xy(p);
-		label.setText("x="+e.getX()+" y="+e.getY()+" lat="+p.lat+" lon="+p.lon+" N="+p.y+" E="+p.x);
-		
-		GeoPoint mousePoint = mapFrame.mapView.getPoint(e.getX(), e.getY(), false);
-		GeoPoint center = mapFrame.mapView.getCenter();
-		double scale = mapFrame.mapView.getScale();
-		int xscr = (int)Math.round((mousePoint.x-center.x) / scale + mapFrame.mapView.getWidth()/2);
-		int yscr = (int)Math.round((center.y-mousePoint.y) / scale + mapFrame.mapView.getHeight()/2);
-		Graphics g = mapFrame.mapView.getGraphics();
-		g.setColor(Color.CYAN);
-		g.drawArc(xscr, yscr, 4,4,0,360);
 	}
 
 	public void mouseClicked(MouseEvent e) {
+		Graphics g = mapFrame.mapView.getGraphics();
+		g.setColor(Color.WHITE);
+		for (Track t :mapFrame.mapView.dataSet.tracks)
+			for (LineSegment ls : t.segments) {
+				Point A = mapFrame.mapView.getScreenPoint(ls.start.coor);
+				Point B = mapFrame.mapView.getScreenPoint(ls.end.coor);
+				Point C = e.getPoint();
+				Rectangle r = new Rectangle(A.x, A.y, B.x-A.x, B.y-A.y);
+				double dist = perpendicularDistSq(B.distanceSq(C), A.distanceSq(C), A.distanceSq(B));
+				g.drawString(""+dist, (int)r.getCenterX(), (int)r.getCenterY());
+			}
+	}
+
+	private double perpendicularDistSq(double a, double b, double c) {
+		// I did this on paper by myself, so I am surprised too, that it is that 
+		// performant ;-) 
+		return a-(a-b+c)*(a-b+c)/4/c;
 	}
 
 	public void mousePressed(MouseEvent e) {

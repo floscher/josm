@@ -1,7 +1,6 @@
 package org.openstreetmap.josm.gui;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -13,6 +12,7 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -36,7 +36,7 @@ import org.openstreetmap.josm.data.projection.Projection;
  *
  * @author imi
  */
-public class MapView extends Component implements ComponentListener, ChangeListener {
+public class MapView extends JComponent implements ComponentListener, ChangeListener {
 
 	/**
 	 * Toggles the autoScale feature of the mapView
@@ -250,7 +250,7 @@ public class MapView extends Component implements ComponentListener, ChangeListe
 		if (dataSet.tracks != null)
 			for (Track track : dataSet.tracks)
 				for (LineSegment ls : track.segments) {
-					g.setColor(ls.selected ? Color.WHITE : Color.GRAY);
+					g.setColor(ls.selected || track.selected ? Color.WHITE : Color.GRAY);
 					g.drawLine(toScreenX(ls.start.coor.x), toScreenY(ls.start.coor.y),
 							toScreenX(ls.end.coor.x), toScreenY(ls.end.coor.y));
 				}
