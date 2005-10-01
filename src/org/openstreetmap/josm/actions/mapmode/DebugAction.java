@@ -30,12 +30,14 @@ public class DebugAction extends MapMode implements MouseMotionListener, MouseLi
 		super("Debug Zones", "debug", "Debug only. Just ignore.", KeyEvent.VK_D, mapFrame);
 	}
 	
+	@Override
 	public void registerListener(MapView mapView) {
 		mapView.addMouseMotionListener(this);
 		mapView.addMouseListener(this);
 		mapFrame.add(label, BorderLayout.SOUTH);
 	}
 
+	@Override
 	public void unregisterListener(MapView mapView) {
 		mapView.removeMouseMotionListener(this);
 		mapView.removeMouseListener(this);

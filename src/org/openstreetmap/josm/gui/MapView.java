@@ -7,8 +7,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
@@ -245,7 +247,7 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 		// empty out everything
 		g.setColor(Color.BLACK);
 		g.fillRect(0,0,getWidth(),getHeight());
-		
+
 		// draw tracks
 		if (dataSet.tracks != null)
 			for (Track track : dataSet.tracks)
@@ -256,9 +258,20 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 				}
 
 		// draw nodes
+		Set<Integer> alreadyDrawn = new HashSet<Integer>();
+		int width = getWidth();
 		for (Node w : dataSet.allNodes) {
 			g.setColor(w.selected ? Color.WHITE : Color.RED);
-			g.drawArc(toScreenX(w.coor.x), toScreenY(w.coor.y), 3, 3, 0, 360);
+			int x = toScreenX(w.coor.x);
+			int y = toScreenY(w.coor.y);
+			int size = 3;
+			if (alreadyDrawn.contains(y*width+x)) {
+				size = 7;
+				x -= 2;
+				y -= 2;
+			} else
+				alreadyDrawn.add(y*width+x);
+			g.drawArc(x, y, size, size, 0, 360);
 		}
 	}
 

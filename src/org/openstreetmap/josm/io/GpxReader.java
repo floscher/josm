@@ -14,6 +14,7 @@ import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Track;
 import org.openstreetmap.josm.data.osm.LineSegment;
+import org.openstreetmap.josm.gui.Main;
 
 /**
  * Reads an gpx stream and construct a DataSet out of it. Some information may not be 
@@ -69,7 +70,7 @@ public class GpxReader {
 		// read waypoints not contained in tracks or areas
 		data.allNodes = new LinkedList<Node>(); 
 		for (Object o : e.getChildren("wpt", GPX))
-			data.allNodes.add(parseWaypoint((Element)o));
+			addNode(data, parseWaypoint((Element)o));
 
 		// read tracks
 		for (Object trackElement : e.getChildren("trk", GPX)) {
@@ -78,7 +79,7 @@ public class GpxReader {
 				Node start = null;
 				for (Object w : ((Element)trackSegmentElement).getChildren("trkpt", GPX)) {
 					Node node = parseWaypoint((Element)w);
-					data.allNodes.add(node);
+					node = addNode(data, node);
 					if (start == null)
 						start = node;
 					else {
@@ -94,5 +95,23 @@ public class GpxReader {
 		}
 
 		return data;
+	}
+	
+	/**
+	 * Adds the node to allNodes if it is not already listed. Does respect the
+	 * preference setting "mergeNodes". Return the node in the list that correspond
+	 * to the node in the list (either the new added or the old found).
+	 * 
+	 * @param data The DataSet to add the node to.
+	 * @param node The node that should be added.
+	 * @return Either the parameter node or the old node found in the dataset. 
+	 */
+	private Node addNode (DataSet data, Node node) {
+		if (Main.pref.mergeNodes)
+			for (Node n : data.allNodes)
+				if (node.equals(n))
+					return n;
+		data.allNodes.add(node);
+		return node;
 	}
 }

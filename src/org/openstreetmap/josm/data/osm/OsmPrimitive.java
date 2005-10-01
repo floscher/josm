@@ -19,10 +19,35 @@ public class OsmPrimitive {
 	/**
 	 * If set to true, this object has been modified in the current session.
 	 */
-	public boolean modified = false;
+	transient public boolean modified = false;
 	
 	/**
 	 * If set to true, this object is currently selected.
 	 */
-	public boolean selected = false;
+	transient public boolean selected = false;
+
+	/**
+	 * Osm primitives are equal, when their keys are equal. 
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (!(obj instanceof OsmPrimitive))
+			return false;
+		OsmPrimitive osm = (OsmPrimitive)obj;
+		if (keys == null)
+			return osm.keys == null;
+		return keys.equals(osm.keys);
+	}
+
+	/**
+	 * Compute the hashCode from the keys.
+	 */
+	@Override
+	public int hashCode() {
+		return keys == null ? 0 : keys.hashCode();
+	}
+	
+	
 }

@@ -17,6 +17,9 @@ import org.openstreetmap.josm.gui.SelectionManager.SelectionEnded;
  * Holding down left and right let the user move the former selected rectangle.
  * Releasing the left button zoom to the selection.
  * 
+ * Rectangle selections with either height or width smaller than 3 pixels 
+ * are ignored.
+ * 
  * @author imi
  */
 public class ZoomAction extends MapMode implements SelectionEnded {
@@ -46,15 +49,19 @@ public class ZoomAction extends MapMode implements SelectionEnded {
 	 * Zoom to the rectangle on the map.
 	 */
 	public void selectionEnded(Rectangle r, int modifier) {
-		double scale = mv.getScale() * r.getWidth()/mv.getWidth();
-		GeoPoint newCenter = mv.getPoint(r.x+r.width/2, r.y+r.height/2, false);
-		mv.zoomTo(newCenter, scale);
+		if (r.width >= 3 && r.height >= 3) {
+			double scale = mv.getScale() * r.getWidth()/mv.getWidth();
+			GeoPoint newCenter = mv.getPoint(r.x+r.width/2, r.y+r.height/2, false);
+			mv.zoomTo(newCenter, scale);
+		}
 	}
 
+	@Override
 	public void registerListener(MapView mapView) {
 		selectionManager.register(mapView);
 	}
 
+	@Override
 	public void unregisterListener(MapView mapView) {
 		selectionManager.unregister(mapView);
 	}
