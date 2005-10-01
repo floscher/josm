@@ -1,20 +1,20 @@
 package org.openstreetmap.josm.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 
 import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -49,6 +49,7 @@ public class PreferenceDialog extends JDialog {
 			Preferences pref = new Preferences();
 			pref.laf = (LookAndFeelInfo)lafCombo.getSelectedItem();
 			pref.projection = (Projection)projectionCombo.getSelectedItem();
+			pref.mergeNodes = mergeNodes.isSelected();
 			Main.pref.projection = pref.projection;
 			try {
 				pref.save();
@@ -84,13 +85,17 @@ public class PreferenceDialog extends JDialog {
 	 */
 	private JComboBox lafCombo = new JComboBox(UIManager.getInstalledLookAndFeels());
 	/**
-	 * The tabbed pane to add tabulars to.
-	 */
-	private JTabbedPane tabPanel = new JTabbedPane();
-	/**
 	 * Combobox with all projections available
 	 */
-	private JComboBox projectionCombo = new JComboBox(Preferences.allProjections);
+	private JComboBox projectionCombo = new JComboBox(Preferences.allProjections.clone());
+	/**
+	 * The main tab panel.
+	 */
+	private JTabbedPane tabPane = new JTabbedPane(JTabbedPane.LEFT);
+	/**
+	 * The checkbox stating whether nodes should be merged together.
+	 */
+	private JCheckBox mergeNodes = new JCheckBox("Merge nodes with equal latitude/longitude.");
 
 	
 	/**
@@ -112,15 +117,10 @@ public class PreferenceDialog extends JDialog {
 			return;
 		}
 
-		getContentPane().setLayout(new BorderLayout());
-		getContentPane().add(tabPanel, BorderLayout.CENTER);
-
-		newTab("Display");
-		// laf
-		JPanel p = newPanelLine();
-		p.add(new JLabel("Look and Feel"));
+		// look and feel combo box
 		final ListCellRenderer oldRenderer = lafCombo.getRenderer();
 		lafCombo.setRenderer(new DefaultListCellRenderer(){
+			@Override
 			public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 				return oldRenderer.getListCellRendererComponent(list, ((LookAndFeelInfo)value).getName(), index, isSelected, cellHasFocus);
 			}});
@@ -129,23 +129,53 @@ public class PreferenceDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				setRequiresRestart();
 			}});
-		p.add(lafCombo);
 
-		newTab("Projection");
-		p = newPanelLine();
-		p.add(new JLabel("Projection System"));
-		p.add(projectionCombo);
-		for (int i = 0; i < projectionCombo.getItemCount(); ++i)
+		// projection method combo box
+		for (int i = 0; i < projectionCombo.getItemCount(); ++i) {
 			if (projectionCombo.getItemAt(i).getClass().equals(pref.projection.getClass())) {
 				projectionCombo.setSelectedIndex(i);
 				break;
 			}
+		}
+		
+		// Display tab
+		JPanel display = createPreferenceTab("display", "Display Settings", "Various settings than influence the visual representation of the whole Program.");
+		display.add(new JLabel("Look and Feel"), GBC.std());
+		display.add(GBC.glue(5,0), GBC.std().fill(GBC.HORIZONTAL));
+		display.add(lafCombo, GBC.eol().fill(GBC.HORIZONTAL));
+		display.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
 
-		// OK/Cancel
-		JPanel okPanel = new JPanel();
-		okPanel.add(new JButton(new OkAction()));
-		okPanel.add(new JButton(new CancelAction()));
-		getContentPane().add(okPanel, BorderLayout.SOUTH);
+		// Map tab
+		JPanel map = createPreferenceTab("map", "Map Settings", "Settings for the map projection and data interpretation.");
+		map.add(new JLabel("Projection method"), GBC.std());
+		map.add(GBC.glue(5,0), GBC.std().fill(GBC.HORIZONTAL));
+		map.add(projectionCombo, GBC.eol().fill(GBC.HORIZONTAL));
+		JLabel labelNoteProjection = new JLabel(
+				"<html>Note: This is the default projection method used for files, " +
+				"where the correct projection could not be determined. " +
+				"The actual used projection can be changed in the property " +
+				"settings of each map.</html>");
+		labelNoteProjection.setMinimumSize(new Dimension(550, 50));
+		labelNoteProjection.setPreferredSize(new Dimension(550, 50));
+		map.add(labelNoteProjection, GBC.eol().insets(0,5,0,20));
+		map.add(new JLabel("GPX import / export"), GBC.eol());
+		mergeNodes.setSelected(pref.mergeNodes);
+		map.add(mergeNodes, GBC.eol());
+		map.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
+
+		
+		tabPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+	
+		// OK/Cancel panel at bottom
+		JPanel okPanel = new JPanel(new GridBagLayout());
+		okPanel.add(Box.createHorizontalGlue(), GBC.std().fill(GBC.HORIZONTAL));
+		okPanel.add(new JButton(new OkAction()), GBC.std());
+		okPanel.add(new JButton(new CancelAction()), GBC.std());
+
+		// merging all in the content pane
+		getContentPane().setLayout(new GridBagLayout());
+		getContentPane().add(tabPane, GBC.eol().fill());
+		getContentPane().add(okPanel, GBC.eol().fill(GBC.HORIZONTAL));
 
 		setModal(true);
 		pack();
@@ -154,28 +184,30 @@ public class PreferenceDialog extends JDialog {
 	}
 
 	/**
-	 * Start a new tab with the given name
-	 * @param tabName The name of the new tab.
+	 * Construct a JPanel for the preference settings. Layout is GridBagLayout
+	 * and a centered title label and the description are added.
+	 * @param icon The name of the icon.
+	 * @param title The title of this preference tab.
+	 * @param desc A description in one sentence for this tab. Will be displayed
+	 * 		italic under the title.
+	 * @return The created panel ready to add other controls.
 	 */
-	private void newTab(String tabName) {
-		Box tab = Box.createVerticalBox();
-		tab.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-		tabPanel.addTab(tabName, tab);
-	}
+	private JPanel createPreferenceTab(String icon, String title, String desc) {
+		JPanel p = new JPanel(new GridBagLayout());
+		p.add(new JLabel(title), GBC.eol().anchor(GBC.CENTER).insets(0,5,0,10));
+		JLabel descLabel = new JLabel(desc);
+		descLabel.setFont(descLabel.getFont().deriveFont(Font.ITALIC));
+		p.add(descLabel, GBC.eol().insets(5,0,5,20));
 
+		tabPane.addTab(null, new ImageIcon("images/preferences/"+icon+".png"), p);
+		return p;
+	}
+	
 	/**
 	 * Remember, that the settings made requires a restart of the application.
 	 * Called from various actionListener - classes
 	 */
 	protected void setRequiresRestart() {
 		requiresRestart = true;
-	}
-
-	private JPanel newPanelLine() {
-		JPanel p;
-		p = new JPanel();
-		p.setBorder(BorderFactory.createEmptyBorder(5,0,0,0));
-		((Container)tabPanel.getComponent(tabPanel.getTabCount()-1)).add(p);
-		return p;
 	}
 }

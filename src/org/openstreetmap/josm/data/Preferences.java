@@ -3,6 +3,7 @@ package org.openstreetmap.josm.data;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.List;
 
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
@@ -33,15 +34,17 @@ public class Preferences {
 	 */
 	public Projection projection = new UTM();
 
-	/**
-	 * The monitor geometry in meter per pixel. (How big is 1 pixel in meters)
-	 * Example: 17" Sony flatscreen in 1280x1024 mode: 0.000264 ppm
-	 * 
-	 * Remember: ppm = dpi/25400
-	 */
-	public double ppm = 0.000264;
 
+	/**
+	 * Whether nodes on the same place should be considered identical.
+	 */
+	public boolean mergeNodes = true;
 	
+	
+
+	/**
+	 * List of all available Projections.
+	 */
 	public static final Projection[] allProjections = new Projection[]{
 		new UTM(),
 		new LatitudeLongitude()
@@ -84,6 +87,7 @@ public class Preferences {
 				throw new PreferencesException("Look and Feel not found.", null);
 			
 			projection = (Projection)Class.forName(root.getChildText("projection")).newInstance();
+			mergeNodes = root.getChild("mergeNodes") != null;
 		} catch (Exception e) {
 			if (e instanceof PreferencesException)
 				throw (PreferencesException)e;
@@ -99,8 +103,11 @@ public class Preferences {
 	public void save() throws PreferencesException {
 		Element root = new Element("josm-settings");
 		
-		root.getChildren().add(new Element("laf").setText(laf.getClassName()));
-		root.getChildren().add(new Element("projection").setText(projection.getClass().getName()));
+		List children = root.getChildren();
+		children.add(new Element("laf").setText(laf.getClassName()));
+		children.add(new Element("projection").setText(projection.getClass().getName()));
+		if (mergeNodes)
+			children.add(new Element("mergeNodes"));
 
 		try {
 			final FileWriter file = new FileWriter(getPreferencesFile());

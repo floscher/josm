@@ -44,6 +44,7 @@ abstract public class Projection implements Cloneable {
 	/**
 	 * Describe the projection converter in one or two words.
 	 */
+	@Override
 	abstract public String toString();
 	
 	/**

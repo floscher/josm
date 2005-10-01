@@ -1,5 +1,6 @@
 package org.openstreetmap.josm.data;
 
+
 /**
  * An point holding latitude/longitude and their corresponding north/east values, 
  * which may not be initialized.
@@ -43,4 +44,26 @@ public class GeoPoint implements Cloneable {
 		try {return (GeoPoint)super.clone();} catch (CloneNotSupportedException e) {}
 		return null;
 	}
+
+	/**
+	 * GeoPoints are equal, if their lat/lon are equal or, if lat or lon are NaN, 
+	 * if their x/y are equal.
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof GeoPoint))
+			return false;
+		GeoPoint gp = (GeoPoint)obj;
+		
+		if (Double.isNaN(lat) || Double.isNaN(lon))
+			return x == gp.x && y == gp.y;
+		return lat == gp.lat && lon == gp.lon;
+	}
+
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
+	
+	
 }

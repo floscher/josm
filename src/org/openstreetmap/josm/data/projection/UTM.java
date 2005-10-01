@@ -48,6 +48,7 @@ public class UTM extends Projection {
 			this.a = a;
 			this.ecc_squared = ecc_squared;
 		}
+		@Override
 		public String toString() {
 			return name;
 		}
