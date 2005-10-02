@@ -61,30 +61,36 @@ public class Main extends JFrame {
 		setSize(1000,740); // some strange default size
 		setExtendedState(MAXIMIZED_BOTH); // some platform are able to maximize
 		
+		// creating actions
+		OpenGpxAction openGpxAction = new OpenGpxAction();
+		SaveGpxAction saveGpxAction = new SaveGpxAction();
+		ExitAction exitAction = new ExitAction();
+		PreferencesAction preferencesAction = new PreferencesAction();
+
 		// creating menu
 		JMenuBar mainMenu = new JMenuBar();
 		setJMenuBar(mainMenu);
 
 		JMenu fileMenu = new JMenu("Files");
 		fileMenu.setMnemonic('F');
-		fileMenu.add(new OpenGpxAction());
-		fileMenu.add(new SaveGpxAction());
+		fileMenu.add(openGpxAction);
+		fileMenu.add(saveGpxAction);
 		fileMenu.addSeparator();
-		fileMenu.add(new ExitAction());
+		fileMenu.add(exitAction);
 		mainMenu.add(fileMenu);
 		
 		JMenu editMenu = new JMenu("Edit");
 		editMenu.setMnemonic('E');
-		editMenu.add(new PreferencesAction());
+		editMenu.add(preferencesAction);
 		mainMenu.add(editMenu);
 
 		// creating toolbar
 		JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
-		toolBar.add(new OpenGpxAction());
-		toolBar.add(new SaveGpxAction());
+		toolBar.add(openGpxAction);
+		toolBar.add(saveGpxAction);
 		toolBar.addSeparator();
-		toolBar.add(new PreferencesAction());
+		toolBar.add(preferencesAction);
 		
 		getContentPane().add(toolBar, BorderLayout.NORTH);
 	}
@@ -132,9 +138,11 @@ public class Main extends JFrame {
 		//TODO: Check for changes and ask user
 		this.name = name;
 		this.mapFrame = mapFrame;
+		panel.setVisible(false);
 		panel.removeAll();
 		panel.add(mapFrame, BorderLayout.CENTER);
 		panel.add(mapFrame.getToolBarActions(), BorderLayout.WEST);
+		panel.setVisible(true);
 	}
 	/**
 	 * @return Returns the name.

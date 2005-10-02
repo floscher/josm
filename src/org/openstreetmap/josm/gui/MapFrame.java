@@ -24,8 +24,14 @@ import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.openstreetmap.josm.actions.mapmode.AddLineSegmentAction;
+import org.openstreetmap.josm.actions.mapmode.AddNodeAction;
+import org.openstreetmap.josm.actions.mapmode.AddTrackAction;
+import org.openstreetmap.josm.actions.mapmode.CombineAction;
 import org.openstreetmap.josm.actions.mapmode.DebugAction;
+import org.openstreetmap.josm.actions.mapmode.DeleteAction;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
+import org.openstreetmap.josm.actions.mapmode.MoveAction;
 import org.openstreetmap.josm.actions.mapmode.SelectionAction;
 import org.openstreetmap.josm.actions.mapmode.ZoomAction;
 import org.openstreetmap.josm.data.Preferences;
@@ -38,7 +44,7 @@ import org.openstreetmap.josm.data.projection.Projection;
  * 
  * @author imi
  */
-public class MapFrame extends JComponent {
+public class MapFrame extends JPanel {
 
 	/**
 	 * Open the properties page
@@ -122,10 +128,17 @@ public class MapFrame extends JComponent {
 		setLayout(new BorderLayout());
 
 		add(mapView = new MapView(dataSet), BorderLayout.CENTER);
-		
+
+		// toolbar
 		toolBarActions.setFloatable(false);
 		toolBarActions.add(new IconToggleButton(this, new ZoomAction(this)));
 		toolBarActions.add(new IconToggleButton(this, new SelectionAction(this)));
+		toolBarActions.add(new IconToggleButton(this, new MoveAction(this)));
+		toolBarActions.add(new IconToggleButton(this, new AddNodeAction(this)));
+		toolBarActions.add(new IconToggleButton(this, new AddLineSegmentAction(this)));
+		toolBarActions.add(new IconToggleButton(this, new AddTrackAction(this)));
+		toolBarActions.add(new IconToggleButton(this, new CombineAction(this)));
+		toolBarActions.add(new IconToggleButton(this, new DeleteAction(this)));
 		toolBarActions.add(new IconToggleButton(this, new DebugAction(this)));
 
 		// all map modes in one button group
@@ -158,9 +171,9 @@ public class MapFrame extends JComponent {
 	 */
 	public void selectMapMode(MapMode mapMode) {
 		if (this.mapMode != null)
-			this.mapMode.unregisterListener(mapView);
+			this.mapMode.unregisterListener();
 		this.mapMode = mapMode;
-		mapMode.registerListener(mapView);
+		mapMode.registerListener();
 	}
 
 	/**

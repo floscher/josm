@@ -55,7 +55,6 @@ public class OpenGpxAction extends AbstractAction {
 			DataSet dataSet = new GpxReader().parse(new FileReader(gpxFile));
 			MapFrame map = new MapFrame(dataSet);
 			Main.main.setMapFrame(gpxFile.getName(), map);
-			map.setVisible(true);
 		} catch (JDOMException x) {
 			x.printStackTrace();
 			JOptionPane.showMessageDialog(Main.main, "Illegal GPX document:\n"+x.getMessage());

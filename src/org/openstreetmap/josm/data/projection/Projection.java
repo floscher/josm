@@ -88,7 +88,7 @@ abstract public class Projection implements Cloneable {
 	 *            is far away from any coordinate in the dataset)
 	 */
 	public void init(DataSet dataSet) {
-		for (Node w : dataSet.allNodes)
+		for (Node w : dataSet.nodes)
 			latlon2xy(w.coor);
 	}
 	

@@ -33,8 +33,8 @@ public class ZoomAction extends MapMode implements SelectionEnded {
 	 * MapView.
 	 */
 	private final SelectionManager selectionManager;
-	
-	
+
+
 	/**
 	 * Construct a ZoomAction without a label.
 	 * @param mapFrame The MapFrame, whose zoom mode should be enabled.
@@ -48,7 +48,7 @@ public class ZoomAction extends MapMode implements SelectionEnded {
 	/**
 	 * Zoom to the rectangle on the map.
 	 */
-	public void selectionEnded(Rectangle r, int modifier) {
+	public void selectionEnded(Rectangle r, boolean alt, boolean shift, boolean ctrl) {
 		if (r.width >= 3 && r.height >= 3) {
 			double scale = mv.getScale() * r.getWidth()/mv.getWidth();
 			GeoPoint newCenter = mv.getPoint(r.x+r.width/2, r.y+r.height/2, false);
@@ -57,12 +57,14 @@ public class ZoomAction extends MapMode implements SelectionEnded {
 	}
 
 	@Override
-	public void registerListener(MapView mapView) {
-		selectionManager.register(mapView);
+	public void registerListener() {
+		super.registerListener();
+		selectionManager.register(mv);
 	}
 
 	@Override
-	public void unregisterListener(MapView mapView) {
-		selectionManager.unregister(mapView);
+	public void unregisterListener() {
+		super.unregisterListener();
+		selectionManager.unregister(mv);
 	}
 }

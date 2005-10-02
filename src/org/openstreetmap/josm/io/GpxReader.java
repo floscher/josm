@@ -3,7 +3,6 @@ package org.openstreetmap.josm.io;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -11,9 +10,9 @@ import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Track;
-import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.gui.Main;
 
 /**
@@ -68,7 +67,6 @@ public class GpxReader {
 	private DataSet parseDataSet(Element e) {
 		DataSet data = new DataSet();
 		// read waypoints not contained in tracks or areas
-		data.allNodes = new LinkedList<Node>(); 
 		for (Object o : e.getChildren("wpt", GPX))
 			addNode(data, parseWaypoint((Element)o));
 
@@ -108,10 +106,10 @@ public class GpxReader {
 	 */
 	private Node addNode (DataSet data, Node node) {
 		if (Main.pref.mergeNodes)
-			for (Node n : data.allNodes)
+			for (Node n : data.nodes)
 				if (node.equals(n))
 					return n;
-		data.allNodes.add(node);
+		data.nodes.add(node);
 		return node;
 	}
 }

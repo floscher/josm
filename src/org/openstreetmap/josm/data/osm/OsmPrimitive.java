@@ -1,5 +1,6 @@
 package org.openstreetmap.josm.data.osm;
 
+import java.util.Collection;
 import java.util.Map;
 
 
@@ -9,7 +10,7 @@ import java.util.Map;
  * 
  * @author imi
  */
-public class OsmPrimitive {
+abstract public class OsmPrimitive {
 
 	/**
 	 * The key/value list for this primitive.
@@ -26,6 +27,35 @@ public class OsmPrimitive {
 	 */
 	transient public boolean selected = false;
 
+	/**
+	 * Return a list of all nodes, this osmPrimitive consists of. Does return
+	 * an empty list, if it is an primitive that cannot have nodes (e.g. Key)
+	 */
+	abstract public Collection<Node> getAllNodes();
+
+	/**
+	 * Return <code>true</code>, if either <code>this.keys</code> and 
+	 * <code>other.keys</code> is <code>null</code> or if they do not share Keys
+	 * with different values.
+	 *  
+	 * @param other		The second key-set to compare with.
+	 * @return	True, if the keysets are mergable
+	 */
+	public boolean keyPropertiesMergable(OsmPrimitive other) {
+		if ((keys == null) != (other.keys == null))
+			return false;
+
+		if (keys != null) {
+			for (Key k : keys.keySet())
+				if (other.keys.containsKey(k) && !keys.get(k).equals(other.keys.get(k)))
+					return false;
+			for (Key k : other.keys.keySet())
+				if (keys.containsKey(k) && !other.keys.get(k).equals(keys.get(k)))
+					return false;
+		}
+		return true;
+	}
+	
 	/**
 	 * Osm primitives are equal, when their keys are equal. 
 	 */
@@ -48,6 +78,4 @@ public class OsmPrimitive {
 	public int hashCode() {
 		return keys == null ? 0 : keys.hashCode();
 	}
-	
-	
 }
