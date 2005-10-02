@@ -1,5 +1,8 @@
 package org.openstreetmap.josm.gui;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JToggleButton;
@@ -10,7 +13,7 @@ import javax.swing.JToggleButton;
  *
  * @author imi
  */
-public class IconToggleButton extends JToggleButton {
+public class IconToggleButton extends JToggleButton implements PropertyChangeListener {
 
 	/**
 	 * Construct the toggle button with the given action.
@@ -18,8 +21,28 @@ public class IconToggleButton extends JToggleButton {
 	public IconToggleButton(JComponent acceleratorReceiver, Action action) {
 		super(action);
 		setText(null);
+		
+		// Tooltip
+		String toolTipText = "";
 		Object o = action.getValue(Action.LONG_DESCRIPTION);
 		if (o != null)
-			setToolTipText(o.toString());
+			toolTipText += o.toString();
+		o = action.getValue(Action.ACCELERATOR_KEY);
+		if (o != null) {
+			String ksName = o.toString();
+			if (ksName.startsWith("pressed "))
+				ksName = ksName.substring("pressed ".length());
+			else if (ksName.startsWith("released "))
+				ksName = ksName.substring("released ".length());
+			toolTipText += " Shortcut: "+ksName;
+		}
+		setToolTipText(toolTipText);
+		
+		action.addPropertyChangeListener(this);
+	}
+
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (evt.getPropertyName() == "active")
+			setSelected((Boolean)evt.getNewValue());
 	}
 }

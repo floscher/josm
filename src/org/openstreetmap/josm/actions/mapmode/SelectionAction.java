@@ -1,17 +1,11 @@
 package org.openstreetmap.josm.actions.mapmode;
 
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
+import java.util.Collection;
 
-import org.openstreetmap.josm.data.osm.LineSegment;
-import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.Track;
 import org.openstreetmap.josm.gui.MapFrame;
-import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.SelectionManager;
 import org.openstreetmap.josm.gui.SelectionManager.SelectionEnded;
 
@@ -51,16 +45,12 @@ import org.openstreetmap.josm.gui.SelectionManager.SelectionEnded;
  * within 10 pixel range is selected. If there is no LineSegment within 10 pixel
  * and the user clicked in or 10 pixel away from an area, this area is selected. 
  * If there is even no area, nothing is selected. Shift and Ctrl key applies to 
- * this as usual.
+ * this as usual. For more, @see MapView#getNearest(Point, boolean)
  *
  * @author imi
  */
 public class SelectionAction extends MapMode implements SelectionEnded {
 
-	/**
-	 * Shortcut for the MapView.
-	 */
-	private MapView mv;
 	/**
 	 * The SelectionManager that manages the selection rectangle.
 	 */
@@ -68,132 +58,39 @@ public class SelectionAction extends MapMode implements SelectionEnded {
 
 	/**
 	 * Create a new SelectionAction in the given frame.
-	 * @param mapFrame
+	 * @param mapFrame The frame this action belongs to
 	 */
 	public SelectionAction(MapFrame mapFrame) {
 		super("Selection", "selection", "Select objects by dragging or clicking", KeyEvent.VK_S, mapFrame);
-		this.mv = mapFrame.mapView;
 		this.selectionManager = new SelectionManager(this, false, mv);
 	}
 
 	@Override
-	public void registerListener(MapView mapView) {
-		selectionManager.register(mapView);
+	public void registerListener() {
+		super.registerListener();
+		selectionManager.register(mv);
 	}
 
 	@Override
-	public void unregisterListener(MapView mapView) {
-		selectionManager.unregister(mapView);
+	public void unregisterListener() {
+		super.unregisterListener();
+		selectionManager.unregister(mv);
 	}
 
 
 	/**
 	 * Check the state of the keys and buttons and set the selection accordingly.
 	 */
-	public void selectionEnded(Rectangle r, int modifiers) {
-		boolean shift = (modifiers & MouseEvent.SHIFT_DOWN_MASK) != 0;
-		boolean alt = (modifiers & MouseEvent.ALT_DOWN_MASK) != 0;
-		boolean ctrl = (modifiers & MouseEvent.CTRL_DOWN_MASK) != 0;
+	public void selectionEnded(Rectangle r, boolean alt, boolean shift, boolean ctrl) {
 		if (shift && ctrl)
 			return; // not allowed together
 
-		if (!ctrl && !shift) {
-			// remove the old selection. The new selection will replace the old.
-			mv.dataSet.clearSelection();
-		}
+		if (!ctrl && !shift)
+			ds.clearSelection(); // new selection will replace the old.
 
-		// now set the selection to this value
-		boolean selection = !ctrl;
-
-		// whether user only clicked, not dragged.
-		boolean clicked = r.width <= 2 && r.height <= 2;
-		Point2D.Double center = new Point2D.Double(r.getCenterX(), r.getCenterY());
-
-		try {
-			// nodes
-			double minDistanceSq = Double.MAX_VALUE;
-			OsmPrimitive minPrimitive = null;
-			for (Node n : mv.dataSet.allNodes) {
-				Point sp = mv.getScreenPoint(n.coor);
-				double dist = center.distanceSq(sp);
-				if (clicked && minDistanceSq > dist && dist < 100) {
-					minDistanceSq = center.distanceSq(sp);
-					minPrimitive = n;
-				} else if (r.contains(sp))
-					n.selected = selection;
-			}
-			if (minPrimitive != null) {
-				minPrimitive.selected = selection;
-				return;
-			}
-
-			// tracks
-			minDistanceSq = Double.MAX_VALUE;
-			for (Track t : mv.dataSet.tracks) {
-				boolean wholeTrackSelected = t.segments.size() > 0;
-				for (LineSegment ls : t.segments) {
-					if (clicked) {
-						Point A = mv.getScreenPoint(ls.start.coor);
-						Point B = mv.getScreenPoint(ls.end.coor);
-						double c = A.distanceSq(B);
-						double a = center.distanceSq(B);
-						double b = center.distanceSq(A);
-						double perDist = perpendicularDistSq(a,b,c);
-						if (perDist < 100 && minDistanceSq > perDist && a < c+100 && b < c+100) {
-							minDistanceSq = perDist;
-							if (alt)
-								minPrimitive = t;
-							else
-								minPrimitive = ls;
-						}
-					} else {
-						if (alt) {
-							Point p1 = mv.getScreenPoint(ls.start.coor);
-							Point p2 = mv.getScreenPoint(ls.end.coor);
-							if (r.intersectsLine(p1.x, p1.y, p2.x, p2.y))
-								ls.selected = selection;
-							else
-								wholeTrackSelected = false;
-						} else {
-							if (r.contains(mv.getScreenPoint(ls.start.coor))
-									&& r.contains(mv.getScreenPoint(ls.end.coor)))
-								ls.selected = selection;
-							else
-								wholeTrackSelected = false;
-						}
-					}
-				}
-				if (wholeTrackSelected && !clicked)
-					t.selected = true;
-			}
-			if (minPrimitive != null) {
-				minPrimitive.selected = selection;
-				return;
-			}
-			
-			// TODO arrays
-		} finally {
-			mv.repaint();
-		}
-	}
-
-	/**
-	 * Calculates the squared perpendicular distance named "h" from a point C to the
-	 * straight line going to the points A and B, where the distance to B is 
-	 * sqrt(a) and the distance to A is sqrt(b).
-	 * 
-	 * Think of a, b and c as the squared line lengths of any ordinary triangle 
-	 * A,B,C. a = BC, b = AC and c = AB. The straight line goes through A and B 
-	 * and the desired return value is the perpendicular distance from C to c.
-	 *
-	 * @param a Squared distance from B to C.
-	 * @param b Squared distance from A to C.
-	 * @param c Squared distance from A to B.
-	 * @return The perpendicular distance from C to c.
-	 */
-	private double perpendicularDistSq(double a, double b, double c) {
-		// I did this on paper by myself, so I am surprised too, that it is that 
-		// performant ;-) 
-		return a-(a-b+c)*(a-b+c)/4/c;
+		Collection<OsmPrimitive> selectionList = selectionManager.getObjectsInRectangle(r,alt);
+		for (OsmPrimitive osm : selectionList)
+			osm.selected = !ctrl;
+		mv.repaint();
 	}
 }

@@ -1,5 +1,8 @@
 package org.openstreetmap.josm.data.osm;
 
+import java.util.Collection;
+import java.util.LinkedList;
+
 
 /**
  * One track line segment consisting of a pair of nodes (start/end) 
@@ -27,4 +30,33 @@ public class LineSegment extends OsmPrimitive {
 	 * The ending node of the line segment
 	 */
 	public Node end;
+
+	/**
+	 * Return start and end in a list.
+	 */
+	@Override
+	public Collection<Node> getAllNodes() {
+		LinkedList<Node> nodes = new LinkedList<Node>();
+		nodes.add(start);
+		nodes.add(end);
+		return nodes;
+	}
+
+	/**
+	 * Line segments are equal, if their starting and ending node and their
+	 * keys are equal.
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof LineSegment))
+			return false;
+		return super.equals(obj) && 
+			start.equals(((LineSegment)obj).start) &&
+			end.equals(((LineSegment)obj).end);
+	}
+
+	@Override
+	public int hashCode() {
+		return super.hashCode() + start.hashCode() + end.hashCode();
+	}
 }	

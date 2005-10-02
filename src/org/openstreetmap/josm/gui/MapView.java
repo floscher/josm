@@ -23,6 +23,7 @@ import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
+import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Track;
 import org.openstreetmap.josm.data.projection.Projection;
 
@@ -80,47 +81,6 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 	public final DataSet dataSet;
 
 	
-	// Event handling functions and data
-	
-	/**
-	 * The event list with all state chaned listener
-	 */
-	List<ChangeListener> listener = new LinkedList<ChangeListener>();
-	/**
-	 * Add an event listener to the state changed event queue. If passed 
-	 * <code>null</code>, nothing happens.
-	 */
-	public final void addChangeListener(ChangeListener l) {
-		if (l != null)
-			listener.add(l);
-	}
-	/**
-	 * Remove an event listener from the event queue. If passed 
-	 * <code>null</code>, nothing happens.
-	 */
-	public final void removeChangeListener(ChangeListener l) {
-		listener.remove(l);
-	}
-	/**
-	 * Fires an ChangeEvent. Occours, when an non-data value changed, as example
-	 * the autoScale - state or the center. Is not fired, dataSet internal things
-	 * changes.
-	 */
-	public final void fireStateChanged() {
-		ChangeEvent e = null;
-		for(ChangeListener l : listener) {
-			if (e == null)
-				e = new ChangeEvent(this);
-			l.stateChanged(e);
-		}
-	}
-	
-	
-	
-	
-	
-	// other functions
-	
 	/**
 	 * Construct a MapView and attach it to a frame.
 	 */
@@ -177,7 +137,85 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 		}
 		return new Point(toScreenX(p.x), toScreenY(p.y));
 	}
-	
+
+	/**
+	 * Return the object, that is nearest to the given screen point.
+	 * 
+	 * First, a node will be searched. If a node within 10 pixel is found, the
+	 * nearest node is returned.
+	 * 
+	 * If no node is found, search for pending line segments.
+	 * 
+	 * If no such line segment is found, and a non-pending line segment is 
+	 * within 10 pixel to p, this segment is returned, except when 
+	 * <code>wholeTrack</code> is <code>true</code>, in which case the 
+	 * corresponding Track is returned.
+	 * 
+	 * If no line segment is found and the point is within an area, return that
+	 * area.
+	 * 
+	 * If no area is found, return <code>null</code>.
+	 * 
+	 * @param p				The point on screen.
+	 * @param wholeTrack	Whether the whole track or only the line segment
+	 * 					 	should be returned.
+	 * @return	The primitive, that is nearest to the point p.
+	 */
+	public OsmPrimitive getNearest(Point p, boolean wholeTrack) {
+		double minDistanceSq = Double.MAX_VALUE;
+		OsmPrimitive minPrimitive = null;
+		
+		// nodes
+		for (Node n : dataSet.nodes) {
+			Point sp = getScreenPoint(n.coor);
+			double dist = p.distanceSq(sp);
+			if (minDistanceSq > dist && dist < 100) {
+				minDistanceSq = p.distanceSq(sp);
+				minPrimitive = n;
+			}
+		}
+		if (minPrimitive != null)
+			return minPrimitive;
+		
+		// pending line segments
+		for (LineSegment ls : dataSet.pendingLineSegments) {
+			Point A = getScreenPoint(ls.start.coor);
+			Point B = getScreenPoint(ls.end.coor);
+			double c = A.distanceSq(B);
+			double a = p.distanceSq(B);
+			double b = p.distanceSq(A);
+			double perDist = a-(a-b+c)*(a-b+c)/4/c; // perpendicular distance squared
+			if (perDist < 100 && minDistanceSq > perDist && a < c+100 && b < c+100) {
+				minDistanceSq = perDist;
+				minPrimitive = ls;
+			}
+		}
+
+		// tracks & line segments
+		minDistanceSq = Double.MAX_VALUE;
+		for (Track t : dataSet.tracks) {
+			for (LineSegment ls : t.segments) {
+				Point A = getScreenPoint(ls.start.coor);
+				Point B = getScreenPoint(ls.end.coor);
+				double c = A.distanceSq(B);
+				double a = p.distanceSq(B);
+				double b = p.distanceSq(A);
+				double perDist = a-(a-b+c)*(a-b+c)/4/c; // perpendicular distance squared
+				if (perDist < 100 && minDistanceSq > perDist && a < c+100 && b < c+100) {
+					minDistanceSq = perDist;
+					minPrimitive = wholeTrack ? t : ls;
+				}
+			}			
+		}
+		if (minPrimitive != null)
+			return minPrimitive;
+		
+		// TODO areas
+		
+		
+		return null; // nothing found
+	}
+
 	/**
 	 * Zoom to the given coordinate.
 	 * @param centerX The center x-value (easting) to zoom to.
@@ -219,7 +257,7 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 				// no bounds means standard scale and center 
 				center = new GeoPoint(51.526447, -0.14746371);
 				getProjection().latlon2xy(center);
-				scale = 10000; // nice view from 1:10000, eh?
+				scale = 10;
 			} else {
 				center = bounds.centerXY();
 				getProjection().xy2latlon(center);
@@ -257,10 +295,17 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 							toScreenX(ls.end.coor.x), toScreenY(ls.end.coor.y));
 				}
 
+		// draw pending line segments
+		for (LineSegment ls : dataSet.pendingLineSegments) {
+			g.setColor(ls.selected ? Color.WHITE : Color.LIGHT_GRAY);
+			g.drawLine(toScreenX(ls.start.coor.x), toScreenY(ls.start.coor.y),
+					toScreenX(ls.end.coor.x), toScreenY(ls.end.coor.y));
+		}
+
 		// draw nodes
 		Set<Integer> alreadyDrawn = new HashSet<Integer>();
 		int width = getWidth();
-		for (Node w : dataSet.allNodes) {
+		for (Node w : dataSet.nodes) {
 			g.setColor(w.selected ? Color.WHITE : Color.RED);
 			int x = toScreenX(w.coor.x);
 			int y = toScreenY(w.coor.y);
@@ -293,19 +338,42 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 		return (int)Math.round((center.y-y) / scale + getHeight()/2);
 	}
 
-	/**
-	 * Does nothing. Just to satisfy ComponentListener.
-	 */
-	public void componentMoved(ComponentEvent e) {}
-	/**
-	 * Does nothing. Just to satisfy ComponentListener.
-	 */
-	public void componentShown(ComponentEvent e) {}
-	/**
-	 * Does nothing. Just to satisfy ComponentListener.
-	 */
-	public void componentHidden(ComponentEvent e) {}
 
+	// Event handling functions and data
+	
+	/**
+	 * The event list with all state chaned listener
+	 */
+	List<ChangeListener> listener = new LinkedList<ChangeListener>();
+	/**
+	 * Add an event listener to the state changed event queue. If passed 
+	 * <code>null</code>, nothing happens.
+	 */
+	public final void addChangeListener(ChangeListener l) {
+		if (l != null)
+			listener.add(l);
+	}
+	/**
+	 * Remove an event listener from the event queue. If passed 
+	 * <code>null</code>, nothing happens.
+	 */
+	public final void removeChangeListener(ChangeListener l) {
+		listener.remove(l);
+	}
+	/**
+	 * Fires an ChangeEvent. Occours, when an non-data value changed, as example
+	 * the autoScale - state or the center. Is not fired, dataSet internal things
+	 * changes.
+	 */
+	public final void fireStateChanged() {
+		ChangeEvent e = null;
+		for(ChangeListener l : listener) {
+			if (e == null)
+				e = new ChangeEvent(this);
+			l.stateChanged(e);
+		}
+	}
+	
 	/**
 	 * Notify from the projection, that something has changed.
 	 * @param e
@@ -362,4 +430,17 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 	public GeoPoint getCenter() {
 		return center.clone();
 	}
+
+	/**
+	 * Does nothing. Just to satisfy ComponentListener.
+	 */
+	public void componentMoved(ComponentEvent e) {}
+	/**
+	 * Does nothing. Just to satisfy ComponentListener.
+	 */
+	public void componentShown(ComponentEvent e) {}
+	/**
+	 * Does nothing. Just to satisfy ComponentListener.
+	 */
+	public void componentHidden(ComponentEvent e) {}
 }

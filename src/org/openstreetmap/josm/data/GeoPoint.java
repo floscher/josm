@@ -1,6 +1,7 @@
 package org.openstreetmap.josm.data;
 
 
+
 /**
  * An point holding latitude/longitude and their corresponding north/east values, 
  * which may not be initialized.
@@ -63,6 +64,18 @@ public class GeoPoint implements Cloneable {
 	@Override
 	public int hashCode() {
 		return super.hashCode();
+	}
+
+	/**
+	 * Return the squared distance of the northing/easting values between 
+	 * this and the argument.
+	 *
+	 * @param other The other point to calculate the distance to.
+	 * @return The square of the distance between this and the other point,
+	 * 		regarding to the x/y values.
+	 */
+	public double distanceXY(GeoPoint other) {
+		return (x-other.x)*(x-other.x)+(y-other.y)*(y-other.y);
 	}
 	
 	
