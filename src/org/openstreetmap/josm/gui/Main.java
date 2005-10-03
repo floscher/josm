@@ -141,7 +141,8 @@ public class Main extends JFrame {
 		panel.setVisible(false);
 		panel.removeAll();
 		panel.add(mapFrame, BorderLayout.CENTER);
-		panel.add(mapFrame.getToolBarActions(), BorderLayout.WEST);
+		panel.add(mapFrame.toolBarActions, BorderLayout.WEST);
+		panel.add(mapFrame.statusLine, BorderLayout.SOUTH);
 		panel.setVisible(true);
 	}
 	/**

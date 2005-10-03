@@ -89,33 +89,6 @@ public class Track extends OsmPrimitive {
 	}
 
 	/**
-	 * Tracks are equal, when all segments and the keys are equal
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof Track))
-			return false;
-		if (!super.equals(obj))
-			return false;
-		Track t = (Track)obj;
-		int size = segments.size();
-		if (size != t.segments.size())
-			return false;
-		for (int i = 0; i < size; ++i)
-			if (!segments.get(i).equals(t.segments.get(i)))
-				return false;
-		return true;
-	}
-
-	@Override
-	public int hashCode() {
-		int hash = super.hashCode();
-		for (LineSegment ls : segments)
-			hash += ls.hashCode();
-		return hash;
-	}
-
-	/**
 	 * Return the last node in the track. This is the node, which no line segment
 	 * has as start, but at least one has it as end. If there are not exact one
 	 * such nodes found, <code>null</code> is returned.

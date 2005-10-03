@@ -12,11 +12,12 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
-import org.jdom.JDOMException;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.gui.Main;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.io.GpxReader;
+import org.openstreetmap.josm.io.DataReader.ConnectionException;
+import org.openstreetmap.josm.io.DataReader.ParseException;
 
 /**
  * Open a file chooser dialog and select an file to import. Than call the gpx-import
@@ -52,15 +53,18 @@ public class OpenGpxAction extends AbstractAction {
 			return;
 		
 		try {
-			DataSet dataSet = new GpxReader().parse(new FileReader(gpxFile));
+			DataSet dataSet = new GpxReader(new FileReader(gpxFile)).parse();
 			MapFrame map = new MapFrame(dataSet);
 			Main.main.setMapFrame(gpxFile.getName(), map);
-		} catch (JDOMException x) {
+		} catch (ParseException x) {
 			x.printStackTrace();
-			JOptionPane.showMessageDialog(Main.main, "Illegal GPX document:\n"+x.getMessage());
+			JOptionPane.showMessageDialog(Main.main, x.getMessage());
 		} catch (IOException x) {
 			x.printStackTrace();
-			JOptionPane.showMessageDialog(Main.main, "Could not read '"+gpxFile.getName()+"':\n"+x.getMessage());
+			JOptionPane.showMessageDialog(Main.main, "Could not read '"+gpxFile.getName()+"'\n"+x.getMessage());
+		} catch (ConnectionException x) {
+			x.printStackTrace();
+			JOptionPane.showMessageDialog(Main.main, x.getMessage());
 		}
 	}
 }

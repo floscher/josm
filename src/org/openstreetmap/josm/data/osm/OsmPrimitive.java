@@ -67,29 +67,6 @@ abstract public class OsmPrimitive {
 	}
 	
 	/**
-	 * Osm primitives are equal, when their keys are equal. 
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null)
-			return false;
-		if (!(obj instanceof OsmPrimitive))
-			return false;
-		OsmPrimitive osm = (OsmPrimitive)obj;
-		if (keys == null)
-			return osm.keys == null;
-		return keys.equals(osm.keys);
-	}
-
-	/**
-	 * Compute the hashCode from the keys.
-	 */
-	@Override
-	public int hashCode() {
-		return keys == null ? 0 : keys.hashCode();
-	}
-
-	/**
 	 * Mark the primitive as selected or not selected and fires a selection 
 	 * changed later, if the value actualy changed.
 	 * @param selected Whether the primitive should be selected or not.

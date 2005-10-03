@@ -47,26 +47,6 @@ public class GeoPoint implements Cloneable {
 	}
 
 	/**
-	 * GeoPoints are equal, if their lat/lon are equal or, if lat or lon are NaN, 
-	 * if their x/y are equal.
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof GeoPoint))
-			return false;
-		GeoPoint gp = (GeoPoint)obj;
-		
-		if (Double.isNaN(lat) || Double.isNaN(lon))
-			return x == gp.x && y == gp.y;
-		return lat == gp.lat && lon == gp.lon;
-	}
-
-	@Override
-	public int hashCode() {
-		return super.hashCode();
-	}
-
-	/**
 	 * Return the squared distance of the northing/easting values between 
 	 * this and the argument.
 	 *

@@ -56,21 +56,6 @@ public class Key extends OsmPrimitive {
 		return new LinkedList<Node>();
 	}
 
-	/**
-	 * Keys are equal, when their name is equal, regardless of their other keys.
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof Key))
-			return false;
-		return name.equals(((Key)obj).name);
-	}
-
-	@Override
-	public int hashCode() {
-		return name.hashCode();
-	}
-
 	@Override
 	public void visit(Visitor visitor) {
 		visitor.visit(this);

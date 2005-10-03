@@ -46,7 +46,11 @@ public class MapFrame extends JPanel {
 	/**
 	 * The toolbar with the action icons
 	 */
-	private JToolBar toolBarActions = new JToolBar(JToolBar.VERTICAL);
+	public JToolBar toolBarActions = new JToolBar(JToolBar.VERTICAL);
+	/**
+	 * The status line below the map
+	 */
+	public MapStatus statusLine;
 
 	/**
 	 * Construct a map with a given DataSet. The set cannot be replaced after construction
@@ -76,7 +80,7 @@ public class MapFrame extends JPanel {
 			toolGroup.add((AbstractButton)c);
 		toolGroup.setSelected(((AbstractButton)toolBarActions.getComponent(0)).getModel(), true);
 		selectMapMode((MapMode)((AbstractButton)toolBarActions.getComponent(0)).getAction());
-		
+
 		// autoScale
 		toolBarActions.addSeparator();
 		final JToggleButton autoScaleButton = new IconToggleButton(this, mapView.new AutoScaleAction());
@@ -92,7 +96,7 @@ public class MapFrame extends JPanel {
 
 		// properties
 		toolBarActions.add(new IconToggleButton(this, new PropertiesDialog(this)));
-		
+
 		// selection dialog
 		SelectionListDialog selectionList = new SelectionListDialog(dataSet);
 		final IconToggleButton buttonSelection = new IconToggleButton(this, selectionList);
@@ -103,6 +107,9 @@ public class MapFrame extends JPanel {
 			}
 		});
 		toolBarActions.add(buttonSelection);
+
+		// status line below the map
+		statusLine = new MapStatus(mapView);
 	}
 
 	/**
@@ -115,12 +122,5 @@ public class MapFrame extends JPanel {
 			this.mapMode.unregisterListener();
 		this.mapMode = mapMode;
 		mapMode.registerListener();
-	}
-
-	/**
-	 * @return Returns the toolBarActions.
-	 */
-	public JToolBar getToolBarActions() {
-		return toolBarActions;
 	}
 }
