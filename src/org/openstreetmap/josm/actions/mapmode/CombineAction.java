@@ -135,7 +135,7 @@ public class CombineAction extends MapMode {
 		if (e.getButton() != MouseEvent.BUTTON1)
 			return;
 
-		if (first == null || second == null) {
+		if (first == null || second == null || first == second) {
 			first = null;
 			second = null;
 			return;
@@ -159,12 +159,12 @@ public class CombineAction extends MapMode {
 					t1 = t2;
 					t2 = (Track)first;
 				}
-				t1.segments.addAll(t2.segments);
+				t1.addAll(t2.segments());
 				if (t1.keys == null)
 					t1.keys = t2.keys;
 				else	
 					t1.keys.putAll(t2.keys);
-				ds.tracks.remove(t2);
+				ds.removeTrack(t2);
 			}
 		}
 		mv.repaint();
@@ -177,14 +177,10 @@ public class CombineAction extends MapMode {
 	 * @param t The track to add the line segment to
 	 */
 	private void combine(LineSegment ls, Track t) {
-		if (!ds.pendingLineSegments.contains(first))
+		if (!ds.pendingLineSegments().contains(ls))
 			throw new IllegalStateException("Should not be able to select non-pending line segments.");
 		
-		if (t.getStartingNode() == ls.end)
-			t.segments.add(0, ls);
-		else
-			t.segments.add(ls);
-		ds.pendingLineSegments.remove(ls);
+		ds.assignPendingLineSegment(ls, t, t.getStartingNode() != ls.getEnd());
 	}
 
 	/**
@@ -202,7 +198,8 @@ public class CombineAction extends MapMode {
 			return;
 
 		Graphics g = mv.getGraphics();
-		g.setColor(draw ? Color.WHITE : Color.GRAY); // HACK
+		g.setColor(Color.BLACK);
+		g.setXORMode(Color.WHITE);
 		draw(g, first);
 		draw(g, second);
 		combineHintDrawn = !combineHintDrawn;
@@ -216,17 +213,14 @@ public class CombineAction extends MapMode {
 	private void draw(Graphics g, OsmPrimitive osm) {
 		if (osm instanceof LineSegment) {
 			LineSegment ls = (LineSegment)osm;
-			Point start = mv.getScreenPoint(ls.start.coor);
-			Point end = mv.getScreenPoint(ls.end.coor);
-			if (mv.dataSet.pendingLineSegments.contains(osm) && g.getColor() == Color.GRAY) {
-				// HACK
-				g.setColor(Color.LIGHT_GRAY);
+			Point start = mv.getScreenPoint(ls.getStart().coor);
+			Point end = mv.getScreenPoint(ls.getEnd().coor);
+			if (mv.dataSet.pendingLineSegments().contains(osm) && g.getColor() == Color.GRAY)
 				g.drawLine(start.x, start.y, end.x, end.y);
-				g.setColor(Color.GRAY);
-			} else
+			else
 				g.drawLine(start.x, start.y, end.x, end.y);
 		} else if (osm instanceof Track) {
-			for (LineSegment ls : ((Track)osm).segments)
+			for (LineSegment ls : ((Track)osm).segments())
 				draw(g, ls);
 		}
 	}

@@ -1,16 +1,11 @@
 package org.openstreetmap.josm.gui;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
@@ -26,6 +21,8 @@ import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Track;
 import org.openstreetmap.josm.data.projection.Projection;
+import org.openstreetmap.josm.gui.engine.Engine;
+import org.openstreetmap.josm.gui.engine.SimpleEngine;
 
 /**
  * This is a component used in the MapFrame for browsing the map. It use is to
@@ -80,6 +77,10 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 	 */
 	public final DataSet dataSet;
 
+	/**
+	 * The drawing engine.
+	 */
+	private Engine engine;
 	
 	/**
 	 * Construct a MapView and attach it to a frame.
@@ -93,6 +94,9 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 		
 		// initialize the projection
 		setProjection(Main.pref.projection.clone());
+		
+		// initialize the engine
+		engine = new SimpleEngine(this);
 	}
 
 	/**
@@ -135,7 +139,9 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 			p = point.clone();
 			projection.latlon2xy(p);
 		}
-		return new Point(toScreenX(p.x), toScreenY(p.y));
+		int x = ((int)Math.round((p.x-center.x) / scale + getWidth()/2));
+		int y = ((int)Math.round((center.y-p.y) / scale + getHeight()/2));
+		return new Point(x,y);
 	}
 
 	/**
@@ -178,9 +184,9 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 			return minPrimitive;
 		
 		// pending line segments
-		for (LineSegment ls : dataSet.pendingLineSegments) {
-			Point A = getScreenPoint(ls.start.coor);
-			Point B = getScreenPoint(ls.end.coor);
+		for (LineSegment ls : dataSet.pendingLineSegments()) {
+			Point A = getScreenPoint(ls.getStart().coor);
+			Point B = getScreenPoint(ls.getEnd().coor);
 			double c = A.distanceSq(B);
 			double a = p.distanceSq(B);
 			double b = p.distanceSq(A);
@@ -193,10 +199,10 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 
 		// tracks & line segments
 		minDistanceSq = Double.MAX_VALUE;
-		for (Track t : dataSet.tracks) {
-			for (LineSegment ls : t.segments) {
-				Point A = getScreenPoint(ls.start.coor);
-				Point B = getScreenPoint(ls.end.coor);
+		for (Track t : dataSet.tracks()) {
+			for (LineSegment ls : t.segments()) {
+				Point A = getScreenPoint(ls.getStart().coor);
+				Point B = getScreenPoint(ls.getEnd().coor);
 				double c = A.distanceSq(B);
 				double a = p.distanceSq(B);
 				double b = p.distanceSq(A);
@@ -212,7 +218,6 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 		
 		// TODO areas
 		
-		
 		return null; // nothing found
 	}
 
@@ -223,12 +228,21 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 	 * @param scale The scale to use.
 	 */
 	public void zoomTo(GeoPoint newCenter, double scale) {
+		boolean oldAutoScale = autoScale;
+		GeoPoint oldCenter = center;
+		double oldScale = this.scale;
+		
 		autoScale = false;
 		center = newCenter.clone();
 		projection.xy2latlon(center);
 		this.scale = scale;
 		recalculateCenterScale();
-		fireStateChanged(); // in case of autoScale, recalculate fired.
+
+		firePropertyChange("center", oldCenter, center);
+		if (oldAutoScale != autoScale)
+			firePropertyChange("autoScale", oldAutoScale, autoScale);
+		if (oldScale != scale)
+			firePropertyChange("scale", oldScale, scale);
 	}
 	
 	/**
@@ -253,6 +267,11 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 			if (h < 20)
 				h = 20;
 			Bounds bounds = dataSet.getBoundsXY();
+			
+			boolean oldAutoScale = autoScale;
+			GeoPoint oldCenter = center;
+			double oldScale = this.scale;
+			
 			if (bounds == null) {
 				// no bounds means standard scale and center 
 				center = new GeoPoint(51.526447, -0.14746371);
@@ -265,7 +284,12 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 				double scaleY = (bounds.max.y-bounds.min.y)/h;
 				scale = Math.max(scaleX, scaleY); // minimum scale to see all of the screen
 			}
-			fireStateChanged();
+
+			firePropertyChange("center", oldCenter, center);
+			if (oldAutoScale != autoScale)
+				firePropertyChange("autoScale", oldAutoScale, autoScale);
+			if (oldScale != scale)
+				firePropertyChange("scale", oldScale, scale);
 		}
 		repaint();
 	}
@@ -282,98 +306,17 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 	 */
 	@Override
 	public void paint(Graphics g) {
-		// empty out everything
-		g.setColor(Color.BLACK);
-		g.fillRect(0,0,getWidth(),getHeight());
+		engine.init(g);
+		engine.drawBackground(getPoint(0,0,true), getPoint(getWidth(), getHeight(), true));
 
-		// draw tracks
-		if (dataSet.tracks != null)
-			for (Track track : dataSet.tracks)
-				for (LineSegment ls : track.segments) {
-					g.setColor(ls.selected || track.selected ? Color.WHITE : Color.GRAY);
-					g.drawLine(toScreenX(ls.start.coor.x), toScreenY(ls.start.coor.y),
-							toScreenX(ls.end.coor.x), toScreenY(ls.end.coor.y));
-				}
-
-		// draw pending line segments
-		for (LineSegment ls : dataSet.pendingLineSegments) {
-			g.setColor(ls.selected ? Color.WHITE : Color.LIGHT_GRAY);
-			g.drawLine(toScreenX(ls.start.coor.x), toScreenY(ls.start.coor.y),
-					toScreenX(ls.end.coor.x), toScreenY(ls.end.coor.y));
-		}
-
-		// draw nodes
-		Set<Integer> alreadyDrawn = new HashSet<Integer>();
-		int width = getWidth();
-		for (Node w : dataSet.nodes) {
-			g.setColor(w.selected ? Color.WHITE : Color.RED);
-			int x = toScreenX(w.coor.x);
-			int y = toScreenY(w.coor.y);
-			int size = 3;
-			if (alreadyDrawn.contains(y*width+x)) {
-				size = 7;
-				x -= 2;
-				y -= 2;
-			} else
-				alreadyDrawn.add(y*width+x);
-			g.drawArc(x, y, size, size, 0, 360);
-		}
+		for (Track t : dataSet.tracks())
+			engine.drawTrack(t);
+		for (LineSegment ls : dataSet.pendingLineSegments())
+			engine.drawPendingLineSegment(ls);
+		for (Node n : dataSet.nodes)
+			engine.drawNode(n);
 	}
 
-	/**
-	 * Return the x-screen coordinate for the given point.
-	 * @param x The X-position (easting) of the desired point
-	 * @return The screen coordinate for the point.
-	 */
-	public int toScreenX(double x) {
-		return (int)Math.round((x-center.x) / scale + getWidth()/2);
-	}
-
-	/**
-	 * Return the y-screen coordinate for the given point.
-	 * @param y The Y-position (northing) of the desired point
-	 * @return The screen coordinate for the point.
-	 */
-	public int toScreenY(double y) {
-		return (int)Math.round((center.y-y) / scale + getHeight()/2);
-	}
-
-
-	// Event handling functions and data
-	
-	/**
-	 * The event list with all state chaned listener
-	 */
-	List<ChangeListener> listener = new LinkedList<ChangeListener>();
-	/**
-	 * Add an event listener to the state changed event queue. If passed 
-	 * <code>null</code>, nothing happens.
-	 */
-	public final void addChangeListener(ChangeListener l) {
-		if (l != null)
-			listener.add(l);
-	}
-	/**
-	 * Remove an event listener from the event queue. If passed 
-	 * <code>null</code>, nothing happens.
-	 */
-	public final void removeChangeListener(ChangeListener l) {
-		listener.remove(l);
-	}
-	/**
-	 * Fires an ChangeEvent. Occours, when an non-data value changed, as example
-	 * the autoScale - state or the center. Is not fired, dataSet internal things
-	 * changes.
-	 */
-	public final void fireStateChanged() {
-		ChangeEvent e = null;
-		for(ChangeListener l : listener) {
-			if (e == null)
-				e = new ChangeEvent(this);
-			l.stateChanged(e);
-		}
-	}
-	
 	/**
 	 * Notify from the projection, that something has changed.
 	 * @param e
@@ -392,11 +335,16 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 	public void setProjection(Projection projection) {
 		if (projection == this.projection)
 			return;
+
+		Projection oldProjection = this.projection;
+		
 		if (this.projection != null)
 			this.projection.removeChangeListener(this);
 		this.projection = projection;
 		projection.addChangeListener(this);
+		
 		stateChanged(new ChangeEvent(this));
+		firePropertyChange("projection", oldProjection, projection);
 	}
 
 	/**
@@ -420,7 +368,7 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 	public void setAutoScale(boolean autoScale) {
 		if (this.autoScale != autoScale) {
 			this.autoScale = autoScale;
-			fireStateChanged();
+			firePropertyChange("autoScale", !autoScale, autoScale);
 		}
 	}
 	/**

@@ -2,7 +2,10 @@ package org.openstreetmap.josm.data.osm;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+
+import org.openstreetmap.josm.data.osm.visitor.Visitor;
 
 /**
  * One full track, consisting of several track segments chained together.
@@ -14,7 +17,54 @@ public class Track extends OsmPrimitive {
 	/**
 	 * All track segments in this track
 	 */
-	public final List<LineSegment> segments = new ArrayList<LineSegment>();
+	private final List<LineSegment> segments = new ArrayList<LineSegment>();
+
+	
+	/**
+	 * Add the line segment to the track.
+	 */
+	public void add(LineSegment ls) {
+		segments.add(ls);
+		ls.parent.add(this);
+	}
+
+	/**
+	 * Add the line segment at first position to the track. First position means,
+	 * the line segment's start becomes the starting node.
+	 * @param ls The line segment to add at starting position.
+	 * @see #getStartingNode()
+	 */
+	public void addStart(LineSegment ls) {
+		segments.add(ls);
+		ls.parent.add(this);
+	}
+
+	/**
+	 * Add all LineSegment's to the list of segments. 
+	 * @param lineSegments The line segments to add.
+	 */
+	public void addAll(Collection<? extends LineSegment> lineSegments) {
+		segments.addAll(lineSegments);
+		for (LineSegment ls : lineSegments)
+			ls.parent.add(this);
+	}
+	
+	/**
+	 * Remove the line segment from the track.
+	 */
+	public void remove(LineSegment ls) {
+		if (segments.remove(ls))
+			if (!ls.parent.remove(this))
+				throw new IllegalStateException("Parent violation detected.");
+	}
+
+	/**
+	 * Return an read-only collection. Do not alter the object returned.
+	 * @return The read-only Collection of all segments.
+	 */
+	public Collection<LineSegment> segments() {
+		return Collections.unmodifiableCollection(segments);
+	}
 
 	/**
 	 * Return a merge of getAllNodes - calls to the line segments.
@@ -25,6 +75,17 @@ public class Track extends OsmPrimitive {
 		for (LineSegment ls : segments)
 			nodes.addAll(ls.getAllNodes());
 		return nodes;
+	}
+	/**
+	 * The track is going to be destroyed. Unlink all back references.
+	 */
+	void destroy() {
+		for (LineSegment ls : segments) {
+			ls.parent.remove(this);
+			if (ls.parent.isEmpty())
+				ls.destroy();
+		}
+		segments.clear();
 	}
 
 	/**
@@ -66,7 +127,17 @@ public class Track extends OsmPrimitive {
 	public Node getEndingNode() {
 		if (segments.isEmpty())
 			return null;
-		return segments.get(segments.size()-1).end;
+		return segments.get(segments.size()-1).getEnd();
+	}
+	
+	/**
+	 * Return the last segment.
+	 * @see #getEndingNode()
+	 */
+	public LineSegment getEndingSegment() {
+		if (segments.isEmpty())
+			return null;
+		return segments.get(segments.size()-1);
 	}
 
 	/**
@@ -81,6 +152,21 @@ public class Track extends OsmPrimitive {
 	public Node getStartingNode() {
 		if (segments.isEmpty())
 			return null;
-		return segments.get(0).start;
+		return segments.get(0).getStart();
+	}
+	
+	/**
+	 * Return the first segment.
+	 * @see #getStartingNode()
+	 */
+	public LineSegment getStartingSegment() {
+		if (segments.isEmpty())
+			return null;
+		return segments.get(0);
+	}
+
+	@Override
+	public void visit(Visitor visitor) {
+		visitor.visit(this);
 	}
 }

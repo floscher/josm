@@ -2,27 +2,16 @@ package org.openstreetmap.josm.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
-import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.border.Border;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import org.openstreetmap.josm.actions.mapmode.AddLineSegmentAction;
 import org.openstreetmap.josm.actions.mapmode.AddNodeAction;
@@ -34,9 +23,9 @@ import org.openstreetmap.josm.actions.mapmode.MapMode;
 import org.openstreetmap.josm.actions.mapmode.MoveAction;
 import org.openstreetmap.josm.actions.mapmode.SelectionAction;
 import org.openstreetmap.josm.actions.mapmode.ZoomAction;
-import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.projection.Projection;
+import org.openstreetmap.josm.gui.dialogs.PropertiesDialog;
+import org.openstreetmap.josm.gui.dialogs.SelectionListDialog;
 
 /**
  * One Map frame with one dataset behind. This is the container gui class whose
@@ -45,66 +34,6 @@ import org.openstreetmap.josm.data.projection.Projection;
  * @author imi
  */
 public class MapFrame extends JPanel {
-
-	/**
-	 * Open the properties page
-	 * @author imi
-	 */
-	public class PropertiesAction extends AbstractAction {
-		private JDialog dlg;
-		public PropertiesAction() {
-			super("Properties", new ImageIcon("images/properties.png"));
-			putValue(MNEMONIC_KEY, KeyEvent.VK_P);
-		}
-		public void actionPerformed(ActionEvent e) {
-			if (dlg != null) {
-				dlg.setVisible(true);
-				dlg.requestFocus();
-				return;
-			}
-			dlg = new JDialog(Main.main, "Properties of "+Main.main.getNameOfLoadedMapFrame(), false);
-			final Border panelBorder = BorderFactory.createEmptyBorder(5,0,0,0);
-			Box panel = Box.createVerticalBox();
-
-			// making an array of all projections and the current one within
-			Projection[] allProjections = Preferences.allProjections.clone();
-			for (int i = 0; i < allProjections.length; ++i)
-				if (allProjections[i].getClass() == mapView.getProjection().getClass())
-					allProjections[i] = mapView.getProjection();
-			
-			// projection
-			Box projectionPanel = Box.createHorizontalBox();
-			projectionPanel.setBorder(panelBorder);
-			projectionPanel.add(new JLabel("Projection"));
-			final JComboBox projectionCombo = new JComboBox(allProjections);
-			projectionPanel.add(projectionCombo);
-			panel.add(projectionPanel);
-			final JPanel configurationPanel = new JPanel();
-			configurationPanel.setLayout(new BoxLayout(configurationPanel, BoxLayout.X_AXIS));
-			
-			// projections details
-			projectionCombo.addActionListener(new ActionListener(){
-				public void actionPerformed(ActionEvent e) {
-					configurationPanel.removeAll();
-					mapView.setProjection((Projection)projectionCombo.getSelectedItem());
-					JComponent panel = mapView.getProjection().getConfigurationPanel();
-					if (panel != null) {
-						panel.setBorder(panelBorder);
-						configurationPanel.add(panel);
-					}
-					dlg.pack();
-				}
-			});
-			panel.add(configurationPanel);
-			projectionCombo.setSelectedItem(mapView.getProjection());
-			
-			panel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-			dlg.setContentPane(panel);
-			dlg.pack();
-			dlg.setResizable(false);
-			dlg.setVisible(true);
-		}
-	}
 
 	/**
 	 * The current mode, this frame operates.
@@ -154,14 +83,26 @@ public class MapFrame extends JPanel {
 		toolBarActions.add(autoScaleButton);
 		autoScaleButton.setText(null);
 		autoScaleButton.setSelected(mapView.isAutoScale());
-		mapView.addChangeListener(new ChangeListener(){
-			public void stateChanged(ChangeEvent e) {
-				autoScaleButton.setSelected(mapView.isAutoScale());
+		mapView.addPropertyChangeListener(new PropertyChangeListener(){
+			public void propertyChange(PropertyChangeEvent evt) {
+				if (evt.getPropertyName().equals("autoScale"))
+					autoScaleButton.setSelected(mapView.isAutoScale());
 			}
 		});
 
 		// properties
-		toolBarActions.add(new IconToggleButton(this, new PropertiesAction()));
+		toolBarActions.add(new IconToggleButton(this, new PropertiesDialog(this)));
+		
+		// selection dialog
+		SelectionListDialog selectionList = new SelectionListDialog(dataSet);
+		final IconToggleButton buttonSelection = new IconToggleButton(this, selectionList);
+		selectionList.addWindowListener(new WindowAdapter(){
+			@Override
+			public void windowClosing(WindowEvent e) {
+				buttonSelection.setSelected(false);
+			}
+		});
+		toolBarActions.add(buttonSelection);
 	}
 
 	/**

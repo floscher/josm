@@ -2,7 +2,6 @@ package org.openstreetmap.josm.io;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -45,7 +44,7 @@ public class GpxReader {
 		}
 	}
 
-	
+
 	/**
 	 * Read one node (waypoint).
 	 * @param e 	The element to parse
@@ -82,14 +81,12 @@ public class GpxReader {
 						start = node;
 					else {
 						LineSegment lineSegment = new LineSegment(start, node);
-						track.segments.add(lineSegment);
+						track.add(lineSegment);
 						start = null;
 					}
 				}
 			}
-			if (data.tracks == null)
-				data.tracks = new ArrayList<Track>();
-			data.tracks.add(track);
+			data.addTrack(track);
 		}
 
 		return data;

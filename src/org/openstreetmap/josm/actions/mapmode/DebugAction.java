@@ -47,10 +47,10 @@ public class DebugAction extends MapMode {
 	public void mouseClicked(MouseEvent e) {
 		Graphics g = mapFrame.mapView.getGraphics();
 		g.setColor(Color.WHITE);
-		for (Track t :mapFrame.mapView.dataSet.tracks)
-			for (LineSegment ls : t.segments) {
-				Point A = mapFrame.mapView.getScreenPoint(ls.start.coor);
-				Point B = mapFrame.mapView.getScreenPoint(ls.end.coor);
+		for (Track t :mapFrame.mapView.dataSet.tracks())
+			for (LineSegment ls : t.segments()) {
+				Point A = mapFrame.mapView.getScreenPoint(ls.getStart().coor);
+				Point B = mapFrame.mapView.getScreenPoint(ls.getEnd().coor);
 				Point C = e.getPoint();
 				Rectangle r = new Rectangle(A.x, A.y, B.x-A.x, B.y-A.y);
 				double dist = perpendicularDistSq(B.distanceSq(C), A.distanceSq(C), A.distanceSq(B));

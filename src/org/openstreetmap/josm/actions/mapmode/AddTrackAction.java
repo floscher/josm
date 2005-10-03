@@ -79,7 +79,7 @@ public class AddTrackAction extends MapMode implements SelectionEnded {
 
 		Collection<OsmPrimitive> selectionList = selectionManager.getObjectsInRectangle(r,alt);
 		for (OsmPrimitive osm : selectionList)
-			osm.selected = !ctrl;
+			osm.setSelected(!ctrl, ds);
 
 		mv.repaint(); // from now on, the map has to be repainted.
 
@@ -94,14 +94,14 @@ public class AddTrackAction extends MapMode implements SelectionEnded {
 		LinkedList<LineSegment> lineSegments = new LinkedList<LineSegment>();
 		for (OsmPrimitive osm : selection) {
 			if (osm instanceof Track)
-				lineSegments.addAll(((Track)osm).segments);
+				lineSegments.addAll(((Track)osm).segments());
 			else if (osm instanceof LineSegment)
 				lineSegments.add((LineSegment)osm);
 		}
 		Track t = new Track();
-		t.segments.addAll(lineSegments);
-		ds.tracks.add(t);
-		ds.pendingLineSegments.removeAll(lineSegments);
+		for (LineSegment ls : lineSegments)
+			ds.assignPendingLineSegment(ls, t, true);
+		ds.addTrack(t);
 		ds.clearSelection();
 	}
 }

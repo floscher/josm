@@ -4,7 +4,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 
 import javax.swing.JOptionPane;
@@ -132,19 +132,19 @@ public class DeleteAction extends MapMode {
 
 		if (osm instanceof Node) {
 			// delete any track and line segment the node is in.
-			for (Track t : ds.tracks)
-				for (LineSegment ls : t.segments)
-					if (ls.start == osm || ls.end == osm)
+			for (Track t : ds.tracks())
+				for (LineSegment ls : t.segments())
+					if (ls.getStart() == osm || ls.getEnd() == osm)
 						tracksToDelete.add(t);
-			for (LineSegment ls : ds.pendingLineSegments)
-				if (ls.start == osm || ls.end == osm)
+			for (LineSegment ls : ds.pendingLineSegments())
+				if (ls.getStart() == osm || ls.getEnd() == osm)
 					lineSegmentsToDelete.add(ls);
 				
 		} else if (osm instanceof LineSegment) {
 			LineSegment lineSegment = (LineSegment)osm;
 			lineSegmentsToDelete.add(lineSegment);
-			for (Track t : ds.tracks)
-				for (LineSegment ls : t.segments)
+			for (Track t : ds.tracks())
+				for (LineSegment ls : t.segments())
 					if (lineSegment == ls)
 						tracksToDelete.add(t);
 		} else if (osm instanceof Track) {
@@ -153,19 +153,21 @@ public class DeleteAction extends MapMode {
 		// collect all nodes, that could be unreferenced after deletion
 		ArrayList<Node> checkUnreferencing = new ArrayList<Node>();
 		for (Track t : tracksToDelete) {
-			for (LineSegment ls : t.segments) {
-				checkUnreferencing.add(ls.start);
-				checkUnreferencing.add(ls.end);
+			for (LineSegment ls : t.segments()) {
+				checkUnreferencing.add(ls.getStart());
+				checkUnreferencing.add(ls.getEnd());
 			}
 		}
 		for (LineSegment ls : lineSegmentsToDelete) {
-			checkUnreferencing.add(ls.start);
-			checkUnreferencing.add(ls.end);
+			checkUnreferencing.add(ls.getStart());
+			checkUnreferencing.add(ls.getEnd());
 		}
 		
 		// delete tracks and areas
-		ds.tracks.removeAll(tracksToDelete);
-		ds.pendingLineSegments.removeAll(lineSegmentsToDelete);
+		for (Track t : tracksToDelete)
+			ds.removeTrack(t);
+		for (LineSegment ls : lineSegmentsToDelete)
+			ds.destroyPendingLineSegment(ls);
 
 		// removing all unreferenced nodes
 		for (Node n : checkUnreferencing) {
@@ -197,16 +199,19 @@ public class DeleteAction extends MapMode {
 			// now, the node isn't referenced anymore, so delete it.
 			ds.nodes.remove(n);
 		} else if (osm instanceof LineSegment) {
-			for (Iterator<Track> it = ds.tracks.iterator(); it.hasNext();) {
-				Track t = it.next();
-				t.segments.remove(osm);
-				if (t.segments.isEmpty())
-					it.remove();
+			LinkedList<Track> tracksToDelete = new LinkedList<Track>();
+			for (Track t : ds.tracks()) {
+				t.remove((LineSegment)osm);
+				if (t.segments().isEmpty())
+					tracksToDelete.add(t);
 			}
-			ds.pendingLineSegments.remove(osm);
+			for (Track t : tracksToDelete)
+				ds.removeTrack(t);
+			ds.destroyPendingLineSegment((LineSegment)osm);
 		} else if (osm instanceof Track) {
-			ds.tracks.remove(osm);
-			ds.pendingLineSegments.addAll(((Track)osm).segments);
+			ds.removeTrack((Track)osm);
+			for (LineSegment ls : ((Track)osm).segments())
+				ds.addPendingLineSegment(ls);
 		}
 	}
 
@@ -217,12 +222,12 @@ public class DeleteAction extends MapMode {
 	 * @return Whether the node is used by a track or area.
 	 */
 	private boolean isReferenced(Node n) {
-		for (Track t : ds.tracks)
-			for (LineSegment ls : t.segments)
-				if (ls.start == n || ls.end == n)
+		for (Track t : ds.tracks())
+			for (LineSegment ls : t.segments())
+				if (ls.getStart() == n || ls.getEnd() == n)
 					return true;
-		for (LineSegment ls : ds.pendingLineSegments)
-			if (ls.start == n || ls.end == n)
+		for (LineSegment ls : ds.pendingLineSegments())
+			if (ls.getStart() == n || ls.getEnd() == n)
 				return true;
 		// TODO areas
 		return false;
@@ -239,8 +244,8 @@ public class DeleteAction extends MapMode {
 	 */
 	private String combine(Node n) {
 		// first, check for pending line segments
-		for (LineSegment ls : ds.pendingLineSegments)
-			if (n == ls.start || n == ls.end)
+		for (LineSegment ls : ds.pendingLineSegments())
+			if (n == ls.getStart() || n == ls.getEnd())
 				return "Node used by a line segment which is not part of any track. Remove this first."; 
 		
 		// These line segments must be combined within the track combining
@@ -252,19 +257,19 @@ public class DeleteAction extends MapMode {
 		// two elements. The keys maps to the track, the line segments are in.
 		HashMap<ArrayList<LineSegment>, Track> lineSegments = new HashMap<ArrayList<LineSegment>, Track>();
 		
-		for (Track t : ds.tracks) {
+		for (Track t : ds.tracks()) {
 			ArrayList<LineSegment> current = new ArrayList<LineSegment>();
-			for (LineSegment ls : t.segments)
-				if (ls.start == n || ls.end == n)
+			for (LineSegment ls : t.segments())
+				if (ls.getStart() == n || ls.getEnd() == n)
 					current.add(ls);
 			if (!current.isEmpty()) {
 				if (current.size() > 2)
 					return "Node used by more than two line segments.";
 				if (current.size() == 1 && 
-						(current.get(0) == t.segments.get(0) || current.get(0) == t.segments.get(t.segments.size()-1)))
+						(current.get(0) == t.getStartingSegment() || current.get(0) == t.getEndingSegment()))
 					pendingLineSegmentsForTrack.add(current.get(0));
-				else if (current.get(0).end != current.get(1).start &&
-						current.get(1).end != current.get(0).start)
+				else if (current.get(0).getEnd() != current.get(1).getStart() &&
+						current.get(1).getEnd() != current.get(0).getStart())
 					return "Node used by line segments that points together.";
 				else if (!current.get(0).keyPropertiesMergable(current.get(1)))
 					return "Node used by line segments with different properties.";
@@ -275,8 +280,8 @@ public class DeleteAction extends MapMode {
 		
 		// try to combine tracks
 		ArrayList<Track> tracks = new ArrayList<Track>();
-		for (Track t : ds.tracks)
-			if (!t.segments.isEmpty() && (t.segments.get(0).start == n || t.segments.get(t.segments.size()-1).end == n))
+		for (Track t : ds.tracks())
+			if (t.getStartingNode() == n || t.getEndingNode() == n)
 				tracks.add(t);
 		if (!tracks.isEmpty()) {
 			if (tracks.size() > 2)
@@ -285,10 +290,10 @@ public class DeleteAction extends MapMode {
 				return "Node used by a track.";
 			Track t1 = tracks.get(0);
 			Track t2 = tracks.get(1);
-			if (t1.segments.get(0).start != t2.segments.get(t2.segments.size()-1).end &&
-					t2.segments.get(0).start != t1.segments.get(t1.segments.size()-1).end) {
-				if (t1.segments.get(0).start == t2.segments.get(t2.segments.size()-1).start ||
-						t1.segments.get(0).end == t2.segments.get(t2.segments.size()-1).end)
+			if (t1.getStartingNode() != t2.getEndingNode() &&
+					t2.getStartingNode() != t1.getEndingNode()) {
+				if (t1.getStartingNode() == t2.getStartingNode() ||
+						t1.getEndingNode() == t2.getEndingNode())
 					return "Node used by tracks that point together.";
 				return "Node used by tracks that cannot be combined.";
 			}
@@ -300,9 +305,9 @@ public class DeleteAction extends MapMode {
 		if (pendingLineSegmentsForTrack.size() == 2) {
 			LineSegment l1 = pendingLineSegmentsForTrack.get(0);
 			LineSegment l2 = pendingLineSegmentsForTrack.get(1);
-			if (l1.start == l2.start || l1.end == l2.end)
+			if (l1.getStart() == l2.getStart() || l1.getEnd() == l2.getEnd())
 				return "Node used by line segments that points together.";
-			if (l1.start == l2.end || l2.start == l1.end)
+			if (l1.getStart() == l2.getEnd() || l2.getStart() == l1.getEnd())
 				pendingLineSegmentsForTrack.clear(); // resolved.
 		}
 		
@@ -315,32 +320,32 @@ public class DeleteAction extends MapMode {
 		for (ArrayList<LineSegment> list : lineSegments.keySet()) {
 			LineSegment first = list.get(0);
 			LineSegment second = list.get(1);
-			if (first.start == second.end) {
+			if (first.getStart() == second.getEnd()) {
 				first = second;
 				second = list.get(0);
 			}
-			first.end = second.end;
+			first.setEnd(second.getEnd());
 			first.keys = mergeKeys(first.keys, second.keys);
-			lineSegments.get(list).segments.remove(second);
+			lineSegments.get(list).remove(second);
 		}
 		
 		// tracks
 		if (!tracks.isEmpty()) {
 			Track first = tracks.get(0);
 			Track second = tracks.get(1);
-			if (first.segments.get(0).start == second.segments.get(second.segments.size()-1).end) {
+			if (first.getStartingNode() == second.getEndingNode()) {
 				first = second;
 				second = tracks.get(0);
 			}
 			// concatenate the line segments.
-			LineSegment lastOfFirst = first.segments.get(first.segments.size()-1);
-			LineSegment firstOfSecond = second.segments.get(0);
-			lastOfFirst.end = firstOfSecond.end;
+			LineSegment lastOfFirst = first.getEndingSegment();
+			LineSegment firstOfSecond = second.getStartingSegment();
+			lastOfFirst.setEnd(firstOfSecond.getEnd());
 			lastOfFirst.keys = mergeKeys(lastOfFirst.keys, firstOfSecond.keys);
-			second.segments.remove(firstOfSecond);
+			second.remove(firstOfSecond);
 			// move the remaining line segments to first track.
-			first.segments.addAll(second.segments);
-			ds.tracks.remove(second);
+			first.addAll(second.segments());
+			ds.removeTrack(second);
 		}
 		
 		return null;

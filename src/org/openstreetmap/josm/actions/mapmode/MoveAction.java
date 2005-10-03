@@ -112,7 +112,7 @@ public class MoveAction extends MapMode {
 		if (ds.getSelected().size() == 0) {
 			OsmPrimitive osm = mv.getNearest(e.getPoint(), (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0);
 			if (osm != null)
-				osm.selected = true;
+				osm.setSelected(true, ds);
 			singleOsmPrimitive = osm;
 			mv.repaint();
 		} else
@@ -130,7 +130,7 @@ public class MoveAction extends MapMode {
 	public void mouseReleased(MouseEvent e) {
 		mv.setCursor(oldCursor);
 		if (singleOsmPrimitive != null) {
-			singleOsmPrimitive.selected = false;
+			singleOsmPrimitive.setSelected(false, ds);
 			mv.repaint();
 		}
 	}
