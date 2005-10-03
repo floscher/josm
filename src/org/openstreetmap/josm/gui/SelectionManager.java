@@ -136,11 +136,8 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 	 * If the correct button, start the "drawing rectangle" mode
 	 */
 	public void mousePressed(MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON1) {
-			mousePosStart = e.getPoint();
-			mousePos = e.getPoint();
-			paintRect();
-		}
+		if (e.getButton() == MouseEvent.BUTTON1)
+			mousePosStart = mousePos = e.getPoint();
 	}
 
 	/**
@@ -149,12 +146,10 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 	public void mouseDragged(MouseEvent e) {
 		int buttonPressed = e.getModifiersEx() & (MouseEvent.BUTTON1_DOWN_MASK | MouseEvent.BUTTON3_DOWN_MASK); 
 
+		
 		if (buttonPressed != 0) {
-			if (mousePosStart == null) {
-				mousePosStart = e.getPoint();
-				mousePos = e.getPoint();
-				paintRect();
-			}
+			if (mousePosStart == null)
+				mousePosStart = mousePos = e.getPoint();
 			paintRect();
 		}
 		
@@ -175,6 +170,9 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 	public void mouseReleased(MouseEvent e) {
 		if (e.getButton() != MouseEvent.BUTTON1)
 			return;
+		if (mousePos == null || mousePosStart == null)
+			return; // injected release from outside
+			
 		// disable the selection rect
 		paintRect();
 		Rectangle r = getSelectionRectangle();
@@ -194,6 +192,8 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 	 * it is removed instead.
 	 */
 	private void paintRect() {
+		if (mousePos == null || mousePosStart == null || mousePos == mousePosStart)
+			return;
 		Graphics g = mv.getGraphics();
 		g.setColor(Color.BLACK);
 		g.setXORMode(Color.WHITE);
@@ -243,7 +243,7 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 	 * If the action goes inactive, remove the selection rectangle from screen
 	 */
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt.getPropertyName() == "active" && !(Boolean)evt.getNewValue() && mousePosStart != null) {
+		if (evt.getPropertyName().equals("active") && !(Boolean)evt.getNewValue() && mousePosStart != null) {
 			paintRect();
 			mousePosStart = null;
 			mousePos = null;
@@ -276,14 +276,14 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 			}
 			
 			// pending line segments
-			for (LineSegment ls : mv.dataSet.pendingLineSegments)
+			for (LineSegment ls : mv.dataSet.pendingLineSegments())
 				if (rectangleContainLineSegment(r, alt, ls))
 					selection.add(ls);
 
 			// tracks
-			for (Track t : mv.dataSet.tracks) {
-				boolean wholeTrackSelected = t.segments.size() > 0;
-				for (LineSegment ls : t.segments)
+			for (Track t : mv.dataSet.tracks()) {
+				boolean wholeTrackSelected = !t.segments().isEmpty();
+				for (LineSegment ls : t.segments())
 					if (rectangleContainLineSegment(r, alt, ls))
 						selection.add(ls);
 					else
@@ -308,13 +308,13 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 	 */
 	private boolean rectangleContainLineSegment(Rectangle r, boolean alt, LineSegment ls) {
 		if (alt) {
-			Point p1 = mv.getScreenPoint(ls.start.coor);
-			Point p2 = mv.getScreenPoint(ls.end.coor);
+			Point p1 = mv.getScreenPoint(ls.getStart().coor);
+			Point p2 = mv.getScreenPoint(ls.getEnd().coor);
 			if (r.intersectsLine(p1.x, p1.y, p2.x, p2.y))
 				return true;
 		} else {
-			if (r.contains(mv.getScreenPoint(ls.start.coor))
-					&& r.contains(mv.getScreenPoint(ls.end.coor)))
+			if (r.contains(mv.getScreenPoint(ls.getStart().coor))
+					&& r.contains(mv.getScreenPoint(ls.getEnd().coor)))
 				return true;
 		}
 		return false;

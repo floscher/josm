@@ -90,7 +90,7 @@ public class SelectionAction extends MapMode implements SelectionEnded {
 
 		Collection<OsmPrimitive> selectionList = selectionManager.getObjectsInRectangle(r,alt);
 		for (OsmPrimitive osm : selectionList)
-			osm.selected = !ctrl;
+			osm.setSelected(!ctrl, ds);
 		mv.repaint();
 	}
 }

@@ -129,9 +129,9 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 		
 		if (start != end) {
 			// try to find a line segment
-			for (Track t : ds.tracks)
-				for (LineSegment ls : t.segments)
-					if (start == ls.start && end == ls.end) {
+			for (Track t : ds.tracks())
+				for (LineSegment ls : t.segments())
+					if (start == ls.getStart() && end == ls.getEnd()) {
 						JOptionPane.showMessageDialog(Main.main, "There is already an line segment with the same direction between the selected nodes.");
 						return;
 					}
@@ -141,23 +141,23 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 
 			if (((e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0)) {
 				// find a track for the new line segment
-				for (Track t : ds.tracks) {
+				for (Track t : ds.tracks()) {
 					if (t.getEndingNode() == start) {
-						t.segments.add(ls);
+						t.add(ls);
 						foundTrack = true;
 					}
 				}
 				if (!foundTrack) {
-					for (Track t : ds.tracks) {
+					for (Track t : ds.tracks()) {
 						if (t.getStartingNode() == end) {
-							t.segments.add(0,ls);
+							t.addStart(ls);
 							foundTrack = true;
 						}
 					}
 				}
 			}
 			if (!foundTrack)
-				ds.pendingLineSegments.add(ls);
+				ds.addPendingLineSegment(ls);
 		}
 		
 		mv.repaint();
