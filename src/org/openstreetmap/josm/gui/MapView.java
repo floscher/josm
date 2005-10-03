@@ -83,19 +83,19 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 	private Engine engine;
 	
 	/**
-	 * Construct a MapView and attach it to a frame.
+	 * Construct a MapView.
 	 */
 	public MapView(DataSet dataSet) {
 		this.dataSet = dataSet;
 		addComponentListener(this);
-		
+
 		// initialize the movement listener
 		new MapMover(this);
-		
+
 		// initialize the projection
 		setProjection(Main.pref.projection.clone());
-		
-		// initialize the engine
+
+		// initialize the drawing engine
 		engine = new SimpleEngine(this);
 	}
 
@@ -221,6 +221,7 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 		return null; // nothing found
 	}
 
+	
 	/**
 	 * Zoom to the given coordinate.
 	 * @param centerX The center x-value (easting) to zoom to.
@@ -245,62 +246,6 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 			firePropertyChange("scale", oldScale, scale);
 	}
 	
-	/**
-	 * Return the current scale value.
-	 * @return The scale value currently used in display
-	 */
-	public double getScale() {
-		return scale;
-	}
-
-	/**
-	 * Set the new dimension to the projection class. Also adjust the components 
-	 * scale, if in autoScale mode.
-	 */
-	private void recalculateCenterScale() {
-		if (autoScale) {
-			// -20 to leave some border
-			int w = getWidth()-20;
-			if (w < 20)
-				w = 20;
-			int h = getHeight()-20;
-			if (h < 20)
-				h = 20;
-			Bounds bounds = dataSet.getBoundsXY();
-			
-			boolean oldAutoScale = autoScale;
-			GeoPoint oldCenter = center;
-			double oldScale = this.scale;
-			
-			if (bounds == null) {
-				// no bounds means standard scale and center 
-				center = new GeoPoint(51.526447, -0.14746371);
-				getProjection().latlon2xy(center);
-				scale = 10;
-			} else {
-				center = bounds.centerXY();
-				getProjection().xy2latlon(center);
-				double scaleX = (bounds.max.x-bounds.min.x)/w;
-				double scaleY = (bounds.max.y-bounds.min.y)/h;
-				scale = Math.max(scaleX, scaleY); // minimum scale to see all of the screen
-			}
-
-			firePropertyChange("center", oldCenter, center);
-			if (oldAutoScale != autoScale)
-				firePropertyChange("autoScale", oldAutoScale, autoScale);
-			if (oldScale != scale)
-				firePropertyChange("scale", oldScale, scale);
-		}
-		repaint();
-	}
-
-	/**
-	 * Call to recalculateCenterScale.
-	 */
-	public void componentResized(ComponentEvent e) {
-		recalculateCenterScale();
-	}
-
 	/**
 	 * Draw the component.
 	 */
@@ -356,6 +301,14 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 	}
 
 	/**
+	 * Return the current scale value.
+	 * @return The scale value currently used in display
+	 */
+	public double getScale() {
+		return scale;
+	}
+
+	/**
 	 * @return Returns the autoScale.
 	 */
 	public boolean isAutoScale() {
@@ -377,6 +330,56 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 	 */
 	public GeoPoint getCenter() {
 		return center.clone();
+	}
+
+	
+	
+	/**
+	 * Set the new dimension to the projection class. Also adjust the components 
+	 * scale, if in autoScale mode.
+	 */
+	private void recalculateCenterScale() {
+		if (autoScale) {
+			// -20 to leave some border
+			int w = getWidth()-20;
+			if (w < 20)
+				w = 20;
+			int h = getHeight()-20;
+			if (h < 20)
+				h = 20;
+			Bounds bounds = dataSet.getBoundsXY();
+			
+			boolean oldAutoScale = autoScale;
+			GeoPoint oldCenter = center;
+			double oldScale = this.scale;
+			
+			if (bounds == null) {
+				// no bounds means standard scale and center 
+				center = new GeoPoint(51.526447, -0.14746371);
+				getProjection().latlon2xy(center);
+				scale = 10;
+			} else {
+				center = bounds.centerXY();
+				getProjection().xy2latlon(center);
+				double scaleX = (bounds.max.x-bounds.min.x)/w;
+				double scaleY = (bounds.max.y-bounds.min.y)/h;
+				scale = Math.max(scaleX, scaleY); // minimum scale to see all of the screen
+			}
+	
+			firePropertyChange("center", oldCenter, center);
+			if (oldAutoScale != autoScale)
+				firePropertyChange("autoScale", oldAutoScale, autoScale);
+			if (oldScale != scale)
+				firePropertyChange("scale", oldScale, scale);
+		}
+		repaint();
+	}
+
+	/**
+	 * Call to recalculateCenterScale.
+	 */
+	public void componentResized(ComponentEvent e) {
+		recalculateCenterScale();
 	}
 
 	/**

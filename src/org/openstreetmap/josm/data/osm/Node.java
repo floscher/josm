@@ -34,27 +34,6 @@ public class Node extends OsmPrimitive {
 	}
 	
 	/**
-	 * Nodes are equal when their coordinates are equal.
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof Node))
-			return false;
-		Node n = (Node)obj;
-		if (coor == null)
-			return n.coor == null;
-		return coor.equals(n.coor) && super.equals(obj);
-	}
-
-	/**
-	 * Compute the hashcode from the OsmPrimitive's hash and the coor's hash.
-	 */
-	@Override
-	public int hashCode() {
-		return (coor == null ? 0 : coor.hashCode()) + super.hashCode();
-	}
-
-	/**
 	 * Return a list only this added.
 	 */
 	@Override

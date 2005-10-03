@@ -84,24 +84,6 @@ public class LineSegment extends OsmPrimitive {
 		return nodes;
 	}
 
-	/**
-	 * Line segments are equal, if their starting and ending node and their
-	 * keys are equal.
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof LineSegment))
-			return false;
-		return super.equals(obj) && 
-			getStart().equals(((LineSegment)obj).getStart()) &&
-			getEnd().equals(((LineSegment)obj).getEnd());
-	}
-
-	@Override
-	public int hashCode() {
-		return super.hashCode() + getStart().hashCode() + getEnd().hashCode();
-	}
-
 	@Override
 	public void visit(Visitor visitor) {
 		visitor.visit(this);

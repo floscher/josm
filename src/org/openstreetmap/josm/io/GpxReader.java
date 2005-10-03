@@ -2,6 +2,7 @@ package org.openstreetmap.josm.io;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.HashMap;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -9,38 +10,60 @@ import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
+import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Track;
 import org.openstreetmap.josm.gui.Main;
 
 /**
- * Reads an gpx stream and construct a DataSet out of it. Some information may not be 
- * imported, since JOSM does not fully support GPX.
+ * Reads an gpx stream and construct a DataSet out of it. 
+ * Some information may not be imported, but GpxReader tries its best to load
+ * all data possible in the key/value structure.
  * 
  * @author imi
  */
-public class GpxReader {
+public class GpxReader implements DataReader {
 
-	public static final Namespace XSD = Namespace.getNamespace("http://www.w3.org/2001/XMLSchema");
-	public static final Namespace GPX = Namespace.getNamespace("http://www.topografix.com/GPX/1/0");
+	/**
+	 * The GPX namespace used.
+	 */
+	private static final Namespace GPX = Namespace.getNamespace("http://www.topografix.com/GPX/1/0");
+	/**
+	 * The OSM namespace used (for extensions).
+	 */
+	private static final Namespace OSM = Namespace.getNamespace("osm");
+
+	/**
+	 * The data source from this reader.
+	 */
+	public Reader source;
+	
+	/**
+	 * Construct a parser from a specific data source.
+	 * @param source The data source, as example a FileReader to read from a file.
+	 */
+	public GpxReader(Reader source) {
+		this.source = source;
+	}
 	
 	/**
 	 * Read the input stream and return a DataSet from the stream.
-	 * 
-	 * @param in
-	 * @throws IOException 		An error with the provided stream occoured.
-	 * @throws JDOMException 	An parse error occoured.
 	 */
-	public DataSet parse(Reader in) throws JDOMException, IOException {
+	public DataSet parse() throws ParseException, ConnectionException {
 		try {
 			final SAXBuilder builder = new SAXBuilder();
-			Element root = builder.build(in).getRootElement();
+			Element root = builder.build(source).getRootElement();
 			return parseDataSet(root);
 		} catch (NullPointerException npe) {
-			throw new JDOMException("NullPointerException. Probably a tag name mismatch.", npe);
+			throw new ParseException("NullPointerException. Probably a tag name mismatch.", npe);
 		} catch (ClassCastException cce) {
-			throw new JDOMException("ClassCastException. Probably a tag does not contain the correct type.", cce);
+			throw new ParseException("ClassCastException. Probably a tag does not contain the correct type.", cce);
+		} catch (JDOMException e) {
+			throw new ParseException("The data could not be parsed. Reason: "+e.getMessage(), e);
+		} catch (IOException e) {
+			throw new ConnectionException("The data could not be retrieved. Reason: "+e.getMessage(), e);
 		}
 	}
 
@@ -55,7 +78,75 @@ public class GpxReader {
 		data.coor = new GeoPoint(
 			Float.parseFloat(e.getAttributeValue("lat")),
 			Float.parseFloat(e.getAttributeValue("lon")));
+		for (Object o : e.getChildren()) {
+			Element child = (Element)o;
+			if (child.getName().equals("extensions"))
+				parseKeyValueExtensions(data, child);
+			else if (child.getName().equals("link"))
+				parseKeyValueLink(data, child);
+			else
+				parseKeyValueTag(data, child);
+		}
 		return data;
+	}
+
+	/**
+	 * Parse the extensions tag and add all properties found as key/value. 
+	 * <code>osm.keys</code> may be <code>null</code>, in which case it is 
+	 * created first. If <code>e</code> is <code>null</code>, nothing
+	 * happens.
+	 * 
+	 * @param osm	The primitive to store the properties.
+	 * @param e		The extensions element to read the properties from.
+	 */
+	private void parseKeyValueExtensions(OsmPrimitive osm, Element e) {
+		if (e != null) {
+			if (osm.keys == null)
+				osm.keys = new HashMap<Key, String>();
+			for (Object o : e.getChildren("property", OSM)) {
+				Element child = (Element)o;
+				Key key = Key.get(child.getAttributeValue("name"));
+				osm.keys.put(key, child.getAttributeValue("value"));
+			}
+		}
+	}
+
+	/**
+	 * If the element is not <code>null</code>, read the data from it and put
+	 * it as the key with the name of the elements name in the given object.
+	 * 
+	 * The <code>keys</code> - field of the element could be <code>null</code>,
+	 * in which case it is created first.
+	 * 
+	 * @param osm     The osm primitive to put the key into.
+	 * @param e		  The element to look for data.
+	 */
+	private void parseKeyValueTag(OsmPrimitive osm, Element e) {
+		if (e != null) {
+			if (osm.keys == null)
+				osm.keys = new HashMap<Key, String>();
+			osm.keys.put(Key.get(e.getName()), e.getValue());
+		}
+	}
+
+	/**
+	 * Parse the GPX linkType data information and store it as value in the 
+	 * primitives <i>link</i> key. <code>osm.keys</code> may be 
+	 * <code>null</code>, in which case it is created first. If 
+	 * <code>e</code> is <code>null</code>, nothing happens.
+	 * 
+	 * The format stored is: mimetype;url
+	 * Example: text/html;http://www.openstreetmap.org
+	 * @param osm	The osm primitive to store the data in.
+	 * @param e		The element in gpx:linkType - format.
+	 */
+	private void parseKeyValueLink(Node osm, Element e) {
+		if (e != null) {
+			if (osm.keys == null)
+				osm.keys = new HashMap<Key, String>();
+			String link = e.getChildText("type") + ";" + e.getChildText("text");
+			osm.keys.put(Key.get("link"), link);
+		}
 	}
 
 	/**
@@ -104,7 +195,7 @@ public class GpxReader {
 	private Node addNode (DataSet data, Node node) {
 		if (Main.pref.mergeNodes)
 			for (Node n : data.nodes)
-				if (node.equals(n))
+				if (node.coor.lat == n.coor.lat && node.coor.lon == n.coor.lon)
 					return n;
 		data.nodes.add(node);
 		return node;
