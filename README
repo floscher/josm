@@ -1,0 +1,71 @@
+This is a readme.txt to the Java OpenStreetMap Editor Beta
+
+
+Install Notes
+-------------
+
+To run JOSM, you need:
+
+* josm-beta.jar
+* The latest Java Runtime Environment 1.5. 
+
+
+
+How to get Java
+---------------
+
+You need at least Version 1.5 (called Java5 or "Tiger"). 
+
+Microsoft Windows people should just visit java.sun.com and
+download the latest Java5 executable. 
+
+To get Java under linux, I recommend downloading the environment 
+directly from Sun at http://java.sun.com. There is a linux 
+binary installer which you have to execute from a java console.
+
+However, if you run Debian or Ubuntu or any other dpkg-based
+distribution, you may use unofficial precompiled packages.
+You have to add the following line to your /etc/apt/sources.list
+(replace "stable" with your installation)
+
+http://ftp.debian-unofficial.org/debian/ stable non-free
+
+The package is called sun-j2se5.0-jdk-binary.
+
+Good news for MacOS: In Tiger Release Java5 is already included.
+The bad news for non-Tigers: There are no Java5 available.
+
+
+How to launch
+-------------
+
+Microsoft Windows people launch by double clicking on josm-beta.jar.
+If this does not help, open a command shell and type 
+"java -jar josm-beta.jar" in the directory that holds the file.
+
+Under Linux open a shell, go to the file directory and type
+"java -jar josm-beta.jar" to launch. If this don't help, try to set
+you JAVA_HOME variable to the java location (the root location, not
+the bin. "/usr/lib/sun-j2se5.0-jdk" if you used the prebuild 
+package).
+
+MacOS people just click on the jar-file.
+
+
+How to get the Source
+---------------------
+
+Download it from http://www.eigenheimstrasse.de/josm/josm-beta-src.zip
+or directly from the subversion at 
+http://www.eigenheimstrasse.de/svn/josm. The beta is Revision 12.
+
+
+
+And gimme feedback: immanuel.scholz@gmx.de (start your mail subject 
+with "JOSM", so my spam filter will not eat you)
+
+Have fun.
+
+
+Imi.
+
