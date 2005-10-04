@@ -11,6 +11,7 @@ import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 
 import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.gui.Main;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 
@@ -44,7 +45,7 @@ abstract public class MapMode extends AbstractAction implements MouseListener, M
 	 * @param mapFrame The parent MapFrame, this MapMode belongs to.
 	 */
 	public MapMode(String name, String iconName, String tooltip, int mnemonic, MapFrame mapFrame) {
-		super(name, new ImageIcon("images/mapmode/"+iconName+".png"));
+		super(name, new ImageIcon(Main.class.getResource("/images/mapmode/"+iconName+".png")));
 		putValue(MNEMONIC_KEY, mnemonic);
 		putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(mnemonic,0));
 		putValue(LONG_DESCRIPTION, tooltip);

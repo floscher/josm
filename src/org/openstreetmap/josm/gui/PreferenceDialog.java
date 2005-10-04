@@ -42,7 +42,7 @@ public class PreferenceDialog extends JDialog {
 	 */
 	class OkAction extends AbstractAction {
 		public OkAction() {
-			super("Ok", new ImageIcon("images/ok.png"));
+			super("Ok", new ImageIcon(Main.class.getResource("/images/ok.png")));
 			putValue(MNEMONIC_KEY, KeyEvent.VK_ENTER);
 		}
 		public void actionPerformed(ActionEvent e) {

@@ -12,6 +12,7 @@ import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.gui.Main;
 
 /**
  * Able to create a name and an icon for each data element.
@@ -36,7 +37,7 @@ public class SelectionComponentVisitor extends Visitor {
 	@Override
 	public void visit(Key k) {
 		name = k.name;
-		icon = new ImageIcon("images/data/key.png");
+		icon = new ImageIcon(Main.class.getResource("/images/data/key.png"));
 	}
 
 	/**

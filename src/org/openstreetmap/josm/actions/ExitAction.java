@@ -6,6 +6,8 @@ import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
+import org.openstreetmap.josm.gui.Main;
+
 /**
  * Exit the application. May ask for permition first (if something has changed).
  *  
@@ -17,7 +19,7 @@ public class ExitAction extends AbstractAction {
 	 * Construct the action with "Exit" as label
 	 */
 	public ExitAction() {
-		super("Exit", new ImageIcon("images/exit.png"));
+		super("Exit", new ImageIcon(Main.class.getResource("/images/exit.png")));
 		putValue(MNEMONIC_KEY, KeyEvent.VK_X);
 	}
 	
