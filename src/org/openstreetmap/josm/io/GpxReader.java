@@ -91,6 +91,78 @@ public class GpxReader implements DataReader {
 	}
 
 	/**
+	 * Read a data set from the element.
+	 * @param e 	The element to parse
+	 * @return		The DataSet read from the element
+	 */
+	private DataSet parseDataSet(Element e) {
+		DataSet data = new DataSet();
+		// read waypoints not contained in tracks or areas
+		for (Object o : e.getChildren("wpt", GPX))
+			addNode(data, parseWaypoint((Element)o));
+	
+		// read tracks
+		for (Object trackElement : e.getChildren("trk", GPX))
+			parseTrack((Element)trackElement, data);
+	
+		return data;
+	}
+
+	/**
+	 * Parse and read a track from the element. Store it in the dataSet, as well
+	 * as all nodes in it.
+	 *
+	 * @param e		The element that contain the track.
+	 * @param ds	The DataSet to store the data in.
+	 */
+	private void parseTrack(Element e, DataSet ds) {
+		Track track = new Track();
+		for (Object o : e.getChildren()) {
+			Element child = (Element)o;
+			if (child.getName().equals("extensions"))
+				parseKeyValueExtensions(track, child);
+			else if (child.getName().equals("link"))
+				parseKeyValueLink(track, child);
+			else if (child.getName().equals("trkseg")) {
+				Node start = null;
+				for (Object w : child.getChildren("trkpt", GPX)) {
+					Node node = parseWaypoint((Element)w);
+					node = addNode(ds, node);
+					if (start == null)
+						start = node;
+					else {
+						LineSegment lineSegment = new LineSegment(start, node);
+						parseKeyValueExtensions(lineSegment, ((Element)w).getChild("extensions", GPX));
+						track.add(lineSegment);
+						start = null;
+					}
+				}
+			} else
+				parseKeyValueTag(track, child);
+		}
+		ds.addTrack(track);
+	}
+	
+
+	/**
+	 * Adds the node to allNodes if it is not already listed. Does respect the
+	 * preference setting "mergeNodes". Return the node in the list that correspond
+	 * to the node in the list (either the new added or the old found).
+	 * 
+	 * @param data The DataSet to add the node to.
+	 * @param node The node that should be added.
+	 * @return Either the parameter node or the old node found in the dataset. 
+	 */
+	private Node addNode (DataSet data, Node node) {
+		if (Main.pref.mergeNodes)
+			for (Node n : data.nodes)
+				if (node.coor.lat == n.coor.lat && node.coor.lon == n.coor.lon)
+					return n;
+		data.nodes.add(node);
+		return node;
+	}
+
+	/**
 	 * Parse the extensions tag and add all properties found as key/value. 
 	 * <code>osm.keys</code> may be <code>null</code>, in which case it is 
 	 * created first. If <code>e</code> is <code>null</code>, nothing
@@ -137,67 +209,16 @@ public class GpxReader implements DataReader {
 	 * 
 	 * The format stored is: mimetype;url
 	 * Example: text/html;http://www.openstreetmap.org
+	 * 
 	 * @param osm	The osm primitive to store the data in.
 	 * @param e		The element in gpx:linkType - format.
 	 */
-	private void parseKeyValueLink(Node osm, Element e) {
+	private void parseKeyValueLink(OsmPrimitive osm, Element e) {
 		if (e != null) {
 			if (osm.keys == null)
 				osm.keys = new HashMap<Key, String>();
 			String link = e.getChildText("type") + ";" + e.getChildText("text");
 			osm.keys.put(Key.get("link"), link);
 		}
-	}
-
-	/**
-	 * Read a data set from the element.
-	 * @param e 	The element to parse
-	 * @return		The DataSet read from the element
-	 */
-	private DataSet parseDataSet(Element e) {
-		DataSet data = new DataSet();
-		// read waypoints not contained in tracks or areas
-		for (Object o : e.getChildren("wpt", GPX))
-			addNode(data, parseWaypoint((Element)o));
-
-		// read tracks
-		for (Object trackElement : e.getChildren("trk", GPX)) {
-			Track track = new Track();
-			for (Object trackSegmentElement : ((Element)trackElement).getChildren("trkseg", GPX)) {
-				Node start = null;
-				for (Object w : ((Element)trackSegmentElement).getChildren("trkpt", GPX)) {
-					Node node = parseWaypoint((Element)w);
-					node = addNode(data, node);
-					if (start == null)
-						start = node;
-					else {
-						LineSegment lineSegment = new LineSegment(start, node);
-						track.add(lineSegment);
-						start = null;
-					}
-				}
-			}
-			data.addTrack(track);
-		}
-
-		return data;
-	}
-	
-	/**
-	 * Adds the node to allNodes if it is not already listed. Does respect the
-	 * preference setting "mergeNodes". Return the node in the list that correspond
-	 * to the node in the list (either the new added or the old found).
-	 * 
-	 * @param data The DataSet to add the node to.
-	 * @param node The node that should be added.
-	 * @return Either the parameter node or the old node found in the dataset. 
-	 */
-	private Node addNode (DataSet data, Node node) {
-		if (Main.pref.mergeNodes)
-			for (Node n : data.nodes)
-				if (node.coor.lat == n.coor.lat && node.coor.lon == n.coor.lon)
-					return n;
-		data.nodes.add(node);
-		return node;
 	}
 }
