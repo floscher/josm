@@ -44,7 +44,7 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 	 */
 	public class AutoScaleAction extends AbstractAction {
 		public AutoScaleAction() {
-			super("Auto Scale", new ImageIcon("images/autoscale.png"));
+			super("Auto Scale", new ImageIcon(Main.class.getResource("/images/autoscale.png")));
 			putValue(MNEMONIC_KEY, KeyEvent.VK_A);
 		}
 		public void actionPerformed(ActionEvent e) {

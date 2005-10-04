@@ -27,7 +27,7 @@ public class ToggleDialog extends JDialog implements Action {
 	 */
 	public ToggleDialog(String title, String name, String iconName, int mnemonic, String tooltip) {
 		super(Main.main, title, false);
-		putValue(SMALL_ICON, new ImageIcon("images/dialogs/"+iconName+".png"));
+		putValue(SMALL_ICON, new ImageIcon(Main.class.getResource("/images/dialogs/"+iconName+".png")));
 		putValue(NAME, name);
 		putValue(MNEMONIC_KEY, mnemonic);
 		putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_E,0));

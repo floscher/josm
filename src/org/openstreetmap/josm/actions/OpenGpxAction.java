@@ -31,7 +31,7 @@ public class OpenGpxAction extends AbstractAction {
 	 * Create an open action. The name is "&Open GPX".
 	 */
 	public OpenGpxAction() {
-		super("Open GPX", new ImageIcon("images/opengpx.png"));
+		super("Open GPX", new ImageIcon(Main.class.getResource("/images/opengpx.png")));
 		putValue(MNEMONIC_KEY, KeyEvent.VK_O);
 	}
 

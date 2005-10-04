@@ -70,7 +70,7 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 
 		getContentPane().add(new JScrollPane(displaylist), BorderLayout.CENTER);
 
-		JButton button = new JButton("Select", new ImageIcon("images/mapmode/selection.png"));
+		JButton button = new JButton("Select", new ImageIcon(Main.class.getResource("/images/mapmode/selection.png")));
 		button.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				updateMap();

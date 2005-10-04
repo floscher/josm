@@ -27,7 +27,7 @@ public class SaveGpxAction extends AbstractAction {
 	 * Construct the action with "Save GPX" as label.
 	 */
 	public SaveGpxAction() {
-		super("Save GPX", new ImageIcon("images/savegpx.png"));
+		super("Save GPX", new ImageIcon(Main.class.getResource("/images/savegpx.png")));
 		putValue(MNEMONIC_KEY, KeyEvent.VK_S);
 	}
 	

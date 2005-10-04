@@ -6,6 +6,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
+import org.openstreetmap.josm.gui.Main;
 import org.openstreetmap.josm.gui.PreferenceDialog;
 
 /**
@@ -19,7 +20,7 @@ public class PreferencesAction extends AbstractAction {
 	 * Create the preference action with "&Preferences" as label.
 	 */
 	public PreferencesAction() {
-		super("Preferences", new ImageIcon("images/preference.png"));
+		super("Preferences", new ImageIcon(Main.class.getResource("/images/preference.png")));
 		putValue(MNEMONIC_KEY, KeyEvent.VK_P);
 	}
 
