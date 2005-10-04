@@ -1,0 +1,16 @@
+The XML Parser is JDOM 1.0 and came from www.jdom.org. 
+It is licensed under "JDOM license", a modified Apache License
+with Aknowledgement removed.
+
+The icons are inspired and stolen from gnome-media package 
+of my local linux installation. The images are licensed 
+under LGPL but redistributed by me under the terms of GPL 2.0.
+
+The UTM - code is a rewritten version from Ben who had it from 
+some old C code. Aknowledgments are in the UTM.java file of 
+the source distribution.
+
+All the rest are belongs to me.
+
+Imi.
+
