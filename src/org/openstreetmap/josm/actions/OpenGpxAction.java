@@ -41,7 +41,7 @@ public class OpenGpxAction extends AbstractAction {
 			@Override
 			public boolean accept(File f) {
 				String name = f.getName().toLowerCase();
-				return name.endsWith(".gpx") || name.endsWith(".xml");
+				return f.isDirectory() || name.endsWith(".gpx") || name.endsWith(".xml");
 			}
 			@Override
 			public String getDescription() {
