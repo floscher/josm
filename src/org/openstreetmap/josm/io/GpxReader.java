@@ -29,7 +29,7 @@ public class GpxReader implements DataReader {
 	/**
 	 * The GPX namespace used.
 	 */
-	private static final Namespace GPX = Namespace.getNamespace("http://www.topografix.com/GPX/1/0");
+	private static Namespace GPX = Namespace.getNamespace("http://www.topografix.com/GPX/1/0");
 	/**
 	 * The OSM namespace used (for extensions).
 	 */
@@ -55,6 +55,12 @@ public class GpxReader implements DataReader {
 		try {
 			final SAXBuilder builder = new SAXBuilder();
 			Element root = builder.build(source).getRootElement();
+			System.out.println(root.getNamespacePrefix());
+			
+			// HACK, since the osm server seem to not provide a namespace.
+			if (root.getNamespacePrefix().equals(""))
+				GPX = null;
+			
 			return parseDataSet(root);
 		} catch (NullPointerException npe) {
 			throw new ParseException("NullPointerException. Probably a tag name mismatch.", npe);
