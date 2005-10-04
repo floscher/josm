@@ -65,7 +65,7 @@ abstract public class OsmPrimitive {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Mark the primitive as selected or not selected and fires a selection 
 	 * changed later, if the value actualy changed.
