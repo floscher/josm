@@ -45,7 +45,7 @@ import org.openstreetmap.josm.gui.SelectionManager.SelectionEnded;
  * within 10 pixel range is selected. If there is no LineSegment within 10 pixel
  * and the user clicked in or 10 pixel away from an area, this area is selected. 
  * If there is even no area, nothing is selected. Shift and Ctrl key applies to 
- * this as usual. For more, @see MapView#getNearest(Point, boolean)
+ * this as usual. For more, @see Layer#getNearest(Point, boolean)
  *
  * @author imi
  */
@@ -62,19 +62,19 @@ public class SelectionAction extends MapMode implements SelectionEnded {
 	 */
 	public SelectionAction(MapFrame mapFrame) {
 		super("Selection", "selection", "Select objects by dragging or clicking", KeyEvent.VK_S, mapFrame);
-		this.selectionManager = new SelectionManager(this, false, mv);
+		this.selectionManager = new SelectionManager(this, false, layer);
 	}
 
 	@Override
 	public void registerListener() {
 		super.registerListener();
-		selectionManager.register(mv);
+		selectionManager.register(layer);
 	}
 
 	@Override
 	public void unregisterListener() {
 		super.unregisterListener();
-		selectionManager.unregister(mv);
+		selectionManager.unregister(layer);
 	}
 
 
@@ -91,6 +91,6 @@ public class SelectionAction extends MapMode implements SelectionEnded {
 		Collection<OsmPrimitive> selectionList = selectionManager.getObjectsInRectangle(r,alt);
 		for (OsmPrimitive osm : selectionList)
 			osm.setSelected(!ctrl, ds);
-		mv.repaint();
+		layer.repaint();
 	}
 }

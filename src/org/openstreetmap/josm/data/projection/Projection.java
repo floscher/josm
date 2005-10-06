@@ -9,7 +9,6 @@ import javax.swing.event.ChangeListener;
 
 import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.Node;
 
 /**
  * Classes subclass this are able to convert lat/lon values to 
@@ -65,19 +64,18 @@ abstract public class Projection implements Cloneable {
 	 * directly, so the changes are instantly visible on screen.
 	 */
 	abstract public JComponent getConfigurationPanel();
-	
+
 	/**
 	 * Initialize itself with the given dataSet.
 	 * 
 	 * This function should initialize own parameters needed to do the
-	 * projection and then initialize every Node of the dataset with x/y
-	 * projection values.
+	 * projection at best effort.
 	 * 
-	 * This implementation loops through the dataset's nodes and call latlon2xy
-	 * for each member. Subclasses can call this to initialize the dataset.
-	 * 
-	 * init must not fire an state changed event, since it is usually called
-	 * from the event handler.
+	 * Init must not fire an state changed event, since it is usually called
+	 * during the initialization of the mapFrame.
+	 *
+	 * This implementation does nothing. It is provided only for subclasses
+	 * to initialize their data members.
 	 * 
 	 * @param dataSet
 	 *            The dataset, which will be displayed on screen. Later, all
@@ -87,19 +85,7 @@ abstract public class Projection implements Cloneable {
 	 *            there is a conversion error, if the requested x/y to xy2latlon
 	 *            is far away from any coordinate in the dataset)
 	 */
-	public void init(DataSet dataSet) {
-		for (Node w : dataSet.nodes)
-			latlon2xy(w.coor);
-	}
-	
-	/**
-	 * All projections support cloning.
-	 */
-	@Override
-	public Projection clone() {
-		try {return (Projection)super.clone();} catch (CloneNotSupportedException e) {}
-		return null;
-	}
+	public void init(DataSet dataSet) {}
 	
 	/**
 	 * Add an event listener to the state changed event queue. If passed 

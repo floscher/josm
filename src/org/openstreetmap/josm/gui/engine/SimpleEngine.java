@@ -9,7 +9,7 @@ import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Track;
-import org.openstreetmap.josm.gui.MapView;
+import org.openstreetmap.josm.gui.Layer;
 
 /**
  * A simple graphic engine that draws rather symbolic images to easy identify
@@ -22,8 +22,8 @@ public class SimpleEngine extends Engine {
 	private final static Color darkblue = new Color(0,0,128);
 	private final static Color darkgreen = new Color(0,128,0);
 
-	public SimpleEngine(MapView mapView) {
-		super(mapView);
+	public SimpleEngine(Layer layer) {
+		super(layer);
 	}
 
 	/**
@@ -32,7 +32,7 @@ public class SimpleEngine extends Engine {
 	@Override
 	public void drawBackground(GeoPoint ulGeo, GeoPoint lrGeo) {
 		g.setColor(Color.BLACK);
-		g.fillRect(0,0,mv.getWidth(),mv.getHeight());
+		g.fillRect(0,0,layer.getWidth(),layer.getHeight());
 	}
 
 	/**
@@ -108,8 +108,8 @@ public class SimpleEngine extends Engine {
 	 */
 	private void drawLineSegment(LineSegment ls, Color color) {
 		g.setColor(ls.isSelected() ? Color.WHITE : color);
-		Point p1 = mv.getScreenPoint(ls.getStart().coor);
-		Point p2 = mv.getScreenPoint(ls.getEnd().coor);
+		Point p1 = layer.getScreenPoint(ls.getStart().coor);
+		Point p2 = layer.getScreenPoint(ls.getEnd().coor);
 		g.drawLine(p1.x, p1.y, p2.x, p2.y);
 	}
 
@@ -120,7 +120,7 @@ public class SimpleEngine extends Engine {
 	 * @param color The color of the node.
 	 */
 	private void drawNode(Node n, Color color) {
-		Point p = mv.getScreenPoint(n.coor);
+		Point p = layer.getScreenPoint(n.coor);
 		g.setColor(color);
 		g.drawRect(p.x-1, p.y-1, 2, 2);
 	}

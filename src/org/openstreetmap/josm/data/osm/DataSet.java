@@ -112,18 +112,18 @@ public class DataSet extends SelectionTracker implements Cloneable {
 
 		Node first = nodes.iterator().next();
 		Bounds b = new Bounds(first.coor.clone(), first.coor.clone());
-		for (Node w : nodes)
+		for (Node n : nodes)
 		{
-			if (Double.isNaN(w.coor.x) || Double.isNaN(w.coor.y))
+			if (Double.isNaN(n.coor.x) || Double.isNaN(n.coor.y))
 				return null;
-			if (w.coor.x < b.min.x)
-				b.min.x = w.coor.x;
-			if (w.coor.y < b.min.y)
-				b.min.y = w.coor.y;
-			if (w.coor.x > b.max.x)
-				b.max.x = w.coor.x;
-			if (w.coor.y > b.max.y)
-				b.max.y = w.coor.y;
+			if (n.coor.x < b.min.x)
+				b.min.x = n.coor.x;
+			if (n.coor.y < b.min.y)
+				b.min.y = n.coor.y;
+			if (n.coor.x > b.max.x)
+				b.max.x = n.coor.x;
+			if (n.coor.y > b.max.y)
+				b.max.y = n.coor.y;
 		}
 		return b;
 	}
