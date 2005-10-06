@@ -1,7 +1,6 @@
 package org.openstreetmap.josm.gui.dialogs;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,8 +29,8 @@ public class ToggleDialog extends JDialog implements Action {
 		putValue(SMALL_ICON, new ImageIcon(Main.class.getResource("/images/dialogs/"+iconName+".png")));
 		putValue(NAME, name);
 		putValue(MNEMONIC_KEY, mnemonic);
-		putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_E,0));
-		putValue(LONG_DESCRIPTION, "Open a selection list window.");
+		putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(mnemonic,0));
+		putValue(LONG_DESCRIPTION, tooltip);
 	}
 
 	/**

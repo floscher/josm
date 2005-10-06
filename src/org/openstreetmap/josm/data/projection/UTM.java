@@ -209,7 +209,6 @@ public class UTM extends Projection {
 			}
 			hemisphere = lat > 0 ? Hemisphere.north : Hemisphere.south;
 		}
-		super.init(dataSet);
 	}
 
 	@Override

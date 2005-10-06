@@ -13,7 +13,7 @@ import javax.swing.KeyStroke;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.gui.Main;
 import org.openstreetmap.josm.gui.MapFrame;
-import org.openstreetmap.josm.gui.MapView;
+import org.openstreetmap.josm.gui.Layer;
 
 /**
  * A class implementing MapMode is able to be selected as an mode for map editing.
@@ -30,9 +30,9 @@ abstract public class MapMode extends AbstractAction implements MouseListener, M
 	 */
 	protected final MapFrame mapFrame;
 	/**
-	 * Shortcut to the MapView.
+	 * Shortcut to the Layer.
 	 */
-	protected final MapView mv;
+	protected final Layer layer;
 	/**
 	 * Shortcut to the DataSet.
 	 */
@@ -52,13 +52,12 @@ abstract public class MapMode extends AbstractAction implements MouseListener, M
 		mapFrame.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(mnemonic,0), this);
 		mapFrame.getActionMap().put(this, this);
 		this.mapFrame = mapFrame;
-		mv = mapFrame.mapView;
-		ds = mv.dataSet;
+		layer = mapFrame.layer;
+		ds = layer.dataSet;
 	}
 	
 	/**
-	 * Register all listener to the mapView
-	 * @param mapView	The view, where the listener should be registered.
+	 * Register all listener to the layer
 	 */
 	public void registerListener() {
 		firePropertyChange("active", false, true);
@@ -66,7 +65,6 @@ abstract public class MapMode extends AbstractAction implements MouseListener, M
 	
 	/**
 	 * Unregister all listener previously registered. 
-	 * @param mapView	The view from which the listener should be deregistered.
 	 */
 	public void unregisterListener() {
 		firePropertyChange("active", true, false);

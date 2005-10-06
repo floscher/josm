@@ -47,10 +47,10 @@ public class PreferenceDialog extends JDialog {
 		}
 		public void actionPerformed(ActionEvent e) {
 			Preferences pref = new Preferences();
-			pref.laf = (LookAndFeelInfo)lafCombo.getSelectedItem();
-			pref.projection = (Projection)projectionCombo.getSelectedItem();
-			pref.mergeNodes = mergeNodes.isSelected();
-			Main.pref.projection = pref.projection;
+			pref.setLaf((LookAndFeelInfo)lafCombo.getSelectedItem());
+			pref.setProjection((Projection)projectionCombo.getSelectedItem());
+			pref.setMergeNodes(mergeNodes.isSelected());
+			Main.pref.setProjection(pref.getProjection());
 			try {
 				pref.save();
 			} catch (PreferencesException x) {
@@ -124,7 +124,7 @@ public class PreferenceDialog extends JDialog {
 			public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 				return oldRenderer.getListCellRendererComponent(list, ((LookAndFeelInfo)value).getName(), index, isSelected, cellHasFocus);
 			}});
-		lafCombo.setSelectedItem(pref.laf);
+		lafCombo.setSelectedItem(pref.getLaf());
 		lafCombo.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				setRequiresRestart();
@@ -132,7 +132,7 @@ public class PreferenceDialog extends JDialog {
 
 		// projection method combo box
 		for (int i = 0; i < projectionCombo.getItemCount(); ++i) {
-			if (projectionCombo.getItemAt(i).getClass().equals(pref.projection.getClass())) {
+			if (projectionCombo.getItemAt(i).getClass().equals(pref.getProjection().getClass())) {
 				projectionCombo.setSelectedIndex(i);
 				break;
 			}
@@ -159,7 +159,7 @@ public class PreferenceDialog extends JDialog {
 		labelNoteProjection.setPreferredSize(new Dimension(550, 50));
 		map.add(labelNoteProjection, GBC.eol().insets(0,5,0,20));
 		map.add(new JLabel("GPX import / export"), GBC.eol());
-		mergeNodes.setSelected(pref.mergeNodes);
+		mergeNodes.setSelected(pref.isMergeNodes());
 		map.add(mergeNodes, GBC.eol());
 		map.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
 

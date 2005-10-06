@@ -79,16 +79,16 @@ public class CombineAction extends MapMode {
 	@Override
 	public void registerListener() {
 		super.registerListener();
-		mv.addMouseListener(this);
-		mv.addMouseMotionListener(this);
+		layer.addMouseListener(this);
+		layer.addMouseMotionListener(this);
 		ds.clearSelection();
 	}
 
 	@Override
 	public void unregisterListener() {
 		super.unregisterListener();
-		mv.removeMouseListener(this);
-		mv.removeMouseMotionListener(this);
+		layer.removeMouseListener(this);
+		layer.removeMouseMotionListener(this);
 		drawCombineHint(false);
 	}
 
@@ -102,7 +102,7 @@ public class CombineAction extends MapMode {
 		if (e.getButton() != MouseEvent.BUTTON1)
 			return;
 
-		OsmPrimitive clicked = mv.getNearest(e.getPoint(), true);
+		OsmPrimitive clicked = layer.getNearest(e.getPoint(), true);
 		if (clicked == null || clicked instanceof Node)
 			return;
 
@@ -118,7 +118,7 @@ public class CombineAction extends MapMode {
 		if ((e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) == 0)
 			return;
 		
-		OsmPrimitive clicked = mv.getNearest(e.getPoint(), true);
+		OsmPrimitive clicked = layer.getNearest(e.getPoint(), true);
 		if (clicked == null || clicked == second || clicked instanceof Node)
 			return;
 
@@ -167,7 +167,7 @@ public class CombineAction extends MapMode {
 				ds.removeTrack(t2);
 			}
 		}
-		mv.repaint();
+		layer.repaint();
 	}
 
 
@@ -197,7 +197,7 @@ public class CombineAction extends MapMode {
 		if (second == first)
 			return;
 
-		Graphics g = mv.getGraphics();
+		Graphics g = layer.getGraphics();
 		g.setColor(Color.BLACK);
 		g.setXORMode(Color.WHITE);
 		draw(g, first);
@@ -213,9 +213,9 @@ public class CombineAction extends MapMode {
 	private void draw(Graphics g, OsmPrimitive osm) {
 		if (osm instanceof LineSegment) {
 			LineSegment ls = (LineSegment)osm;
-			Point start = mv.getScreenPoint(ls.getStart().coor);
-			Point end = mv.getScreenPoint(ls.getEnd().coor);
-			if (mv.dataSet.pendingLineSegments().contains(osm) && g.getColor() == Color.GRAY)
+			Point start = layer.getScreenPoint(ls.getStart().coor);
+			Point end = layer.getScreenPoint(ls.getEnd().coor);
+			if (layer.dataSet.pendingLineSegments().contains(osm) && g.getColor() == Color.GRAY)
 				g.drawLine(start.x, start.y, end.x, end.y);
 			else
 				g.drawLine(start.x, start.y, end.x, end.y);

@@ -2,13 +2,11 @@ package org.openstreetmap.josm.gui;
 
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
-import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -26,32 +24,16 @@ import org.openstreetmap.josm.gui.engine.SimpleEngine;
 
 /**
  * This is a component used in the MapFrame for browsing the map. It use is to
- * provide the MapMode's enough capabilities to operate. 
+ * provide the MapMode's enough capabilities to operate.
  * 
- * MapView holds the map data, organize it, convert it, provide access to it.
+ * Layer holds one dataset. There can be more than one Layer active.
  * 
- * MapView hold meta-data about the data set currently displayed, as scale level,
- * center point viewed, what scrolling mode or editing mode is selected or with
- * what projection the map is viewed etc..
- *
+ * Layer hold data of the current displayed graphics as scale level and
+ * center point view.
+ * 
  * @author imi
  */
-public class MapView extends JComponent implements ComponentListener, ChangeListener {
-
-	/**
-	 * Toggles the autoScale feature of the mapView
-	 * @author imi
-	 */
-	public class AutoScaleAction extends AbstractAction {
-		public AutoScaleAction() {
-			super("Auto Scale", new ImageIcon(Main.class.getResource("/images/autoscale.png")));
-			putValue(MNEMONIC_KEY, KeyEvent.VK_A);
-		}
-		public void actionPerformed(ActionEvent e) {
-			autoScale = !autoScale;
-			recalculateCenterScale();
-		}
-	}
+public class Layer extends JComponent implements ComponentListener, ChangeListener, PropertyChangeListener {
 
 	/**
 	 * Whether to adjust the scale property on every resize.
@@ -68,11 +50,6 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 	private GeoPoint center;
 
 	/**
-	 * Used projection method in this map
-	 */
-	private Projection projection = Main.pref.projection.clone();
-
-	/**
 	 * The underlying DataSet.
 	 */
 	public final DataSet dataSet;
@@ -83,20 +60,20 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 	private Engine engine;
 	
 	/**
-	 * Construct a MapView.
+	 * Construct a Layer.
 	 */
-	public MapView(DataSet dataSet) {
+	public Layer(DataSet dataSet) {
 		this.dataSet = dataSet;
 		addComponentListener(this);
 
 		// initialize the movement listener
 		new MapMover(this);
 
-		// initialize the projection
-		setProjection(Main.pref.projection.clone());
-
 		// initialize the drawing engine
 		engine = new SimpleEngine(this);
+		
+		// initialize on the preferences for projection changes.
+		Main.pref.addPropertyChangeListener(this);
 	}
 
 	/**
@@ -119,7 +96,7 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 		p.x = (x - getWidth()/2.0)*scale + center.x;
 		p.y = (getHeight()/2.0 - y)*scale + center.y;
 		if (latlon)
-			getProjection().xy2latlon(p);
+			Main.pref.getProjection().xy2latlon(p);
 		return p;
 	}
 	
@@ -137,7 +114,7 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 			if (Double.isNaN(point.lat) || Double.isNaN(point.lon))
 				throw new IllegalArgumentException("point: Either lat/lon or x/y must be set.");
 			p = point.clone();
-			projection.latlon2xy(p);
+			Main.pref.getProjection().latlon2xy(p);
 		}
 		int x = ((int)Math.round((p.x-center.x) / scale + getWidth()/2));
 		int y = ((int)Math.round((center.y-p.y) / scale + getHeight()/2));
@@ -235,7 +212,7 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 		
 		autoScale = false;
 		center = newCenter.clone();
-		projection.xy2latlon(center);
+		Main.pref.getProjection().xy2latlon(center);
 		this.scale = scale;
 		recalculateCenterScale();
 
@@ -267,37 +244,25 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 	 * @param e
 	 */
 	public void stateChanged(ChangeEvent e) {
-		projection.init(dataSet);
-		recalculateCenterScale();
+		initDataSet();
 	}
 
 	/**
-	 * Set a new projection method. This call is not cheap, as it will
-	 * transform the whole underlying dataSet and repaint itself.
-	 * 
-	 * @param projection The new projection method to set.
+	 * Called when a property, as example the projection of the Main preferences
+	 * changes.
 	 */
-	public void setProjection(Projection projection) {
-		if (projection == this.projection)
-			return;
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (evt.getPropertyName().equals("projection")) {
+			Projection oldProjection = (Projection)evt.getOldValue();
+			if (oldProjection != null)
+				oldProjection.removeChangeListener(this);
 
-		Projection oldProjection = this.projection;
-		
-		if (this.projection != null)
-			this.projection.removeChangeListener(this);
-		this.projection = projection;
-		projection.addChangeListener(this);
-		
-		stateChanged(new ChangeEvent(this));
-		firePropertyChange("projection", oldProjection, projection);
-	}
+			Projection newProjection = (Projection)evt.getNewValue();
+			if (newProjection != null)
+				newProjection.addChangeListener(this);
 
-	/**
-	 * Return the projection method for this map view.
-	 * @return The projection method.
-	 */
-	public Projection getProjection() {
-		return projection;
+			initDataSet();
+		}
 	}
 
 	/**
@@ -321,6 +286,8 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 	public void setAutoScale(boolean autoScale) {
 		if (this.autoScale != autoScale) {
 			this.autoScale = autoScale;
+			if (autoScale)
+				recalculateCenterScale();
 			firePropertyChange("autoScale", !autoScale, autoScale);
 		}
 	}
@@ -332,6 +299,15 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 		return center.clone();
 	}
 
+	/**
+	 * Initialize the DataSet with the projection taken from the preference
+	 * settings.
+	 */
+	public void initDataSet() {
+		for (Node n : dataSet.nodes)
+			Main.pref.getProjection().latlon2xy(n.coor);
+		recalculateCenterScale();
+	}
 	
 	
 	/**
@@ -356,11 +332,11 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 			if (bounds == null) {
 				// no bounds means standard scale and center 
 				center = new GeoPoint(51.526447, -0.14746371);
-				getProjection().latlon2xy(center);
+				Main.pref.getProjection().latlon2xy(center);
 				scale = 10;
 			} else {
 				center = bounds.centerXY();
-				getProjection().xy2latlon(center);
+				Main.pref.getProjection().xy2latlon(center);
 				double scaleX = (bounds.max.x-bounds.min.x)/w;
 				double scaleY = (bounds.max.y-bounds.min.y)/h;
 				scale = Math.max(scaleX, scaleY); // minimum scale to see all of the screen
