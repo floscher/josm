@@ -25,7 +25,7 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 	/**
 	 * The map to move around.
 	 */
-	private final Layer mv;
+	private final MapView mv;
 	/**
 	 * The old cursor when we changed it to movement cursor.
 	 */
@@ -33,10 +33,10 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 
 	/**
 	 * Create a new MapMover
-	 * @param layer The map that should be moved.
+	 * @param mapView The map that should be moved.
 	 */
-	public MapMover(Layer layer) {
-		this.mv = layer;
+	public MapMover(MapView mapView) {
+		this.mv = mapView;
 		mv.addMouseListener(this);
 		mv.addMouseMotionListener(this);
 		mv.addMouseWheelListener(this);

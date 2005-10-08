@@ -6,16 +6,17 @@ import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.io.File;
 
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -42,17 +43,18 @@ public class PreferenceDialog extends JDialog {
 	 */
 	class OkAction extends AbstractAction {
 		public OkAction() {
-			super("Ok", new ImageIcon(Main.class.getResource("/images/ok.png")));
-			putValue(MNEMONIC_KEY, KeyEvent.VK_ENTER);
+			super(UIManager.getString("OptionPane.okButtonText"), 
+					UIManager.getIcon("OptionPane.okIcon"));
+			putValue(MNEMONIC_KEY, new Integer((String)UIManager.get("OptionPane.okButtonMnemonic")));
 		}
 		public void actionPerformed(ActionEvent e) {
-			Preferences pref = new Preferences();
-			pref.setLaf((LookAndFeelInfo)lafCombo.getSelectedItem());
-			pref.setProjection((Projection)projectionCombo.getSelectedItem());
-			pref.setMergeNodes(mergeNodes.isSelected());
-			Main.pref.setProjection(pref.getProjection());
+			Main.pref.laf = (LookAndFeelInfo)lafCombo.getSelectedItem();
+			Projection projection = (Projection)projectionCombo.getSelectedItem();
+			projection.commitConfigurationPanel();
+			Main.pref.setProjection(projection);
+			Main.pref.mergeNodes = mergeNodes.isSelected();
 			try {
-				pref.save();
+				Main.pref.save();
 			} catch (PreferencesException x) {
 				x.printStackTrace();
 				JOptionPane.showMessageDialog(PreferenceDialog.this, "Could not save preferences:\n"+x.getMessage());
@@ -68,8 +70,9 @@ public class PreferenceDialog extends JDialog {
 	 */
 	class CancelAction extends AbstractAction {
 		public CancelAction() {
-			super("Cancel", new ImageIcon("images/cancel.png"));
-			putValue(MNEMONIC_KEY, KeyEvent.VK_ESCAPE);
+			super(UIManager.getString("OptionPane.cancelButtonText"), 
+					UIManager.getIcon("OptionPane.cancelIcon"));
+			putValue(MNEMONIC_KEY, new Integer((String)UIManager.get("OptionPane.cancelButtonMnemonic")));
 		}
 		public void actionPerformed(ActionEvent e) {
 			setVisible(false);
@@ -124,22 +127,43 @@ public class PreferenceDialog extends JDialog {
 			public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 				return oldRenderer.getListCellRendererComponent(list, ((LookAndFeelInfo)value).getName(), index, isSelected, cellHasFocus);
 			}});
-		lafCombo.setSelectedItem(pref.getLaf());
+		lafCombo.setSelectedItem(pref.laf);
 		lafCombo.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				setRequiresRestart();
 			}});
 
-		// projection method combo box
+		// projection combo box
 		for (int i = 0; i < projectionCombo.getItemCount(); ++i) {
 			if (projectionCombo.getItemAt(i).getClass().equals(pref.getProjection().getClass())) {
 				projectionCombo.setSelectedIndex(i);
 				break;
 			}
 		}
+		JButton projectionDetail = new JButton("Configure");
+		projectionDetail.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				Projection p = (Projection)projectionCombo.getSelectedItem();
+				JComponent configurationPanel = p.getConfigurationPanel();
+				if (configurationPanel == null) {
+					JOptionPane.showMessageDialog(PreferenceDialog.this,
+							"This projection does not need any configuration.");
+					return;
+				}
+				JPanel detail = new JPanel(new GridBagLayout());
+				detail.setLayout(new GridBagLayout());
+				detail.add(configurationPanel, GBC.eop().fill());
+				int result = JOptionPane.showConfirmDialog(
+						PreferenceDialog.this, detail, "Configuration of "+p, 
+						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+				if (result != JOptionPane.OK_OPTION)
+					p.getConfigurationPanel(); // rollback
+			}
+		});
+		
 		
 		// Display tab
-		JPanel display = createPreferenceTab("display", "Display Settings", "Various settings than influence the visual representation of the whole Program.");
+		JPanel display = createPreferenceTab("display", "Display Settings", "Various settings that influence the visual representation of the whole program.");
 		display.add(new JLabel("Look and Feel"), GBC.std());
 		display.add(GBC.glue(5,0), GBC.std().fill(GBC.HORIZONTAL));
 		display.add(lafCombo, GBC.eol().fill(GBC.HORIZONTAL));
@@ -149,17 +173,13 @@ public class PreferenceDialog extends JDialog {
 		JPanel map = createPreferenceTab("map", "Map Settings", "Settings for the map projection and data interpretation.");
 		map.add(new JLabel("Projection method"), GBC.std());
 		map.add(GBC.glue(5,0), GBC.std().fill(GBC.HORIZONTAL));
-		map.add(projectionCombo, GBC.eol().fill(GBC.HORIZONTAL));
-		JLabel labelNoteProjection = new JLabel(
-				"<html>Note: This is the default projection method used for files, " +
-				"where the correct projection could not be determined. " +
-				"The actual used projection can be changed in the property " +
-				"settings of each map.</html>");
-		labelNoteProjection.setMinimumSize(new Dimension(550, 50));
-		labelNoteProjection.setPreferredSize(new Dimension(550, 50));
-		map.add(labelNoteProjection, GBC.eol().insets(0,5,0,20));
+		map.add(projectionCombo, GBC.eol().fill(GBC.HORIZONTAL).insets(0,0,0,5));
+		map.add(new JLabel("Projection details:"), GBC.std());
+		map.add(GBC.glue(5,0), GBC.std().fill(GBC.HORIZONTAL));
+		map.add(projectionDetail, GBC.eop());
+		
 		map.add(new JLabel("GPX import / export"), GBC.eol());
-		mergeNodes.setSelected(pref.isMergeNodes());
+		mergeNodes.setSelected(pref.mergeNodes);
 		map.add(mergeNodes, GBC.eol());
 		map.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
 
@@ -171,6 +191,7 @@ public class PreferenceDialog extends JDialog {
 		okPanel.add(Box.createHorizontalGlue(), GBC.std().fill(GBC.HORIZONTAL));
 		okPanel.add(new JButton(new OkAction()), GBC.std());
 		okPanel.add(new JButton(new CancelAction()), GBC.std());
+		okPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 
 		// merging all in the content pane
 		getContentPane().setLayout(new GridBagLayout());
@@ -195,9 +216,10 @@ public class PreferenceDialog extends JDialog {
 	private JPanel createPreferenceTab(String icon, String title, String desc) {
 		JPanel p = new JPanel(new GridBagLayout());
 		p.add(new JLabel(title), GBC.eol().anchor(GBC.CENTER).insets(0,5,0,10));
-		JLabel descLabel = new JLabel(desc);
+		
+		JLabel descLabel = new JLabel("<html>"+desc+"</html>");
 		descLabel.setFont(descLabel.getFont().deriveFont(Font.ITALIC));
-		p.add(descLabel, GBC.eol().insets(5,0,5,20));
+		p.add(descLabel, GBC.eol().insets(5,0,5,20).fill(GBC.HORIZONTAL));
 
 		tabPane.addTab(null, new ImageIcon("images/preferences/"+icon+".png"), p);
 		return p;

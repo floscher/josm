@@ -14,6 +14,7 @@ import javax.swing.filechooser.FileFilter;
 
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.gui.Main;
+import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.io.GpxReader;
 import org.openstreetmap.josm.io.DataReader.ConnectionException;
 import org.openstreetmap.josm.io.DataReader.ParseException;
@@ -53,7 +54,8 @@ public class OpenGpxAction extends AbstractAction {
 		
 		try {
 			DataSet dataSet = new GpxReader(new FileReader(gpxFile)).parse();
-			Main.main.setMapFrame(gpxFile.getName(), dataSet);
+			MapFrame map = new MapFrame(dataSet);
+			Main.main.setMapFrame(gpxFile.getName(), map);
 		} catch (ParseException x) {
 			x.printStackTrace();
 			JOptionPane.showMessageDialog(Main.main, x.getMessage());

@@ -47,15 +47,15 @@ public class MoveAction extends MapMode {
 	@Override
 	public void registerListener() {
 		super.registerListener();
-		layer.addMouseListener(this);
-		layer.addMouseMotionListener(this);
+		mv.addMouseListener(this);
+		mv.addMouseMotionListener(this);
 	}
 
 	@Override
 	public void unregisterListener() {
 		super.unregisterListener();
-		layer.removeMouseListener(this);
-		layer.removeMouseMotionListener(this);
+		mv.removeMouseListener(this);
+		mv.removeMouseMotionListener(this);
 	}
 
 	
@@ -85,12 +85,12 @@ public class MoveAction extends MapMode {
 			movingNodes.addAll(osm.getAllNodes());
 
 		for (Node n : movingNodes) {
-			Point pos = layer.getScreenPoint(n.coor);
+			Point pos = mv.getScreenPoint(n.coor);
 			pos.x += dx;
 			pos.y += dy;
-			n.coor = layer.getPoint(pos.x, pos.y, true);
+			n.coor = mv.getPoint(pos.x, pos.y, true);
 		}
-		layer.repaint();
+		mv.repaint();
 		
 		mousePos = e.getPoint();
 	}
@@ -110,17 +110,17 @@ public class MoveAction extends MapMode {
 			return;
 
 		if (ds.getSelected().size() == 0) {
-			OsmPrimitive osm = layer.getNearest(e.getPoint(), (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0);
+			OsmPrimitive osm = mv.getNearest(e.getPoint(), (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0);
 			if (osm != null)
 				osm.setSelected(true, ds);
 			singleOsmPrimitive = osm;
-			layer.repaint();
+			mv.repaint();
 		} else
 			singleOsmPrimitive = null;
 		
 		mousePos = e.getPoint();
-		oldCursor = layer.getCursor();
-		layer.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+		oldCursor = mv.getCursor();
+		mv.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
 	}
 	
 	/**
@@ -128,10 +128,10 @@ public class MoveAction extends MapMode {
 	 */
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		layer.setCursor(oldCursor);
+		mv.setCursor(oldCursor);
 		if (singleOsmPrimitive != null) {
 			singleOsmPrimitive.setSelected(false, ds);
-			layer.repaint();
+			mv.repaint();
 		}
 	}
 }

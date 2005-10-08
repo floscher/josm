@@ -41,6 +41,15 @@ public class GBC extends GridBagConstraints {
 	}
 	
 	/**
+	 * Create the constraint for the last elements on a line and on a paragraph.
+	 * This is merely a shortcut for eol().insets(0,0,0,10)
+	 * @return A constraint which indicates the last item on a line.
+	 */
+	public static GBC eop() {
+		return eol().insets(0,0,0,10);
+	}
+
+	/**
 	 * Try to fill both, horizontal and vertical
 	 * @return This constraint for chaining.
 	 */

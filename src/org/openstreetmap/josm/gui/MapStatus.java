@@ -38,9 +38,9 @@ import org.openstreetmap.josm.data.osm.visitor.SelectionComponentVisitor;
 public class MapStatus extends JPanel {
 
 	/**
-	 * The Layer this status belongs. 
+	 * The MapView this status belongs. 
 	 */
-	final Layer mv;
+	final MapView mv;
 	/**
 	 * The position of the mouse cursor.
 	 */
@@ -144,10 +144,10 @@ public class MapStatus extends JPanel {
 	private MouseState mouseState = new MouseState();
 	
 	/**
-	 * Construct a new MapStatus and attach it to the Layer.
-	 * @param mv The Layer the status line is part of.
+	 * Construct a new MapStatus and attach it to the map view.
+	 * @param mv The MapView the status line is part of.
 	 */
-	public MapStatus(final Layer mv) {
+	public MapStatus(final MapView mv) {
 		this.mv = mv;
 		
 		// Listen for mouse movements and set the position text field

@@ -1,22 +1,24 @@
 package org.openstreetmap.josm.data.projection;
 
+import java.awt.Font;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.border.Border;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.gui.GBC;
+import org.openstreetmap.josm.gui.Main;
 
 /**
  * A java port of a ruby port of a C port of a Projection from the 
@@ -91,6 +93,19 @@ public class UTM extends Projection {
 	 * Reference ellipsoid used in projection
 	 */
 	protected Ellipsoid ellipsoid = allEllipsoids[allEllipsoids.length-1];
+
+	/**
+	 * Combobox with all ellipsoids for the configuration panel
+	 */
+	private JComboBox ellipsoidCombo = new JComboBox(allEllipsoids);
+	/**
+	 * Spinner with all possible zones for the configuration panel
+	 */
+	private JSpinner zoneSpinner = new JSpinner(new SpinnerNumberModel(1,1,60,1));
+	/**
+	 * Hemisphere combo for the configuration panel
+	 */
+	private JComboBox hemisphereCombo = new JComboBox(Hemisphere.values());
 
 	
 	@Override
@@ -167,13 +182,50 @@ public class UTM extends Projection {
 		return "UTM";
 	}
 
-	@Override
-	public String description() {
-		return "UTM projection ported from Ben Gimpert's ruby port.\n" +
-			"http://www.openstreetmap.org/websvn/filedetails.php?repname=" +
-			"OpenStreetMap&path=%2Futils%2Ftiger_import%2Ftiger%2Futm.rb";
+	/**
+	 * Helper class for the zone detection
+	 * @author imi
+	 */
+	private class ZoneData {
+		int zone = 0;
+		Hemisphere hemisphere = Hemisphere.north;
 	}
-
+	/**
+	 * Try to autodetect the zone and hemisphere from the dataset.
+	 * @param dataSet The dataset to extrakt zone information from.
+	 * @return The zone data extrakted from the dataset.
+	 */
+	private ZoneData autoDetect(DataSet dataSet) {
+		ZoneData zd = new ZoneData();
+		
+		Bounds b = dataSet.getBoundsLatLon();
+		if (b == null)
+			return zd;
+		GeoPoint center = b.centerLatLon();
+		double lat = center.lat;
+		double lon = center.lon;
+		// make sure the longitude is between -180.00 .. 179.9
+		double long_temp = (lon + 180) - (Math.floor((lon + 180) / 360) * 360) - 180;
+		
+		zd.zone = (int)((long_temp + 180) / 6) + 1;
+		if ((lat >= 56.0) && (lat < 64.0) && (long_temp >= 3.0) && (long_temp < 12.0))
+			zd.zone = 32; 
+		// special zones for Svalbard
+		if ((lat >= 72.0) && (lat < 84.0))
+		{
+			if ((long_temp >= 0.0) && (long_temp < 9.0))
+				zd.zone = 31;
+			else if ((long_temp >= 9.0) && (long_temp < 21.0))
+				zd.zone = 33;
+			else if ((long_temp >= 21.0) && (long_temp < 33.0))
+				zd.zone = 35;
+			else if ((long_temp >= 33.0) && (long_temp < 42.0))
+				zd.zone = 37;
+		}
+		zd.hemisphere = lat > 0 ? Hemisphere.north : Hemisphere.south;
+		return zd;
+	}
+	
 	/**
 	 * If the zone is not already set, calculate it from this dataset. 
 	 * If the dataset span over more than one zone, take the middle one 
@@ -183,83 +235,64 @@ public class UTM extends Projection {
 	@Override
 	public void init(DataSet dataSet) {
 		if (zone == 0) {
-			Bounds b = dataSet.getBoundsLatLon();
-			if (b == null)
-				return;
-			GeoPoint center = b.centerLatLon();
-			double lat = center.lat;
-			double lon = center.lon;
-			// make sure the longitude is between -180.00 .. 179.9
-			double long_temp = (lon + 180) - (Math.floor((lon + 180) / 360) * 360) - 180;
-			
-			zone = (int)((long_temp + 180) / 6) + 1;
-			if ((lat >= 56.0) && (lat < 64.0) && (long_temp >= 3.0) && (long_temp < 12.0))
-				zone = 32; 
-			// special zones for Svalbard
-			if ((lat >= 72.0) && (lat < 84.0))
-			{
-				if ((long_temp >= 0.0) && (long_temp < 9.0))
-					zone = 31;
-				else if ((long_temp >= 9.0) && (long_temp < 21.0))
-					zone = 33;
-				else if ((long_temp >= 21.0) && (long_temp < 33.0))
-					zone = 35;
-				else if ((long_temp >= 33.0) && (long_temp < 42.0))
-					zone = 37;
-			}
-			hemisphere = lat > 0 ? Hemisphere.north : Hemisphere.south;
+			ZoneData zd = autoDetect(dataSet);
+			zone = zd.zone;
+			hemisphere = zd.hemisphere;
 		}
 	}
 
 	@Override
 	public JComponent getConfigurationPanel() {
-		Border border = BorderFactory.createEmptyBorder(5,0,0,0);
-		Box panel = Box.createVerticalBox();
-
+		JPanel panel = new JPanel(new GridBagLayout());
+		GBC gbc = GBC.std().insets(0,0,5,0);
+		
 		// ellipsoid
-		Box ellipsoidPanel = Box.createHorizontalBox();
-		ellipsoidPanel.add(new JLabel("Ellipsoid"));
-		final JComboBox ellipsoidCombo = new JComboBox(allEllipsoids);
-		ellipsoidPanel.add(ellipsoidCombo);
+		panel.add(new JLabel("Ellipsoid"), gbc);
+		panel.add(ellipsoidCombo, GBC.eol());
 		ellipsoidCombo.setSelectedItem(ellipsoid);
-		ellipsoidCombo.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e) {
-				ellipsoid = (Ellipsoid)ellipsoidCombo.getSelectedItem();
-				fireStateChanged();
-			}
-		});
-		ellipsoidPanel.setBorder(border);
-		panel.add(ellipsoidPanel);
 		
 		// zone
-		Box zonePanel = Box.createHorizontalBox();
-		zonePanel.add(new JLabel("Zone"));
-		final JSpinner zoneSpinner = new JSpinner(new SpinnerNumberModel(zone,1,60,1));
-		zonePanel.add(zoneSpinner);
-		zoneSpinner.addChangeListener(new ChangeListener(){
-			public void stateChanged(ChangeEvent e) {
-				zone = (Integer)zoneSpinner.getValue();
-				fireStateChanged();
-			}
-		});
-		zonePanel.setBorder(border);
-		panel.add(zonePanel);
+		panel.add(new JLabel("Zone"), gbc);
+		panel.add(zoneSpinner, GBC.eol().insets(0,5,0,5));
+		if (zone != 0)
+			zoneSpinner.setValue(zone);
 		
 		// hemisphere
-		Box hemispherePanel = Box.createHorizontalBox();
-		hemispherePanel.add(new JLabel("Hemisphere"));
-		final JComboBox hemisphereCombo = new JComboBox(Hemisphere.values());
-		hemispherePanel.add(hemisphereCombo);
+		panel.add(new JLabel("Hemisphere"), gbc);
+		panel.add(hemisphereCombo, GBC.eop());
 		hemisphereCombo.setSelectedItem(hemisphere);
-		hemisphereCombo.addActionListener(new ActionListener(){
+
+		// Autodetect
+		JButton autoDetect = new JButton("Detect");
+		autoDetect.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
-				hemisphere = (Hemisphere)hemisphereCombo.getSelectedItem();
-				fireStateChanged();
+				if (Main.main.getMapFrame() != null) {
+					DataSet ds = Main.main.getMapFrame().mapView.dataSet;
+					ZoneData zd = autoDetect(ds);
+					if (zd.zone == 0)
+						JOptionPane.showMessageDialog(Main.main, "Autodetection failed. Maybe the data set contain too few information.");
+					else {
+						zoneSpinner.setValue(zd.zone);
+						hemisphereCombo.setSelectedItem(zd.hemisphere);
+					}
+				} else {
+					JOptionPane.showMessageDialog(Main.main, "No data loaded. Please open a data set first.");
+				}
 			}
 		});
-		hemispherePanel.setBorder(border);
-		panel.add(hemispherePanel);
-
+		JLabel descLabel = new JLabel("Autodetect parameter based on loaded data");
+		descLabel.setFont(descLabel.getFont().deriveFont(Font.ITALIC));
+		panel.add(descLabel, GBC.eol().fill(GBC.HORIZONTAL));
+		panel.add(autoDetect, GBC.eol().anchor(GBC.CENTER));
+		
 		return panel;
+	}
+
+	@Override
+	public void commitConfigurationPanel() {
+		ellipsoid = (Ellipsoid)ellipsoidCombo.getSelectedItem();
+		zone = (Integer)zoneSpinner.getValue();
+		hemisphere = (Hemisphere)hemisphereCombo.getSelectedItem();
+		fireStateChanged();
 	}
 }

@@ -1,10 +1,9 @@
 package org.openstreetmap.josm.data;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,31 +26,23 @@ import org.openstreetmap.josm.data.projection.UTM;
  */
 public class Preferences {
 
-	
 	/**
 	 * The look and feel. Classname of the look and feel class to use.
 	 */
-	private LookAndFeelInfo laf = UIManager.getInstalledLookAndFeels()[0];
+	public LookAndFeelInfo laf = UIManager.getInstalledLookAndFeels()[0];
+
 	/**
 	 * The convertor used to translate lat/lon points to screen points.
 	 */
 	private Projection projection = new UTM();
+
+
 	/**
 	 * Whether nodes on the same place should be considered identical.
 	 */
-	private boolean mergeNodes = true;
-
-
-
-	/**
-	 * Exception thrown in case of any loading/saving error (including parse errors).
-	 * @author imi
-	 */
-	public static class PreferencesException extends Exception {
-		public PreferencesException(String message, Throwable cause) {
-			super(message, cause);
-		}
-	}
+	public boolean mergeNodes = true;
+	
+	
 
 	/**
 	 * List of all available Projections.
@@ -61,43 +52,6 @@ public class Preferences {
 		new LatitudeLongitude()
 	};
 
-
-
-
-	// listener stuff
-	
-	/**
-	 * The event listener list
-	 */
-	private List<PropertyChangeListener> listener = new LinkedList<PropertyChangeListener>();
-	/**
-	 * If <code>listener != null</code>, add it to the listener list.
-	 */
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		if (listener != null)
-			this.listener.add(listener);
-	}
-	/**
-	 * If <code>listener != null</code>, remove it from the listener list.
-	 */
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		if (listener != null)
-			this.listener.remove(listener);
-	}
-	/**
-	 * Fires an event that the property has changed.
-	 */
-	private void firePropertyChanged(String propName, Object oldValue, Object newValue) {
-		PropertyChangeEvent event = null;
-		for (PropertyChangeListener l : listener) {
-			if (event == null)
-				event = new PropertyChangeEvent(this, propName, oldValue, newValue);
-			l.propertyChange(event);
-		}
-	}
-
-	
-	
 	/**
 	 * Return the location of the preferences file
 	 */
@@ -105,6 +59,15 @@ public class Preferences {
 		return System.getProperty("user.home")+"/.josm-preferences";
 	}
 	
+	/**
+	 * Exception thrown in case of any loading/saving error (including parse errors).
+	 * @author imi
+	 */
+	public static class PreferencesException extends Exception {
+		public PreferencesException(String message, Throwable cause) {
+			super(message, cause);
+		}
+	}
 	/**
 	 * Load from disk.
 	 * @throws PreferencesException Any loading error (parse errors as well)
@@ -119,13 +82,13 @@ public class Preferences {
 			String lafClassName = root.getChildText("laf");
 			for (LookAndFeelInfo lafInfo : UIManager.getInstalledLookAndFeels())
 				if (lafInfo.getClassName().equals(lafClassName)) {
-					setLaf(lafInfo);
+					laf = lafInfo;
 					break;
 				}
-			if (getLaf() == null)
+			if (laf == null)
 				throw new PreferencesException("Look and Feel not found.", null);
-
-			// set projection
+			
+			// projection
 			Class<?> projectionClass = Class.forName(root.getChildText("projection"));
 			projection = allProjections[0]; // defaults to UTM
 			for (Projection p : allProjections) {
@@ -135,7 +98,7 @@ public class Preferences {
 				}
 			}
 
-			setMergeNodes(root.getChild("mergeNodes") != null);
+			mergeNodes = root.getChild("mergeNodes") != null;
 		} catch (Exception e) {
 			if (e instanceof PreferencesException)
 				throw (PreferencesException)e;
@@ -152,9 +115,9 @@ public class Preferences {
 		Element root = new Element("josm-settings");
 		
 		List children = root.getChildren();
-		children.add(new Element("laf").setText(getLaf().getClassName()));
+		children.add(new Element("laf").setText(laf.getClassName()));
 		children.add(new Element("projection").setText(getProjection().getClass().getName()));
-		if (isMergeNodes())
+		if (mergeNodes)
 			children.add(new Element("mergeNodes"));
 
 		try {
@@ -166,30 +129,50 @@ public class Preferences {
 		}
 	}
 
-	// getter / setter
-
+	
+	// projection change listener stuff
+	
+	/**
+	 * This interface notifies any interested about changes in the projection
+	 * @author imi
+	 */
+	public interface ProjectionChangeListener {
+		void projectionChanged(Projection oldProjection, Projection newProjection);
+	}
+	/**
+	 * The list of all listeners to projection changes.
+	 */
+	private Collection<ProjectionChangeListener> listener = new LinkedList<ProjectionChangeListener>();
+	/**
+	 * Add a listener of projection changes to the list of listeners.
+	 * @param listener The listerner to add.
+	 */
+	public void addProjectionChangeListener(ProjectionChangeListener listener) {
+		if (listener != null)
+			this.listener.add(listener);
+	}
+	/**
+	 * Remove the listener from the list.
+	 */
+	public void removeProjectionChangeListener(ProjectionChangeListener listener) {
+		this.listener.remove(listener);
+	}
+	/**
+	 * Set the projection and fire an event to all ProjectionChangeListener
+	 * @param projection The new Projection.
+	 */
 	public void setProjection(Projection projection) {
 		Projection old = this.projection;
 		this.projection = projection;
-		firePropertyChanged("projection", old, projection);
+		if (old != projection)
+			for (ProjectionChangeListener l : listener)
+				l.projectionChanged(old, projection);
 	}
+	/**
+	 * Get the current projection.
+	 * @return The current projection set.
+	 */
 	public Projection getProjection() {
 		return projection;
-	}
-	public void setMergeNodes(boolean mergeNodes) {
-		boolean old = this.mergeNodes;
-		this.mergeNodes = mergeNodes;
-		firePropertyChanged("mergeNodes", old, mergeNodes);
-	}
-	public boolean isMergeNodes() {
-		return mergeNodes;
-	}
-	public void setLaf(LookAndFeelInfo laf) {
-		LookAndFeelInfo old = this.laf;
-		this.laf = laf;
-		firePropertyChanged("laf", old, laf);
-	}
-	public LookAndFeelInfo getLaf() {
-		return laf;
 	}
 }

@@ -2,17 +2,20 @@ package org.openstreetmap.josm.gui;
 
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.awt.event.KeyEvent;
 
+import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.Preferences.ProjectionChangeListener;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
@@ -24,16 +27,32 @@ import org.openstreetmap.josm.gui.engine.SimpleEngine;
 
 /**
  * This is a component used in the MapFrame for browsing the map. It use is to
- * provide the MapMode's enough capabilities to operate.
+ * provide the MapMode's enough capabilities to operate. 
  * 
- * Layer holds one dataset. There can be more than one Layer active.
+ * MapView holds the map data, organize it, convert it, provide access to it.
  * 
- * Layer hold data of the current displayed graphics as scale level and
- * center point view.
- * 
+ * MapView hold meta-data about the data set currently displayed, as scale level,
+ * center point viewed, what scrolling mode or editing mode is selected or with
+ * what projection the map is viewed etc..
+ *
  * @author imi
  */
-public class Layer extends JComponent implements ComponentListener, ChangeListener, PropertyChangeListener {
+public class MapView extends JComponent implements ComponentListener, ChangeListener, ProjectionChangeListener {
+
+	/**
+	 * Toggles the autoScale feature of the mapView
+	 * @author imi
+	 */
+	public class AutoScaleAction extends AbstractAction {
+		public AutoScaleAction() {
+			super("Auto Scale", new ImageIcon(Main.class.getResource("/images/autoscale.png")));
+			putValue(MNEMONIC_KEY, KeyEvent.VK_A);
+		}
+		public void actionPerformed(ActionEvent e) {
+			autoScale = !autoScale;
+			recalculateCenterScale();
+		}
+	}
 
 	/**
 	 * Whether to adjust the scale property on every resize.
@@ -60,20 +79,21 @@ public class Layer extends JComponent implements ComponentListener, ChangeListen
 	private Engine engine;
 	
 	/**
-	 * Construct a Layer.
+	 * Construct a MapView.
 	 */
-	public Layer(DataSet dataSet) {
+	public MapView(DataSet dataSet) {
 		this.dataSet = dataSet;
 		addComponentListener(this);
 
 		// initialize the movement listener
 		new MapMover(this);
 
+		// initialize the projection
+		projectionChanged(null, Main.pref.getProjection());
+		Main.pref.addProjectionChangeListener(this);
+		
 		// initialize the drawing engine
 		engine = new SimpleEngine(this);
-		
-		// initialize on the preferences for projection changes.
-		Main.pref.addPropertyChangeListener(this);
 	}
 
 	/**
@@ -244,25 +264,9 @@ public class Layer extends JComponent implements ComponentListener, ChangeListen
 	 * @param e
 	 */
 	public void stateChanged(ChangeEvent e) {
-		initDataSet();
-	}
-
-	/**
-	 * Called when a property, as example the projection of the Main preferences
-	 * changes.
-	 */
-	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt.getPropertyName().equals("projection")) {
-			Projection oldProjection = (Projection)evt.getOldValue();
-			if (oldProjection != null)
-				oldProjection.removeChangeListener(this);
-
-			Projection newProjection = (Projection)evt.getNewValue();
-			if (newProjection != null)
-				newProjection.addChangeListener(this);
-
-			initDataSet();
-		}
+		for (Node n : dataSet.nodes)
+			Main.pref.getProjection().latlon2xy(n.coor);
+		recalculateCenterScale();
 	}
 
 	/**
@@ -286,8 +290,6 @@ public class Layer extends JComponent implements ComponentListener, ChangeListen
 	public void setAutoScale(boolean autoScale) {
 		if (this.autoScale != autoScale) {
 			this.autoScale = autoScale;
-			if (autoScale)
-				recalculateCenterScale();
 			firePropertyChange("autoScale", !autoScale, autoScale);
 		}
 	}
@@ -299,16 +301,25 @@ public class Layer extends JComponent implements ComponentListener, ChangeListen
 		return center.clone();
 	}
 
+	
+
 	/**
-	 * Initialize the DataSet with the projection taken from the preference
-	 * settings.
+	 * Change to the new projection. Recalculate the dataset and zoom, if autoZoom
+	 * is active.
+	 * @param oldProjection The old projection. Unregister from this.
+	 * @param newProjection	The new projection. Register as state change listener.
 	 */
-	public void initDataSet() {
-		for (Node n : dataSet.nodes)
-			Main.pref.getProjection().latlon2xy(n.coor);
+	public void projectionChanged(Projection oldProjection, Projection newProjection) {
+		if (oldProjection != null)
+			oldProjection.removeChangeListener(this);
+		if (newProjection != null) {
+			newProjection.addChangeListener(this);
+			newProjection.init(dataSet);
+			for (Node n : dataSet.nodes)
+				newProjection.latlon2xy(n.coor);
+		}
 		recalculateCenterScale();
 	}
-	
 	
 	/**
 	 * Set the new dimension to the projection class. Also adjust the components 

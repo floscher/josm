@@ -30,27 +30,27 @@ public class DebugAction extends MapMode {
 	@Override
 	public void registerListener() {
 		super.registerListener();
-		layer.addMouseMotionListener(this);
-		layer.addMouseListener(this);
+		mv.addMouseMotionListener(this);
+		mv.addMouseListener(this);
 		mapFrame.add(label, BorderLayout.SOUTH);
 	}
 
 	@Override
 	public void unregisterListener() {
 		super.unregisterListener();
-		layer.removeMouseMotionListener(this);
-		layer.removeMouseListener(this);
+		mv.removeMouseMotionListener(this);
+		mv.removeMouseListener(this);
 		mapFrame.remove(label);
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		Graphics g = mapFrame.layer.getGraphics();
+		Graphics g = mapFrame.mapView.getGraphics();
 		g.setColor(Color.WHITE);
-		for (Track t :mapFrame.layer.dataSet.tracks())
+		for (Track t :mapFrame.mapView.dataSet.tracks())
 			for (LineSegment ls : t.segments()) {
-				Point A = mapFrame.layer.getScreenPoint(ls.getStart().coor);
-				Point B = mapFrame.layer.getScreenPoint(ls.getEnd().coor);
+				Point A = mapFrame.mapView.getScreenPoint(ls.getStart().coor);
+				Point B = mapFrame.mapView.getScreenPoint(ls.getEnd().coor);
 				Point C = e.getPoint();
 				Rectangle r = new Rectangle(A.x, A.y, B.x-A.x, B.y-A.y);
 				double dist = perpendicularDistSq(B.distanceSq(C), A.distanceSq(C), A.distanceSq(B));

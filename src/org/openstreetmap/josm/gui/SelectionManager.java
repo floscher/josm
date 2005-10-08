@@ -87,9 +87,9 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 	 */
 	private Point mousePos;
 	/**
-	 * The Layer, the selection rectangle is drawn onto.
+	 * The MapView, the selection rectangle is drawn onto.
 	 */
-	private final Layer mv;
+	private final MapView mv;
 	/**
 	 * Whether the selection rectangle must obtain the aspect ratio of the 
 	 * drawComponent.
@@ -103,12 +103,12 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 	 * 		the left button is released.
 	 * @param aspectRatio If true, the selection window must obtain the aspect
 	 * 		ratio of the drawComponent.
-	 * @param layer The view, the rectangle is drawn onto.
+	 * @param mapView The view, the rectangle is drawn onto.
 	 */
-	public SelectionManager(SelectionEnded selectionEndedListener, boolean aspectRatio, Layer layer) {
+	public SelectionManager(SelectionEnded selectionEndedListener, boolean aspectRatio, MapView mapView) {
 		this.selectionEndedListener = selectionEndedListener;
 		this.aspectRatio = aspectRatio;
-		this.mv = layer;
+		this.mv = mapView;
 	}
 	
 	/**

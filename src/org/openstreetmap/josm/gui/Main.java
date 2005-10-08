@@ -4,6 +4,7 @@ package org.openstreetmap.josm.gui;
 import java.awt.BorderLayout;
 import java.awt.Container;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -18,8 +19,6 @@ import org.openstreetmap.josm.actions.PreferencesAction;
 import org.openstreetmap.josm.actions.SaveGpxAction;
 import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.Preferences.PreferencesException;
-import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.projection.Projection;
 
 /**
  * Main window class consisting of the mainframe MDI application.
@@ -102,6 +101,8 @@ public class Main extends JFrame {
 	 * @param args	No parameters accepted.
 	 */
 	public static void main(String[] args) {
+		setupUiDefaults();
+		
 		// load preferences
 		String errMsg = null;
 		try {
@@ -120,7 +121,7 @@ public class Main extends JFrame {
 			JOptionPane.showMessageDialog(null, errMsg);
 		
 		try {
-			UIManager.setLookAndFeel(pref.getLaf().getClassName());
+			UIManager.setLookAndFeel(pref.laf.getClassName());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -132,13 +133,12 @@ public class Main extends JFrame {
 
 
 	/**
-	 * Create and set the main's mapframe. If a changed old mapFrame is already 
-	 * set, ask the user whether he want to save, discard or abort. If the user
+	 * Set the main's mapframe. If a changed old mapFrame is already set, 
+	 * ask the user whether he want to save, discard or abort. If the user
 	 * aborts, nothing happens. 
 	 */
-	public void setMapFrame(String name, DataSet dataSet) {
+	public void setMapFrame(String name, MapFrame mapFrame) {
 		//TODO: Check for changes and ask user
-		MapFrame mapFrame = new MapFrame(dataSet);
 		this.name = name;
 		this.mapFrame = mapFrame;
 		panel.setVisible(false);
@@ -146,9 +146,6 @@ public class Main extends JFrame {
 		panel.add(mapFrame, BorderLayout.CENTER);
 		panel.add(mapFrame.toolBarActions, BorderLayout.WEST);
 		panel.add(mapFrame.statusLine, BorderLayout.SOUTH);
-		for (Projection p : Preferences.allProjections)
-			p.init(dataSet);
-		mapFrame.layer.initDataSet();
 		panel.setVisible(true);
 	}
 	/**
@@ -164,4 +161,14 @@ public class Main extends JFrame {
 		return mapFrame;
 	}
 
+	
+	/**
+	 * Sets some icons to the ui.
+	 */
+	private static void setupUiDefaults() {
+		UIManager.put("OptionPane.okIcon", new ImageIcon(Main.class.getResource("/images/ok.png")));
+		UIManager.put("OptionPane.yesIcon", UIManager.get("OptionPane.okIcon"));
+		UIManager.put("OptionPane.cancelIcon", new ImageIcon(Main.class.getResource("/images/cancel.png")));
+		UIManager.put("OptionPane.noIcon", UIManager.get("OptionPane.cancelIcon"));
+	}
 }

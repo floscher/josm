@@ -13,7 +13,6 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
-import org.openstreetmap.josm.actions.AutoScaleAction;
 import org.openstreetmap.josm.actions.mapmode.AddLineSegmentAction;
 import org.openstreetmap.josm.actions.mapmode.AddNodeAction;
 import org.openstreetmap.josm.actions.mapmode.AddTrackAction;
@@ -25,6 +24,7 @@ import org.openstreetmap.josm.actions.mapmode.MoveAction;
 import org.openstreetmap.josm.actions.mapmode.SelectionAction;
 import org.openstreetmap.josm.actions.mapmode.ZoomAction;
 import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.gui.dialogs.PropertiesDialog;
 import org.openstreetmap.josm.gui.dialogs.SelectionListDialog;
 
 /**
@@ -42,7 +42,7 @@ public class MapFrame extends JPanel {
 	/**
 	 * The view control displayed.
 	 */
-	public Layer layer;
+	public MapView mapView;
 	/**
 	 * The toolbar with the action icons
 	 */
@@ -60,7 +60,7 @@ public class MapFrame extends JPanel {
 		setSize(400,400);
 		setLayout(new BorderLayout());
 
-		add(layer = new Layer(dataSet), BorderLayout.CENTER);
+		add(mapView = new MapView(dataSet), BorderLayout.CENTER);
 
 		// toolbar
 		toolBarActions.setFloatable(false);
@@ -83,16 +83,19 @@ public class MapFrame extends JPanel {
 
 		// autoScale
 		toolBarActions.addSeparator();
-		final JToggleButton autoScaleButton = new IconToggleButton(this, new AutoScaleAction(layer));
+		final JToggleButton autoScaleButton = new IconToggleButton(this, mapView.new AutoScaleAction());
 		toolBarActions.add(autoScaleButton);
 		autoScaleButton.setText(null);
-		autoScaleButton.setSelected(layer.isAutoScale());
-		layer.addPropertyChangeListener(new PropertyChangeListener(){
+		autoScaleButton.setSelected(mapView.isAutoScale());
+		mapView.addPropertyChangeListener(new PropertyChangeListener(){
 			public void propertyChange(PropertyChangeEvent evt) {
 				if (evt.getPropertyName().equals("autoScale"))
-					autoScaleButton.setSelected(layer.isAutoScale());
+					autoScaleButton.setSelected(mapView.isAutoScale());
 			}
 		});
+
+		// properties
+		toolBarActions.add(new IconToggleButton(this, new PropertiesDialog(this)));
 
 		// selection dialog
 		SelectionListDialog selectionList = new SelectionListDialog(dataSet);
@@ -106,7 +109,7 @@ public class MapFrame extends JPanel {
 		toolBarActions.add(buttonSelection);
 
 		// status line below the map
-		statusLine = new MapStatus(layer);
+		statusLine = new MapStatus(mapView);
 	}
 
 	/**

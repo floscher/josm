@@ -70,13 +70,13 @@ public class DeleteAction extends MapMode {
 	@Override
 	public void registerListener() {
 		super.registerListener();
-		layer.addMouseListener(this);
+		mv.addMouseListener(this);
 	}
 
 	@Override
 	public void unregisterListener() {
 		super.unregisterListener();
-		layer.removeMouseListener(this);
+		mv.removeMouseListener(this);
 	}
 
 	/**
@@ -88,7 +88,7 @@ public class DeleteAction extends MapMode {
 		if (e.getButton() != MouseEvent.BUTTON1)
 			return;
 		
-		OsmPrimitive sel = layer.getNearest(e.getPoint(), (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0);
+		OsmPrimitive sel = mv.getNearest(e.getPoint(), (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0);
 		if (sel == null)
 			return;
 
@@ -97,7 +97,7 @@ public class DeleteAction extends MapMode {
 		else
 			delete(sel);
 
-		layer.repaint();
+		mv.repaint();
 	}
 
 	/**
