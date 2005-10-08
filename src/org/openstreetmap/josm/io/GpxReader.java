@@ -160,7 +160,7 @@ public class GpxReader implements DataReader {
 	 * @return Either the parameter node or the old node found in the dataset. 
 	 */
 	private Node addNode (DataSet data, Node node) {
-		if (Main.pref.isMergeNodes())
+		if (Main.pref.mergeNodes)
 			for (Node n : data.nodes)
 				if (node.coor.lat == n.coor.lat && node.coor.lon == n.coor.lon)
 					return n;

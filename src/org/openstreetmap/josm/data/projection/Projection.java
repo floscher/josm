@@ -46,24 +46,28 @@ abstract public class Projection implements Cloneable {
 	@Override
 	abstract public String toString();
 	
-	/**
-	 * Describe the projection converter. Give examples, where it is best to use
-	 * and maybe a reference link to more information about the converter. 
-	 */
-	abstract public String description();
-
-	
-
 	// miscellous functions
 	
 	/**
 	 * If the projection supports any configuration, this function return
-	 * the configuration panel. If no configuration needed, return null.
+	 * the configuration panel. If no configuration needed, 
+	 * return <code>null</code>.
 	 * 
-	 * The items on the configuration panel should update the configuration
-	 * directly, so the changes are instantly visible on screen.
+	 * The items on the configuration panel should not update the configuration
+	 * directly, but remember changed settings so a call to commitConfigurationPanel
+	 * can set them.
+	 * 
+	 * This function also rolls back all changes to the configuration panel interna
+	 * components.
 	 */
 	abstract public JComponent getConfigurationPanel();
+	/**
+	 * Commits any changes from components created by addToConfigurationPanel.
+	 * The projection should now obtain the new settings. If any setting has
+	 * changed, the implementation have to call to fireStateChanged to inform
+	 * the listeners.
+	 */
+	abstract public void commitConfigurationPanel();
 
 	/**
 	 * Initialize itself with the given dataSet.

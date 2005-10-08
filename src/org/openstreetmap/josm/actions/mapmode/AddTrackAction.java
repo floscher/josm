@@ -42,19 +42,19 @@ public class AddTrackAction extends MapMode implements SelectionEnded {
 	 */
 	public AddTrackAction(MapFrame mapFrame) {
 		super("Add Track", "addtrack", "Combine line segments to a new track.", KeyEvent.VK_T, mapFrame);
-		this.selectionManager = new SelectionManager(this, false, layer);
+		this.selectionManager = new SelectionManager(this, false, mv);
 	}
 
 	@Override
 	public void registerListener() {
 		super.registerListener();
-		selectionManager.register(layer);
+		selectionManager.register(mv);
 	}
 
 	@Override
 	public void unregisterListener() {
 		super.unregisterListener();
-		selectionManager.unregister(layer);
+		selectionManager.unregister(mv);
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class AddTrackAction extends MapMode implements SelectionEnded {
 		for (OsmPrimitive osm : selectionList)
 			osm.setSelected(!ctrl, ds);
 
-		layer.repaint(); // from now on, the map has to be repainted.
+		mv.repaint(); // from now on, the map has to be repainted.
 
 		if (ctrl || shift)
 			return; // no new track yet.

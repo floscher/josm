@@ -1,6 +1,6 @@
 package org.openstreetmap.josm.data.projection;
 
-import javax.swing.JPanel;
+import javax.swing.JComponent;
 
 import org.openstreetmap.josm.data.GeoPoint;
 
@@ -29,12 +29,11 @@ public class LatitudeLongitude extends Projection {
 	}
 
 	@Override
-	public String description() {
-		return "Use lat/lon values directly.";
+	public JComponent getConfigurationPanel() {
+		return null;
 	}
 
 	@Override
-	public JPanel getConfigurationPanel() {
-		return null;
+	public void commitConfigurationPanel() {
 	}
 }

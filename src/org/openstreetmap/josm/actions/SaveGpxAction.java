@@ -45,7 +45,7 @@ public class SaveGpxAction extends AbstractAction {
 		
 		try {
 			FileWriter fileWriter = new FileWriter(gpxFile);
-			GpxWriter out = new GpxWriter(fileWriter, Main.main.getMapFrame().layer.dataSet);
+			GpxWriter out = new GpxWriter(fileWriter, Main.main.getMapFrame().mapView.dataSet);
 			out.output();
 			fileWriter.close();
 		} catch (IOException e) {

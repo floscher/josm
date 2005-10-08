@@ -29,13 +29,13 @@ public class AddNodeAction extends MapMode {
 	@Override
 	public void registerListener() {
 		super.registerListener();
-		layer.addMouseListener(this);
+		mv.addMouseListener(this);
 	}
 
 	@Override
 	public void unregisterListener() {
 		super.unregisterListener();
-		layer.removeMouseListener(this);
+		mv.removeMouseListener(this);
 	}
 
 	/**
@@ -46,9 +46,9 @@ public class AddNodeAction extends MapMode {
 	public void mouseClicked(MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON1) {
 			Node node = new Node();
-			node.coor = layer.getPoint(e.getX(), e.getY(), true);
+			node.coor = mv.getPoint(e.getX(), e.getY(), true);
 			ds.nodes.add(node);
-			layer.repaint();
+			mv.repaint();
 		}
 	}
 }

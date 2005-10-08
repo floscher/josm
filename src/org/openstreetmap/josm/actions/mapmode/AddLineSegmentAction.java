@@ -58,15 +58,15 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 	@Override
 	public void registerListener() {
 		super.registerListener();
-		layer.addMouseListener(this);
-		layer.addMouseMotionListener(this);
+		mv.addMouseListener(this);
+		mv.addMouseMotionListener(this);
 	}
 
 	@Override
 	public void unregisterListener() {
 		super.unregisterListener();
-		layer.removeMouseListener(this);
-		layer.removeMouseMotionListener(this);
+		mv.removeMouseListener(this);
+		mv.removeMouseMotionListener(this);
 		drawHint(false);
 	}
 
@@ -78,7 +78,7 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 		if (e.getButton() != MouseEvent.BUTTON1)
 			return;
 
-		OsmPrimitive clicked = layer.getNearest(e.getPoint(), false);
+		OsmPrimitive clicked = mv.getNearest(e.getPoint(), false);
 		if (clicked == null || !(clicked instanceof Node))
 			return;
 
@@ -95,7 +95,7 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 		if ((e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) == 0)
 			return;
 
-		OsmPrimitive clicked = layer.getNearest(e.getPoint(), (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0);
+		OsmPrimitive clicked = mv.getNearest(e.getPoint(), (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0);
 		if (clicked == null || clicked == second || !(clicked instanceof Node))
 			return;
 
@@ -160,7 +160,7 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 				ds.addPendingLineSegment(ls);
 		}
 		
-		layer.repaint();
+		mv.repaint();
 	}
 
 	/**
@@ -174,11 +174,11 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 		if (second == first)
 			return;
 
-		Graphics g = layer.getGraphics();
+		Graphics g = mv.getGraphics();
 		g.setColor(Color.BLACK);
 		g.setXORMode(Color.WHITE);
-		Point firstDrawn = layer.getScreenPoint(first.coor);
-		Point secondDrawn = layer.getScreenPoint(second.coor);
+		Point firstDrawn = mv.getScreenPoint(first.coor);
+		Point secondDrawn = mv.getScreenPoint(second.coor);
 		g.drawLine(firstDrawn.x, firstDrawn.y, secondDrawn.x, secondDrawn.y);
 		hintDrawn = !hintDrawn;
 	}
