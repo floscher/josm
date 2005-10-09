@@ -9,9 +9,11 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 import javax.swing.UIManager;
 
+import org.openstreetmap.josm.actions.AboutAction;
 import org.openstreetmap.josm.actions.ExitAction;
 import org.openstreetmap.josm.actions.OpenGpxAction;
 import org.openstreetmap.josm.actions.OpenOsmServerAction;
@@ -68,6 +70,7 @@ public class Main extends JFrame {
 		SaveGpxAction saveGpxAction = new SaveGpxAction();
 		ExitAction exitAction = new ExitAction();
 		PreferencesAction preferencesAction = new PreferencesAction();
+		AboutAction aboutAction = new AboutAction();
 
 		// creating menu
 		JMenuBar mainMenu = new JMenuBar();
@@ -90,6 +93,12 @@ public class Main extends JFrame {
 		editMenu.setMnemonic('E');
 		editMenu.add(preferencesAction);
 		mainMenu.add(editMenu);
+		
+		mainMenu.add(new JSeparator());
+		JMenu helpMenu = new JMenu("Help");
+		helpMenu.setMnemonic('H');
+		helpMenu.add(aboutAction);
+		mainMenu.add(helpMenu);
 
 		// creating toolbar
 		JToolBar toolBar = new JToolBar();
