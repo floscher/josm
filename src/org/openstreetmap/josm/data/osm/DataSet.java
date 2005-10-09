@@ -2,8 +2,12 @@ package org.openstreetmap.josm.data.osm;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
 
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.SelectionTracker;
@@ -195,19 +199,49 @@ public class DataSet extends SelectionTracker implements Cloneable {
 	 * 		are merged together.
 	 */
 	public void mergeFrom(DataSet ds, boolean mergeEqualNodes) {
+		System.out.println(nodes.size()+" "+pendingLineSegments.size()+" "+tracks.size());
 		if (mergeEqualNodes) {
-			LinkedList<Node> nodesToAdd = new LinkedList<Node>();
-			for (Node n : ds.nodes)
-				for (Node mynode : nodes) {
-					if (mynode.coor.equalsLatLon(n.coor))
-						mynode.mergeFrom(n);
-					else
-						nodesToAdd.add(n);
+			Map<Node, Node> mergeMap = new HashMap<Node, Node>();
+			Set<Node> nodesToAdd = new HashSet<Node>();
+			for (Node n : nodes) {
+				for (Iterator<Node> it = ds.nodes.iterator(); it.hasNext();) {
+					Node dsn = it.next();
+					if (n.coor.equalsLatLon(dsn.coor)) {
+						mergeMap.put(dsn, n);
+						n.mergeFrom(dsn);
+						it.remove();
+					} else {
+						nodesToAdd.add(dsn);
+					}
 				}
-		} else
+			}
+			nodes.addAll(nodesToAdd);
+			for (Track t : ds.tracks) {
+				for (LineSegment ls : t.segments()) {
+					Node n = mergeMap.get(ls.getStart());
+					if (n != null)
+						ls.start = n;
+					n = mergeMap.get(ls.getEnd());
+					if (n != null)
+						ls.end = n;
+				}
+			}
+			tracks.addAll(ds.tracks);
+			for (LineSegment ls : ds.pendingLineSegments) {
+				Node n = mergeMap.get(ls.getStart());
+				if (n != null)
+					ls.start = n;
+				n = mergeMap.get(ls.getEnd());
+				if (n != null)
+					ls.end = n;
+			}
+			pendingLineSegments.addAll(ds.pendingLineSegments);
+		} else {
 			nodes.addAll(ds.nodes);
-		tracks.addAll(ds.tracks);
-		pendingLineSegments.addAll(ds.pendingLineSegments);
+			tracks.addAll(ds.tracks);
+			pendingLineSegments.addAll(ds.pendingLineSegments);
+		}
+		System.out.println(nodes.size()+" "+pendingLineSegments.size()+" "+tracks.size());
 	}
 
 	/**

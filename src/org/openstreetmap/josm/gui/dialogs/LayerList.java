@@ -88,6 +88,12 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 				if (!layer.isVisible())
 					icon = ImageProvider.overlay(icon, invisible, ImageProvider.OverlayPosition.SOUTHEAST);
 				label.setIcon(icon);
+				
+				DataSet ds = layer.getDataSet();
+				if (ds != null) {
+					label.setToolTipText(ds.nodes.size()+" nodes, "+
+							ds.tracks().size()+" tracks");
+				}
 				return label;
 			}
 		});

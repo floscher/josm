@@ -57,11 +57,12 @@ public class GeoPoint implements Cloneable {
 	public double distanceXY(GeoPoint other) {
 		return (x-other.x)*(x-other.x)+(y-other.y)*(y-other.y);
 	}
-	
+
 	/**
 	 * @return <code>true</code>, if the other GeoPoint has the same lat/lon values.
 	 */
 	public boolean equalsLatLon(GeoPoint other) {
-		return lat == other.lat && lon == other.lon;
+		return lat == other.lat && lon == other.lon && 
+				!Double.isNaN(lat) && !Double.isNaN(lon);
 	}
 }

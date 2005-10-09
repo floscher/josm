@@ -44,11 +44,28 @@ public class Preferences {
 	 */
 	private boolean drawRawGpsLines = false;
 	/**
+	 * Force the drawing of lines between raw gps points if there are no
+	 * lines in the imported document.
+	 */
+	private boolean forceRawGpsLines = false;
+	/**
 	 * Whether nodes on the same place should be considered identical.
 	 */
 	public boolean mergeNodes = true;
-	
-	
+
+	/**
+	 * Base URL to the osm data server
+	 */
+	public String osmDataServer = "http://www.openstreetmap.org/api/0.1";
+	/**
+	 * The username to the osm server
+	 */
+	public String osmDataUsername = "";
+	/**
+	 * The stored password or <code>null</code>, if the password should not be
+	 * stored.
+	 */
+	public String osmDataPassword = null;
 
 	/**
 	 * List of all available Projections.
@@ -104,6 +121,12 @@ public class Preferences {
 				}
 			}
 
+			Element osmServer = root.getChild("osm-server");
+			if (osmServer != null) {
+				osmDataServer = osmServer.getChildText("url");
+				osmDataUsername = osmServer.getChildText("username");
+				osmDataPassword = osmServer.getChildText("password");
+			}
 			mergeNodes = root.getChild("mergeNodes") != null;
 			drawRawGpsLines = root.getChild("drawRawGpsLines") != null;
 		} catch (Exception e) {
@@ -128,6 +151,11 @@ public class Preferences {
 			children.add(new Element("mergeNodes"));
 		if (drawRawGpsLines)
 			children.add(new Element("drawRawGpsLines"));
+		Element osmServer = new Element("osm-server");
+		osmServer.getChildren().add(new Element("url").setText(osmDataServer));
+		osmServer.getChildren().add(new Element("username").setText(osmDataUsername));
+		osmServer.getChildren().add(new Element("password").setText(osmDataPassword));
+		children.add(osmServer);
 
 		try {
 			final FileWriter file = new FileWriter(getPreferencesFile());
@@ -198,5 +226,13 @@ public class Preferences {
 	}
 	public boolean isDrawRawGpsLines() {
 		return drawRawGpsLines;
+	}
+	public void setForceRawGpsLines(boolean forceRawGpsLines) {
+		boolean old = this.forceRawGpsLines;
+		this.forceRawGpsLines = forceRawGpsLines;
+		firePropertyChanged("forceRawGpsLines", old, forceRawGpsLines);
+	}
+	public boolean isForceRawGpsLines() {
+		return forceRawGpsLines;
 	}
 }

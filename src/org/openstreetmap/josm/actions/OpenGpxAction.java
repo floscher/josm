@@ -36,7 +36,7 @@ import org.openstreetmap.josm.io.DataReader.ParseException;
 public class OpenGpxAction extends AbstractAction {
 
 	/**
-	 * Create an open action. The name is "&Open GPX".
+	 * Create an open action. The name is "Open GPX".
 	 */
 	public OpenGpxAction() {
 		super("Open GPX", ImageProvider.get("opengpx"));

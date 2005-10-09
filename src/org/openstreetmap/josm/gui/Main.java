@@ -14,6 +14,7 @@ import javax.swing.UIManager;
 
 import org.openstreetmap.josm.actions.ExitAction;
 import org.openstreetmap.josm.actions.OpenGpxAction;
+import org.openstreetmap.josm.actions.OpenOsmServerAction;
 import org.openstreetmap.josm.actions.PreferencesAction;
 import org.openstreetmap.josm.actions.SaveGpxAction;
 import org.openstreetmap.josm.data.Preferences;
@@ -62,6 +63,7 @@ public class Main extends JFrame {
 		setExtendedState(MAXIMIZED_BOTH); // some platform are able to maximize
 		
 		// creating actions
+		OpenOsmServerAction openServerAction = new OpenOsmServerAction();
 		OpenGpxAction openGpxAction = new OpenGpxAction();
 		SaveGpxAction saveGpxAction = new SaveGpxAction();
 		ExitAction exitAction = new ExitAction();
@@ -79,6 +81,11 @@ public class Main extends JFrame {
 		fileMenu.add(exitAction);
 		mainMenu.add(fileMenu);
 		
+		JMenu connectionMenu = new JMenu("Connection");
+		connectionMenu.setMnemonic('C');
+		connectionMenu.add(openServerAction);
+		mainMenu.add(connectionMenu);
+		
 		JMenu editMenu = new JMenu("Edit");
 		editMenu.setMnemonic('E');
 		editMenu.add(preferencesAction);
@@ -87,6 +94,7 @@ public class Main extends JFrame {
 		// creating toolbar
 		JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
+		toolBar.add(openServerAction);
 		toolBar.add(openGpxAction);
 		toolBar.add(saveGpxAction);
 		toolBar.addSeparator();
