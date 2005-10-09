@@ -32,6 +32,22 @@ public class Node extends OsmPrimitive {
 	public Collection<LineSegment> getParentSegments() {
 		return Collections.unmodifiableCollection(parentSegment);
 	}
+
+	/**
+	 * Merge the node given at parameter with this node.
+	 * All parents of the parameter-node become parents of this node.
+	 * 
+	 * The argument node is not changed.
+	 * 
+	 * @param node Merge the node to this.
+	 */
+	public void mergeFrom(Node node) {
+		parentSegment.addAll(node.parentSegment);
+		if (keys == null)
+			keys = node.keys;
+		else if (node.keys != null)
+			keys.putAll(node.keys);
+	}
 	
 	/**
 	 * Return a list only this added.

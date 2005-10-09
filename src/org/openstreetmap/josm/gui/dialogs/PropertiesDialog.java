@@ -20,10 +20,9 @@ public class PropertiesDialog extends ToggleDialog {
 
 	/**
 	 * Create a new PropertiesDialog
-	 * @param frame The mapFrame, this dialog is attached to.
 	 */
-	public PropertiesDialog(final MapFrame frame) {
-		super("Properties of "+Main.main.getNameOfLoadedMapFrame(), "Properties Dialog", "properties", KeyEvent.VK_P, "Property page for this map.");
+	public PropertiesDialog(MapFrame mapFrame) {
+		super(mapFrame, "Properties of "+Main.main.getNameOfLoadedMapFrame(), "Properties Dialog", "properties", KeyEvent.VK_P, "Property page for this map.");
 		putValue(MNEMONIC_KEY, KeyEvent.VK_P);
 
 		final Border panelBorder = BorderFactory.createEmptyBorder(5,0,0,0);

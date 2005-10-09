@@ -7,6 +7,8 @@ import java.awt.event.AWTEventListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
@@ -49,10 +51,6 @@ public class MapStatus extends JPanel {
 	 * The field holding the name of the object under the mouse.
 	 */
 	private JTextField nameText = new JTextField(30);
-	/**
-	 * The background thread thats collecting the data.
-	 */
-	private Runnable collector;
 
 	/**
 	 * The collector class that waits for notification and then update
@@ -77,6 +75,10 @@ public class MapStatus extends JPanel {
 		 * The popup displayed to show additional information
 		 */
 		private Popup popup;
+		/**
+		 * Signals the collector to shut down on next event.
+		 */
+		boolean exitCollector = false;
 
 		/**
 		 * Execution function for the Collector.
@@ -89,6 +91,8 @@ public class MapStatus extends JPanel {
 					ms.modifiers = mouseState.modifiers;
 					ms.mousePos = mouseState.mousePos;
 				}
+				if (exitCollector)
+					return;
 				if ((ms.modifiers & MouseEvent.CTRL_DOWN_MASK) != 0 || ms.mousePos == null)
 					continue; // freeze display when holding down ctrl
 				OsmPrimitive osm = mv.getNearest(ms.mousePos, (ms.modifiers & MouseEvent.ALT_DOWN_MASK) != 0);
@@ -118,6 +122,7 @@ public class MapStatus extends JPanel {
 						}
 					}
 					JLabel l = new JLabel(text.toString(), visitor.icon, JLabel.HORIZONTAL);
+					l.setVerticalTextPosition(JLabel.TOP);
 					
 					Point p = mv.getLocationOnScreen();
 					popup = PopupFactory.getSharedInstance().getPopup(mv, l, p.x+ms.mousePos.x+16, p.y+ms.mousePos.y+16);
@@ -147,8 +152,8 @@ public class MapStatus extends JPanel {
 	 * Construct a new MapStatus and attach it to the map view.
 	 * @param mv The MapView the status line is part of.
 	 */
-	public MapStatus(final MapView mv) {
-		this.mv = mv;
+	public MapStatus(final MapFrame mapFrame) {
+		this.mv = mapFrame.mapView;
 		
 		// Listen for mouse movements and set the position text field
 		mv.addMouseMotionListener(new MouseMotionListener(){
@@ -164,6 +169,19 @@ public class MapStatus extends JPanel {
 			}
 		});
 		
+		positionText.setEditable(false);
+		nameText.setEditable(false);
+		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+		setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+		add(new JLabel("Lat/Lon "));
+		add(positionText);
+		add(new JLabel(" Object "));
+		add(nameText);
+
+		// The background thread
+		final Collector collector = new Collector();
+		new Thread(collector).start();
+
 		// Listen to keyboard/mouse events for pressing/releasing alt key and
 		// inform the collector.
 		Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener(){
@@ -176,18 +194,17 @@ public class MapStatus extends JPanel {
 				}
 			}
 		}, AWTEvent.KEY_EVENT_MASK | AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
-
-		positionText.setEditable(false);
-		nameText.setEditable(false);
-		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-		setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-		add(new JLabel("Lat/Lon "));
-		add(positionText);
-		add(new JLabel(" Object "));
-		add(nameText);
-
-		// The background thread
-		collector = new Collector();
-		new Thread(collector).start();
+		
+		// listen for shutdowns to cancel the background thread
+		mapFrame.addPropertyChangeListener("visible", new PropertyChangeListener(){
+			public void propertyChange(PropertyChangeEvent evt) {
+				if (evt.getNewValue() == Boolean.FALSE) {
+					collector.exitCollector = true;
+					synchronized (collector) {
+						collector.notify();
+					}
+				}
+			}
+		});
 	}
 }

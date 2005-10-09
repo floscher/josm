@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JOptionPane;
 
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -81,7 +82,7 @@ public class CombineAction extends MapMode {
 		super.registerListener();
 		mv.addMouseListener(this);
 		mv.addMouseMotionListener(this);
-		ds.clearSelection();
+		mv.getActiveDataSet().clearSelection();
 	}
 
 	@Override
@@ -164,7 +165,7 @@ public class CombineAction extends MapMode {
 					t1.keys = t2.keys;
 				else	
 					t1.keys.putAll(t2.keys);
-				ds.removeTrack(t2);
+				mv.getActiveDataSet().removeTrack(t2);
 			}
 		}
 		mv.repaint();
@@ -177,6 +178,7 @@ public class CombineAction extends MapMode {
 	 * @param t The track to add the line segment to
 	 */
 	private void combine(LineSegment ls, Track t) {
+		DataSet ds = mv.getActiveDataSet();
 		if (!ds.pendingLineSegments().contains(ls))
 			throw new IllegalStateException("Should not be able to select non-pending line segments.");
 		
@@ -215,7 +217,7 @@ public class CombineAction extends MapMode {
 			LineSegment ls = (LineSegment)osm;
 			Point start = mv.getScreenPoint(ls.getStart().coor);
 			Point end = mv.getScreenPoint(ls.getEnd().coor);
-			if (mv.dataSet.pendingLineSegments().contains(osm) && g.getColor() == Color.GRAY)
+			if (mv.getActiveDataSet().pendingLineSegments().contains(osm) && g.getColor() == Color.GRAY)
 				g.drawLine(start.x, start.y, end.x, end.y);
 			else
 				g.drawLine(start.x, start.y, end.x, end.y);
@@ -223,5 +225,10 @@ public class CombineAction extends MapMode {
 			for (LineSegment ls : ((Track)osm).segments())
 				draw(g, ls);
 		}
+	}
+
+	@Override
+	protected boolean isEditMode() {
+		return true;
 	}
 }

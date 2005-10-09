@@ -4,9 +4,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
 
-import org.openstreetmap.josm.gui.Main;
+import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.PreferenceDialog;
 
 /**
@@ -20,8 +19,9 @@ public class PreferencesAction extends AbstractAction {
 	 * Create the preference action with "&Preferences" as label.
 	 */
 	public PreferencesAction() {
-		super("Preferences", new ImageIcon(Main.class.getResource("/images/preference.png")));
+		super("Preferences", ImageProvider.get("preference"));
 		putValue(MNEMONIC_KEY, KeyEvent.VK_P);
+		putValue(SHORT_DESCRIPTION, "Open a preferences page for global settings.");
 	}
 
 	/**

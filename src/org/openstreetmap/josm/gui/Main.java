@@ -4,7 +4,6 @@ package org.openstreetmap.josm.gui;
 import java.awt.BorderLayout;
 import java.awt.Container;
 
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -35,7 +34,7 @@ public class Main extends JFrame {
 	/**
 	 * Global application preferences
 	 */
-	public static Preferences pref = new Preferences();
+	public final static Preferences pref = new Preferences();
 	
 	/**
 	 * The main panel.
@@ -140,13 +139,16 @@ public class Main extends JFrame {
 	public void setMapFrame(String name, MapFrame mapFrame) {
 		//TODO: Check for changes and ask user
 		this.name = name;
+		if (this.mapFrame != null)
+			this.mapFrame.setVisible(false);
 		this.mapFrame = mapFrame;
 		panel.setVisible(false);
 		panel.removeAll();
-		panel.add(mapFrame, BorderLayout.CENTER);
-		panel.add(mapFrame.toolBarActions, BorderLayout.WEST);
-		panel.add(mapFrame.statusLine, BorderLayout.SOUTH);
-		panel.setVisible(true);
+		if (mapFrame != null) {
+			mapFrame.fillPanel(panel);
+			panel.setVisible(true);
+			mapFrame.setVisible(true);
+		}
 	}
 	/**
 	 * @return Returns the name.
@@ -166,9 +168,9 @@ public class Main extends JFrame {
 	 * Sets some icons to the ui.
 	 */
 	private static void setupUiDefaults() {
-		UIManager.put("OptionPane.okIcon", new ImageIcon(Main.class.getResource("/images/ok.png")));
+		UIManager.put("OptionPane.okIcon", ImageProvider.get("ok"));
 		UIManager.put("OptionPane.yesIcon", UIManager.get("OptionPane.okIcon"));
-		UIManager.put("OptionPane.cancelIcon", new ImageIcon(Main.class.getResource("/images/cancel.png")));
+		UIManager.put("OptionPane.cancelIcon", ImageProvider.get("cancel"));
 		UIManager.put("OptionPane.noIcon", UIManager.get("OptionPane.cancelIcon"));
 	}
 }

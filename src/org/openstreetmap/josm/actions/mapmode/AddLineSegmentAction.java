@@ -9,6 +9,7 @@ import java.awt.event.MouseListener;
 
 import javax.swing.JOptionPane;
 
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -128,6 +129,8 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 		second = null;
 		
 		if (start != end) {
+			DataSet ds = mv.getActiveDataSet();
+
 			// try to find a line segment
 			for (Track t : ds.tracks())
 				for (LineSegment ls : t.segments())
@@ -181,5 +184,10 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 		Point secondDrawn = mv.getScreenPoint(second.coor);
 		g.drawLine(firstDrawn.x, firstDrawn.y, secondDrawn.x, secondDrawn.y);
 		hintDrawn = !hintDrawn;
+	}
+
+	@Override
+	protected boolean isEditMode() {
+		return true;
 	}
 }

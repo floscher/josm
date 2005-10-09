@@ -97,15 +97,15 @@ public class UTM extends Projection {
 	/**
 	 * Combobox with all ellipsoids for the configuration panel
 	 */
-	private JComboBox ellipsoidCombo = new JComboBox(allEllipsoids);
+	private JComboBox ellipsoidCombo;
 	/**
 	 * Spinner with all possible zones for the configuration panel
 	 */
-	private JSpinner zoneSpinner = new JSpinner(new SpinnerNumberModel(1,1,60,1));
+	private JSpinner zoneSpinner;
 	/**
 	 * Hemisphere combo for the configuration panel
 	 */
-	private JComboBox hemisphereCombo = new JComboBox(Hemisphere.values());
+	private JComboBox hemisphereCombo;
 
 	
 	@Override
@@ -247,17 +247,23 @@ public class UTM extends Projection {
 		GBC gbc = GBC.std().insets(0,0,5,0);
 		
 		// ellipsoid
+		if (ellipsoidCombo == null)
+			ellipsoidCombo = new JComboBox(allEllipsoids);
 		panel.add(new JLabel("Ellipsoid"), gbc);
 		panel.add(ellipsoidCombo, GBC.eol());
 		ellipsoidCombo.setSelectedItem(ellipsoid);
 		
 		// zone
+		if (zoneSpinner == null)
+			zoneSpinner = new JSpinner(new SpinnerNumberModel(1,1,60,1));
 		panel.add(new JLabel("Zone"), gbc);
 		panel.add(zoneSpinner, GBC.eol().insets(0,5,0,5));
 		if (zone != 0)
 			zoneSpinner.setValue(zone);
 		
 		// hemisphere
+		if (hemisphereCombo == null)
+			hemisphereCombo = new JComboBox(Hemisphere.values());
 		panel.add(new JLabel("Hemisphere"), gbc);
 		panel.add(hemisphereCombo, GBC.eop());
 		hemisphereCombo.setSelectedItem(hemisphere);
@@ -267,7 +273,7 @@ public class UTM extends Projection {
 		autoDetect.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				if (Main.main.getMapFrame() != null) {
-					DataSet ds = Main.main.getMapFrame().mapView.dataSet;
+					DataSet ds = Main.main.getMapFrame().mapView.getActiveDataSet();
 					ZoneData zd = autoDetect(ds);
 					if (zd.zone == 0)
 						JOptionPane.showMessageDialog(Main.main, "Autodetection failed. Maybe the data set contain too few information.");
@@ -290,9 +296,11 @@ public class UTM extends Projection {
 
 	@Override
 	public void commitConfigurationPanel() {
-		ellipsoid = (Ellipsoid)ellipsoidCombo.getSelectedItem();
-		zone = (Integer)zoneSpinner.getValue();
-		hemisphere = (Hemisphere)hemisphereCombo.getSelectedItem();
-		fireStateChanged();
+		if (ellipsoidCombo != null && zoneSpinner != null && hemisphereCombo != null) {
+			ellipsoid = (Ellipsoid)ellipsoidCombo.getSelectedItem();
+			zone = (Integer)zoneSpinner.getValue();
+			hemisphere = (Hemisphere)hemisphereCombo.getSelectedItem();
+			fireStateChanged();
+		}
 	}
 }

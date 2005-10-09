@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.swing.JOptionPane;
 
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
@@ -92,10 +93,12 @@ public class DeleteAction extends MapMode {
 		if (sel == null)
 			return;
 
+		DataSet ds = mv.getActiveDataSet();
+
 		if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) != 0)
-			deleteWithReferences(sel);
+			deleteWithReferences(sel, ds);
 		else
-			delete(sel);
+			delete(sel, ds);
 
 		mv.repaint();
 	}
@@ -125,7 +128,7 @@ public class DeleteAction extends MapMode {
 	 *
 	 * @param osm The object to delete.
 	 */
-	private void deleteWithReferences(OsmPrimitive osm) {
+	private void deleteWithReferences(OsmPrimitive osm, DataSet ds) {
 		// collect all tracks, areas and pending line segments that should be deleted
 		ArrayList<Track> tracksToDelete = new ArrayList<Track>();
 		ArrayList<LineSegment> lineSegmentsToDelete = new ArrayList<LineSegment>();
@@ -171,7 +174,7 @@ public class DeleteAction extends MapMode {
 
 		// removing all unreferenced nodes
 		for (Node n : checkUnreferencing) {
-			if (!isReferenced(n))
+			if (!isReferenced(n, ds))
 				ds.nodes.remove(n);
 		}
 		// now, all references are killed. Delete the node (if it was a node)
@@ -186,11 +189,11 @@ public class DeleteAction extends MapMode {
 	 * 
 	 * @param osm The object to delete.
 	 */
-	private void delete(OsmPrimitive osm) {
+	private void delete(OsmPrimitive osm, DataSet ds) {
 		if (osm instanceof Node) {
 			Node n = (Node)osm;
-			if (isReferenced(n)) {
-				String combined = combine(n);
+			if (isReferenced(n, ds)) {
+				String combined = combine(n, ds);
 				if (combined != null) {
 					JOptionPane.showMessageDialog(Main.main, combined);
 					return;
@@ -221,7 +224,7 @@ public class DeleteAction extends MapMode {
 	 * @param n The node to check.
 	 * @return Whether the node is used by a track or area.
 	 */
-	private boolean isReferenced(Node n) {
+	private boolean isReferenced(Node n, DataSet ds) {
 		for (Track t : ds.tracks())
 			for (LineSegment ls : t.segments())
 				if (ls.getStart() == n || ls.getEnd() == n)
@@ -242,7 +245,7 @@ public class DeleteAction extends MapMode {
 	 * @return <code>null</code> if combining suceded or an error string if there
 	 * 		are problems combining the node.
 	 */
-	private String combine(Node n) {
+	private String combine(Node n, DataSet ds) {
 		// first, check for pending line segments
 		for (LineSegment ls : ds.pendingLineSegments())
 			if (n == ls.getStart() || n == ls.getEnd())
@@ -363,5 +366,10 @@ public class DeleteAction extends MapMode {
 		else if (second != null && first != null)
 			first.putAll(second);
 		return first;
+	}
+
+	@Override
+	protected boolean isEditMode() {
+		return true;
 	}
 }

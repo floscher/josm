@@ -39,13 +39,23 @@ public class GpxReader implements DataReader {
 	 * The data source from this reader.
 	 */
 	public Reader source;
+	/**
+	 * If <code>true</code>, only nodes and tracks are imported (but no key/value
+	 * pairs). That is to support background gps information as an hint for 
+	 * real OSM data.
+	 */
+	private final boolean rawGps;
 	
 	/**
 	 * Construct a parser from a specific data source.
 	 * @param source The data source, as example a FileReader to read from a file.
+	 * @param rawGps Whether the gpx file describes raw gps data. Only very few
+	 * 		information (only nodes and line segments) imported for raw gps to 
+	 * 		save memory.
 	 */
-	public GpxReader(Reader source) {
+	public GpxReader(Reader source, boolean rawGps) {
 		this.source = source;
+		this.rawGps = rawGps;
 	}
 	
 	/**
@@ -55,7 +65,6 @@ public class GpxReader implements DataReader {
 		try {
 			final SAXBuilder builder = new SAXBuilder();
 			Element root = builder.build(source).getRootElement();
-			System.out.println(root.getNamespacePrefix());
 			
 			// HACK, since the osm server seem to not provide a namespace.
 			if (root.getNamespacePrefix().equals(""))
@@ -84,6 +93,10 @@ public class GpxReader implements DataReader {
 		data.coor = new GeoPoint(
 			Float.parseFloat(e.getAttributeValue("lat")),
 			Float.parseFloat(e.getAttributeValue("lon")));
+		
+		if (rawGps)
+			return data;
+		
 		for (Object o : e.getChildren()) {
 			Element child = (Element)o;
 			if (child.getName().equals("extensions"))
@@ -125,11 +138,8 @@ public class GpxReader implements DataReader {
 		Track track = new Track();
 		for (Object o : e.getChildren()) {
 			Element child = (Element)o;
-			if (child.getName().equals("extensions"))
-				parseKeyValueExtensions(track, child);
-			else if (child.getName().equals("link"))
-				parseKeyValueLink(track, child);
-			else if (child.getName().equals("trkseg")) {
+
+			if (child.getName().equals("trkseg")) {
 				Node start = null;
 				for (Object w : child.getChildren("trkpt", GPX)) {
 					Node node = parseWaypoint((Element)w);
@@ -138,12 +148,22 @@ public class GpxReader implements DataReader {
 						start = node;
 					else {
 						LineSegment lineSegment = new LineSegment(start, node);
-						parseKeyValueExtensions(lineSegment, ((Element)w).getChild("extensions", GPX));
+						if (!rawGps)
+							parseKeyValueExtensions(lineSegment, ((Element)w).getChild("extensions", GPX));
 						track.add(lineSegment);
 						start = null;
 					}
 				}
-			} else
+			}
+			
+			if (rawGps)
+				continue;
+			
+			if (child.getName().equals("extensions"))
+				parseKeyValueExtensions(track, child);
+			else if (child.getName().equals("link"))
+				parseKeyValueLink(track, child);
+			else
 				parseKeyValueTag(track, child);
 		}
 		ds.addTrack(track);
@@ -155,14 +175,17 @@ public class GpxReader implements DataReader {
 	 * preference setting "mergeNodes". Return the node in the list that correspond
 	 * to the node in the list (either the new added or the old found).
 	 * 
+	 * If reading raw gps data, mergeNodes are always on (To save memory. You
+	 * can't edit raw gps nodes anyway.)
+	 * 
 	 * @param data The DataSet to add the node to.
 	 * @param node The node that should be added.
 	 * @return Either the parameter node or the old node found in the dataset. 
 	 */
 	private Node addNode (DataSet data, Node node) {
-		if (Main.pref.mergeNodes)
+		if (Main.pref.mergeNodes || rawGps)
 			for (Node n : data.nodes)
-				if (node.coor.lat == n.coor.lat && node.coor.lon == n.coor.lon)
+				if (node.coor.equalsLatLon(n.coor))
 					return n;
 		data.nodes.add(node);
 		return node;

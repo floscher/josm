@@ -1,29 +1,30 @@
 package org.openstreetmap.josm.gui;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
+import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 
-import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.GeoPoint;
-import org.openstreetmap.josm.data.Preferences.ProjectionChangeListener;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Track;
 import org.openstreetmap.josm.data.projection.Projection;
-import org.openstreetmap.josm.gui.engine.Engine;
-import org.openstreetmap.josm.gui.engine.SimpleEngine;
+import org.openstreetmap.josm.gui.layer.Layer;
 
 /**
  * This is a component used in the MapFrame for browsing the map. It use is to
@@ -35,29 +36,27 @@ import org.openstreetmap.josm.gui.engine.SimpleEngine;
  * center point viewed, what scrolling mode or editing mode is selected or with
  * what projection the map is viewed etc..
  *
+ * MapView is able to administrate several layers, but there must be always at
+ * least one layer with a dataset in it (Layer.getDataSet returning non-null).
+ *
  * @author imi
  */
-public class MapView extends JComponent implements ComponentListener, ChangeListener, ProjectionChangeListener {
+public class MapView extends JComponent implements ChangeListener, PropertyChangeListener {
 
 	/**
-	 * Toggles the autoScale feature of the mapView
+	 * Interface to notify listeners of the change of the active layer.
 	 * @author imi
 	 */
-	public class AutoScaleAction extends AbstractAction {
-		public AutoScaleAction() {
-			super("Auto Scale", new ImageIcon(Main.class.getResource("/images/autoscale.png")));
-			putValue(MNEMONIC_KEY, KeyEvent.VK_A);
-		}
-		public void actionPerformed(ActionEvent e) {
-			autoScale = !autoScale;
-			recalculateCenterScale();
-		}
+	public interface LayerChangeListener {
+		void activeLayerChange(Layer oldLayer, Layer newLayer);
+		void layerAdded(Layer newLayer);
+		void layerRemoved(Layer oldLayer);
 	}
 
 	/**
 	 * Whether to adjust the scale property on every resize.
 	 */
-	private boolean autoScale = true;
+	boolean autoScale = true;
 
 	/**
 	 * The scale factor in meter per pixel.
@@ -69,31 +68,95 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 	private GeoPoint center;
 
 	/**
-	 * The underlying DataSet.
+	 * A list of all layers currently loaded.
 	 */
-	public final DataSet dataSet;
-
+	private ArrayList<Layer> layers = new ArrayList<Layer>();
 	/**
-	 * The drawing engine.
+	 * The layer from the layers list that is currently active.
 	 */
-	private Engine engine;
+	private Layer activeLayer;
+	/**
+	 * The listener of the active layer changes.
+	 */
+	private Collection<LayerChangeListener> listeners = new LinkedList<LayerChangeListener>();
 	
 	/**
 	 * Construct a MapView.
+	 * @param layer The first layer in the view.
 	 */
-	public MapView(DataSet dataSet) {
-		this.dataSet = dataSet;
-		addComponentListener(this);
+	public MapView(Layer layer) {
+		if (layer.getDataSet() == null)
+			throw new IllegalArgumentException("Initial layer must have a dataset.");
+
+		addComponentListener(new ComponentAdapter(){
+			@Override
+			public void componentResized(ComponentEvent e) {
+				recalculateCenterScale();
+			}
+		});
 
 		// initialize the movement listener
 		new MapMover(this);
 
 		// initialize the projection
-		projectionChanged(null, Main.pref.getProjection());
-		Main.pref.addProjectionChangeListener(this);
-		
-		// initialize the drawing engine
-		engine = new SimpleEngine(this);
+		addLayer(layer);
+		Main.pref.addPropertyChangeListener(this);
+
+		// init screen
+		recalculateCenterScale();
+	}
+
+	/**
+	 * Add a layer to the current MapView. The layer will be added at topmost
+	 * position.
+	 */
+	public void addLayer(Layer layer) {
+		layers.add(0,layer);
+
+		DataSet ds = layer.getDataSet();
+
+		if (ds != null) {
+			// initialize the projection if it was the first layer
+			if (layers.size() == 1)
+				Main.pref.getProjection().init(ds);
+			
+			// initialize the dataset in the new layer
+			for (Node n : ds.nodes)
+				Main.pref.getProjection().latlon2xy(n.coor);
+		}
+
+		for (LayerChangeListener l : listeners)
+			l.layerAdded(layer);
+
+		setActiveLayer(layer);
+	}
+	
+	/**
+	 * Remove the layer from the mapview. If the layer was in the list before,
+	 * an LayerChange event is fired.
+	 */
+	public void removeLayer(Layer layer) {
+		if (layers.remove(layer))
+			for (LayerChangeListener l : listeners)
+				l.layerRemoved(layer);
+	}
+
+	/**
+	 * Moves the layer to the given new position. No event is fired.
+	 * @param layer		The layer to move
+	 * @param pos		The new position of the layer
+	 */
+	public void moveLayer(Layer layer, int pos) {
+		int curLayerPos = layers.indexOf(layer);
+		if (curLayerPos == -1)
+			throw new IllegalArgumentException("layer not in list.");
+		if (pos == curLayerPos)
+			return; // already in place.
+		layers.remove(curLayerPos);
+		if (pos >= layers.size())
+			layers.add(layer);
+		else
+			layers.add(pos, layer);
 	}
 
 	/**
@@ -167,9 +230,12 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 	public OsmPrimitive getNearest(Point p, boolean wholeTrack) {
 		double minDistanceSq = Double.MAX_VALUE;
 		OsmPrimitive minPrimitive = null;
+
+		// calculate the object based on the current active dataset.
+		DataSet ds = getActiveDataSet();
 		
 		// nodes
-		for (Node n : dataSet.nodes) {
+		for (Node n : ds.nodes) {
 			Point sp = getScreenPoint(n.coor);
 			double dist = p.distanceSq(sp);
 			if (minDistanceSq > dist && dist < 100) {
@@ -181,7 +247,7 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 			return minPrimitive;
 		
 		// pending line segments
-		for (LineSegment ls : dataSet.pendingLineSegments()) {
+		for (LineSegment ls : ds.pendingLineSegments()) {
 			Point A = getScreenPoint(ls.getStart().coor);
 			Point B = getScreenPoint(ls.getEnd().coor);
 			double c = A.distanceSq(B);
@@ -196,7 +262,7 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 
 		// tracks & line segments
 		minDistanceSq = Double.MAX_VALUE;
-		for (Track t : dataSet.tracks()) {
+		for (Track t : ds.tracks()) {
 			for (LineSegment ls : t.segments()) {
 				Point A = getScreenPoint(ls.getStart().coor);
 				Point B = getScreenPoint(ls.getEnd().coor);
@@ -242,21 +308,20 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 		if (oldScale != scale)
 			firePropertyChange("scale", oldScale, scale);
 	}
-	
+
 	/**
 	 * Draw the component.
 	 */
 	@Override
 	public void paint(Graphics g) {
-		engine.init(g);
-		engine.drawBackground(getPoint(0,0,true), getPoint(getWidth(), getHeight(), true));
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, getWidth(), getHeight());
 
-		for (Track t : dataSet.tracks())
-			engine.drawTrack(t);
-		for (LineSegment ls : dataSet.pendingLineSegments())
-			engine.drawPendingLineSegment(ls);
-		for (Node n : dataSet.nodes)
-			engine.drawNode(n);
+		for (int i = layers.size()-1; i >= 0; --i) {
+			Layer l = layers.get(i);
+			if (l.isVisible())
+				l.paint(g, this);
+		}
 	}
 
 	/**
@@ -264,8 +329,14 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 	 * @param e
 	 */
 	public void stateChanged(ChangeEvent e) {
-		for (Node n : dataSet.nodes)
-			Main.pref.getProjection().latlon2xy(n.coor);
+		// reset all datasets.
+		Projection p = Main.pref.getProjection();
+		for (Layer l : layers) {
+			DataSet ds = l.getDataSet();
+			if (ds != null)
+				for (Node n : ds.nodes)
+					p.latlon2xy(n.coor);
+		}
 		recalculateCenterScale();
 	}
 
@@ -291,6 +362,7 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 		if (this.autoScale != autoScale) {
 			this.autoScale = autoScale;
 			firePropertyChange("autoScale", !autoScale, autoScale);
+			recalculateCenterScale();
 		}
 	}
 	/**
@@ -302,6 +374,22 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 	}
 
 	
+	/**
+	 * Return the dataSet for the current selected layer. If the active layer
+	 * does not have a dataset, return the DataSet from the next layer a.s.o.
+	 *  
+	 * @return The DataSet of the current active layer.
+	 */
+	public DataSet getActiveDataSet() {
+		if (activeLayer.getDataSet() != null)
+			return activeLayer.getDataSet();
+		for (Layer l : layers) {
+			DataSet ds = l.getDataSet();
+			if (ds != null)
+				return ds;
+		}
+		throw new IllegalStateException("No dataset found.");
+	}
 
 	/**
 	 * Change to the new projection. Recalculate the dataset and zoom, if autoZoom
@@ -309,23 +397,24 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 	 * @param oldProjection The old projection. Unregister from this.
 	 * @param newProjection	The new projection. Register as state change listener.
 	 */
-	public void projectionChanged(Projection oldProjection, Projection newProjection) {
-		if (oldProjection != null)
-			oldProjection.removeChangeListener(this);
-		if (newProjection != null) {
-			newProjection.addChangeListener(this);
-			newProjection.init(dataSet);
-			for (Node n : dataSet.nodes)
-				newProjection.latlon2xy(n.coor);
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (!evt.getPropertyName().equals("projection"))
+			return;
+		if (evt.getOldValue() != null)
+			((Projection)evt.getOldValue()).removeChangeListener(this);
+		if (evt.getNewValue() != null) {
+			Projection p = (Projection)evt.getNewValue();
+			p.addChangeListener(this);
+
+			stateChanged(new ChangeEvent(this));
 		}
-		recalculateCenterScale();
 	}
 	
 	/**
 	 * Set the new dimension to the projection class. Also adjust the components 
 	 * scale, if in autoScale mode.
 	 */
-	private void recalculateCenterScale() {
+	void recalculateCenterScale() {
 		if (autoScale) {
 			// -20 to leave some border
 			int w = getWidth()-20;
@@ -334,7 +423,8 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 			int h = getHeight()-20;
 			if (h < 20)
 				h = 20;
-			Bounds bounds = dataSet.getBoundsXY();
+			
+			Bounds bounds = getActiveDataSet().getBoundsXY();
 			
 			boolean oldAutoScale = autoScale;
 			GeoPoint oldCenter = center;
@@ -363,22 +453,50 @@ public class MapView extends JComponent implements ComponentListener, ChangeList
 	}
 
 	/**
-	 * Call to recalculateCenterScale.
+	 * Add a listener for changes of active layer.
+	 * @param listener The listener that get added.
 	 */
-	public void componentResized(ComponentEvent e) {
-		recalculateCenterScale();
+	public void addLayerChangeListener(LayerChangeListener listener) {
+		if (listener != null)
+			listeners.add(listener);
 	}
 
 	/**
-	 * Does nothing. Just to satisfy ComponentListener.
+	 * Remove the listener.
+	 * @param listener The listener that get removed from the list.
 	 */
-	public void componentMoved(ComponentEvent e) {}
+	public void removeLayerChangeListener(LayerChangeListener listener) {
+		listeners.remove(listener);
+	}
+
 	/**
-	 * Does nothing. Just to satisfy ComponentListener.
+	 * @return An unmodificable list of all layers
 	 */
-	public void componentShown(ComponentEvent e) {}
+	public Collection<Layer> getAllLayers() {
+		return Collections.unmodifiableCollection(layers);
+	}
+
 	/**
-	 * Does nothing. Just to satisfy ComponentListener.
+	 * Set the active selection to the given value and raise an layerchange event.
 	 */
-	public void componentHidden(ComponentEvent e) {}
+	public void setActiveLayer(Layer layer) {
+		if (!layers.contains(layer))
+			throw new IllegalArgumentException("layer must be in layerlist");
+		Layer old = activeLayer;
+		activeLayer = layer;
+		if (old != layer) {
+			if (old != null && old.getDataSet() != null)
+				old.getDataSet().clearSelection();
+			for (LayerChangeListener l : listeners)
+				l.activeLayerChange(old, layer);
+			recalculateCenterScale();
+		}
+	}
+
+	/**
+	 * @return The current active layer
+	 */
+	public Layer getActiveLayer() {
+		return activeLayer;
+	}
 }

@@ -5,6 +5,7 @@ import java.awt.event.KeyEvent;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Track;
@@ -74,6 +75,8 @@ public class AddTrackAction extends MapMode implements SelectionEnded {
 		if (shift && ctrl)
 			return; // not allowed together
 
+		DataSet ds = mv.getActiveDataSet();
+		
 		if (!ctrl && !shift)
 			ds.clearSelection(); // new selection will replace the old.
 
@@ -103,5 +106,10 @@ public class AddTrackAction extends MapMode implements SelectionEnded {
 			ds.assignPendingLineSegment(ls, t, true);
 		ds.addTrack(t);
 		ds.clearSelection();
+	}
+
+	@Override
+	protected boolean isEditMode() {
+		return true;
 	}
 }

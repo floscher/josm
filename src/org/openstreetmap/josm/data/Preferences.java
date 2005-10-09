@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.data;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -37,6 +39,10 @@ public class Preferences {
 	private Projection projection = new UTM();
 
 
+	/**
+	 * Whether lines should be drawn between track points of raw gps data.
+	 */
+	private boolean drawRawGpsLines = false;
 	/**
 	 * Whether nodes on the same place should be considered identical.
 	 */
@@ -99,6 +105,7 @@ public class Preferences {
 			}
 
 			mergeNodes = root.getChild("mergeNodes") != null;
+			drawRawGpsLines = root.getChild("drawRawGpsLines") != null;
 		} catch (Exception e) {
 			if (e instanceof PreferencesException)
 				throw (PreferencesException)e;
@@ -119,6 +126,8 @@ public class Preferences {
 		children.add(new Element("projection").setText(getProjection().getClass().getName()));
 		if (mergeNodes)
 			children.add(new Element("mergeNodes"));
+		if (drawRawGpsLines)
+			children.add(new Element("drawRawGpsLines"));
 
 		try {
 			final FileWriter file = new FileWriter(getPreferencesFile());
@@ -133,30 +142,39 @@ public class Preferences {
 	// projection change listener stuff
 	
 	/**
-	 * This interface notifies any interested about changes in the projection
-	 * @author imi
-	 */
-	public interface ProjectionChangeListener {
-		void projectionChanged(Projection oldProjection, Projection newProjection);
-	}
-	/**
 	 * The list of all listeners to projection changes.
 	 */
-	private Collection<ProjectionChangeListener> listener = new LinkedList<ProjectionChangeListener>();
+	private Collection<PropertyChangeListener> listener = new LinkedList<PropertyChangeListener>();
 	/**
 	 * Add a listener of projection changes to the list of listeners.
 	 * @param listener The listerner to add.
 	 */
-	public void addProjectionChangeListener(ProjectionChangeListener listener) {
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		if (listener != null)
 			this.listener.add(listener);
 	}
 	/**
 	 * Remove the listener from the list.
 	 */
-	public void removeProjectionChangeListener(ProjectionChangeListener listener) {
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
 		this.listener.remove(listener);
 	}
+	/**
+	 * Fires a PropertyChangeEvent if the old value differs from the new value.
+	 */
+	private <T> void firePropertyChanged(String name, T oldValue, T newValue) {
+		if (oldValue == newValue)
+			return;
+		PropertyChangeEvent evt = null;
+		for (PropertyChangeListener l : listener) {
+			if (evt == null)
+				evt = new PropertyChangeEvent(this, name, oldValue, newValue);
+			l.propertyChange(evt);
+		}
+	}
+
+	// getter / setter
+	
 	/**
 	 * Set the projection and fire an event to all ProjectionChangeListener
 	 * @param projection The new Projection.
@@ -164,9 +182,7 @@ public class Preferences {
 	public void setProjection(Projection projection) {
 		Projection old = this.projection;
 		this.projection = projection;
-		if (old != projection)
-			for (ProjectionChangeListener l : listener)
-				l.projectionChanged(old, projection);
+		firePropertyChanged("projection", old, projection);
 	}
 	/**
 	 * Get the current projection.
@@ -174,5 +190,13 @@ public class Preferences {
 	 */
 	public Projection getProjection() {
 		return projection;
+	}
+	public void setDrawRawGpsLines(boolean drawRawGpsLines) {
+		boolean old = this.drawRawGpsLines;
+		this.drawRawGpsLines = drawRawGpsLines;
+		firePropertyChanged("drawRawGpsLines", old, drawRawGpsLines);
+	}
+	public boolean isDrawRawGpsLines() {
+		return drawRawGpsLines;
 	}
 }

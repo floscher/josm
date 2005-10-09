@@ -14,6 +14,7 @@ import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -270,18 +271,19 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 				selection.add(osm);
 		} else {
 			// nodes
-			for (Node n : mv.dataSet.nodes) {
+			DataSet ds = mv.getActiveDataSet();
+			for (Node n : ds.nodes) {
 				if (r.contains(mv.getScreenPoint(n.coor)))
 					selection.add(n);
 			}
 			
 			// pending line segments
-			for (LineSegment ls : mv.dataSet.pendingLineSegments())
+			for (LineSegment ls : ds.pendingLineSegments())
 				if (rectangleContainLineSegment(r, alt, ls))
 					selection.add(ls);
 
 			// tracks
-			for (Track t : mv.dataSet.tracks()) {
+			for (Track t : ds.tracks()) {
 				boolean wholeTrackSelected = !t.segments().isEmpty();
 				for (LineSegment ls : t.segments())
 					if (rectangleContainLineSegment(r, alt, ls))

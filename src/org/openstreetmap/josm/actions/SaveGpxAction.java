@@ -7,10 +7,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
+import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.Main;
 import org.openstreetmap.josm.io.GpxWriter;
 
@@ -27,8 +27,9 @@ public class SaveGpxAction extends AbstractAction {
 	 * Construct the action with "Save GPX" as label.
 	 */
 	public SaveGpxAction() {
-		super("Save GPX", new ImageIcon(Main.class.getResource("/images/savegpx.png")));
+		super("Save GPX", ImageProvider.get("savegpx"));
 		putValue(MNEMONIC_KEY, KeyEvent.VK_S);
+		putValue(SHORT_DESCRIPTION, "Save the current active layer as GPX file.");
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -45,7 +46,7 @@ public class SaveGpxAction extends AbstractAction {
 		
 		try {
 			FileWriter fileWriter = new FileWriter(gpxFile);
-			GpxWriter out = new GpxWriter(fileWriter, Main.main.getMapFrame().mapView.dataSet);
+			GpxWriter out = new GpxWriter(fileWriter, Main.main.getMapFrame().mapView.getActiveDataSet());
 			out.output();
 			fileWriter.close();
 		} catch (IOException e) {

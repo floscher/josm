@@ -67,4 +67,9 @@ public class ZoomAction extends MapMode implements SelectionEnded {
 		super.unregisterListener();
 		selectionManager.unregister(mv);
 	}
+
+	@Override
+	protected boolean isEditMode() {
+		return false;
+	}
 }
