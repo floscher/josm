@@ -54,7 +54,7 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 			GeoPoint mouseCenter = mv.getPoint(e.getX(), e.getY(), false);
 			GeoPoint p = new GeoPoint();
 			p.x = mousePosMove.x + center.x - mouseCenter.x;  
-			p.y = mousePosMove.y + center.y - mouseCenter.y;  
+			p.y = mousePosMove.y + center.y - mouseCenter.y;
 			mv.zoomTo(p, mv.getScale());
 		} else
 			endMovement();

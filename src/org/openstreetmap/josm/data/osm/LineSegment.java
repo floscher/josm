@@ -17,12 +17,12 @@ public class LineSegment extends OsmPrimitive {
 	/**
 	 * The starting node of the line segment
 	 */
-	private Node start;
+	Node start;
 	
 	/**
 	 * The ending node of the line segment
 	 */
-	private Node end;
+	Node end;
 
 	/**
 	 * The tracks, this line segment is part of.

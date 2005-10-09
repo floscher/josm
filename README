@@ -32,8 +32,8 @@ http://ftp.debian-unofficial.org/debian/ stable non-free
 
 The package is called sun-j2se5.0-jdk-binary.
 
-Good news for MacOS: In Tiger Release Java5 is already included.
-The bad news for non-Tigers: There are no Java5 available.
+For MacOS user: There is an installer for Mac OS X 10.4:
+http://www.apple.com/support/downloads/java2se50release1.html
 
 
 How to launch
@@ -57,7 +57,7 @@ How to get the Source
 
 Download it from http://www.eigenheimstrasse.de/josm/josm-beta-src.zip
 or directly from the subversion at 
-http://www.eigenheimstrasse.de/svn/josm. The beta is Revision 12.
+http://www.eigenheimstrasse.de/svn/josm. The beta was Revision 12.
 
 
 

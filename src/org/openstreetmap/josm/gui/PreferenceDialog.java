@@ -20,7 +20,9 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
@@ -51,7 +53,13 @@ public class PreferenceDialog extends JDialog {
 			projection.commitConfigurationPanel();
 			Main.pref.setProjection(projection);
 			Main.pref.mergeNodes = mergeNodes.isSelected();
+			Main.pref.osmDataServer = osmDataServer.getText();
+			Main.pref.osmDataUsername = osmDataUsername.getText();
+			Main.pref.osmDataPassword = String.valueOf(osmDataPassword.getPassword());
+			if (Main.pref.osmDataPassword == "")
+				Main.pref.osmDataPassword = null;
 			Main.pref.setDrawRawGpsLines(drawRawGpsLines.isSelected());
+			Main.pref.setForceRawGpsLines(forceRawGpsLines.isSelected());
 			try {
 				Main.pref.save();
 			} catch (PreferencesException x) {
@@ -96,9 +104,25 @@ public class PreferenceDialog extends JDialog {
 	private JTabbedPane tabPane = new JTabbedPane(JTabbedPane.LEFT);
 
 	/**
+	 * Editfield for the Base url to the REST API from OSM. 
+	 */
+	private JTextField osmDataServer = new JTextField(20);
+	/**
+	 * Editfield for the username to the OSM account.
+	 */
+	private JTextField osmDataUsername = new JTextField(20);
+	/**
+	 * Passwordfield for the userpassword of the REST API.
+	 */
+	private JPasswordField osmDataPassword = new JPasswordField(20);
+	/**
 	 * The checkbox stating whether nodes should be merged together.
 	 */
 	private JCheckBox drawRawGpsLines = new JCheckBox("Draw lines between raw gps points.");
+	/**
+	 * The checkbox stating whether raw gps lines should be forced.
+	 */
+	private JCheckBox forceRawGpsLines = new JCheckBox("Force lines if no line segments imported.");
 	/**
 	 * The checkbox stating whether nodes should be merged together.
 	 */
@@ -154,20 +178,56 @@ public class PreferenceDialog extends JDialog {
 			}
 		});
 		
+		// drawRawGpsLines
+		drawRawGpsLines.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				if (!drawRawGpsLines.isSelected())
+					forceRawGpsLines.setSelected(false);
+				forceRawGpsLines.setEnabled(drawRawGpsLines.isSelected());
+			}
+		});
+
+		
 		// tooltips
+		osmDataServer.setToolTipText("The base URL to the OSM server (REST API)");
+		osmDataUsername.setToolTipText("Login name (email) to the OSM account.");
+		osmDataPassword.setToolTipText("Login password to the OSM account. Leave blank to not store any password.");
 		drawRawGpsLines.setToolTipText("If your gps device draw to few lines, select this to draw lines along your track.");
 		drawRawGpsLines.setSelected(Main.pref.isDrawRawGpsLines());
+		forceRawGpsLines.setToolTipText("Force drawing of lines if the imported data contain no line information.");
+		forceRawGpsLines.setSelected(Main.pref.isForceRawGpsLines());
 		mergeNodes.setToolTipText("When importing GPX data, all nodes with exact the same lat/lon are merged.");
 		mergeNodes.setSelected(Main.pref.mergeNodes);
-		
+
+		osmDataServer.setText(Main.pref.osmDataServer);
+		osmDataUsername.setText(Main.pref.osmDataUsername);
+		osmDataPassword.setText(Main.pref.osmDataPassword);
+
 		// Display tab
 		JPanel display = createPreferenceTab("display", "Display Settings", "Various settings that influence the visual representation of the whole program.");
 		display.add(new JLabel("Look and Feel"), GBC.std());
 		display.add(GBC.glue(5,0), GBC.std().fill(GBC.HORIZONTAL));
 		display.add(lafCombo, GBC.eol().fill(GBC.HORIZONTAL));
 		display.add(drawRawGpsLines, GBC.eol().insets(20,0,0,0));
+		display.add(forceRawGpsLines, GBC.eol().insets(40,0,0,0));
 		display.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
 
+		// Connection tab
+		JPanel con = createPreferenceTab("connection", "Connection Settings", "Connection Settings to the OSM server.");
+		con.add(new JLabel("Base Server URL"), GBC.std());
+		con.add(osmDataServer, GBC.eol().fill(GBC.HORIZONTAL).insets(5,0,0,5));
+		con.add(new JLabel("OSM username (email)"), GBC.std());
+		con.add(osmDataUsername, GBC.eol().fill(GBC.HORIZONTAL).insets(5,0,0,5));
+		con.add(new JLabel("OSM password"), GBC.std());
+		con.add(osmDataPassword, GBC.eol().fill(GBC.HORIZONTAL).insets(5,0,0,0));
+		JLabel warning = new JLabel("<html>" +
+				"WARNING: The password is stored in plain text in the preferences file.<br>" +
+				"The password is transfered in plain text to the server, encoded in the url.<br>" +
+				"<b>Do not use a valuable Password.</b></html>");
+		warning.setFont(warning.getFont().deriveFont(Font.ITALIC));
+		con.add(warning, GBC.eop().fill(GBC.HORIZONTAL));
+
+		
 		// Map tab
 		JPanel map = createPreferenceTab("map", "Map Settings", "Settings for the map projection and data interpretation.");
 		map.add(new JLabel("Projection method"), GBC.std());
@@ -220,6 +280,7 @@ public class PreferenceDialog extends JDialog {
 		p.add(descLabel, GBC.eol().insets(5,0,5,20).fill(GBC.HORIZONTAL));
 
 		tabPane.addTab(null, ImageProvider.get("preferences", icon), p);
+		tabPane.setToolTipTextAt(tabPane.getTabCount()-1, desc);
 		return p;
 	}
 	
