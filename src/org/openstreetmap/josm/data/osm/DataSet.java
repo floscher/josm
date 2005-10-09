@@ -185,6 +185,32 @@ public class DataSet extends SelectionTracker implements Cloneable {
 	}
 
 	/**
+	 * Import the given dataset by merging all data with this dataset.
+	 * The objects imported are not cloned, so from now on, these data belong
+	 * to both datasets. So use mergeFrom only if you are about to abandon the
+	 * other dataset or this dataset.
+	 * 
+	 * @param ds	The DataSet to merge into this one.
+	 * @param mergeEqualNodes If <code>true</code>, nodes with the same lat/lon
+	 * 		are merged together.
+	 */
+	public void mergeFrom(DataSet ds, boolean mergeEqualNodes) {
+		if (mergeEqualNodes) {
+			LinkedList<Node> nodesToAdd = new LinkedList<Node>();
+			for (Node n : ds.nodes)
+				for (Node mynode : nodes) {
+					if (mynode.coor.equalsLatLon(n.coor))
+						mynode.mergeFrom(n);
+					else
+						nodesToAdd.add(n);
+				}
+		} else
+			nodes.addAll(ds.nodes);
+		tracks.addAll(ds.tracks);
+		pendingLineSegments.addAll(ds.pendingLineSegments);
+	}
+
+	/**
 	 * Remove the selection from every value in the collection.
 	 * @param list The collection to remove the selection from.
 	 */

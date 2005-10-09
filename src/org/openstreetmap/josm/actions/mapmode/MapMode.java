@@ -6,14 +6,14 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 
-import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.gui.Main;
+import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
+import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
+import org.openstreetmap.josm.gui.layer.Layer;
 
 /**
  * A class implementing MapMode is able to be selected as an mode for map editing.
@@ -33,10 +33,6 @@ abstract public class MapMode extends AbstractAction implements MouseListener, M
 	 * Shortcut to the MapView.
 	 */
 	protected final MapView mv;
-	/**
-	 * Shortcut to the DataSet.
-	 */
-	protected final DataSet ds;
 
 	/**
 	 * Construct a mapMode with the given icon and the given MapFrame
@@ -45,7 +41,7 @@ abstract public class MapMode extends AbstractAction implements MouseListener, M
 	 * @param mapFrame The parent MapFrame, this MapMode belongs to.
 	 */
 	public MapMode(String name, String iconName, String tooltip, int mnemonic, MapFrame mapFrame) {
-		super(name, new ImageIcon(Main.class.getResource("/images/mapmode/"+iconName+".png")));
+		super(name, ImageProvider.get("mapmode", iconName));
 		putValue(MNEMONIC_KEY, mnemonic);
 		putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(mnemonic,0));
 		putValue(LONG_DESCRIPTION, tooltip);
@@ -53,9 +49,21 @@ abstract public class MapMode extends AbstractAction implements MouseListener, M
 		mapFrame.getActionMap().put(this, this);
 		this.mapFrame = mapFrame;
 		mv = mapFrame.mapView;
-		ds = mv.dataSet;
+		mv.addLayerChangeListener(new LayerChangeListener(){
+			public void activeLayerChange(Layer oldLayer, Layer newLayer) {
+				setEnabled(!isEditMode() || newLayer.isEditable());
+			}
+			public void layerAdded(Layer newLayer) {}
+			public void layerRemoved(Layer oldLayer) {}
+		});
 	}
-	
+
+	/**
+	 * Subclasses should return whether they want to edit the map data or
+	 * whether they are read-only.
+	 */
+	abstract protected boolean isEditMode();
+
 	/**
 	 * Register all listener to the mapView
 	 * @param mapView	The view, where the listener should be registered.

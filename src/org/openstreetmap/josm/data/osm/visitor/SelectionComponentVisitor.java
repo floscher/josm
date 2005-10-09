@@ -6,13 +6,12 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 
 import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Track;
-import org.openstreetmap.josm.gui.Main;
+import org.openstreetmap.josm.gui.ImageProvider;
 
 /**
  * Able to create a name and an icon for each data element.
@@ -37,7 +36,7 @@ public class SelectionComponentVisitor extends Visitor {
 	@Override
 	public void visit(Key k) {
 		name = k.name;
-		icon = new ImageIcon(Main.class.getResource("/images/data/key.png"));
+		icon = ImageProvider.get("data", "key");
 	}
 
 	/**
@@ -52,7 +51,7 @@ public class SelectionComponentVisitor extends Visitor {
 			name = "("+ls.getStart().coor.lat+","+ls.getStart().coor.lon+") -> ("+ls.getEnd().coor.lat+","+ls.getEnd().coor.lon+")";
 			
 		this.name = name;
-		icon = new ImageIcon("images/data/linesegment.png");
+		icon = ImageProvider.get("data", "linesegment");
 	}
 
 	/**
@@ -66,7 +65,7 @@ public class SelectionComponentVisitor extends Visitor {
 			name = "("+n.coor.lat+","+n.coor.lon+")";
 		
 		this.name = name;
-		icon = new ImageIcon("images/data/node.png");
+		icon = ImageProvider.get("data", "node");
 	}
 
 	/**
@@ -86,7 +85,7 @@ public class SelectionComponentVisitor extends Visitor {
 		}
 		
 		this.name = name;
-		icon = new ImageIcon("images/data/track.png");
+		icon = ImageProvider.get("data", "track");
 	}
 
 	

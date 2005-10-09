@@ -9,7 +9,6 @@ import java.util.Collection;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -20,7 +19,12 @@ import org.openstreetmap.josm.data.SelectionChangedListener;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.visitor.SelectionComponentVisitor;
+import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.Main;
+import org.openstreetmap.josm.gui.MapFrame;
+import org.openstreetmap.josm.gui.MapView;
+import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
+import org.openstreetmap.josm.gui.layer.Layer;
 
 /**
  * A small tool dialog for displaying the current selection. The selection manager
@@ -29,7 +33,7 @@ import org.openstreetmap.josm.gui.Main;
  * 
  * @author imi
  */
-public class SelectionListDialog extends ToggleDialog implements SelectionChangedListener {
+public class SelectionListDialog extends ToggleDialog implements SelectionChangedListener, LayerChangeListener {
 
 	/**
 	 * The selection's list data.
@@ -42,15 +46,15 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 	/**
 	 * The dataset, all selections are part of.
 	 */
-	private final DataSet dataSet;
+	private final MapView mapView;
 	
 	/**
 	 * Create a SelectionList dialog.
-	 * @param dataSet The dataset this dialog operates on.
+	 * @param mapView The mapView to get the dataset from.
 	 */
-	public SelectionListDialog(DataSet dataSet) {
-		super("Current Selection", "Selection List", "selectionlist", KeyEvent.VK_E, "Open a selection list window.");
-		this.dataSet = dataSet;
+	public SelectionListDialog(MapFrame mapFrame) {
+		super(mapFrame, "Current Selection", "Selection List", "selectionlist", KeyEvent.VK_E, "Open a selection list window.");
+		this.mapView = mapFrame.mapView;
 		setLayout(new BorderLayout());
 		setSize(300,400);
 		displaylist.setCellRenderer(new DefaultListCellRenderer(){
@@ -70,7 +74,8 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 
 		getContentPane().add(new JScrollPane(displaylist), BorderLayout.CENTER);
 
-		JButton button = new JButton("Select", new ImageIcon(Main.class.getResource("/images/mapmode/selection.png")));
+		JButton button = new JButton("Select", ImageProvider.get("mapmode", "selection"));
+		button.setToolTipText("Set the selected elements on the map to the selected items in the list above.");
 		button.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				updateMap();
@@ -78,16 +83,19 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 		});
 		getContentPane().add(button, BorderLayout.SOUTH);
 
-		selectionChanged(dataSet.getSelected());
+		selectionChanged(mapView.getActiveDataSet().getSelected());
 	}
 
 	@Override
 	public void setVisible(boolean b) {
 		if (b) {
-			dataSet.addSelectionChangedListener(this);
-			selectionChanged(dataSet.getSelected());
-		} else
-			dataSet.removeSelectionChangedListener(this);
+			mapView.addLayerChangeListener(this);
+			mapView.getActiveDataSet().addSelectionChangedListener(this);
+			selectionChanged(mapView.getActiveDataSet().getSelected());
+		} else {
+			mapView.removeLayerChangeListener(this);
+			mapView.getActiveDataSet().removeSelectionChangedListener(this);
+		}
 		super.setVisible(b);
 	}
 
@@ -109,10 +117,29 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 	 * Sets the selection of the map to the current selected items.
 	 */
 	public void updateMap() {
-		dataSet.clearSelection();
+		DataSet ds = mapView.getActiveDataSet();
+		ds.clearSelection();
 		for (int i = 0; i < list.getSize(); ++i)
 			if (displaylist.isSelectedIndex(i))
-				((OsmPrimitive)list.get(i)).setSelected(true, dataSet);
+				((OsmPrimitive)list.get(i)).setSelected(true, ds);
 		Main.main.getMapFrame().repaint();
 	}
+
+	public void activeLayerChange(Layer oldLayer, Layer newLayer) {
+		DataSet ds = oldLayer.getDataSet();
+		if (ds != null)
+			ds.removeSelectionChangedListener(this);
+		ds = newLayer.getDataSet();
+		if (ds != null)
+			ds.addSelectionChangedListener(this);
+	}
+
+	/**
+	 * Does nothing. Only to satisfy LayerChangeListener
+	 */
+	public void layerAdded(Layer newLayer) {}
+	/**
+	 * Does nothing. Only to satisfy LayerChangeListener
+	 */
+	public void layerRemoved(Layer oldLayer) {}
 }

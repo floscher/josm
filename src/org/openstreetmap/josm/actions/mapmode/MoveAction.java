@@ -7,6 +7,7 @@ import java.awt.event.MouseEvent;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.MapFrame;
@@ -78,7 +79,7 @@ public class MoveAction extends MapMode {
 		if (dx == 0 && dy == 0)
 			return;
 
-		Collection<OsmPrimitive> selection = ds.getSelected();
+		Collection<OsmPrimitive> selection = mv.getActiveDataSet().getSelected();
 		// creating a list of all nodes that should be moved.
 		Collection<Node> movingNodes = new HashSet<Node>();
 		for (OsmPrimitive osm : selection)
@@ -109,6 +110,8 @@ public class MoveAction extends MapMode {
 		if (e.getButton() != MouseEvent.BUTTON1)
 			return;
 
+		DataSet ds = mv.getActiveDataSet();
+
 		if (ds.getSelected().size() == 0) {
 			OsmPrimitive osm = mv.getNearest(e.getPoint(), (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0);
 			if (osm != null)
@@ -130,8 +133,13 @@ public class MoveAction extends MapMode {
 	public void mouseReleased(MouseEvent e) {
 		mv.setCursor(oldCursor);
 		if (singleOsmPrimitive != null) {
-			singleOsmPrimitive.setSelected(false, ds);
+			singleOsmPrimitive.setSelected(false, mv.getActiveDataSet());
 			mv.repaint();
 		}
+	}
+
+	@Override
+	protected boolean isEditMode() {
+		return true;
 	}
 }

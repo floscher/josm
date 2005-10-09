@@ -23,7 +23,7 @@ public class AddNodeAction extends MapMode {
 	 * @param mapFrame
 	 */
 	public AddNodeAction(MapFrame mapFrame) {
-		super("Add nodes", "addnode", "Add new nodes to the map.", KeyEvent.VK_A, mapFrame);
+		super("Add nodes", "addnode", "Add nodes to the map.", KeyEvent.VK_N, mapFrame);
 	}
 
 	@Override
@@ -47,8 +47,13 @@ public class AddNodeAction extends MapMode {
 		if (e.getButton() == MouseEvent.BUTTON1) {
 			Node node = new Node();
 			node.coor = mv.getPoint(e.getX(), e.getY(), true);
-			ds.nodes.add(node);
+			mv.getActiveDataSet().nodes.add(node);
 			mv.repaint();
 		}
+	}
+
+	@Override
+	protected boolean isEditMode() {
+		return true;
 	}
 }

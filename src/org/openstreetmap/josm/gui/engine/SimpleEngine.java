@@ -5,11 +5,9 @@ import java.awt.Point;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Track;
-import org.openstreetmap.josm.gui.MapView;
 
 /**
  * A simple graphic engine that draws rather symbolic images to easy identify
@@ -21,19 +19,6 @@ public class SimpleEngine extends Engine {
 
 	private final static Color darkblue = new Color(0,0,128);
 	private final static Color darkgreen = new Color(0,128,0);
-
-	public SimpleEngine(MapView mapView) {
-		super(mapView);
-	}
-
-	/**
-	 * Draws black background.
-	 */
-	@Override
-	public void drawBackground(GeoPoint ulGeo, GeoPoint lrGeo) {
-		g.setColor(Color.BLACK);
-		g.fillRect(0,0,mv.getWidth(),mv.getHeight());
-	}
 
 	/**
 	 * Draw a small rectangle. 

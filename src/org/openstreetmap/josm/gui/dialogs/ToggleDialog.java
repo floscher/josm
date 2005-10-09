@@ -1,17 +1,20 @@
 package org.openstreetmap.josm.gui.dialogs;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.AbstractButton;
 import javax.swing.Action;
-import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.KeyStroke;
 
+import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.Main;
+import org.openstreetmap.josm.gui.MapFrame;
 
 /**
  * This class is a toggle dialog that can be turned on and off. It is attached
@@ -25,13 +28,22 @@ public class ToggleDialog extends JDialog implements Action {
 	 * Create a new ToggleDialog.
 	 * @param title The title of the dialog.
 	 */
-	public ToggleDialog(String title, String name, String iconName, int mnemonic, String tooltip) {
+	public ToggleDialog(MapFrame mapFrame, String title, String name, String iconName, int mnemonic, String tooltip) {
 		super(Main.main, title, false);
-		putValue(SMALL_ICON, new ImageIcon(Main.class.getResource("/images/dialogs/"+iconName+".png")));
+		putValue(SMALL_ICON, ImageProvider.get("dialogs", iconName));
 		putValue(NAME, name);
 		putValue(MNEMONIC_KEY, mnemonic);
-		putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_E,0));
-		putValue(LONG_DESCRIPTION, "Open a selection list window.");
+		KeyStroke ks = KeyStroke.getKeyStroke(mnemonic,0);
+		putValue(ACCELERATOR_KEY, ks);
+		mapFrame.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ks, this);
+		mapFrame.getActionMap().put(this, this);
+		putValue(LONG_DESCRIPTION, tooltip);
+		mapFrame.addPropertyChangeListener("visible", new PropertyChangeListener(){
+			public void propertyChange(PropertyChangeEvent evt) {
+				if (evt.getNewValue() == Boolean.FALSE)
+					setVisible(false);
+			}
+		});
 	}
 
 	/**

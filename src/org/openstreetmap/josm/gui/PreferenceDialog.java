@@ -6,13 +6,11 @@ import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.DefaultListCellRenderer;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -53,6 +51,7 @@ public class PreferenceDialog extends JDialog {
 			projection.commitConfigurationPanel();
 			Main.pref.setProjection(projection);
 			Main.pref.mergeNodes = mergeNodes.isSelected();
+			Main.pref.setDrawRawGpsLines(drawRawGpsLines.isSelected());
 			try {
 				Main.pref.save();
 			} catch (PreferencesException x) {
@@ -95,12 +94,16 @@ public class PreferenceDialog extends JDialog {
 	 * The main tab panel.
 	 */
 	private JTabbedPane tabPane = new JTabbedPane(JTabbedPane.LEFT);
+
+	/**
+	 * The checkbox stating whether nodes should be merged together.
+	 */
+	private JCheckBox drawRawGpsLines = new JCheckBox("Draw lines between raw gps points.");
 	/**
 	 * The checkbox stating whether nodes should be merged together.
 	 */
 	private JCheckBox mergeNodes = new JCheckBox("Merge nodes with equal latitude/longitude.");
 
-	
 	/**
 	 * Create a preference setting dialog from an preferences-file. If the file does not
 	 * exist, it will be created.
@@ -110,16 +113,6 @@ public class PreferenceDialog extends JDialog {
 	public PreferenceDialog() {
 		super(Main.main, "Preferences");
 
-		Preferences pref = new Preferences();
-		try {
-			if (new File(Preferences.getPreferencesFile()).exists())
-				pref.load();
-		} catch (PreferencesException e) {
-			JOptionPane.showMessageDialog(Main.main, "Preferences settings could not be parsed:\n"+e.getMessage());
-			e.printStackTrace();
-			return;
-		}
-
 		// look and feel combo box
 		final ListCellRenderer oldRenderer = lafCombo.getRenderer();
 		lafCombo.setRenderer(new DefaultListCellRenderer(){
@@ -127,7 +120,7 @@ public class PreferenceDialog extends JDialog {
 			public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 				return oldRenderer.getListCellRendererComponent(list, ((LookAndFeelInfo)value).getName(), index, isSelected, cellHasFocus);
 			}});
-		lafCombo.setSelectedItem(pref.laf);
+		lafCombo.setSelectedItem(Main.pref.laf);
 		lafCombo.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				setRequiresRestart();
@@ -135,7 +128,7 @@ public class PreferenceDialog extends JDialog {
 
 		// projection combo box
 		for (int i = 0; i < projectionCombo.getItemCount(); ++i) {
-			if (projectionCombo.getItemAt(i).getClass().equals(pref.getProjection().getClass())) {
+			if (projectionCombo.getItemAt(i).getClass().equals(Main.pref.getProjection().getClass())) {
 				projectionCombo.setSelectedIndex(i);
 				break;
 			}
@@ -161,12 +154,18 @@ public class PreferenceDialog extends JDialog {
 			}
 		});
 		
+		// tooltips
+		drawRawGpsLines.setToolTipText("If your gps device draw to few lines, select this to draw lines along your track.");
+		drawRawGpsLines.setSelected(Main.pref.isDrawRawGpsLines());
+		mergeNodes.setToolTipText("When importing GPX data, all nodes with exact the same lat/lon are merged.");
+		mergeNodes.setSelected(Main.pref.mergeNodes);
 		
 		// Display tab
 		JPanel display = createPreferenceTab("display", "Display Settings", "Various settings that influence the visual representation of the whole program.");
 		display.add(new JLabel("Look and Feel"), GBC.std());
 		display.add(GBC.glue(5,0), GBC.std().fill(GBC.HORIZONTAL));
 		display.add(lafCombo, GBC.eol().fill(GBC.HORIZONTAL));
+		display.add(drawRawGpsLines, GBC.eol().insets(20,0,0,0));
 		display.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
 
 		// Map tab
@@ -179,8 +178,7 @@ public class PreferenceDialog extends JDialog {
 		map.add(projectionDetail, GBC.eop());
 		
 		map.add(new JLabel("GPX import / export"), GBC.eol());
-		mergeNodes.setSelected(pref.mergeNodes);
-		map.add(mergeNodes, GBC.eol());
+		map.add(mergeNodes, GBC.eol().insets(20,0,0,0));
 		map.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
 
 		
@@ -221,7 +219,7 @@ public class PreferenceDialog extends JDialog {
 		descLabel.setFont(descLabel.getFont().deriveFont(Font.ITALIC));
 		p.add(descLabel, GBC.eol().insets(5,0,5,20).fill(GBC.HORIZONTAL));
 
-		tabPane.addTab(null, new ImageIcon("images/preferences/"+icon+".png"), p);
+		tabPane.addTab(null, ImageProvider.get("preferences", icon), p);
 		return p;
 	}
 	
