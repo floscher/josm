@@ -125,7 +125,7 @@ public class Main extends JFrame {
 			pref.load();
 		} catch (PreferencesException e1) {
 			e1.printStackTrace();
-			errMsg = "Preferences could not be loaded. Write default preference file to '"+Preferences.getPreferencesFile()+"'.";
+			errMsg = "Preferences could not be loaded. Write default preference file to '"+Preferences.getPreferencesDir()+"preferences'.";
 			try {
 				pref.save();
 			} catch (PreferencesException e) {

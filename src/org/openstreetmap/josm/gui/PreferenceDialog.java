@@ -188,7 +188,6 @@ public class PreferenceDialog extends JDialog {
 		});
 
 		
-		// tooltips
 		osmDataServer.setToolTipText("The base URL to the OSM server (REST API)");
 		osmDataUsername.setToolTipText("Login name (email) to the OSM account.");
 		osmDataPassword.setToolTipText("Login password to the OSM account. Leave blank to not store any password.");
@@ -196,6 +195,7 @@ public class PreferenceDialog extends JDialog {
 		drawRawGpsLines.setSelected(Main.pref.isDrawRawGpsLines());
 		forceRawGpsLines.setToolTipText("Force drawing of lines if the imported data contain no line information.");
 		forceRawGpsLines.setSelected(Main.pref.isForceRawGpsLines());
+		forceRawGpsLines.setEnabled(drawRawGpsLines.isSelected());
 		mergeNodes.setToolTipText("When importing GPX data, all nodes with exact the same lat/lon are merged.");
 		mergeNodes.setSelected(Main.pref.mergeNodes);
 
