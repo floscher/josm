@@ -5,6 +5,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -78,8 +79,8 @@ public class Preferences {
 	/**
 	 * Return the location of the preferences file
 	 */
-	public static String getPreferencesFile() {
-		return System.getProperty("user.home")+"/.josm-preferences";
+	public static String getPreferencesDir() {
+		return System.getProperty("user.home")+"/.josm/";
 	}
 	
 	/**
@@ -90,13 +91,16 @@ public class Preferences {
 		public PreferencesException(String message, Throwable cause) {
 			super(message, cause);
 		}
+		public PreferencesException(String message) {
+			super(message);
+		}
 	}
 	/**
 	 * Load from disk.
 	 * @throws PreferencesException Any loading error (parse errors as well)
 	 */
 	public void load() throws PreferencesException {
-		File file = new File(System.getProperty("user.home")+"/.josm-preferences");
+		File file = new File(getPreferencesDir()+"/preferences");
 		Element root;
 		try {
 			root = new SAXBuilder().build(new FileReader(file)).getRootElement();
@@ -158,10 +162,16 @@ public class Preferences {
 		children.add(osmServer);
 
 		try {
-			final FileWriter file = new FileWriter(getPreferencesFile());
+			File prefDir = new File(getPreferencesDir());
+			if (prefDir.exists() && !prefDir.isDirectory())
+				throw new PreferencesException("Preferences directory "+getPreferencesDir()+" is not a directory.");
+			if (!prefDir.exists())
+				prefDir.mkdirs();
+
+			FileWriter file = new FileWriter(getPreferencesDir()+"/preferences");
 			new XMLOutputter(Format.getPrettyFormat()).output(root, file);
 			file.close();
-		} catch (Exception e) {
+		} catch (IOException e) {
 			throw new PreferencesException("Could not write preferences", e);
 		}
 	}
