@@ -7,7 +7,7 @@ import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.border.Border;
 
-import org.openstreetmap.josm.gui.Main;
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.gui.MapFrame;
 
 /**

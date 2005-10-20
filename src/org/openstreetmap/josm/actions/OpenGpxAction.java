@@ -16,10 +16,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
 
-import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.command.DataSet;
 import org.openstreetmap.josm.gui.GBC;
 import org.openstreetmap.josm.gui.ImageProvider;
-import org.openstreetmap.josm.gui.Main;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.LayerFactory;

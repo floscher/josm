@@ -79,7 +79,7 @@ public class Track extends OsmPrimitive {
 	/**
 	 * The track is going to be destroyed. Unlink all back references.
 	 */
-	void destroy() {
+	public void destroy() {
 		for (LineSegment ls : segments) {
 			ls.parent.remove(this);
 			if (ls.parent.isEmpty())

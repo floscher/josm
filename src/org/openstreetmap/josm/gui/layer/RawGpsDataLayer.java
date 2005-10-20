@@ -2,7 +2,7 @@ package org.openstreetmap.josm.gui.layer;
 
 import javax.swing.Icon;
 
-import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.command.DataSet;
 import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.engine.RawGpsEngine;
 
@@ -12,7 +12,7 @@ import org.openstreetmap.josm.gui.engine.RawGpsEngine;
  * 
  * @author imi
  */
-public class RawGpsDataLayer extends DataLayer {
+public class RawGpsDataLayer extends Layer {
 
 	private static Icon icon;
 
@@ -23,13 +23,10 @@ public class RawGpsDataLayer extends DataLayer {
 	/**
 	 * Return a static icon.
 	 */
+	@Override
 	public Icon getIcon() {
 		if (icon == null)
 			icon = ImageProvider.get("layer", "rawgps");
 		return icon;
-	}
-
-	public boolean isEditable() {
-		return false;
 	}
 }

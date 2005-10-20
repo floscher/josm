@@ -22,9 +22,9 @@ import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.command.DataSet;
 import org.openstreetmap.josm.gui.ImageProvider;
-import org.openstreetmap.josm.gui.Main;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
@@ -83,13 +83,13 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 			public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 				Layer layer = (Layer)value;
 				JLabel label = (JLabel)super.getListCellRendererComponent(list, 
-						layer.getName(), index, isSelected, cellHasFocus);
+						layer.name, index, isSelected, cellHasFocus);
 				Icon icon = layer.getIcon();
-				if (!layer.isVisible())
+				if (!layer.visible)
 					icon = ImageProvider.overlay(icon, invisible, ImageProvider.OverlayPosition.SOUTHEAST);
 				label.setIcon(icon);
 				
-				DataSet ds = layer.getDataSet();
+				DataSet ds = layer.dataSet;
 				if (ds != null) {
 					label.setToolTipText(ds.nodes.size()+" nodes, "+
 							ds.tracks().size()+" tracks");
@@ -147,7 +147,7 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 		visible.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				Layer l = (Layer)layers.getSelectedValue();
-				l.setVisible(!l.isVisible());
+				l.visible = !l.visible;
 				mapView.repaint();
 				layers.repaint();
 			}
@@ -174,9 +174,9 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 		mergeButton.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e) {
 					Layer lFrom = (Layer)layers.getSelectedValue();
-					DataSet dsFrom = lFrom.getDataSet();
+					DataSet dsFrom = lFrom.dataSet;
 					Layer lTo = (Layer)model.get(layers.getSelectedIndex()+1);
-					DataSet dsTo = lTo.getDataSet();
+					DataSet dsTo = lTo.dataSet;
 					dsTo.mergeFrom(dsFrom, Main.pref.mergeNodes);
 					layers.setSelectedValue(lTo, true);
 					mapView.removeLayer(lFrom);
@@ -197,8 +197,8 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 		Layer l = (Layer)layers.getSelectedValue();
 		boolean enable = model.getSize() > 1;
 		enable = enable && sel < model.getSize()-1;
-		enable = enable && l.getDataSet() != null;
-		enable = enable && ((Layer)model.get(sel+1)).getDataSet() != null;
+		enable = enable && l.dataSet != null;
+		enable = enable && ((Layer)model.get(sel+1)).dataSet != null;
 		enable = enable && l.isEditable() == ((Layer)model.get(sel+1)).isEditable();
 		mergeButton.setEnabled(enable);
 		upButton.setEnabled(sel > 0);

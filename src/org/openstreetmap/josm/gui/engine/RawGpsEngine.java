@@ -6,10 +6,10 @@ import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Track;
-import org.openstreetmap.josm.gui.Main;
 import org.openstreetmap.josm.gui.MapView;
 
 /**

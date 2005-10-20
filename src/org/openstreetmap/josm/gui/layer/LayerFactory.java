@@ -1,6 +1,6 @@
 package org.openstreetmap.josm.gui.layer;
 
-import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.command.DataSet;
 
 /**
  * A factory class that create Layers.

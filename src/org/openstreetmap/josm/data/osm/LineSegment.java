@@ -17,12 +17,12 @@ public class LineSegment extends OsmPrimitive {
 	/**
 	 * The starting node of the line segment
 	 */
-	Node start;
+	public Node start;
 	
 	/**
 	 * The ending node of the line segment
 	 */
-	Node end;
+	public Node end;
 
 	/**
 	 * The tracks, this line segment is part of.
@@ -68,7 +68,7 @@ public class LineSegment extends OsmPrimitive {
 	/**
 	 * The LineSegment is going to be destroyed. Unlink all back references.
 	 */
-	void destroy() {
+	public void destroy() {
 		start.parentSegment.remove(this);
 		end.parentSegment.remove(this);
 	}

@@ -12,6 +12,8 @@ import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
+import org.openstreetmap.josm.Main;
+
 /**
  * Helperclass to support the application with images.
  * @author imi
