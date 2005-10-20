@@ -8,12 +8,12 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JOptionPane;
 
-import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.command.DataSet;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Track;
-import org.openstreetmap.josm.gui.Main;
 import org.openstreetmap.josm.gui.MapFrame;
 
 /**

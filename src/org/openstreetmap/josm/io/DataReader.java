@@ -1,6 +1,6 @@
 package org.openstreetmap.josm.io;
 
-import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.command.DataSet;
 
 /**
  * All Classes that subclass DataReader are capable of importing data from a source

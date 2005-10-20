@@ -11,9 +11,9 @@ import org.openstreetmap.josm.data.osm.Track;
  * 
  * @author imi
  */
-abstract public class Visitor {
-	public void visit(Node n) {}
-	public void visit(LineSegment ls) {}
-	public void visit(Track t) {}
-	public void visit(Key k) {}
+public interface Visitor {
+	void visit(Node n);
+	void visit(LineSegment ls);
+	void visit(Track t);
+	void visit(Key k);
 }

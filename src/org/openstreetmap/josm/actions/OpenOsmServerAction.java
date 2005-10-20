@@ -18,12 +18,12 @@ import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.command.DataSet;
 import org.openstreetmap.josm.data.GeoPoint;
-import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.gui.BookmarkList;
 import org.openstreetmap.josm.gui.GBC;
 import org.openstreetmap.josm.gui.ImageProvider;
-import org.openstreetmap.josm.gui.Main;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.BookmarkList.Bookmark;

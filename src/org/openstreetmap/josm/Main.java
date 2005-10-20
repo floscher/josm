@@ -1,5 +1,5 @@
 // Licence: GPL
-package org.openstreetmap.josm.gui;
+package org.openstreetmap.josm;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -21,6 +21,8 @@ import org.openstreetmap.josm.actions.PreferencesAction;
 import org.openstreetmap.josm.actions.SaveGpxAction;
 import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.Preferences.PreferencesException;
+import org.openstreetmap.josm.gui.ImageProvider;
+import org.openstreetmap.josm.gui.MapFrame;
 
 /**
  * Main window class consisting of the mainframe MDI application.

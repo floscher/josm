@@ -8,14 +8,14 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
+import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.command.DataSet;
 import org.openstreetmap.josm.data.GeoPoint;
-import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Track;
-import org.openstreetmap.josm.gui.Main;
 
 /**
  * Reads an gpx stream and construct a DataSet out of it. 

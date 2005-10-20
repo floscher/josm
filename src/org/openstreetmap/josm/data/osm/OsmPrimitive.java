@@ -3,6 +3,7 @@ package org.openstreetmap.josm.data.osm;
 import java.util.Collection;
 import java.util.Map;
 
+import org.openstreetmap.josm.command.DataSet;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
 
 

@@ -16,9 +16,9 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.command.DataSet;
 import org.openstreetmap.josm.gui.GBC;
-import org.openstreetmap.josm.gui.Main;
 
 /**
  * This DataReader read directly from the REST API of the osm server.

@@ -12,8 +12,8 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.KeyStroke;
 
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.gui.ImageProvider;
-import org.openstreetmap.josm.gui.Main;
 import org.openstreetmap.josm.gui.MapFrame;
 
 /**

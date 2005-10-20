@@ -14,11 +14,11 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
+import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.command.DataSet;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.GeoPoint;
-import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.gui.GBC;
-import org.openstreetmap.josm.gui.Main;
 
 /**
  * A java port of a ruby port of a C port of a Projection from the 

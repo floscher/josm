@@ -10,8 +10,8 @@ import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.gui.ImageProvider;
-import org.openstreetmap.josm.gui.Main;
 import org.openstreetmap.josm.io.GpxWriter;
 
 /**

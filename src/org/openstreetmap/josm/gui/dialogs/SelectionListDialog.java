@@ -15,12 +15,12 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
+import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.command.DataSet;
 import org.openstreetmap.josm.data.SelectionChangedListener;
-import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.visitor.SelectionComponentVisitor;
 import org.openstreetmap.josm.gui.ImageProvider;
-import org.openstreetmap.josm.gui.Main;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
@@ -126,10 +126,10 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 	}
 
 	public void activeLayerChange(Layer oldLayer, Layer newLayer) {
-		DataSet ds = oldLayer.getDataSet();
+		DataSet ds = oldLayer.dataSet;
 		if (ds != null)
 			ds.removeSelectionChangedListener(this);
-		ds = newLayer.getDataSet();
+		ds = newLayer.dataSet;
 		if (ds != null)
 			ds.addSelectionChangedListener(this);
 	}

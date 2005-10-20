@@ -7,8 +7,8 @@ import javax.swing.JComponent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.openstreetmap.josm.command.DataSet;
 import org.openstreetmap.josm.data.GeoPoint;
-import org.openstreetmap.josm.data.osm.DataSet;
 
 /**
  * Classes subclass this are able to convert lat/lon values to 

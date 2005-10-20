@@ -18,7 +18,7 @@ import org.openstreetmap.josm.gui.ImageProvider;
  * 
  * @author imi
  */
-public class SelectionComponentVisitor extends Visitor {
+public class SelectionComponentVisitor implements Visitor {
 
 	/**
 	 * The name of this item.
@@ -33,7 +33,6 @@ public class SelectionComponentVisitor extends Visitor {
 	/**
 	 * A key icon and the name of the key.
 	 */
-	@Override
 	public void visit(Key k) {
 		name = k.name;
 		icon = ImageProvider.get("data", "key");
@@ -44,7 +43,6 @@ public class SelectionComponentVisitor extends Visitor {
 	 * Otherwise, if it has "id", this is used. If none of these available, 
 	 * "(x1,y1) -> (x2,y2)" is displayed with the nodes coordinates.
 	 */
-	@Override
 	public void visit(LineSegment ls) {
 		String name = getName(ls.keys);
 		if (name == null)
@@ -58,7 +56,6 @@ public class SelectionComponentVisitor extends Visitor {
 	 * If the node has a name-key or id-key, this is displayed. If not, (lat,lon)
 	 * is displayed.
 	 */
-	@Override
 	public void visit(Node n) {
 		String name = getName(n.keys);
 		if (name == null)
@@ -72,7 +69,6 @@ public class SelectionComponentVisitor extends Visitor {
 	 * If the track has a name-key or id-key, this is displayed. If not, (x nodes)
 	 * is displayed with x beeing the number of nodes in the track.
 	 */
-	@Override
 	public void visit(Track t) {
 		String name = getName(t.keys);
 		if (name == null) {

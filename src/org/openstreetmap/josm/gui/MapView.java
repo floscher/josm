@@ -16,9 +16,10 @@ import javax.swing.JComponent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.command.DataSet;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.GeoPoint;
-import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -85,7 +86,7 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 	 * @param layer The first layer in the view.
 	 */
 	public MapView(Layer layer) {
-		if (layer.getDataSet() == null)
+		if (layer.dataSet == null)
 			throw new IllegalArgumentException("Initial layer must have a dataset.");
 
 		addComponentListener(new ComponentAdapter(){
@@ -113,15 +114,13 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 	public void addLayer(Layer layer) {
 		layers.add(0,layer);
 
-		DataSet ds = layer.getDataSet();
-
-		if (ds != null) {
+		if (layer.dataSet != null) {
 			// initialize the projection if it was the first layer
 			if (layers.size() == 1)
-				Main.pref.getProjection().init(ds);
+				Main.pref.getProjection().init(layer.dataSet);
 			
 			// initialize the dataset in the new layer
-			for (Node n : ds.nodes)
+			for (Node n : layer.dataSet.nodes)
 				Main.pref.getProjection().latlon2xy(n.coor);
 		}
 
@@ -319,7 +318,7 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 
 		for (int i = layers.size()-1; i >= 0; --i) {
 			Layer l = layers.get(i);
-			if (l.isVisible())
+			if (l.visible)
 				l.paint(g, this);
 		}
 	}
@@ -332,7 +331,7 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 		// reset all datasets.
 		Projection p = Main.pref.getProjection();
 		for (Layer l : layers) {
-			DataSet ds = l.getDataSet();
+			DataSet ds = l.dataSet;
 			if (ds != null)
 				for (Node n : ds.nodes)
 					p.latlon2xy(n.coor);
@@ -381,13 +380,11 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 	 * @return The DataSet of the current active layer.
 	 */
 	public DataSet getActiveDataSet() {
-		if (activeLayer.getDataSet() != null)
-			return activeLayer.getDataSet();
-		for (Layer l : layers) {
-			DataSet ds = l.getDataSet();
-			if (ds != null)
-				return ds;
-		}
+		if (activeLayer.dataSet != null)
+			return activeLayer.dataSet;
+		for (Layer l : layers)
+			if (l.dataSet != null)
+				return l.dataSet;
 		throw new IllegalStateException("No dataset found.");
 	}
 
@@ -485,8 +482,8 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 		Layer old = activeLayer;
 		activeLayer = layer;
 		if (old != layer) {
-			if (old != null && old.getDataSet() != null)
-				old.getDataSet().clearSelection();
+			if (old != null && old.dataSet != null)
+				old.dataSet.clearSelection();
 			for (LayerChangeListener l : listeners)
 				l.activeLayerChange(old, layer);
 			recalculateCenterScale();

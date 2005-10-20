@@ -1,4 +1,4 @@
-package org.openstreetmap.josm.data.osm;
+package org.openstreetmap.josm.command;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -11,13 +11,18 @@ import java.util.Set;
 
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.SelectionTracker;
+import org.openstreetmap.josm.data.osm.LineSegment;
+import org.openstreetmap.josm.data.osm.Node;
+import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.data.osm.Track;
 
 /**
  * DataSet is the data behind one window in the application. It can consist of only a few
  * points up to the whole osm database. DataSet's can be merged together, split up into
  * several different ones, saved, (up/down/disk)loaded etc.
  *
- * Note, that DataSet is not an osm-primitive, so it has no key association but a few
+ * Note, that DataSet is not an osm-primitive, it is not within 
+ * org.openstreetmap.josm.data.osm and has no key association but a few
  * members to store some information.
  * 
  * @author imi
@@ -35,7 +40,7 @@ public class DataSet extends SelectionTracker implements Cloneable {
 	 * All pending line segments goes here. Pending line segments are those, that 
 	 * are in this list but are in no track.
 	 */
-	private Collection<LineSegment> pendingLineSegments = new LinkedList<LineSegment>();
+	Collection<LineSegment> pendingLineSegments = new LinkedList<LineSegment>();
 
 	/**
 	 * All tracks (Streets etc.) in the DataSet. 
@@ -44,7 +49,7 @@ public class DataSet extends SelectionTracker implements Cloneable {
 	 * the nodes list, however the track segments are stored only in the 
 	 * track list.
 	 */
-	private Collection<Track> tracks = new LinkedList<Track>();
+	Collection<Track> tracks = new LinkedList<Track>();
 
 	/**
 	 * Add the track to the tracklist.
