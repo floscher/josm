@@ -204,8 +204,7 @@ public class DataSet extends SelectionTracker implements Cloneable {
 	 * 		are merged together.
 	 */
 	public void mergeFrom(DataSet ds, boolean mergeEqualNodes) {
-		System.out.println(nodes.size()+" "+pendingLineSegments.size()+" "+tracks.size());
-		if (mergeEqualNodes) {
+		if (mergeEqualNodes && !nodes.isEmpty()) {
 			Map<Node, Node> mergeMap = new HashMap<Node, Node>();
 			Set<Node> nodesToAdd = new HashSet<Node>();
 			for (Node n : nodes) {
@@ -246,7 +245,6 @@ public class DataSet extends SelectionTracker implements Cloneable {
 			tracks.addAll(ds.tracks);
 			pendingLineSegments.addAll(ds.pendingLineSegments);
 		}
-		System.out.println(nodes.size()+" "+pendingLineSegments.size()+" "+tracks.size());
 	}
 
 	/**
@@ -257,7 +255,7 @@ public class DataSet extends SelectionTracker implements Cloneable {
 		if (list == null)
 			return;
 		for (OsmPrimitive osm : list) {
-			osm.setSelected(false, this);
+			osm.setSelected(false);
 			if (osm.keys != null)
 				clearSelection(osm.keys.keySet());
 		}

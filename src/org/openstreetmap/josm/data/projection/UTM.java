@@ -15,7 +15,6 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.command.DataSet;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.gui.GBC;
@@ -79,7 +78,7 @@ public class UTM extends Projection {
 		new Ellipsoid("WGS-84", 6378137, 0.00669438)
 	};
 
-	private enum Hemisphere {north, south};
+	private enum Hemisphere {north, south}
 
 	/**
 	 * What hemisphere the whole map is in.
@@ -101,11 +100,11 @@ public class UTM extends Projection {
 	/**
 	 * Spinner with all possible zones for the configuration panel
 	 */
-	private JSpinner zoneSpinner;
+	JSpinner zoneSpinner;
 	/**
 	 * Hemisphere combo for the configuration panel
 	 */
-	private JComboBox hemisphereCombo;
+	JComboBox hemisphereCombo;
 
 	
 	@Override
@@ -192,13 +191,12 @@ public class UTM extends Projection {
 	}
 	/**
 	 * Try to autodetect the zone and hemisphere from the dataset.
-	 * @param dataSet The dataset to extrakt zone information from.
 	 * @return The zone data extrakted from the dataset.
 	 */
-	private ZoneData autoDetect(DataSet dataSet) {
+	ZoneData autoDetect() {
 		ZoneData zd = new ZoneData();
 		
-		Bounds b = dataSet.getBoundsLatLon();
+		Bounds b = Main.main.ds.getBoundsLatLon();
 		if (b == null)
 			return zd;
 		GeoPoint center = b.centerLatLon();
@@ -233,9 +231,9 @@ public class UTM extends Projection {
 	 * Also, calculate the hemisphere (northern/southern).
 	 */
 	@Override
-	public void init(DataSet dataSet) {
+	public void init() {
 		if (zone == 0) {
-			ZoneData zd = autoDetect(dataSet);
+			ZoneData zd = autoDetect();
 			zone = zd.zone;
 			hemisphere = zd.hemisphere;
 		}
@@ -273,8 +271,7 @@ public class UTM extends Projection {
 		autoDetect.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				if (Main.main.getMapFrame() != null) {
-					DataSet ds = Main.main.getMapFrame().mapView.getActiveDataSet();
-					ZoneData zd = autoDetect(ds);
+					ZoneData zd = autoDetect();
 					if (zd.zone == 0)
 						JOptionPane.showMessageDialog(Main.main, "Autodetection failed. Maybe the data set contain too few information.");
 					else {

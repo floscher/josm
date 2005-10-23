@@ -13,7 +13,7 @@ import org.jdom.Element;
 import org.jdom.Namespace;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-import org.openstreetmap.josm.command.DataSet;
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
@@ -46,20 +46,14 @@ public class GpxWriter {
 	 * This is the output writer to store the resulting data in.
 	 */
 	private Writer out;
-	/**
-	 * The DataSet this outputter operates on.
-	 */
-	private final DataSet ds;
 	
 	/**
 	 * Create a GpxWrite from an output writer. As example to write in a file,
 	 * use FileWriter.
 	 *
 	 * @param out The Writer to store the result data in.
-	 * @param ds The dataset to store.
 	 */
-	public GpxWriter(Writer out, DataSet ds) {
-		this.ds = ds;
+	public GpxWriter(Writer out) {
 		this.out = out;
 	}
 
@@ -87,10 +81,10 @@ public class GpxWriter {
 		e.setAttribute("version", "1.0");
 		e.setAttribute("creator", "JOSM Beta");
 		// for getting all unreferenced waypoints in the wpt-list
-		LinkedList<Node> nodes = new LinkedList<Node>(ds.nodes);
+		LinkedList<Node> nodes = new LinkedList<Node>(Main.main.ds.nodes);
 
 		// tracks
-		for (Track t : ds.tracks()) {
+		for (Track t : Main.main.ds.tracks()) {
 			Element tElem = new Element("trk", GPX);
 			if (t.keys != null) {
 				HashMap<Key, String> keys = new HashMap<Key, String>(t.keys);

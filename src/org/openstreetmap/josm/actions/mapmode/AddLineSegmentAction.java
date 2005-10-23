@@ -10,7 +10,8 @@ import java.awt.event.MouseListener;
 import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.command.DataSet;
+import org.openstreetmap.josm.command.AddCommand;
+import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -129,10 +130,8 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 		second = null;
 		
 		if (start != end) {
-			DataSet ds = mv.getActiveDataSet();
-
 			// try to find a line segment
-			for (Track t : ds.tracks())
+			for (Track t : Main.main.ds.tracks())
 				for (LineSegment ls : t.segments())
 					if (start == ls.getStart() && end == ls.getEnd()) {
 						JOptionPane.showMessageDialog(Main.main, "There is already an line segment with the same direction between the selected nodes.");
@@ -140,27 +139,9 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 					}
 
 			LineSegment ls = new LineSegment(start, end);
-			boolean foundTrack = false;
-
-			if (((e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0)) {
-				// find a track for the new line segment
-				for (Track t : ds.tracks()) {
-					if (t.getEndingNode() == start) {
-						t.add(ls);
-						foundTrack = true;
-					}
-				}
-				if (!foundTrack) {
-					for (Track t : ds.tracks()) {
-						if (t.getStartingNode() == end) {
-							t.addStart(ls);
-							foundTrack = true;
-						}
-					}
-				}
-			}
-			if (!foundTrack)
-				ds.addPendingLineSegment(ls);
+			Command c = new AddCommand(ls);
+			c.executeCommand();
+			Main.main.commands.add(c);
 		}
 		
 		mv.repaint();

@@ -4,7 +4,6 @@ import javax.swing.Icon;
 
 import org.openstreetmap.josm.command.DataSet;
 import org.openstreetmap.josm.gui.ImageProvider;
-import org.openstreetmap.josm.gui.engine.RawGpsEngine;
 
 /**
  * A layer holding data from a gps source.
@@ -17,7 +16,7 @@ public class RawGpsDataLayer extends Layer {
 	private static Icon icon;
 
 	protected RawGpsDataLayer(DataSet dataSet, String name) {
-		super(dataSet, new RawGpsEngine(), name);
+		super(name);
 	}
 
 	/**

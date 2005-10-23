@@ -9,7 +9,8 @@ import java.awt.event.MouseEvent;
 import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.command.DataSet;
+import org.openstreetmap.josm.command.CombineCommand;
+import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -82,7 +83,7 @@ public class CombineAction extends MapMode {
 		super.registerListener();
 		mv.addMouseListener(this);
 		mv.addMouseMotionListener(this);
-		mv.getActiveDataSet().clearSelection();
+		Main.main.ds.clearSelection();
 	}
 
 	@Override
@@ -146,43 +147,14 @@ public class CombineAction extends MapMode {
 		
 		if (first instanceof LineSegment && second instanceof LineSegment)
 			JOptionPane.showMessageDialog(Main.main, "Cannot combine two line segments. To create tracks use 'Add Track'.");
-		else if (first instanceof LineSegment && second instanceof Track)
-			combine((LineSegment)first, (Track)second);
-		else if (first instanceof Track && second instanceof LineSegment)
-			combine((LineSegment)second, (Track)first);
-		else if (first instanceof Track && second instanceof Track) {
-			if (!first.keyPropertiesMergable(second))
-				JOptionPane.showMessageDialog(Main.main, "Cannot combine because of different properties.");
-			else {
-				Track t1 = (Track)first;
-				Track t2 = (Track)second;
-				if (t1.getStartingNode() == t2.getEndingNode()) {
-					t1 = t2;
-					t2 = (Track)first;
-				}
-				t1.addAll(t2.segments());
-				if (t1.keys == null)
-					t1.keys = t2.keys;
-				else	
-					t1.keys.putAll(t2.keys);
-				mv.getActiveDataSet().removeTrack(t2);
-			}
+		else if (first instanceof Track && second instanceof Track && !first.keyPropertiesMergable(second))
+			JOptionPane.showMessageDialog(Main.main, "Cannot combine because of different properties.");
+		else {
+			Command c = new CombineCommand(first, second);
+			c.executeCommand();
+			Main.main.commands.add(c);
 		}
 		mv.repaint();
-	}
-
-
-	/**
-	 * Add the line segment to the track and remove it from the pending segments.
-	 * @param ls The line segment to add
-	 * @param t The track to add the line segment to
-	 */
-	private void combine(LineSegment ls, Track t) {
-		DataSet ds = mv.getActiveDataSet();
-		if (!ds.pendingLineSegments().contains(ls))
-			throw new IllegalStateException("Should not be able to select non-pending line segments.");
-		
-		ds.assignPendingLineSegment(ls, t, t.getStartingNode() != ls.getEnd());
 	}
 
 	/**
@@ -217,7 +189,7 @@ public class CombineAction extends MapMode {
 			LineSegment ls = (LineSegment)osm;
 			Point start = mv.getScreenPoint(ls.getStart().coor);
 			Point end = mv.getScreenPoint(ls.getEnd().coor);
-			if (mv.getActiveDataSet().pendingLineSegments().contains(osm) && g.getColor() == Color.GRAY)
+			if (Main.main.ds.pendingLineSegments().contains(osm) && g.getColor() == Color.GRAY)
 				g.drawLine(start.x, start.y, end.x, end.y);
 			else
 				g.drawLine(start.x, start.y, end.x, end.y);

@@ -5,10 +5,11 @@ import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
-import java.util.HashSet;
 
-import org.openstreetmap.josm.command.DataSet;
-import org.openstreetmap.josm.data.osm.Node;
+import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.command.Command;
+import org.openstreetmap.josm.command.MoveCommand;
+import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.MapFrame;
 
@@ -74,25 +75,19 @@ public class MoveAction extends MapMode {
 			singleOsmPrimitive = null;
 		}
 
-		int dx = e.getX() - mousePos.x;
-		int dy = e.getY() - mousePos.y;
+		GeoPoint mouseGeo = mv.getPoint(e.getX(), e.getY(), false);
+		GeoPoint mouseStartGeo = mv.getPoint(mousePos.x, mousePos.y, false);
+		double dx = mouseGeo.x - mouseStartGeo.x;
+		double dy = mouseGeo.y - mouseStartGeo.y;
 		if (dx == 0 && dy == 0)
 			return;
 
-		Collection<OsmPrimitive> selection = mv.getActiveDataSet().getSelected();
-		// creating a list of all nodes that should be moved.
-		Collection<Node> movingNodes = new HashSet<Node>();
-		for (OsmPrimitive osm : selection)
-			movingNodes.addAll(osm.getAllNodes());
-
-		for (Node n : movingNodes) {
-			Point pos = mv.getScreenPoint(n.coor);
-			pos.x += dx;
-			pos.y += dy;
-			n.coor = mv.getPoint(pos.x, pos.y, true);
-		}
-		mv.repaint();
+		Collection<OsmPrimitive> selection = Main.main.ds.getSelected();
+		Command c = new MoveCommand(selection, dx, dy);
+		c.executeCommand();
+		Main.main.commands.add(c);
 		
+		mv.repaint();
 		mousePos = e.getPoint();
 	}
 
@@ -110,12 +105,10 @@ public class MoveAction extends MapMode {
 		if (e.getButton() != MouseEvent.BUTTON1)
 			return;
 
-		DataSet ds = mv.getActiveDataSet();
-
-		if (ds.getSelected().size() == 0) {
+		if (Main.main.ds.getSelected().size() == 0) {
 			OsmPrimitive osm = mv.getNearest(e.getPoint(), (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0);
 			if (osm != null)
-				osm.setSelected(true, ds);
+				osm.setSelected(true);
 			singleOsmPrimitive = osm;
 			mv.repaint();
 		} else
@@ -133,7 +126,7 @@ public class MoveAction extends MapMode {
 	public void mouseReleased(MouseEvent e) {
 		mv.setCursor(oldCursor);
 		if (singleOsmPrimitive != null) {
-			singleOsmPrimitive.setSelected(false, mv.getActiveDataSet());
+			singleOsmPrimitive.setSelected(false);
 			mv.repaint();
 		}
 	}

@@ -5,7 +5,9 @@ import java.awt.event.KeyEvent;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import org.openstreetmap.josm.command.DataSet;
+import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.command.AddCommand;
+import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Track;
@@ -75,21 +77,19 @@ public class AddTrackAction extends MapMode implements SelectionEnded {
 		if (shift && ctrl)
 			return; // not allowed together
 
-		DataSet ds = mv.getActiveDataSet();
-		
 		if (!ctrl && !shift)
-			ds.clearSelection(); // new selection will replace the old.
+			Main.main.ds.clearSelection(); // new selection will replace the old.
 
 		Collection<OsmPrimitive> selectionList = selectionManager.getObjectsInRectangle(r,alt);
 		for (OsmPrimitive osm : selectionList)
-			osm.setSelected(!ctrl, ds);
+			osm.setSelected(!ctrl);
 
 		mv.repaint(); // from now on, the map has to be repainted.
 
 		if (ctrl || shift)
 			return; // no new track yet.
 		
-		Collection<OsmPrimitive> selection = ds.getSelected();
+		Collection<OsmPrimitive> selection = Main.main.ds.getSelected();
 		if (selection.isEmpty())
 			return;
 
@@ -103,9 +103,11 @@ public class AddTrackAction extends MapMode implements SelectionEnded {
 		}
 		Track t = new Track();
 		for (LineSegment ls : lineSegments)
-			ds.assignPendingLineSegment(ls, t, true);
-		ds.addTrack(t);
-		ds.clearSelection();
+			t.add(ls);
+		Command c = new AddCommand(t);
+		c.executeCommand();
+		Main.main.commands.add(c);
+		Main.main.ds.clearSelection();
 	}
 
 	@Override

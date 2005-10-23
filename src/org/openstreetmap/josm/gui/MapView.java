@@ -31,8 +31,6 @@ import org.openstreetmap.josm.gui.layer.Layer;
  * This is a component used in the MapFrame for browsing the map. It use is to
  * provide the MapMode's enough capabilities to operate. 
  * 
- * MapView holds the map data, organize it, convert it, provide access to it.
- * 
  * MapView hold meta-data about the data set currently displayed, as scale level,
  * center point viewed, what scrolling mode or editing mode is selected or with
  * what projection the map is viewed etc..
@@ -86,9 +84,6 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 	 * @param layer The first layer in the view.
 	 */
 	public MapView(Layer layer) {
-		if (layer.dataSet == null)
-			throw new IllegalArgumentException("Initial layer must have a dataset.");
-
 		addComponentListener(new ComponentAdapter(){
 			@Override
 			public void componentResized(ComponentEvent e) {
@@ -117,7 +112,7 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 		if (layer.dataSet != null) {
 			// initialize the projection if it was the first layer
 			if (layers.size() == 1)
-				Main.pref.getProjection().init(layer.dataSet);
+				Main.pref.getProjection().init();
 			
 			// initialize the dataset in the new layer
 			for (Node n : layer.dataSet.nodes)
@@ -230,11 +225,8 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 		double minDistanceSq = Double.MAX_VALUE;
 		OsmPrimitive minPrimitive = null;
 
-		// calculate the object based on the current active dataset.
-		DataSet ds = getActiveDataSet();
-		
 		// nodes
-		for (Node n : ds.nodes) {
+		for (Node n : Main.main.ds.nodes) {
 			Point sp = getScreenPoint(n.coor);
 			double dist = p.distanceSq(sp);
 			if (minDistanceSq > dist && dist < 100) {
@@ -246,7 +238,7 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 			return minPrimitive;
 		
 		// pending line segments
-		for (LineSegment ls : ds.pendingLineSegments()) {
+		for (LineSegment ls : Main.main.ds.pendingLineSegments()) {
 			Point A = getScreenPoint(ls.getStart().coor);
 			Point B = getScreenPoint(ls.getEnd().coor);
 			double c = A.distanceSq(B);
@@ -261,7 +253,7 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 
 		// tracks & line segments
 		minDistanceSq = Double.MAX_VALUE;
-		for (Track t : ds.tracks()) {
+		for (Track t : Main.main.ds.tracks()) {
 			for (LineSegment ls : t.segments()) {
 				Point A = getScreenPoint(ls.getStart().coor);
 				Point B = getScreenPoint(ls.getEnd().coor);
@@ -374,21 +366,6 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 
 	
 	/**
-	 * Return the dataSet for the current selected layer. If the active layer
-	 * does not have a dataset, return the DataSet from the next layer a.s.o.
-	 *  
-	 * @return The DataSet of the current active layer.
-	 */
-	public DataSet getActiveDataSet() {
-		if (activeLayer.dataSet != null)
-			return activeLayer.dataSet;
-		for (Layer l : layers)
-			if (l.dataSet != null)
-				return l.dataSet;
-		throw new IllegalStateException("No dataset found.");
-	}
-
-	/**
 	 * Change to the new projection. Recalculate the dataset and zoom, if autoZoom
 	 * is active.
 	 * @param oldProjection The old projection. Unregister from this.
@@ -421,7 +398,7 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 			if (h < 20)
 				h = 20;
 			
-			Bounds bounds = getActiveDataSet().getBoundsXY();
+			Bounds bounds = Main.main.ds.getBoundsXY();
 			
 			boolean oldAutoScale = autoScale;
 			GeoPoint oldCenter = center;

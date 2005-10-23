@@ -24,7 +24,7 @@ public class ImageProvider {
 	 * Position of an overlay icon
 	 * @author imi
 	 */
-	public enum OverlayPosition {NORTHWEST, NORTHEAST, SOUTHWEST, SOUTHEAST};
+	public enum OverlayPosition {NORTHWEST, NORTHEAST, SOUTHWEST, SOUTHEAST}
 	
 	/**
 	 * The icon cache

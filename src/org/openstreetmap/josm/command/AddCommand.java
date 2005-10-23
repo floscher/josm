@@ -1,10 +1,12 @@
 package org.openstreetmap.josm.command;
 
 import java.awt.Component;
+import java.util.Collection;
 import java.util.Iterator;
 
 import javax.swing.JLabel;
 
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
@@ -25,27 +27,27 @@ public class AddCommand implements Command, Visitor {
 	 * The primitive to add to the dataset.
 	 */
 	private final OsmPrimitive osm;
-	/**
-	 * The dataset to add the primitive to.
-	 */
-	private final DataSet ds;
 
 	/**
 	 * Create the command and specify the element to add.
 	 */
-	public AddCommand(OsmPrimitive osm, DataSet dataSet) {
+	public AddCommand(OsmPrimitive osm) {
 		this.osm = osm;
-		this.ds = dataSet;
 	}
 
 	public void executeCommand() {
 		osm.visit(this);
 	}
-
+	
 	public Component commandDescription() {
 		SelectionComponentVisitor v = new SelectionComponentVisitor();
 		osm.visit(v);
 		return new JLabel(v.name, v.icon, JLabel.LEADING);
+	}
+	
+	public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {
+		if (!added.contains(osm))
+			added.add(osm);
 	}
 
 	/**
@@ -53,7 +55,7 @@ public class AddCommand implements Command, Visitor {
 	 * @param n The node to add.
 	 */
 	public void visit(Node n) {
-		ds.nodes.add(n);
+		Main.main.ds.nodes.add(n);
 	}
 
 	/**
@@ -61,7 +63,7 @@ public class AddCommand implements Command, Visitor {
 	 * @param ls The line segment to add.
 	 */
 	public void visit(LineSegment ls) {
-		ds.pendingLineSegments.add(ls);
+		Main.main.ds.pendingLineSegments.add(ls);
 	}
 
 	/**
@@ -69,8 +71,8 @@ public class AddCommand implements Command, Visitor {
 	 * from the dataset.
 	 */
 	public void visit(Track t) {
-		ds.addTrack(t);
-		for (Iterator<LineSegment> it =  ds.pendingLineSegments.iterator(); it.hasNext();)
+		Main.main.ds.tracks.add(t);
+		for (Iterator<LineSegment> it =  Main.main.ds.pendingLineSegments.iterator(); it.hasNext();)
 			if (t.segments().contains(it.next()))
 				it.remove();
 	}
