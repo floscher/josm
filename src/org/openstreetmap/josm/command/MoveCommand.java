@@ -62,4 +62,10 @@ public class MoveCommand implements Command {
 		String ystr = Math.abs(y) + (y < 0 ? "S" : "N");
 		return new JLabel("Move "+objects.size()+" primitives "+xstr+" "+ystr);
 	}
+
+	public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {
+		for (OsmPrimitive osm : objects)
+			if (!modified.contains(osm))
+				modified.add(osm);
+	}
 }

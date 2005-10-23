@@ -46,11 +46,11 @@ public class MapStatus extends JPanel {
 	/**
 	 * The position of the mouse cursor.
 	 */
-	private JTextField positionText = new JTextField("-000.00000000000000 -000.00000000000000".length());
+	JTextField positionText = new JTextField("-000.00000000000000 -000.00000000000000".length());
 	/**
 	 * The field holding the name of the object under the mouse.
 	 */
-	private JTextField nameText = new JTextField(30);
+	JTextField nameText = new JTextField(30);
 
 	/**
 	 * The collector class that waits for notification and then update
@@ -146,7 +146,7 @@ public class MapStatus extends JPanel {
 	/**
 	 * The last sent mouse movement event.
 	 */
-	private MouseState mouseState = new MouseState();
+	MouseState mouseState = new MouseState();
 	
 	/**
 	 * Construct a new MapStatus and attach it to the map view.

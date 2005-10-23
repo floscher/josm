@@ -16,15 +16,11 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.command.DataSet;
 import org.openstreetmap.josm.data.SelectionChangedListener;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.visitor.SelectionComponentVisitor;
 import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.MapFrame;
-import org.openstreetmap.josm.gui.MapView;
-import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
-import org.openstreetmap.josm.gui.layer.Layer;
 
 /**
  * A small tool dialog for displaying the current selection. The selection manager
@@ -33,7 +29,7 @@ import org.openstreetmap.josm.gui.layer.Layer;
  * 
  * @author imi
  */
-public class SelectionListDialog extends ToggleDialog implements SelectionChangedListener, LayerChangeListener {
+public class SelectionListDialog extends ToggleDialog implements SelectionChangedListener {
 
 	/**
 	 * The selection's list data.
@@ -43,10 +39,6 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 	 * The display list.
 	 */
 	private JList displaylist = new JList(list);
-	/**
-	 * The dataset, all selections are part of.
-	 */
-	private final MapView mapView;
 	
 	/**
 	 * Create a SelectionList dialog.
@@ -54,7 +46,6 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 	 */
 	public SelectionListDialog(MapFrame mapFrame) {
 		super(mapFrame, "Current Selection", "Selection List", "selectionlist", KeyEvent.VK_E, "Open a selection list window.");
-		this.mapView = mapFrame.mapView;
 		setLayout(new BorderLayout());
 		setSize(300,400);
 		displaylist.setCellRenderer(new DefaultListCellRenderer(){
@@ -83,18 +74,16 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 		});
 		getContentPane().add(button, BorderLayout.SOUTH);
 
-		selectionChanged(mapView.getActiveDataSet().getSelected());
+		selectionChanged(Main.main.ds.getSelected());
 	}
 
 	@Override
 	public void setVisible(boolean b) {
 		if (b) {
-			mapView.addLayerChangeListener(this);
-			mapView.getActiveDataSet().addSelectionChangedListener(this);
-			selectionChanged(mapView.getActiveDataSet().getSelected());
+			Main.main.ds.addSelectionChangedListener(this);
+			selectionChanged(Main.main.ds.getSelected());
 		} else {
-			mapView.removeLayerChangeListener(this);
-			mapView.getActiveDataSet().removeSelectionChangedListener(this);
+			Main.main.ds.removeSelectionChangedListener(this);
 		}
 		super.setVisible(b);
 	}
@@ -117,29 +106,10 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 	 * Sets the selection of the map to the current selected items.
 	 */
 	public void updateMap() {
-		DataSet ds = mapView.getActiveDataSet();
-		ds.clearSelection();
+		Main.main.ds.clearSelection();
 		for (int i = 0; i < list.getSize(); ++i)
 			if (displaylist.isSelectedIndex(i))
-				((OsmPrimitive)list.get(i)).setSelected(true, ds);
+				((OsmPrimitive)list.get(i)).setSelected(true);
 		Main.main.getMapFrame().repaint();
 	}
-
-	public void activeLayerChange(Layer oldLayer, Layer newLayer) {
-		DataSet ds = oldLayer.dataSet;
-		if (ds != null)
-			ds.removeSelectionChangedListener(this);
-		ds = newLayer.dataSet;
-		if (ds != null)
-			ds.addSelectionChangedListener(this);
-	}
-
-	/**
-	 * Does nothing. Only to satisfy LayerChangeListener
-	 */
-	public void layerAdded(Layer newLayer) {}
-	/**
-	 * Does nothing. Only to satisfy LayerChangeListener
-	 */
-	public void layerRemoved(Layer oldLayer) {}
 }

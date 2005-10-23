@@ -3,6 +3,8 @@ package org.openstreetmap.josm;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.util.Collection;
+import java.util.LinkedList;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -19,13 +21,15 @@ import org.openstreetmap.josm.actions.OpenGpxAction;
 import org.openstreetmap.josm.actions.OpenOsmServerAction;
 import org.openstreetmap.josm.actions.PreferencesAction;
 import org.openstreetmap.josm.actions.SaveGpxAction;
+import org.openstreetmap.josm.command.Command;
+import org.openstreetmap.josm.command.DataSet;
 import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.Preferences.PreferencesException;
 import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.MapFrame;
 
 /**
- * Main window class consisting of the mainframe MDI application.
+ * Main window class application.
  *  
  * @author imi
  */
@@ -40,6 +44,18 @@ public class Main extends JFrame {
 	 * Global application preferences
 	 */
 	public final static Preferences pref = new Preferences();
+
+	/**
+	 * The global command queue since last save. So if you reload the data from disk
+	 * (or from OSM server, if nothing changed on server) and reapply the commands,
+	 * you should get the same result as currently displaying.
+	 */
+	public Collection<Command> commands = new LinkedList<Command>();
+
+	/**
+	 * The global dataset.
+	 */
+	public DataSet ds = new DataSet();
 	
 	/**
 	 * The main panel.
@@ -104,7 +120,7 @@ public class Main extends JFrame {
 
 		// creating toolbar
 		JToolBar toolBar = new JToolBar();
-		toolBar.setFloatable(false);
+		toolBar.setFloatable(true);
 		toolBar.add(openServerAction);
 		toolBar.add(openGpxAction);
 		toolBar.add(saveGpxAction);

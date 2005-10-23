@@ -3,7 +3,7 @@ package org.openstreetmap.josm.data.osm;
 import java.util.Collection;
 import java.util.Map;
 
-import org.openstreetmap.josm.command.DataSet;
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
 
 
@@ -71,11 +71,10 @@ abstract public class OsmPrimitive {
 	 * Mark the primitive as selected or not selected and fires a selection 
 	 * changed later, if the value actualy changed.
 	 * @param selected Whether the primitive should be selected or not.
-	 * @param ds The dataSet, this primitive is in.
 	 */
-	public void setSelected(boolean selected, DataSet ds) {
+	public void setSelected(boolean selected) {
 		if (selected != this.selected)
-			ds.fireSelectionChanged();
+			Main.main.ds.fireSelectionChanged();
 		this.selected = selected;
 	}
 

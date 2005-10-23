@@ -10,7 +10,6 @@ import java.util.Map;
 import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.command.DataSet;
 import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
@@ -93,12 +92,10 @@ public class DeleteAction extends MapMode {
 		if (sel == null)
 			return;
 
-		DataSet ds = mv.getActiveDataSet();
-
 		if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) != 0)
-			deleteWithReferences(sel, ds);
+			deleteWithReferences(sel);
 		else
-			delete(sel, ds);
+			delete(sel);
 
 		mv.repaint();
 	}
@@ -128,25 +125,25 @@ public class DeleteAction extends MapMode {
 	 *
 	 * @param osm The object to delete.
 	 */
-	private void deleteWithReferences(OsmPrimitive osm, DataSet ds) {
+	private void deleteWithReferences(OsmPrimitive osm) {
 		// collect all tracks, areas and pending line segments that should be deleted
 		ArrayList<Track> tracksToDelete = new ArrayList<Track>();
 		ArrayList<LineSegment> lineSegmentsToDelete = new ArrayList<LineSegment>();
 
 		if (osm instanceof Node) {
 			// delete any track and line segment the node is in.
-			for (Track t : ds.tracks())
+			for (Track t : Main.main.ds.tracks())
 				for (LineSegment ls : t.segments())
 					if (ls.getStart() == osm || ls.getEnd() == osm)
 						tracksToDelete.add(t);
-			for (LineSegment ls : ds.pendingLineSegments())
+			for (LineSegment ls : Main.main.ds.pendingLineSegments())
 				if (ls.getStart() == osm || ls.getEnd() == osm)
 					lineSegmentsToDelete.add(ls);
 				
 		} else if (osm instanceof LineSegment) {
 			LineSegment lineSegment = (LineSegment)osm;
 			lineSegmentsToDelete.add(lineSegment);
-			for (Track t : ds.tracks())
+			for (Track t : Main.main.ds.tracks())
 				for (LineSegment ls : t.segments())
 					if (lineSegment == ls)
 						tracksToDelete.add(t);
@@ -168,18 +165,18 @@ public class DeleteAction extends MapMode {
 		
 		// delete tracks and areas
 		for (Track t : tracksToDelete)
-			ds.removeTrack(t);
+			Main.main.ds.removeTrack(t);
 		for (LineSegment ls : lineSegmentsToDelete)
-			ds.destroyPendingLineSegment(ls);
+			Main.main.ds.destroyPendingLineSegment(ls);
 
 		// removing all unreferenced nodes
 		for (Node n : checkUnreferencing) {
-			if (!isReferenced(n, ds))
-				ds.nodes.remove(n);
+			if (!isReferenced(n))
+				Main.main.ds.nodes.remove(n);
 		}
 		// now, all references are killed. Delete the node (if it was a node)
 		if (osm instanceof Node)
-			ds.nodes.remove(osm);
+			Main.main.ds.nodes.remove(osm);
 	}
 
 	/**
@@ -189,32 +186,32 @@ public class DeleteAction extends MapMode {
 	 * 
 	 * @param osm The object to delete.
 	 */
-	private void delete(OsmPrimitive osm, DataSet ds) {
+	private void delete(OsmPrimitive osm) {
 		if (osm instanceof Node) {
 			Node n = (Node)osm;
-			if (isReferenced(n, ds)) {
-				String combined = combine(n, ds);
+			if (isReferenced(n)) {
+				String combined = combine(n);
 				if (combined != null) {
 					JOptionPane.showMessageDialog(Main.main, combined);
 					return;
 				}
 			}
 			// now, the node isn't referenced anymore, so delete it.
-			ds.nodes.remove(n);
+			Main.main.ds.nodes.remove(n);
 		} else if (osm instanceof LineSegment) {
 			LinkedList<Track> tracksToDelete = new LinkedList<Track>();
-			for (Track t : ds.tracks()) {
+			for (Track t : Main.main.ds.tracks()) {
 				t.remove((LineSegment)osm);
 				if (t.segments().isEmpty())
 					tracksToDelete.add(t);
 			}
 			for (Track t : tracksToDelete)
-				ds.removeTrack(t);
-			ds.destroyPendingLineSegment((LineSegment)osm);
+				Main.main.ds.removeTrack(t);
+			Main.main.ds.destroyPendingLineSegment((LineSegment)osm);
 		} else if (osm instanceof Track) {
-			ds.removeTrack((Track)osm);
+			Main.main.ds.removeTrack((Track)osm);
 			for (LineSegment ls : ((Track)osm).segments())
-				ds.addPendingLineSegment(ls);
+				Main.main.ds.addPendingLineSegment(ls);
 		}
 	}
 
@@ -224,12 +221,12 @@ public class DeleteAction extends MapMode {
 	 * @param n The node to check.
 	 * @return Whether the node is used by a track or area.
 	 */
-	private boolean isReferenced(Node n, DataSet ds) {
-		for (Track t : ds.tracks())
+	private boolean isReferenced(Node n) {
+		for (Track t : Main.main.ds.tracks())
 			for (LineSegment ls : t.segments())
 				if (ls.getStart() == n || ls.getEnd() == n)
 					return true;
-		for (LineSegment ls : ds.pendingLineSegments())
+		for (LineSegment ls : Main.main.ds.pendingLineSegments())
 			if (ls.getStart() == n || ls.getEnd() == n)
 				return true;
 		// TODO areas
@@ -245,9 +242,9 @@ public class DeleteAction extends MapMode {
 	 * @return <code>null</code> if combining suceded or an error string if there
 	 * 		are problems combining the node.
 	 */
-	private String combine(Node n, DataSet ds) {
+	private String combine(Node n) {
 		// first, check for pending line segments
-		for (LineSegment ls : ds.pendingLineSegments())
+		for (LineSegment ls : Main.main.ds.pendingLineSegments())
 			if (n == ls.getStart() || n == ls.getEnd())
 				return "Node used by a line segment which is not part of any track. Remove this first."; 
 		
@@ -260,7 +257,7 @@ public class DeleteAction extends MapMode {
 		// two elements. The keys maps to the track, the line segments are in.
 		HashMap<ArrayList<LineSegment>, Track> lineSegments = new HashMap<ArrayList<LineSegment>, Track>();
 		
-		for (Track t : ds.tracks()) {
+		for (Track t : Main.main.ds.tracks()) {
 			ArrayList<LineSegment> current = new ArrayList<LineSegment>();
 			for (LineSegment ls : t.segments())
 				if (ls.getStart() == n || ls.getEnd() == n)
@@ -283,7 +280,7 @@ public class DeleteAction extends MapMode {
 		
 		// try to combine tracks
 		ArrayList<Track> tracks = new ArrayList<Track>();
-		for (Track t : ds.tracks())
+		for (Track t : Main.main.ds.tracks())
 			if (t.getStartingNode() == n || t.getEndingNode() == n)
 				tracks.add(t);
 		if (!tracks.isEmpty()) {
@@ -348,7 +345,7 @@ public class DeleteAction extends MapMode {
 			second.remove(firstOfSecond);
 			// move the remaining line segments to first track.
 			first.addAll(second.segments());
-			ds.removeTrack(second);
+			Main.main.ds.removeTrack(second);
 		}
 		
 		return null;

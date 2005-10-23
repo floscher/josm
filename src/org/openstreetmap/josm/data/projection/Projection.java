@@ -7,7 +7,6 @@ import javax.swing.JComponent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.openstreetmap.josm.command.DataSet;
 import org.openstreetmap.josm.data.GeoPoint;
 
 /**
@@ -80,16 +79,8 @@ abstract public class Projection implements Cloneable {
 	 *
 	 * This implementation does nothing. It is provided only for subclasses
 	 * to initialize their data members.
-	 * 
-	 * @param dataSet
-	 *            The dataset, which will be displayed on screen. Later, all
-	 *            projections should be relative to the given dataset. Any
-	 *            reverse projections (xy2latlon) can be assumed to be in near
-	 *            distance to nodes of this dataset (that means, it is ok, if
-	 *            there is a conversion error, if the requested x/y to xy2latlon
-	 *            is far away from any coordinate in the dataset)
 	 */
-	public void init(DataSet dataSet) {}
+	public void init() {}
 	
 	/**
 	 * Add an event listener to the state changed event queue. If passed 

@@ -3,6 +3,9 @@ package org.openstreetmap.josm.actions.mapmode;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
+import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.command.AddCommand;
+import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.gui.MapFrame;
 
@@ -47,7 +50,9 @@ public class AddNodeAction extends MapMode {
 		if (e.getButton() == MouseEvent.BUTTON1) {
 			Node node = new Node();
 			node.coor = mv.getPoint(e.getX(), e.getY(), true);
-			mv.getActiveDataSet().nodes.add(node);
+			Command c = new AddCommand(node);
+			c.executeCommand();
+			Main.main.commands.add(c);
 			mv.repaint();
 		}
 	}

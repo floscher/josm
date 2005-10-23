@@ -90,15 +90,15 @@ public class PreferenceDialog extends JDialog {
 	/**
 	 * Indicate, that the application has to be restarted for the settings to take effect.
 	 */
-	private boolean requiresRestart = false;
+	boolean requiresRestart = false;
 	/**
 	 * ComboBox with all look and feels.
 	 */
-	private JComboBox lafCombo = new JComboBox(UIManager.getInstalledLookAndFeels());
+	JComboBox lafCombo = new JComboBox(UIManager.getInstalledLookAndFeels());
 	/**
 	 * Combobox with all projections available
 	 */
-	private JComboBox projectionCombo = new JComboBox(Preferences.allProjections.clone());
+	JComboBox projectionCombo = new JComboBox(Preferences.allProjections.clone());
 	/**
 	 * The main tab panel.
 	 */
@@ -107,27 +107,27 @@ public class PreferenceDialog extends JDialog {
 	/**
 	 * Editfield for the Base url to the REST API from OSM. 
 	 */
-	private JTextField osmDataServer = new JTextField(20);
+	JTextField osmDataServer = new JTextField(20);
 	/**
 	 * Editfield for the username to the OSM account.
 	 */
-	private JTextField osmDataUsername = new JTextField(20);
+	JTextField osmDataUsername = new JTextField(20);
 	/**
 	 * Passwordfield for the userpassword of the REST API.
 	 */
-	private JPasswordField osmDataPassword = new JPasswordField(20);
+	JPasswordField osmDataPassword = new JPasswordField(20);
 	/**
 	 * The checkbox stating whether nodes should be merged together.
 	 */
-	private JCheckBox drawRawGpsLines = new JCheckBox("Draw lines between raw gps points.");
+	JCheckBox drawRawGpsLines = new JCheckBox("Draw lines between raw gps points.");
 	/**
 	 * The checkbox stating whether raw gps lines should be forced.
 	 */
-	private JCheckBox forceRawGpsLines = new JCheckBox("Force lines if no line segments imported.");
+	JCheckBox forceRawGpsLines = new JCheckBox("Force lines if no line segments imported.");
 	/**
 	 * The checkbox stating whether nodes should be merged together.
 	 */
-	private JCheckBox mergeNodes = new JCheckBox("Merge nodes with equal latitude/longitude.");
+	JCheckBox mergeNodes = new JCheckBox("Merge nodes with equal latitude/longitude.");
 
 	/**
 	 * Create a preference setting dialog from an preferences-file. If the file does not

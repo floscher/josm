@@ -86,7 +86,7 @@ abstract public class MapMode extends AbstractAction implements MouseListener, M
 	public void actionPerformed(ActionEvent e) {
 		mapFrame.selectMapMode(this);
 	}
-	
+
 	/**
 	 * Does nothing. Only to subclass.
 	 */

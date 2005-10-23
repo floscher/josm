@@ -58,17 +58,17 @@ abstract public class SelectionTracker {
 	 * event to just contact the listeners.
 	 * @author imi
 	 */
-	private enum SelectionEventState {WAITING, COLLECTING, PURGING};
+	private enum SelectionEventState {WAITING, COLLECTING, PURGING}
 
 	/**
 	 * The state, regarding to the selection changing that we are in.
 	 */
-	transient private SelectionEventState state = SelectionEventState.WAITING;
+	transient SelectionEventState state = SelectionEventState.WAITING;
 
 	/**
 	 * A list of listeners to selection changed events.
 	 */
-	transient private Collection<SelectionChangedListener> listeners = new LinkedList<SelectionChangedListener>();
+	transient Collection<SelectionChangedListener> listeners = new LinkedList<SelectionChangedListener>();
 
 	
 	/**

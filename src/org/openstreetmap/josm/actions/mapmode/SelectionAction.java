@@ -4,7 +4,7 @@ import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.util.Collection;
 
-import org.openstreetmap.josm.command.DataSet;
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.SelectionManager;
@@ -86,14 +86,12 @@ public class SelectionAction extends MapMode implements SelectionEnded {
 		if (shift && ctrl)
 			return; // not allowed together
 
-		DataSet ds = mv.getActiveDataSet();
-
 		if (!ctrl && !shift)
-			ds.clearSelection(); // new selection will replace the old.
+			Main.main.ds.clearSelection(); // new selection will replace the old.
 
 		Collection<OsmPrimitive> selectionList = selectionManager.getObjectsInRectangle(r,alt);
 		for (OsmPrimitive osm : selectionList)
-			osm.setSelected(!ctrl, ds);
+			osm.setSelected(!ctrl);
 		mv.repaint();
 	}
 

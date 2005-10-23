@@ -18,7 +18,7 @@ public class LayerFactory {
 	 * @return The created layer instance. 
 	 */
 	public static Layer create(DataSet dataSet, String name, boolean rawGps) {
-		Layer layer = rawGps ? new RawGpsDataLayer(dataSet, name) : new OsmDataLayer(dataSet, name);
+		Layer layer = rawGps ? new RawGpsDataLayer(dataSet, name) : new OsmDataLayer(name);
 		return layer;
 	}
 }

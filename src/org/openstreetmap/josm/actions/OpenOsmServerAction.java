@@ -43,12 +43,12 @@ import org.openstreetmap.josm.io.DataReader.ParseException;
  */
 public class OpenOsmServerAction extends AbstractAction {
 
-	private JTextField[] latlon = new JTextField[]{
+	JTextField[] latlon = new JTextField[]{
 			new JTextField(9),
 			new JTextField(9),
 			new JTextField(9),
 			new JTextField(9)};
-	private JCheckBox rawGps = new JCheckBox("Open as raw gps data", false);
+	JCheckBox rawGps = new JCheckBox("Open as raw gps data", false);
 
 	public OpenOsmServerAction() {
 		super("Connect to OSM", ImageProvider.get("connectosm"));
@@ -177,7 +177,7 @@ public class OpenOsmServerAction extends AbstractAction {
 	 * @return A bookmark containing information from the edit fields and rawgps
 	 * 		checkbox.
 	 */
-	private Bookmark readBookmark() {
+	Bookmark readBookmark() {
 		try {
 			Bookmark b = new Bookmark();
 			for (int i = 0; i < 4; ++i) {
