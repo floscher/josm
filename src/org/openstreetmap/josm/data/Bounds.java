@@ -44,4 +44,32 @@ public class Bounds {
 		this.min = min;
 		this.max = max;
 	}
+	
+	/**
+	 * @return The bounding rectangle that covers <code>this</code> and 
+	 * 		the <code>other</code> bounds, regarding the x/y values.
+	 */
+	public Bounds mergeXY(Bounds other) {
+		GeoPoint nmin = new GeoPoint();
+		nmin.x = Math.min(min.x, other.min.x);
+		nmin.y = Math.min(min.y, other.min.y);
+		GeoPoint nmax = new GeoPoint();
+		nmax.x = Math.max(max.x, other.max.x);
+		nmax.y = Math.max(max.y, other.max.y);
+		return new Bounds(nmin, nmax);
+	}
+	
+	/**
+	 * @return The bounding rectangle that covers <code>this</code> and 
+	 * 		the <code>other</code> bounds, regarding the lat/lon values.
+	 */
+	public Bounds mergeLatLon(Bounds other) {
+		GeoPoint nmin = new GeoPoint(
+				Math.min(min.lat, other.min.lat),
+				Math.min(min.lon, other.min.lon));
+		GeoPoint nmax = new GeoPoint(
+				Math.max(max.lat, other.max.lat),
+				Math.max(max.lon, other.max.lon));
+		return new Bounds(nmin, nmax);
+	}
 }

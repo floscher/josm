@@ -12,8 +12,6 @@ import javax.swing.KeyStroke;
 import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
-import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
-import org.openstreetmap.josm.gui.layer.Layer;
 
 /**
  * A class implementing MapMode is able to be selected as an mode for map editing.
@@ -49,20 +47,7 @@ abstract public class MapMode extends AbstractAction implements MouseListener, M
 		mapFrame.getActionMap().put(this, this);
 		this.mapFrame = mapFrame;
 		mv = mapFrame.mapView;
-		mv.addLayerChangeListener(new LayerChangeListener(){
-			public void activeLayerChange(Layer oldLayer, Layer newLayer) {
-				setEnabled(!isEditMode() || newLayer.isEditable());
-			}
-			public void layerAdded(Layer newLayer) {}
-			public void layerRemoved(Layer oldLayer) {}
-		});
 	}
-
-	/**
-	 * Subclasses should return whether they want to edit the map data or
-	 * whether they are read-only.
-	 */
-	abstract protected boolean isEditMode();
 
 	/**
 	 * Register all listener to the mapView

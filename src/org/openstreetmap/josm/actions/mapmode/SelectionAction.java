@@ -94,9 +94,4 @@ public class SelectionAction extends MapMode implements SelectionEnded {
 			osm.setSelected(!ctrl);
 		mv.repaint();
 	}
-
-	@Override
-	protected boolean isEditMode() {
-		return false;
-	}
 }

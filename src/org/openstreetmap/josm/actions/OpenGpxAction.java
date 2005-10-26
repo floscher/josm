@@ -6,6 +6,7 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Collection;
 
 import javax.swing.AbstractAction;
 import javax.swing.Box;
@@ -16,16 +17,19 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
 
+import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.command.DataSet;
+import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.GBC;
 import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.layer.Layer;
-import org.openstreetmap.josm.gui.layer.LayerFactory;
+import org.openstreetmap.josm.gui.layer.OsmDataLayer;
+import org.openstreetmap.josm.gui.layer.RawGpsDataLayer;
 import org.openstreetmap.josm.io.GpxReader;
-import org.openstreetmap.josm.io.DataReader.ConnectionException;
-import org.openstreetmap.josm.io.DataReader.ParseException;
+import org.openstreetmap.josm.io.RawGpsReader;
 
 /**
  * Open a file chooser dialog and select an file to import. Than call the gpx-import
@@ -82,24 +86,27 @@ public class OpenGpxAction extends AbstractAction {
 			return;
 		
 		try {
-			DataSet dataSet = new GpxReader(new FileReader(gpxFile), rawGps.isSelected()).parse();
-
-			Layer layer = LayerFactory.create(dataSet, gpxFile.getName(), rawGps.isSelected());
+			Layer layer;
+			if (rawGps.isSelected()) {
+				Collection<Collection<GeoPoint>> data = new RawGpsReader(new FileReader(gpxFile)).parse();
+				layer = new RawGpsDataLayer(data, gpxFile.getName());
+			} else {
+				DataSet dataSet = new GpxReader(new FileReader(gpxFile)).parse();
+				Collection<OsmPrimitive> l = Main.main.ds.mergeFrom(dataSet);
+				layer = new OsmDataLayer(l, gpxFile.getName());
+			}
 			
 			if (Main.main.getMapFrame() == null || !newLayer.isSelected())
 				Main.main.setMapFrame(gpxFile.getName(), new MapFrame(layer));
 			else
 				Main.main.getMapFrame().mapView.addLayer(layer);
 			
-		} catch (ParseException x) {
+		} catch (JDOMException x) {
 			x.printStackTrace();
 			JOptionPane.showMessageDialog(Main.main, x.getMessage());
 		} catch (IOException x) {
 			x.printStackTrace();
 			JOptionPane.showMessageDialog(Main.main, "Could not read '"+gpxFile.getName()+"'\n"+x.getMessage());
-		} catch (ConnectionException x) {
-			x.printStackTrace();
-			JOptionPane.showMessageDialog(Main.main, x.getMessage());
 		}
 	}
 }

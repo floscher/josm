@@ -7,6 +7,7 @@ import javax.swing.JComponent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.GeoPoint;
 
 /**
@@ -69,7 +70,7 @@ abstract public class Projection implements Cloneable {
 	abstract public void commitConfigurationPanel();
 
 	/**
-	 * Initialize itself with the given dataSet.
+	 * Initialize itself with the given bounding rectangle (regarding lat/lon).
 	 * 
 	 * This function should initialize own parameters needed to do the
 	 * projection at best effort.
@@ -80,7 +81,7 @@ abstract public class Projection implements Cloneable {
 	 * This implementation does nothing. It is provided only for subclasses
 	 * to initialize their data members.
 	 */
-	public void init() {}
+	public void init(Bounds b) {}
 	
 	/**
 	 * Add an event listener to the state changed event queue. If passed 

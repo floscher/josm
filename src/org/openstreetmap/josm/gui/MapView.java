@@ -17,7 +17,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.command.DataSet;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.LineSegment;
@@ -25,6 +24,7 @@ import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Track;
 import org.openstreetmap.josm.data.projection.Projection;
+import org.openstreetmap.josm.gui.layer.EditLayer;
 import org.openstreetmap.josm.gui.layer.Layer;
 
 /**
@@ -71,6 +71,10 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 	 */
 	private ArrayList<Layer> layers = new ArrayList<Layer>();
 	/**
+	 * Direct link to the edit layer (if any) in the layers list.
+	 */
+	private EditLayer editLayer;
+	/**
 	 * The layer from the layers list that is currently active.
 	 */
 	private Layer activeLayer;
@@ -97,9 +101,6 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 		// initialize the projection
 		addLayer(layer);
 		Main.pref.addPropertyChangeListener(this);
-
-		// init screen
-		recalculateCenterScale();
 	}
 
 	/**
@@ -107,24 +108,30 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 	 * position.
 	 */
 	public void addLayer(Layer layer) {
+		if (layer instanceof EditLayer) {
+			if (editLayer != null) {
+				// there can only be one EditLayer
+				editLayer.mergeFrom(layer);
+				return;
+			}
+			editLayer = (EditLayer)layer;
+		}
+		
 		layers.add(0,layer);
 
-		if (layer.dataSet != null) {
-			// initialize the projection if it was the first layer
-			if (layers.size() == 1)
-				Main.pref.getProjection().init();
-			
-			// initialize the dataset in the new layer
-			for (Node n : layer.dataSet.nodes)
-				Main.pref.getProjection().latlon2xy(n.coor);
-		}
+		// initialize the projection if it is the first layer
+		if (layers.size() == 1)
+			Main.pref.getProjection().init(layer.getBoundsLatLon());
+
+		// reinitialize layer's data
+		layer.init(Main.pref.getProjection());
 
 		for (LayerChangeListener l : listeners)
 			l.layerAdded(layer);
 
 		setActiveLayer(layer);
 	}
-	
+
 	/**
 	 * Remove the layer from the mapview. If the layer was in the list before,
 	 * an LayerChange event is fired.
@@ -238,9 +245,9 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 			return minPrimitive;
 		
 		// pending line segments
-		for (LineSegment ls : Main.main.ds.pendingLineSegments()) {
-			Point A = getScreenPoint(ls.getStart().coor);
-			Point B = getScreenPoint(ls.getEnd().coor);
+		for (LineSegment ls : Main.main.ds.pendingLineSegments) {
+			Point A = getScreenPoint(ls.start.coor);
+			Point B = getScreenPoint(ls.end.coor);
 			double c = A.distanceSq(B);
 			double a = p.distanceSq(B);
 			double b = p.distanceSq(A);
@@ -253,10 +260,10 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 
 		// tracks & line segments
 		minDistanceSq = Double.MAX_VALUE;
-		for (Track t : Main.main.ds.tracks()) {
-			for (LineSegment ls : t.segments()) {
-				Point A = getScreenPoint(ls.getStart().coor);
-				Point B = getScreenPoint(ls.getEnd().coor);
+		for (Track t : Main.main.ds.tracks) {
+			for (LineSegment ls : t.segments) {
+				Point A = getScreenPoint(ls.start.coor);
+				Point B = getScreenPoint(ls.end.coor);
 				double c = A.distanceSq(B);
 				double a = p.distanceSq(B);
 				double b = p.distanceSq(A);
@@ -322,12 +329,8 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 	public void stateChanged(ChangeEvent e) {
 		// reset all datasets.
 		Projection p = Main.pref.getProjection();
-		for (Layer l : layers) {
-			DataSet ds = l.dataSet;
-			if (ds != null)
-				for (Node n : ds.nodes)
-					p.latlon2xy(n.coor);
-		}
+		for (Node n : Main.main.ds.nodes)
+			p.latlon2xy(n.coor);
 		recalculateCenterScale();
 	}
 
@@ -398,8 +401,14 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 			if (h < 20)
 				h = 20;
 			
-			Bounds bounds = Main.main.ds.getBoundsXY();
-			
+			Bounds bounds = null;
+			for (Layer l : layers) {
+				if (bounds == null)
+					bounds = l.getBoundsXY();
+				else
+					bounds = bounds.mergeXY(l.getBoundsXY());
+			}
+
 			boolean oldAutoScale = autoScale;
 			GeoPoint oldCenter = center;
 			double oldScale = this.scale;
@@ -459,8 +468,6 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 		Layer old = activeLayer;
 		activeLayer = layer;
 		if (old != layer) {
-			if (old != null && old.dataSet != null)
-				old.dataSet.clearSelection();
 			for (LayerChangeListener l : listeners)
 				l.activeLayerChange(old, layer);
 			recalculateCenterScale();
@@ -472,5 +479,15 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 	 */
 	public Layer getActiveLayer() {
 		return activeLayer;
+	}
+
+	/**
+	 * @return The current edit layer. If no edit layer exist, one is created.
+	 * 		So editLayer does never return <code>null</code>.
+	 */
+	public EditLayer editLayer() {
+		if (editLayer == null)
+			addLayer(new EditLayer(this));
+		return editLayer;
 	}
 }

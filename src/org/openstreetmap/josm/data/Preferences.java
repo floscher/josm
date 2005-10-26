@@ -45,6 +45,10 @@ public class Preferences {
 	 */
 	private boolean drawRawGpsLines = false;
 	/**
+	 * Whether deleted objects should be drawn in a dark color.
+	 */
+	private boolean drawDeleted = false;
+	/**
 	 * Force the drawing of lines between raw gps points if there are no
 	 * lines in the imported document.
 	 */
@@ -133,6 +137,8 @@ public class Preferences {
 			}
 			mergeNodes = root.getChild("mergeNodes") != null;
 			drawRawGpsLines = root.getChild("drawRawGpsLines") != null;
+			forceRawGpsLines = root.getChild("forceRawGpsLines") != null;
+			drawDeleted = root.getChild("drawDeleted") != null;
 		} catch (Exception e) {
 			if (e instanceof PreferencesException)
 				throw (PreferencesException)e;
@@ -155,6 +161,10 @@ public class Preferences {
 			children.add(new Element("mergeNodes"));
 		if (drawRawGpsLines)
 			children.add(new Element("drawRawGpsLines"));
+		if (drawDeleted)
+			children.add(new Element("drawDeleted"));
+		if (forceRawGpsLines)
+			children.add(new Element("forceRawGpsLines"));
 		Element osmServer = new Element("osm-server");
 		osmServer.getChildren().add(new Element("url").setText(osmDataServer));
 		osmServer.getChildren().add(new Element("username").setText(osmDataUsername));
@@ -176,13 +186,13 @@ public class Preferences {
 		}
 	}
 
-	
 	// projection change listener stuff
 	
 	/**
 	 * The list of all listeners to projection changes.
 	 */
 	private Collection<PropertyChangeListener> listener = new LinkedList<PropertyChangeListener>();
+
 	/**
 	 * Add a listener of projection changes to the list of listeners.
 	 * @param listener The listerner to add.
@@ -244,5 +254,13 @@ public class Preferences {
 	}
 	public boolean isForceRawGpsLines() {
 		return forceRawGpsLines;
+	}
+	public boolean isDrawDeleted() {
+		return drawDeleted;
+	}
+	public void setDrawDeleted(boolean drawDeleted) {
+		boolean old = this.drawDeleted;
+		this.drawDeleted = drawDeleted;
+		firePropertyChanged("drawDeleted", old, drawDeleted);
 	}
 }

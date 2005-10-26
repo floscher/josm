@@ -7,7 +7,6 @@ import java.awt.event.MouseEvent;
 import java.util.Collection;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.MoveCommand;
 import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -83,9 +82,7 @@ public class MoveAction extends MapMode {
 			return;
 
 		Collection<OsmPrimitive> selection = Main.main.ds.getSelected();
-		Command c = new MoveCommand(selection, dx, dy);
-		c.executeCommand();
-		Main.main.commands.add(c);
+		mv.editLayer().add(new MoveCommand(selection, dx, dy));
 		
 		mv.repaint();
 		mousePos = e.getPoint();
@@ -129,10 +126,5 @@ public class MoveAction extends MapMode {
 			singleOsmPrimitive.setSelected(false);
 			mv.repaint();
 		}
-	}
-
-	@Override
-	protected boolean isEditMode() {
-		return true;
 	}
 }

@@ -1,8 +1,6 @@
 package org.openstreetmap.josm.data.osm;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
@@ -48,14 +46,6 @@ public class Key extends OsmPrimitive {
 		return key;
 	}
 	
-	/**
-	 * Return an empty list, since keys cannot have nodes. 
-	 */
-	@Override
-	public Collection<Node> getAllNodes() {
-		return new LinkedList<Node>();
-	}
-
 	@Override
 	public void visit(Visitor visitor) {
 		visitor.visit(this);

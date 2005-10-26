@@ -1,6 +1,5 @@
 package org.openstreetmap.josm.data.osm;
 
-import java.util.Collection;
 import java.util.Map;
 
 import org.openstreetmap.josm.Main;
@@ -19,7 +18,14 @@ abstract public class OsmPrimitive {
 	 * The key/value list for this primitive.
 	 */
 	public Map<Key, String> keys;
-	
+
+	/**
+	 * Unique identifier in OSM. This is used to reidentify objects in the server.
+	 * An id of 0 means an unknown id. The object has not been uploaded yet to 
+	 * know what id it will get.
+	 */
+	public long id = 0;
+
 	/**
 	 * If set to true, this object has been modified in the current session.
 	 */
@@ -29,13 +35,6 @@ abstract public class OsmPrimitive {
 	 * If set to true, this object is currently selected.
 	 */
 	transient private boolean selected = false;
-
-	/**
-	 * Return a list of all nodes, this osmPrimitive consists of. Does return
-	 * an empty list, if it is an primitive that cannot have nodes (e.g. Key)
-	 * TODO replace with visitor
-	 */
-	abstract public Collection<Node> getAllNodes();
 
 	/**
 	 * Implementation of the visitor scheme. Subclases have to call the correct

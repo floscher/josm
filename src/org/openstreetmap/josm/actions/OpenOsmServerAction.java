@@ -5,6 +5,8 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.util.Collection;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
@@ -18,9 +20,11 @@ import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.command.DataSet;
 import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.BookmarkList;
 import org.openstreetmap.josm.gui.GBC;
 import org.openstreetmap.josm.gui.ImageProvider;
@@ -28,10 +32,9 @@ import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.BookmarkList.Bookmark;
 import org.openstreetmap.josm.gui.layer.Layer;
-import org.openstreetmap.josm.gui.layer.LayerFactory;
+import org.openstreetmap.josm.gui.layer.OsmDataLayer;
+import org.openstreetmap.josm.gui.layer.RawGpsDataLayer;
 import org.openstreetmap.josm.io.OsmReader;
-import org.openstreetmap.josm.io.DataReader.ConnectionException;
-import org.openstreetmap.josm.io.DataReader.ParseException;
 
 /**
  * Action that opens a connection to the osm server.
@@ -81,7 +84,7 @@ public class OpenOsmServerAction extends AbstractAction {
 			latlon[3].setText(""+topRight.lon);
 			for (JTextField f : latlon)
 				f.setCaretPosition(0);
-			rawGps.setSelected(!mv.getActiveLayer().isEditable());
+			rawGps.setSelected(mv.getActiveLayer() instanceof RawGpsDataLayer);
 		}
 
 		dlg.add(rawGps, GBC.eop());
@@ -144,27 +147,33 @@ public class OpenOsmServerAction extends AbstractAction {
 			return;
 		}
 		OsmReader osmReader = new OsmReader(Main.pref.osmDataServer,
-				rawGps.isSelected(), b.latlon[0], b.latlon[1], b.latlon[2], b.latlon[3]);
+				b.latlon[0], b.latlon[1], b.latlon[2], b.latlon[3]);
 		try {
-			DataSet dataSet = osmReader.parse();
-			if (dataSet == null)
-				return; // user cancelled download
-			if (dataSet.nodes.isEmpty())
-				JOptionPane.showMessageDialog(Main.main, "No data imported.");
-
 			String name = latlon[0].getText()+" "+latlon[1].getText()+" x "+
 					latlon[2].getText()+" "+latlon[3].getText();
 			
-			Layer layer = LayerFactory.create(dataSet, name, rawGps.isSelected());
+			Layer layer;
+			if (rawGps.isSelected()) {
+				layer = new RawGpsDataLayer(osmReader.parseRawGps(), name);
+			} else {
+				DataSet dataSet = osmReader.parseOsm();
+				if (dataSet == null)
+					return; // user cancelled download
+				if (dataSet.nodes.isEmpty())
+					JOptionPane.showMessageDialog(Main.main, "No data imported.");
+				
+				Collection<OsmPrimitive> data = Main.main.ds.mergeFrom(dataSet);
+				layer = new OsmDataLayer(data, name);
+			}
 
 			if (Main.main.getMapFrame() == null)
 				Main.main.setMapFrame(name, new MapFrame(layer));
 			else
 				Main.main.getMapFrame().mapView.addLayer(layer);
-		} catch (ParseException x) {
+		} catch (JDOMException x) {
 			x.printStackTrace();
 			JOptionPane.showMessageDialog(Main.main, x.getMessage());
-		} catch (ConnectionException x) {
+		} catch (IOException x) {
 			x.printStackTrace();
 			JOptionPane.showMessageDialog(Main.main, x.getMessage());
 		}

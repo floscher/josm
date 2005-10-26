@@ -10,7 +10,6 @@ import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.CombineCommand;
-import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -149,11 +148,8 @@ public class CombineAction extends MapMode {
 			JOptionPane.showMessageDialog(Main.main, "Cannot combine two line segments. To create tracks use 'Add Track'.");
 		else if (first instanceof Track && second instanceof Track && !first.keyPropertiesMergable(second))
 			JOptionPane.showMessageDialog(Main.main, "Cannot combine because of different properties.");
-		else {
-			Command c = new CombineCommand(first, second);
-			c.executeCommand();
-			Main.main.commands.add(c);
-		}
+		else
+			mv.editLayer().add(new CombineCommand(first, second));
 		mv.repaint();
 	}
 
@@ -187,20 +183,15 @@ public class CombineAction extends MapMode {
 	private void draw(Graphics g, OsmPrimitive osm) {
 		if (osm instanceof LineSegment) {
 			LineSegment ls = (LineSegment)osm;
-			Point start = mv.getScreenPoint(ls.getStart().coor);
-			Point end = mv.getScreenPoint(ls.getEnd().coor);
-			if (Main.main.ds.pendingLineSegments().contains(osm) && g.getColor() == Color.GRAY)
+			Point start = mv.getScreenPoint(ls.start.coor);
+			Point end = mv.getScreenPoint(ls.end.coor);
+			if (Main.main.ds.pendingLineSegments.contains(osm) && g.getColor() == Color.GRAY)
 				g.drawLine(start.x, start.y, end.x, end.y);
 			else
 				g.drawLine(start.x, start.y, end.x, end.y);
 		} else if (osm instanceof Track) {
-			for (LineSegment ls : ((Track)osm).segments())
+			for (LineSegment ls : ((Track)osm).segments)
 				draw(g, ls);
 		}
-	}
-
-	@Override
-	protected boolean isEditMode() {
-		return true;
 	}
 }

@@ -22,8 +22,6 @@ import org.openstreetmap.josm.gui.GBC;
  * @author imi
  */
 public class OsmConnection {
-	
-
 
 	/**
 	 * The authentication class handling the login requests.

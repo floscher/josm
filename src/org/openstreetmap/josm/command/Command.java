@@ -26,10 +26,12 @@ public interface Command {
 	
 	/**
 	 * Fill in the changed data this command operates on (for sending to the server).
-	 * Add to the lists, don't clear them.
-	 * @param modified  The modified primitives
-	 * @param deleted   The deleted primitives
-	 * @param added		The added primitives
+	 * Add to the lists, don't clear them. The lists can be <code>null</code>
+	 * in which case they are ignored.
+	 * 
+	 * @param modified  The modified primitives or <code>null</code>
+	 * @param deleted   The deleted primitives or <code>null</code>
+	 * @param added		The added primitives or <code>null</code>
 	 */
 	void fillModifiedData(Collection<OsmPrimitive> modified,
 			Collection<OsmPrimitive> deleted,
