@@ -46,7 +46,7 @@ public class SelectionComponentVisitor implements Visitor {
 	public void visit(LineSegment ls) {
 		String name = getName(ls.keys);
 		if (name == null)
-			name = "("+ls.getStart().coor.lat+","+ls.getStart().coor.lon+") -> ("+ls.getEnd().coor.lat+","+ls.getEnd().coor.lon+")";
+			name = "("+ls.start.coor.lat+","+ls.start.coor.lon+") -> ("+ls.end.coor.lat+","+ls.end.coor.lon+")";
 			
 		this.name = name;
 		icon = ImageProvider.get("data", "linesegment");
@@ -73,9 +73,9 @@ public class SelectionComponentVisitor implements Visitor {
 		String name = getName(t.keys);
 		if (name == null) {
 			Set<Node> nodes = new HashSet<Node>();
-			for (LineSegment ls : t.segments()) {
-				nodes.add(ls.getStart());
-				nodes.add(ls.getEnd());
+			for (LineSegment ls : t.segments) {
+				nodes.add(ls.start);
+				nodes.add(ls.end);
 			}
 			name = "("+nodes.size()+" nodes)";
 		}

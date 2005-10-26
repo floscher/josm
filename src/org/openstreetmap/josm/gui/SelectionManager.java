@@ -277,14 +277,14 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 			}
 			
 			// pending line segments
-			for (LineSegment ls : Main.main.ds.pendingLineSegments())
+			for (LineSegment ls : Main.main.ds.pendingLineSegments)
 				if (rectangleContainLineSegment(r, alt, ls))
 					selection.add(ls);
 
 			// tracks
-			for (Track t : Main.main.ds.tracks()) {
-				boolean wholeTrackSelected = !t.segments().isEmpty();
-				for (LineSegment ls : t.segments())
+			for (Track t : Main.main.ds.tracks) {
+				boolean wholeTrackSelected = !t.segments.isEmpty();
+				for (LineSegment ls : t.segments)
 					if (rectangleContainLineSegment(r, alt, ls))
 						selection.add(ls);
 					else
@@ -309,13 +309,13 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 	 */
 	private boolean rectangleContainLineSegment(Rectangle r, boolean alt, LineSegment ls) {
 		if (alt) {
-			Point p1 = mv.getScreenPoint(ls.getStart().coor);
-			Point p2 = mv.getScreenPoint(ls.getEnd().coor);
+			Point p1 = mv.getScreenPoint(ls.start.coor);
+			Point p2 = mv.getScreenPoint(ls.end.coor);
 			if (r.intersectsLine(p1.x, p1.y, p2.x, p2.y))
 				return true;
 		} else {
-			if (r.contains(mv.getScreenPoint(ls.getStart().coor))
-					&& r.contains(mv.getScreenPoint(ls.getEnd().coor)))
+			if (r.contains(mv.getScreenPoint(ls.start.coor))
+					&& r.contains(mv.getScreenPoint(ls.end.coor)))
 				return true;
 		}
 		return false;

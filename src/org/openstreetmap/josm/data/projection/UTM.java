@@ -185,7 +185,7 @@ public class UTM extends Projection {
 	 * Helper class for the zone detection
 	 * @author imi
 	 */
-	private class ZoneData {
+	private static class ZoneData {
 		int zone = 0;
 		Hemisphere hemisphere = Hemisphere.north;
 	}
@@ -193,10 +193,8 @@ public class UTM extends Projection {
 	 * Try to autodetect the zone and hemisphere from the dataset.
 	 * @return The zone data extrakted from the dataset.
 	 */
-	ZoneData autoDetect() {
+	ZoneData autoDetect(Bounds b) {
 		ZoneData zd = new ZoneData();
-		
-		Bounds b = Main.main.ds.getBoundsLatLon();
 		if (b == null)
 			return zd;
 		GeoPoint center = b.centerLatLon();
@@ -231,9 +229,9 @@ public class UTM extends Projection {
 	 * Also, calculate the hemisphere (northern/southern).
 	 */
 	@Override
-	public void init() {
+	public void init(Bounds b) {
 		if (zone == 0) {
-			ZoneData zd = autoDetect();
+			ZoneData zd = autoDetect(b);
 			zone = zd.zone;
 			hemisphere = zd.hemisphere;
 		}
@@ -271,7 +269,7 @@ public class UTM extends Projection {
 		autoDetect.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				if (Main.main.getMapFrame() != null) {
-					ZoneData zd = autoDetect();
+					ZoneData zd = autoDetect(Main.main.ds.getBoundsLatLon());
 					if (zd.zone == 0)
 						JOptionPane.showMessageDialog(Main.main, "Autodetection failed. Maybe the data set contain too few information.");
 					else {

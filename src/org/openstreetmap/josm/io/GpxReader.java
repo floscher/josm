@@ -9,8 +9,8 @@ import org.jdom.JDOMException;
 import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.command.DataSet;
 import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
@@ -24,12 +24,12 @@ import org.openstreetmap.josm.data.osm.Track;
  * 
  * @author imi
  */
-public class GpxReader implements DataReader {
+public class GpxReader {
 
 	/**
 	 * The GPX namespace used.
 	 */
-	private static Namespace GPX = Namespace.getNamespace("http://www.topografix.com/GPX/1/0");
+	public static final Namespace GPX = Namespace.getNamespace("http://www.topografix.com/GPX/1/0");
 	/**
 	 * The OSM namespace used (for extensions).
 	 */
@@ -39,46 +39,27 @@ public class GpxReader implements DataReader {
 	 * The data source from this reader.
 	 */
 	public Reader source;
-	/**
-	 * If <code>true</code>, only nodes and tracks are imported (but no key/value
-	 * pairs). That is to support background gps information as an hint for 
-	 * real OSM data.
-	 */
-	private final boolean rawGps;
 	
 	/**
 	 * Construct a parser from a specific data source.
 	 * @param source The data source, as example a FileReader to read from a file.
-	 * @param rawGps Whether the gpx file describes raw gps data. Only very few
-	 * 		information (only nodes and line segments) imported for raw gps to 
-	 * 		save memory.
 	 */
-	public GpxReader(Reader source, boolean rawGps) {
+	public GpxReader(Reader source) {
 		this.source = source;
-		this.rawGps = rawGps;
 	}
 	
 	/**
 	 * Read the input stream and return a DataSet from the stream.
 	 */
-	public DataSet parse() throws ParseException, ConnectionException {
+	public DataSet parse() throws JDOMException, IOException {
 		try {
 			final SAXBuilder builder = new SAXBuilder();
 			Element root = builder.build(source).getRootElement();
-			
-			// HACK, since the osm server seem to not provide a namespace.
-			if (root.getNamespacePrefix().equals(""))
-				GPX = null;
-			
 			return parseDataSet(root);
 		} catch (NullPointerException npe) {
-			throw new ParseException("NullPointerException. Probably a tag name mismatch.", npe);
+			throw new JDOMException("NullPointerException. Probably a tag name mismatch.", npe);
 		} catch (ClassCastException cce) {
-			throw new ParseException("ClassCastException. Probably a tag does not contain the correct type.", cce);
-		} catch (JDOMException e) {
-			throw new ParseException("The data could not be parsed. Reason: "+e.getMessage(), e);
-		} catch (IOException e) {
-			throw new ConnectionException("The data could not be retrieved. Reason: "+e.getMessage(), e);
+			throw new JDOMException("ClassCastException. Probably a tag does not contain the correct type.", cce);
 		}
 	}
 
@@ -93,9 +74,6 @@ public class GpxReader implements DataReader {
 		data.coor = new GeoPoint(
 			Float.parseFloat(e.getAttributeValue("lat")),
 			Float.parseFloat(e.getAttributeValue("lon")));
-		
-		if (rawGps)
-			return data;
 		
 		for (Object o : e.getChildren()) {
 			Element child = (Element)o;
@@ -148,16 +126,12 @@ public class GpxReader implements DataReader {
 						start = node;
 					else {
 						LineSegment lineSegment = new LineSegment(start, node);
-						if (!rawGps)
-							parseKeyValueExtensions(lineSegment, ((Element)w).getChild("extensions", GPX));
+						parseKeyValueExtensions(lineSegment, ((Element)w).getChild("extensions", GPX));
 						track.add(lineSegment);
 						start = null;
 					}
 				}
 			}
-			
-			if (rawGps)
-				continue;
 			
 			if (child.getName().equals("extensions"))
 				parseKeyValueExtensions(track, child);
@@ -166,7 +140,7 @@ public class GpxReader implements DataReader {
 			else
 				parseKeyValueTag(track, child);
 		}
-		ds.addTrack(track);
+		ds.tracks.add(track);
 	}
 	
 
@@ -183,7 +157,7 @@ public class GpxReader implements DataReader {
 	 * @return Either the parameter node or the old node found in the dataset. 
 	 */
 	private Node addNode (DataSet data, Node node) {
-		if (Main.pref.mergeNodes || rawGps)
+		if (Main.pref.mergeNodes)
 			for (Node n : data.nodes)
 				if (node.coor.equalsLatLon(n.coor))
 					return n;

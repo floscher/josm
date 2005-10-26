@@ -84,7 +84,7 @@ public class GpxWriter {
 		LinkedList<Node> nodes = new LinkedList<Node>(Main.main.ds.nodes);
 
 		// tracks
-		for (Track t : Main.main.ds.tracks()) {
+		for (Track t : Main.main.ds.tracks) {
 			Element tElem = new Element("trk", GPX);
 			if (t.keys != null) {
 				HashMap<Key, String> keys = new HashMap<Key, String>(t.keys);
@@ -98,14 +98,14 @@ public class GpxWriter {
 				addPropertyExtensions(tElem, keys);
 			}
 			// line segments
-			for (LineSegment ls : t.segments()) {
+			for (LineSegment ls : t.segments) {
 				Element lsElem = new Element("trkseg", GPX);
 				if (ls.keys != null)
 				addPropertyExtensions(lsElem, ls.keys);
-				lsElem.getChildren().add(parseWaypoint(ls.getStart(), "trkpt"));
-				lsElem.getChildren().add(parseWaypoint(ls.getEnd(), "trkpt"));
-				nodes.remove(ls.getStart());
-				nodes.remove(ls.getEnd());
+				lsElem.getChildren().add(parseWaypoint(ls.start, "trkpt"));
+				lsElem.getChildren().add(parseWaypoint(ls.end, "trkpt"));
+				nodes.remove(ls.start);
+				nodes.remove(ls.end);
 				tElem.getChildren().add(lsElem);
 			}
 			e.getChildren().add(tElem);

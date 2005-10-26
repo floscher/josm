@@ -45,27 +45,27 @@ public class CombineCommand implements Command {
 
 	public void executeCommand() {
 		if (del instanceof LineSegment) {
-			LineSegment ls = (LineSegment)mod;
-			Track t = (Track)del;
-			if (!Main.main.ds.pendingLineSegments().contains(ls))
+			LineSegment ls = (LineSegment)del;
+			Track t = (Track)mod;
+			if (!Main.main.ds.pendingLineSegments.contains(ls))
 				throw new IllegalStateException("Should not be able to select non-pending line segments.");
 			
 			Main.main.ds.pendingLineSegments.remove(ls);
-			if (t.getStartingNode() != ls.getEnd())
+			if (t.getStartingNode() != ls.end)
 				t.add(ls);
 			else
-				t.addStart(ls);
+				t.segments.add(0,ls);
 		} else {
 			Track t1 = (Track)mod;
 			Track t2 = (Track)del;
-			t1.addAll(t2.segments());
+			t1.segments.addAll(t2.segments);
 			if (t1.keys == null)
 				t1.keys = t2.keys;
 			else	
 				t1.keys.putAll(t2.keys);
-			t2.destroy();
 			Main.main.ds.tracks.remove(t2);
 		}
+		Main.main.ds.rebuildBackReferences();
 	}
 
 	public Component commandDescription() {
@@ -81,9 +81,9 @@ public class CombineCommand implements Command {
 	}
 	
 	public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {
-		if (!modified.contains(mod))
+		if (modified != null && !modified.contains(mod))
 			modified.add(mod);
-		if (deleted.contains(del))
+		if (deleted != null && deleted.contains(del))
 			throw new IllegalStateException("Deleted object twice: "+del);
 		deleted.add(del);
 	}

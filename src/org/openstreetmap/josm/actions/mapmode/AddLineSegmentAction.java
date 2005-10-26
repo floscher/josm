@@ -11,7 +11,6 @@ import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.AddCommand;
-import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -131,17 +130,15 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 		
 		if (start != end) {
 			// try to find a line segment
-			for (Track t : Main.main.ds.tracks())
-				for (LineSegment ls : t.segments())
-					if (start == ls.getStart() && end == ls.getEnd()) {
+			for (Track t : Main.main.ds.tracks)
+				for (LineSegment ls : t.segments)
+					if (start == ls.start && end == ls.end) {
 						JOptionPane.showMessageDialog(Main.main, "There is already an line segment with the same direction between the selected nodes.");
 						return;
 					}
 
 			LineSegment ls = new LineSegment(start, end);
-			Command c = new AddCommand(ls);
-			c.executeCommand();
-			Main.main.commands.add(c);
+			mv.editLayer().add(new AddCommand(ls));
 		}
 		
 		mv.repaint();
@@ -165,10 +162,5 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 		Point secondDrawn = mv.getScreenPoint(second.coor);
 		g.drawLine(firstDrawn.x, firstDrawn.y, secondDrawn.x, secondDrawn.y);
 		hintDrawn = !hintDrawn;
-	}
-
-	@Override
-	protected boolean isEditMode() {
-		return true;
 	}
 }

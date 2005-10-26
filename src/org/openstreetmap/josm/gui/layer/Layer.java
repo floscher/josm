@@ -4,6 +4,8 @@ import java.awt.Graphics;
 
 import javax.swing.Icon;
 
+import org.openstreetmap.josm.data.Bounds;
+import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.MapView;
 
 /**
@@ -31,7 +33,7 @@ abstract public class Layer {
 	 * The name of this layer.
 	 */
 	public final String name;
-	
+
 	/**
 	 * Create the layer and fill in the necessary components.
 	 */
@@ -51,9 +53,41 @@ abstract public class Layer {
 	abstract public Icon getIcon();
 
 	/**
-	 * @return <code>true</code>, if the map data can be edited.
+	 * @return A small tooltip hint about some statistics for this layer.
 	 */
-	public boolean isEditable() {
-		return false;
-	}
+	abstract public String getToolTipText();
+
+	/**
+	 * Merges the given layer into this layer. Throws if the layer types are
+	 * incompatible.
+	 * @param from The layer that get merged into this one. After the merge,
+	 * 		the other layer is not usable anymore and passing to one others
+	 * 		mergeFrom should be one of the last things to do with a layer.
+	 */
+	abstract public void mergeFrom(Layer from);
+	
+	/**
+	 * @param other The other layer that is tested to be mergable with this.
+	 * @return Whether the other layer can be merged into this layer.
+	 */
+	abstract public boolean isMergable(Layer other);
+	
+	/**
+	 * @return The bounding rectangle this layer occupies on screen when looking
+	 * 		at lat/lon values or <code>null</code>, if infinite area or unknown
+	 * 		area is occupied.
+	 */
+	abstract public Bounds getBoundsLatLon();
+	
+	/**
+	 * @return The bounding rectangle this layer occupies on screen when looking
+	 * 		at x/y values or <code>null</code>, if infinite area or unknown
+	 * 		area is occupied.
+	 */
+	abstract public Bounds getBoundsXY();
+
+	/**
+	 * Initialize the internal dataset with the given projection.
+	 */
+	abstract public void init(Projection projection);
 }

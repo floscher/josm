@@ -2,12 +2,12 @@ package org.openstreetmap.josm.command;
 
 import java.awt.Component;
 import java.util.Collection;
-import java.util.HashSet;
 
 import javax.swing.JLabel;
 
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.data.osm.visitor.AllNodesVisitor;
 
 /**
  * MoveCommand moves a set of OsmPrimitives along the map. It can be moved again
@@ -48,10 +48,10 @@ public class MoveCommand implements Command {
 	}
 
 	public void executeCommand() {
-		Collection<Node> movingNodes = new HashSet<Node>();
+		AllNodesVisitor visitor = new AllNodesVisitor();
 		for (OsmPrimitive osm : objects)
-			movingNodes.addAll(osm.getAllNodes());
-		for (Node n : movingNodes) {
+			osm.visit(visitor);
+		for (Node n : visitor.nodes) {
 			n.coor.x += x;
 			n.coor.y += y;
 		}
@@ -64,8 +64,9 @@ public class MoveCommand implements Command {
 	}
 
 	public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {
-		for (OsmPrimitive osm : objects)
-			if (!modified.contains(osm))
-				modified.add(osm);
+		if (modified != null)
+			for (OsmPrimitive osm : objects)
+				if (!modified.contains(osm))
+					modified.add(osm);
 	}
 }

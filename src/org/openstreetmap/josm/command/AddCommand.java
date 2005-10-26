@@ -42,11 +42,11 @@ public class AddCommand implements Command, Visitor {
 	public Component commandDescription() {
 		SelectionComponentVisitor v = new SelectionComponentVisitor();
 		osm.visit(v);
-		return new JLabel(v.name, v.icon, JLabel.LEADING);
+		return new JLabel("Add "+v.name, v.icon, JLabel.LEADING);
 	}
 	
 	public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {
-		if (!added.contains(osm))
+		if (added != null && !added.contains(osm))
 			added.add(osm);
 	}
 
@@ -64,6 +64,8 @@ public class AddCommand implements Command, Visitor {
 	 */
 	public void visit(LineSegment ls) {
 		Main.main.ds.pendingLineSegments.add(ls);
+		Main.main.ds.addBackReference(ls.start, ls);
+		Main.main.ds.addBackReference(ls.end, ls);
 	}
 
 	/**
@@ -73,8 +75,13 @@ public class AddCommand implements Command, Visitor {
 	public void visit(Track t) {
 		Main.main.ds.tracks.add(t);
 		for (Iterator<LineSegment> it =  Main.main.ds.pendingLineSegments.iterator(); it.hasNext();)
-			if (t.segments().contains(it.next()))
+			if (t.segments.contains(it.next()))
 				it.remove();
+		for (LineSegment ls : t.segments) {
+			Main.main.ds.addBackReference(ls, t);
+			Main.main.ds.addBackReference(ls.start, t);
+			Main.main.ds.addBackReference(ls.end, t);
+		}
 	}
 
 	/**

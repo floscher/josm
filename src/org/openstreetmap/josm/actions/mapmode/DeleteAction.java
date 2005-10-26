@@ -3,14 +3,15 @@ package org.openstreetmap.josm.actions.mapmode;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.LinkedList;
-import java.util.Map;
 
 import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.osm.Key;
+import org.openstreetmap.josm.command.CombineAndDeleteCommand;
+import org.openstreetmap.josm.command.DeleteCommand;
+import org.openstreetmap.josm.command.CombineAndDeleteCommand.LineSegmentCombineEntry;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -132,19 +133,19 @@ public class DeleteAction extends MapMode {
 
 		if (osm instanceof Node) {
 			// delete any track and line segment the node is in.
-			for (Track t : Main.main.ds.tracks())
-				for (LineSegment ls : t.segments())
-					if (ls.getStart() == osm || ls.getEnd() == osm)
+			for (Track t : Main.main.ds.tracks)
+				for (LineSegment ls : t.segments)
+					if (ls.start == osm || ls.end == osm)
 						tracksToDelete.add(t);
-			for (LineSegment ls : Main.main.ds.pendingLineSegments())
-				if (ls.getStart() == osm || ls.getEnd() == osm)
+			for (LineSegment ls : Main.main.ds.pendingLineSegments)
+				if (ls.start == osm || ls.end == osm)
 					lineSegmentsToDelete.add(ls);
 				
 		} else if (osm instanceof LineSegment) {
 			LineSegment lineSegment = (LineSegment)osm;
 			lineSegmentsToDelete.add(lineSegment);
-			for (Track t : Main.main.ds.tracks())
-				for (LineSegment ls : t.segments())
+			for (Track t : Main.main.ds.tracks)
+				for (LineSegment ls : t.segments)
 					if (lineSegment == ls)
 						tracksToDelete.add(t);
 		} else if (osm instanceof Track) {
@@ -153,30 +154,28 @@ public class DeleteAction extends MapMode {
 		// collect all nodes, that could be unreferenced after deletion
 		ArrayList<Node> checkUnreferencing = new ArrayList<Node>();
 		for (Track t : tracksToDelete) {
-			for (LineSegment ls : t.segments()) {
-				checkUnreferencing.add(ls.getStart());
-				checkUnreferencing.add(ls.getEnd());
+			for (LineSegment ls : t.segments) {
+				checkUnreferencing.add(ls.start);
+				checkUnreferencing.add(ls.end);
 			}
 		}
 		for (LineSegment ls : lineSegmentsToDelete) {
-			checkUnreferencing.add(ls.getStart());
-			checkUnreferencing.add(ls.getEnd());
+			checkUnreferencing.add(ls.start);
+			checkUnreferencing.add(ls.end);
 		}
 		
-		// delete tracks and areas
-		for (Track t : tracksToDelete)
-			Main.main.ds.removeTrack(t);
-		for (LineSegment ls : lineSegmentsToDelete)
-			Main.main.ds.destroyPendingLineSegment(ls);
-
+		Collection<OsmPrimitive> deleteData = new LinkedList<OsmPrimitive>();
+		deleteData.addAll(tracksToDelete);
+		deleteData.addAll(lineSegmentsToDelete);
 		// removing all unreferenced nodes
-		for (Node n : checkUnreferencing) {
+		for (Node n : checkUnreferencing)
 			if (!isReferenced(n))
-				Main.main.ds.nodes.remove(n);
-		}
+				deleteData.add(n);
 		// now, all references are killed. Delete the node (if it was a node)
 		if (osm instanceof Node)
-			Main.main.ds.nodes.remove(osm);
+			deleteData.add(osm);
+		
+		mv.editLayer().add(new DeleteCommand(deleteData));
 	}
 
 	/**
@@ -187,32 +186,13 @@ public class DeleteAction extends MapMode {
 	 * @param osm The object to delete.
 	 */
 	private void delete(OsmPrimitive osm) {
-		if (osm instanceof Node) {
-			Node n = (Node)osm;
-			if (isReferenced(n)) {
-				String combined = combine(n);
-				if (combined != null) {
-					JOptionPane.showMessageDialog(Main.main, combined);
-					return;
-				}
-			}
-			// now, the node isn't referenced anymore, so delete it.
-			Main.main.ds.nodes.remove(n);
-		} else if (osm instanceof LineSegment) {
-			LinkedList<Track> tracksToDelete = new LinkedList<Track>();
-			for (Track t : Main.main.ds.tracks()) {
-				t.remove((LineSegment)osm);
-				if (t.segments().isEmpty())
-					tracksToDelete.add(t);
-			}
-			for (Track t : tracksToDelete)
-				Main.main.ds.removeTrack(t);
-			Main.main.ds.destroyPendingLineSegment((LineSegment)osm);
-		} else if (osm instanceof Track) {
-			Main.main.ds.removeTrack((Track)osm);
-			for (LineSegment ls : ((Track)osm).segments())
-				Main.main.ds.addPendingLineSegment(ls);
+		if (osm instanceof Node && isReferenced((Node)osm)) {
+			combineAndDelete((Node)osm);
+			return;
 		}
+		Collection<OsmPrimitive> c = new LinkedList<OsmPrimitive>();
+		c.add(osm);
+		mv.editLayer().add(new DeleteCommand(c));
 	}
 
 	
@@ -222,12 +202,12 @@ public class DeleteAction extends MapMode {
 	 * @return Whether the node is used by a track or area.
 	 */
 	private boolean isReferenced(Node n) {
-		for (Track t : Main.main.ds.tracks())
-			for (LineSegment ls : t.segments())
-				if (ls.getStart() == n || ls.getEnd() == n)
+		for (Track t : Main.main.ds.tracks)
+			for (LineSegment ls : t.segments)
+				if (ls.start == n || ls.end == n)
 					return true;
-		for (LineSegment ls : Main.main.ds.pendingLineSegments())
-			if (ls.getStart() == n || ls.getEnd() == n)
+		for (LineSegment ls : Main.main.ds.pendingLineSegments)
+			if (ls.start == n || ls.end == n)
 				return true;
 		// TODO areas
 		return false;
@@ -242,11 +222,13 @@ public class DeleteAction extends MapMode {
 	 * @return <code>null</code> if combining suceded or an error string if there
 	 * 		are problems combining the node.
 	 */
-	private String combine(Node n) {
+	private void combineAndDelete(Node n) {
 		// first, check for pending line segments
-		for (LineSegment ls : Main.main.ds.pendingLineSegments())
-			if (n == ls.getStart() || n == ls.getEnd())
-				return "Node used by a line segment which is not part of any track. Remove this first."; 
+		for (LineSegment ls : Main.main.ds.pendingLineSegments)
+			if (n == ls.start || n == ls.end) {
+				JOptionPane.showMessageDialog(Main.main, "Node used by a line segment which is not part of any track. Remove this first.");
+				return;
+			}
 		
 		// These line segments must be combined within the track combining
 		ArrayList<LineSegment> pendingLineSegmentsForTrack = new ArrayList<LineSegment>();
@@ -255,118 +237,91 @@ public class DeleteAction extends MapMode {
 		
 		// These line segments are combinable. The inner arraylist has always 
 		// two elements. The keys maps to the track, the line segments are in.
-		HashMap<ArrayList<LineSegment>, Track> lineSegments = new HashMap<ArrayList<LineSegment>, Track>();
+		Collection<LineSegmentCombineEntry> lineSegments = new ArrayList<LineSegmentCombineEntry>();
 		
-		for (Track t : Main.main.ds.tracks()) {
+		for (Track t : Main.main.ds.tracks) {
 			ArrayList<LineSegment> current = new ArrayList<LineSegment>();
-			for (LineSegment ls : t.segments())
-				if (ls.getStart() == n || ls.getEnd() == n)
+			for (LineSegment ls : t.segments)
+				if (ls.start == n || ls.end == n)
 					current.add(ls);
 			if (!current.isEmpty()) {
-				if (current.size() > 2)
-					return "Node used by more than two line segments.";
+				if (current.size() > 2) {
+					JOptionPane.showMessageDialog(Main.main, "Node used by more than two line segments.");
+					return;
+				}
 				if (current.size() == 1 && 
 						(current.get(0) == t.getStartingSegment() || current.get(0) == t.getEndingSegment()))
 					pendingLineSegmentsForTrack.add(current.get(0));
-				else if (current.get(0).getEnd() != current.get(1).getStart() &&
-						current.get(1).getEnd() != current.get(0).getStart())
-					return "Node used by line segments that points together.";
-				else if (!current.get(0).keyPropertiesMergable(current.get(1)))
-					return "Node used by line segments with different properties.";
-				else
-					lineSegments.put(current, t);
+				else if (current.get(0).end != current.get(1).start &&
+						current.get(1).end != current.get(0).start) {
+					JOptionPane.showMessageDialog(Main.main, "Node used by line segments that points together.");
+					return;
+				} else if (!current.get(0).keyPropertiesMergable(current.get(1))) {
+					JOptionPane.showMessageDialog(Main.main, "Node used by line segments with different properties.");
+					return;
+				} else {
+					LineSegmentCombineEntry e = new LineSegmentCombineEntry();
+					e.first = current.get(0);
+					e.second = current.get(1);
+					e.track = t;
+					lineSegments.add(e);
+				}
 			}
 		}
 		
 		// try to combine tracks
 		ArrayList<Track> tracks = new ArrayList<Track>();
-		for (Track t : Main.main.ds.tracks())
+		for (Track t : Main.main.ds.tracks)
 			if (t.getStartingNode() == n || t.getEndingNode() == n)
 				tracks.add(t);
 		if (!tracks.isEmpty()) {
-			if (tracks.size() > 2)
-				return "Node used by more than two tracks.";
-			if (tracks.size() == 1)
-				return "Node used by a track.";
+			if (tracks.size() > 2) {
+				JOptionPane.showMessageDialog(Main.main, "Node used by more than two tracks.");
+				return;
+			}
+			if (tracks.size() == 1) {
+				JOptionPane.showMessageDialog(Main.main, "Node used by a track.");
+				return;
+			}
 			Track t1 = tracks.get(0);
 			Track t2 = tracks.get(1);
 			if (t1.getStartingNode() != t2.getEndingNode() &&
 					t2.getStartingNode() != t1.getEndingNode()) {
 				if (t1.getStartingNode() == t2.getStartingNode() ||
-						t1.getEndingNode() == t2.getEndingNode())
-					return "Node used by tracks that point together.";
-				return "Node used by tracks that cannot be combined.";
+						t1.getEndingNode() == t2.getEndingNode()) {
+					JOptionPane.showMessageDialog(Main.main, "Node used by tracks that point together.");
+					return;
+				}
+				JOptionPane.showMessageDialog(Main.main, "Node used by tracks that cannot be combined.");
+				return;
 			}
-			if (!t1.keyPropertiesMergable(t2))
-				return "Node used by tracks with different properties.";
+			if (!t1.keyPropertiesMergable(t2)) {
+				JOptionPane.showMessageDialog(Main.main, "Node used by tracks with different properties.");
+				return;
+			}
 		}
 		
 		// try to match the pending line segments
 		if (pendingLineSegmentsForTrack.size() == 2) {
 			LineSegment l1 = pendingLineSegmentsForTrack.get(0);
 			LineSegment l2 = pendingLineSegmentsForTrack.get(1);
-			if (l1.getStart() == l2.getStart() || l1.getEnd() == l2.getEnd())
-				return "Node used by line segments that points together.";
-			if (l1.getStart() == l2.getEnd() || l2.getStart() == l1.getEnd())
+			if (l1.start == l2.start || l1.end == l2.end) {
+				JOptionPane.showMessageDialog(Main.main, "Node used by line segments that points together.");
+				return;
+			}
+			if (l1.start == l2.end || l2.start == l1.end)
 				pendingLineSegmentsForTrack.clear(); // resolved.
 		}
 		
 		// still pending line segments?
-		if (!pendingLineSegmentsForTrack.isEmpty())
-			return "Node used by tracks that cannot be combined.";
+		if (!pendingLineSegmentsForTrack.isEmpty()) {
+			JOptionPane.showMessageDialog(Main.main, "Node used by tracks that cannot be combined.");
+			return;
+		}
 
 		// Ok, we can combine. Do it.
-		// line segments
-		for (ArrayList<LineSegment> list : lineSegments.keySet()) {
-			LineSegment first = list.get(0);
-			LineSegment second = list.get(1);
-			if (first.getStart() == second.getEnd()) {
-				first = second;
-				second = list.get(0);
-			}
-			first.setEnd(second.getEnd());
-			first.keys = mergeKeys(first.keys, second.keys);
-			lineSegments.get(list).remove(second);
-		}
-		
-		// tracks
-		if (!tracks.isEmpty()) {
-			Track first = tracks.get(0);
-			Track second = tracks.get(1);
-			if (first.getStartingNode() == second.getEndingNode()) {
-				first = second;
-				second = tracks.get(0);
-			}
-			// concatenate the line segments.
-			LineSegment lastOfFirst = first.getEndingSegment();
-			LineSegment firstOfSecond = second.getStartingSegment();
-			lastOfFirst.setEnd(firstOfSecond.getEnd());
-			lastOfFirst.keys = mergeKeys(lastOfFirst.keys, firstOfSecond.keys);
-			second.remove(firstOfSecond);
-			// move the remaining line segments to first track.
-			first.addAll(second.segments());
-			Main.main.ds.removeTrack(second);
-		}
-		
-		return null;
-	}
-
-	/**
-	 * Merges the second parameter into the first and return the merged map.
-	 * @param first The first map that will hold keys.
-	 * @param second The map to merge with the first.
-	 * @return The merged key map.
-	 */
-	private Map<Key, String> mergeKeys(Map<Key, String> first, Map<Key, String> second) {
-		if (first == null)
-			first = second;
-		else if (second != null && first != null)
-			first.putAll(second);
-		return first;
-	}
-
-	@Override
-	protected boolean isEditMode() {
-		return true;
+		Track firstTrack = tracks.isEmpty() ? null : tracks.get(0);
+		Track secondTrack = tracks.isEmpty() ? null : tracks.get(1);
+		mv.editLayer().add(new CombineAndDeleteCommand(n, lineSegments, firstTrack, secondTrack));
 	}
 }

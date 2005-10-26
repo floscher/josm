@@ -7,7 +7,6 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.io.IOException;
 import java.util.Collection;
 
 import javax.swing.DefaultListCellRenderer;
@@ -16,7 +15,6 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
@@ -25,13 +23,11 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.command.DataSet;
 import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
 import org.openstreetmap.josm.gui.layer.Layer;
-import org.openstreetmap.josm.io.OsmWriter;
 
 /**
  * A component that manages the list of all layers and react to selection changes
@@ -71,10 +67,6 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 	 * Button for delete layer.
 	 */
 	private JButton deleteButton = new JButton(ImageProvider.get("dialogs", "delete"));
-	/**
-	 * Button for connecting disconnecting to the server.
-	 */
-	private JButton uploadButton = new JButton(ImageProvider.get("dialogs", "condiscon"));
 
 	/**
 	 * Create an layerlist and attach it to the given mapView.
@@ -95,12 +87,7 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 				if (!layer.visible)
 					icon = ImageProvider.overlay(icon, invisible, ImageProvider.OverlayPosition.SOUTHEAST);
 				label.setIcon(icon);
-
-				DataSet ds = layer.dataSet;
-				if (ds != null) {
-					label.setToolTipText(ds.nodes.size()+" nodes, "+
-							ds.tracks().size()+" tracks");
-				}
+				label.setToolTipText(layer.getToolTipText());
 				return label;
 			}
 		});
@@ -181,30 +168,14 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 		mergeButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				Layer lFrom = (Layer)layers.getSelectedValue();
-				DataSet dsFrom = lFrom.dataSet;
 				Layer lTo = (Layer)model.get(layers.getSelectedIndex()+1);
-				DataSet dsTo = lTo.dataSet;
-				dsTo.mergeFrom(dsFrom, Main.pref.mergeNodes);
+				lTo.mergeFrom(lFrom);
 				layers.setSelectedValue(lTo, true);
 				mapView.removeLayer(lFrom);
 			}
 		});		
 		buttonPanel.add(mergeButton);
 
-		uploadButton.setToolTipText("Upload changes to the server.");
-		uploadButton.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e) {
-				OsmWriter con = new OsmWriter(Main.pref.osmDataServer, Main.main.commands);
-				try {
-					con.output();
-				} catch (IOException x) {
-					x.printStackTrace();
-					JOptionPane.showMessageDialog(Main.main, "Not all changes could be uploaded.");
-				}
-			}
-		});
-		buttonPanel.add(uploadButton);
-		
 		add(buttonPanel, BorderLayout.SOUTH);
 		
 		updateButtonEnabled();
@@ -218,9 +189,7 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 		Layer l = (Layer)layers.getSelectedValue();
 		boolean enable = model.getSize() > 1;
 		enable = enable && sel < model.getSize()-1;
-		enable = enable && l.dataSet != null;
-		enable = enable && ((Layer)model.get(sel+1)).dataSet != null;
-		enable = enable && l.isEditable() == ((Layer)model.get(sel+1)).isEditable();
+		enable = enable && l.isMergable((Layer)model.get(sel+1));
 		mergeButton.setEnabled(enable);
 		upButton.setEnabled(sel > 0);
 		downButton.setEnabled(sel < model.getSize()-1);

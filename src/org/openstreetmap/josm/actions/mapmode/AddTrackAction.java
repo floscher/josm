@@ -3,11 +3,11 @@ package org.openstreetmap.josm.actions.mapmode;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.AddCommand;
-import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Track;
@@ -97,21 +97,44 @@ public class AddTrackAction extends MapMode implements SelectionEnded {
 		LinkedList<LineSegment> lineSegments = new LinkedList<LineSegment>();
 		for (OsmPrimitive osm : selection) {
 			if (osm instanceof Track)
-				lineSegments.addAll(((Track)osm).segments());
+				lineSegments.addAll(((Track)osm).segments);
 			else if (osm instanceof LineSegment)
 				lineSegments.add((LineSegment)osm);
 		}
+		
+		// sort the line segments in best possible order. This is done by:
+		// 0  if no elements in list, quit
+		// 1  taking the first ls as pivot, remove it from list
+		// 2  searching for a connection at start or end of pivot
+		// 3  if found, attach it, remove it from list, goto 2
+		// 4  if not found, save the pivot-string and goto 0
+		LinkedList<LineSegment> sortedLineSegments = new LinkedList<LineSegment>();
+		while (!lineSegments.isEmpty()) {
+			LinkedList<LineSegment> pivotList = new LinkedList<LineSegment>();
+			pivotList.add(lineSegments.getFirst());
+			lineSegments.removeFirst();
+			for (boolean found = true; found;) {
+				found = false;
+				for (Iterator<LineSegment> it = lineSegments.iterator(); it.hasNext();) {
+					LineSegment ls = it.next();
+					if (ls.start == pivotList.getLast().end) {
+						pivotList.addLast(ls);
+						it.remove();
+						found = true;
+					} else if (ls.end == pivotList.getFirst().start) {
+						pivotList.addFirst(ls);
+						it.remove();
+						found = true;
+					}
+				}
+			}
+			sortedLineSegments.addAll(pivotList);
+		}
+		
 		Track t = new Track();
-		for (LineSegment ls : lineSegments)
+		for (LineSegment ls : sortedLineSegments)
 			t.add(ls);
-		Command c = new AddCommand(t);
-		c.executeCommand();
-		Main.main.commands.add(c);
+		mv.editLayer().add(new AddCommand(t));
 		Main.main.ds.clearSelection();
-	}
-
-	@Override
-	protected boolean isEditMode() {
-		return true;
 	}
 }
