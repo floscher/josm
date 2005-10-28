@@ -17,7 +17,7 @@ import org.openstreetmap.josm.data.osm.DataSet;
  * 
  * @author imi
  */
-public class OsmReader extends OsmConnection {
+public class OsmServerReader extends OsmConnection {
 
 	/**
 	 * The url string of the desired map data.
@@ -31,7 +31,7 @@ public class OsmReader extends OsmConnection {
 	/**
 	 * Construct the reader and store the information for attaching
 	 */
-	public OsmReader(String server, 
+	public OsmServerReader(String server, 
 			double lat1, double lon1, double lat2, double lon2) {
 		this.lon2 = lon2;
 		this.lat2 = lat2;

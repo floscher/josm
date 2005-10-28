@@ -405,8 +405,11 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 			for (Layer l : layers) {
 				if (bounds == null)
 					bounds = l.getBoundsXY();
-				else
-					bounds = bounds.mergeXY(l.getBoundsXY());
+				else {
+					Bounds lb = l.getBoundsXY();
+					if (lb != null)
+						bounds = bounds.mergeXY(lb);
+				}
 			}
 
 			boolean oldAutoScale = autoScale;

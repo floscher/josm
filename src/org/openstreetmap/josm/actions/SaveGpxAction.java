@@ -1,6 +1,7 @@
 package org.openstreetmap.josm.actions;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileWriter;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.gui.ImageProvider;
@@ -28,11 +30,12 @@ public class SaveGpxAction extends AbstractAction {
 	 */
 	public SaveGpxAction() {
 		super("Save GPX", ImageProvider.get("savegpx"));
+		putValue(ACCELERATOR_KEY, KeyStroke.getAWTKeyStroke(KeyEvent.VK_S,
+				InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK));
 		putValue(MNEMONIC_KEY, KeyEvent.VK_S);
-		putValue(SHORT_DESCRIPTION, "Save the current active layer as GPX file.");
+		putValue(SHORT_DESCRIPTION, "Export the current data as GPX file.");
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void actionPerformed(ActionEvent event) {
 		if (Main.main.getMapFrame() == null) {
 			JOptionPane.showMessageDialog(Main.main, "No document open so nothing to save.");

@@ -2,6 +2,7 @@ package org.openstreetmap.josm.actions;
 
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileReader;
@@ -15,6 +16,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
 import org.jdom.JDOMException;
@@ -44,6 +46,8 @@ public class OpenGpxAction extends AbstractAction {
 	 */
 	public OpenGpxAction() {
 		super("Open GPX", ImageProvider.get("opengpx"));
+		putValue(ACCELERATOR_KEY, KeyStroke.getAWTKeyStroke(KeyEvent.VK_O, 
+				InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
 		putValue(MNEMONIC_KEY, KeyEvent.VK_O);
 		putValue(SHORT_DESCRIPTION, "Open a file in GPX format.");
 	}
