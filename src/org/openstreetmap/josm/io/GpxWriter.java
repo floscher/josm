@@ -79,7 +79,7 @@ public class GpxWriter {
 	private Element parseDataSet() {
 		Element e = new Element("gpx", GPX);
 		e.setAttribute("version", "1.0");
-		e.setAttribute("creator", "JOSM Beta");
+		e.setAttribute("creator", "JOSM Beta2");
 		// for getting all unreferenced waypoints in the wpt-list
 		LinkedList<Node> nodes = new LinkedList<Node>(Main.main.ds.nodes);
 
