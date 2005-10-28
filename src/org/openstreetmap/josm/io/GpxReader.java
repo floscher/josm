@@ -39,7 +39,7 @@ public class GpxReader {
 	 * The data source from this reader.
 	 */
 	public Reader source;
-	
+
 	/**
 	 * Construct a parser from a specific data source.
 	 * @param source The data source, as example a FileReader to read from a file.
@@ -131,9 +131,7 @@ public class GpxReader {
 						start = null;
 					}
 				}
-			}
-			
-			if (child.getName().equals("extensions"))
+			} else if (child.getName().equals("extensions"))
 				parseKeyValueExtensions(track, child);
 			else if (child.getName().equals("link"))
 				parseKeyValueLink(track, child);
@@ -156,7 +154,7 @@ public class GpxReader {
 	 * @param node The node that should be added.
 	 * @return Either the parameter node or the old node found in the dataset. 
 	 */
-	private Node addNode (DataSet data, Node node) {
+	private Node addNode(DataSet data, Node node) {
 		if (Main.pref.mergeNodes)
 			for (Node n : data.nodes)
 				if (node.coor.equalsLatLon(n.coor))

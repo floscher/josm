@@ -34,7 +34,7 @@ import org.openstreetmap.josm.gui.BookmarkList.Bookmark;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.RawGpsDataLayer;
-import org.openstreetmap.josm.io.OsmReader;
+import org.openstreetmap.josm.io.OsmServerReader;
 
 /**
  * Action that opens a connection to the osm server.
@@ -146,7 +146,7 @@ public class OpenOsmServerAction extends AbstractAction {
 			JOptionPane.showMessageDialog(Main.main, "Please enter the desired coordinates or click on a bookmark.");
 			return;
 		}
-		OsmReader osmReader = new OsmReader(Main.pref.osmDataServer,
+		OsmServerReader osmReader = new OsmServerReader(Main.pref.osmDataServer,
 				b.latlon[0], b.latlon[1], b.latlon[2], b.latlon[3]);
 		try {
 			String name = latlon[0].getText()+" "+latlon[1].getText()+" x "+

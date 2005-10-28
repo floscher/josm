@@ -21,7 +21,7 @@ public class Key extends OsmPrimitive {
 	/**
 	 * All keys are stored here.
 	 */
-	private static Map<String, Key> allKeys = new HashMap<String, Key>();
+	public static final Map<String, Key> allKeys = new HashMap<String, Key>();
 	
 	/**
 	 * Generate a key with the given name. You cannot call this directly but
@@ -49,5 +49,10 @@ public class Key extends OsmPrimitive {
 	@Override
 	public void visit(Visitor visitor) {
 		visitor.visit(this);
+	}
+
+	@Override
+	public String toString() {
+		return name;
 	}
 }

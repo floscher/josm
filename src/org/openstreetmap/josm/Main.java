@@ -18,6 +18,7 @@ import org.openstreetmap.josm.actions.ExitAction;
 import org.openstreetmap.josm.actions.OpenGpxAction;
 import org.openstreetmap.josm.actions.OpenOsmServerAction;
 import org.openstreetmap.josm.actions.PreferencesAction;
+import org.openstreetmap.josm.actions.SaveAction;
 import org.openstreetmap.josm.actions.SaveGpxAction;
 import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.Preferences.PreferencesException;
@@ -75,6 +76,7 @@ public class Main extends JFrame {
 		// creating actions
 		OpenOsmServerAction openServerAction = new OpenOsmServerAction();
 		OpenGpxAction openGpxAction = new OpenGpxAction();
+		SaveAction saveAction = new SaveAction();
 		SaveGpxAction saveGpxAction = new SaveGpxAction();
 		ExitAction exitAction = new ExitAction();
 		PreferencesAction preferencesAction = new PreferencesAction();
@@ -87,6 +89,7 @@ public class Main extends JFrame {
 		JMenu fileMenu = new JMenu("Files");
 		fileMenu.setMnemonic('F');
 		fileMenu.add(openGpxAction);
+		fileMenu.add(saveAction);
 		fileMenu.add(saveGpxAction);
 		fileMenu.addSeparator();
 		fileMenu.add(exitAction);
@@ -113,6 +116,7 @@ public class Main extends JFrame {
 		toolBar.setFloatable(false);
 		toolBar.add(openServerAction);
 		toolBar.add(openGpxAction);
+		toolBar.add(saveAction);
 		toolBar.add(saveGpxAction);
 		toolBar.addSeparator();
 		toolBar.add(preferencesAction);

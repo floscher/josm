@@ -53,7 +53,7 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 	 * @param mapFrame The MapFrame this action belongs to.
 	 */
 	public AddLineSegmentAction(MapFrame mapFrame) {
-		super("Add Line Segment", "addlinesegment", "Add a line segment between two nodes.", KeyEvent.VK_L, mapFrame);
+		super("Add Line Segment", "addlinesegment", "Add a line segment between two nodes.", KeyEvent.VK_G, mapFrame);
 	}
 
 	@Override
