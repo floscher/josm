@@ -86,7 +86,7 @@ public class OsmWriter extends OsmConnection {
 		Element e = new Element("track");
 		addProperties(e, t, properties);
 		for (LineSegment ls : t.segments)
-			e.getChildren().add(new Element("segment").setAttribute("id", ""+ls.id));
+			e.getChildren().add(new Element("segment").setAttribute("uid", ""+ls.id));
 		return e;
 	}
 
@@ -109,8 +109,8 @@ public class OsmWriter extends OsmConnection {
 	private Element parseLineSegment(LineSegment ls, Collection<Element> properties) {
 		Element e = new Element("segment");
 		addProperties(e, ls, properties);
-		e.setAttribute("start", ""+ls.start.id);
-		e.setAttribute("end", ""+ls.end.id);
+		e.setAttribute("from", ""+ls.start.id);
+		e.setAttribute("to", ""+ls.end.id);
 		return e;
 	}
 	
@@ -122,7 +122,7 @@ public class OsmWriter extends OsmConnection {
 		Key key = entry.getKey();
 		if (key.id == 0)
 			key.id = generateId();
-		e.setAttribute("id", ""+key.id);
+		e.setAttribute("uid", ""+key.id);
 		e.setAttribute("object", ""+osm.id);
 		e.setAttribute("key", key.name);
 		e.setAttribute("value", entry.getValue());
@@ -135,7 +135,7 @@ public class OsmWriter extends OsmConnection {
 	private void addProperties(Element e, OsmPrimitive osm, Collection<Element> properties) {
 		if (osm.id == 0)
 			osm.id = generateId();
-		e.setAttribute("id", ""+osm.id);
+		e.setAttribute("uid", ""+osm.id);
 		if (osm.keys != null)
 			for (Entry<Key, String> entry : osm.keys.entrySet())
 				properties.add(parseProperty(osm, entry));

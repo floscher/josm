@@ -82,7 +82,7 @@ public class OsmServerReader extends OsmConnection {
 		Reader r = getReader(urlStr+"map?bbox="+lon1+","+lat1+","+lon2+","+lat2);
 		if (r == null)
 			return null;
-		return new GpxReader(r).parse();
+		return new OsmReader(r).parse();
 	}
 
 
