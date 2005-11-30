@@ -107,12 +107,15 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 				dlg.setVisible(false);
 			}
 		});
+		String oldComboEntry = combo.getEditor().getItem().toString();
 		dlg.setVisible(true);
 
 		Object answer = optionPane.getValue();
 		if (answer == null || answer == JOptionPane.UNINITIALIZED_VALUE ||
-				(answer instanceof Integer && (Integer)answer != JOptionPane.OK_OPTION))
+				(answer instanceof Integer && (Integer)answer != JOptionPane.OK_OPTION)) {
+			combo.getEditor().setItem(oldComboEntry);
 			return;
+		}
 
 		String value = combo.getEditor().getItem().toString();
 		if (value.equals("<different>"))
