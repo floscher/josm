@@ -217,6 +217,7 @@ public class DataSet extends SelectionTracker implements Cloneable {
 	 */
 	public void clearSelection() {
 		clearSelection(nodes);
+		clearSelection(pendingLineSegments);
 		clearSelection(tracks);
 		for (Track t : tracks)
 			clearSelection(t.segments);
@@ -241,14 +242,14 @@ public class DataSet extends SelectionTracker implements Cloneable {
 	 * The objects imported are not cloned, so from now on, these data belong
 	 * to both datasets. So use mergeFrom only if you are about to abandon the
 	 * other dataset.
-	 * 
+	 *
 	 * Elements are tried to merged. 
 	 * Nodes are merged first, if their lat/lon are equal.
 	 * Line segments are merged, if they have the same nodes.
-	 * Tracs are merged, if they consist of the same line segments.
-	 * 
+	 * Tracks are merged, if they consist of the same line segments.
+	 *
 	 * Additional to that, every two objects with the same id are merged.
-	 * 
+	 *
 	 * @param ds	The DataSet to merge into this one.
 	 * @return A list of all primitives that were used in the conjunction. That
 	 * 		is all used primitives (the merged primitives and all added ones).
@@ -303,6 +304,7 @@ public class DataSet extends SelectionTracker implements Cloneable {
 				if (otherLS.start == myLS.start && otherLS.end == myLS.end)
 					lsMap.put(otherLS, myLS);
 		// add pendings (ls from track are added later
+		data.addAll(new HashSet<LineSegment>(lsMap.values()));
 		for (LineSegment ls : ds.pendingLineSegments) {
 			if (!lsMap.containsKey(ls)) {
 				pendingLineSegments.add(ls);
@@ -317,8 +319,8 @@ public class DataSet extends SelectionTracker implements Cloneable {
 					t.segments.set(i, newLS);
 			}
 		}
-		
-		
+
+
 		// merge tracks
 		LinkedList<Track> trackToAdd = new LinkedList<Track>();
 		for (Track otherTrack : ds.tracks) {

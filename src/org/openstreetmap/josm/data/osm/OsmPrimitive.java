@@ -83,4 +83,27 @@ abstract public class OsmPrimitive {
 	public boolean isSelected() {
 		return selected;
 	}
+
+
+	/**
+	 * Equal, if the id is equal. If both ids are 0, use the super classes equal
+	 * instead.
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof OsmPrimitive))
+			return false;
+		OsmPrimitive osm = (OsmPrimitive)obj;
+		if (id == 0 && osm.id == 0)
+			return super.equals(obj);
+		return id == osm.id;
+	}
+
+	/**
+	 * Return the id as hashcode or supers hashcode if 0.
+	 */
+	@Override
+	public int hashCode() {
+		return id == 0 ? super.hashCode() : (int)id;
+	}
 }

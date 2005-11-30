@@ -95,7 +95,7 @@ public class OsmReader {
 				else {
 					String token = t.nextToken();
 					if (!" ".equals(token))
-						data.keys.put(Key.get(t.nextToken()), "yes");
+						data.keys.put(Key.get(token), "yes");
 				}
 			}
 		}
@@ -113,10 +113,20 @@ public class OsmReader {
 			Element child = (Element)o;
 			if (child.getName().equals("node"))
 				addNode(data, parseNode(child));
-			else if (child.getName().equals("segment"))
-				data.pendingLineSegments.add(parseLineSegment(child, data));
-			else if (child.getName().equals("track"))
-				data.tracks.add(parseTrack(child, data));
+			else if (child.getName().equals("segment")) {
+				LineSegment ls = parseLineSegment(child, data);
+				if (data.pendingLineSegments.contains(ls))
+					throw new JDOMException("Double segment definition "+ls.id);
+				for (Track t : data.tracks)
+					if (t.segments.contains(ls))
+						throw new JDOMException("Double segment definition "+ls.id);
+				data.pendingLineSegments.add(ls);
+			} else if (child.getName().equals("track")) {
+				Track track = parseTrack(child, data);
+				if (data.tracks.contains(track))
+					throw new JDOMException("Double track definition "+track.id);
+				data.tracks.add(track);
+			}
 		}
 
 		return data;
