@@ -31,6 +31,7 @@ import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.RawGpsDataLayer;
 import org.openstreetmap.josm.io.GpxReader;
+import org.openstreetmap.josm.io.OsmReader;
 import org.openstreetmap.josm.io.RawGpsReader;
 
 /**
@@ -39,17 +40,16 @@ import org.openstreetmap.josm.io.RawGpsReader;
  * 
  * @author imi
  */
-public class OpenGpxAction extends AbstractAction {
+public class OpenAction extends AbstractAction {
 
 	/**
 	 * Create an open action. The name is "Open GPX".
 	 */
-	public OpenGpxAction() {
-		super("Open GPX", ImageProvider.get("opengpx"));
-		putValue(ACCELERATOR_KEY, KeyStroke.getAWTKeyStroke(KeyEvent.VK_O, 
-				InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
+	public OpenAction() {
+		super("Open", ImageProvider.get("open"));
+		putValue(ACCELERATOR_KEY, KeyStroke.getAWTKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
 		putValue(MNEMONIC_KEY, KeyEvent.VK_O);
-		putValue(SHORT_DESCRIPTION, "Open a file in GPX format.");
+		putValue(SHORT_DESCRIPTION, "Open a file.");
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -67,7 +67,7 @@ public class OpenGpxAction extends AbstractAction {
 		
 		// additional options
 		JCheckBox rawGps = new JCheckBox("Raw GPS data", true);
-		rawGps.setToolTipText("Check this, if the data are obtained from a gps device.");
+		rawGps.setToolTipText("Check this, if the data were obtained from a gps device.");
 		JCheckBox newLayer = new JCheckBox("As Layer", true); 
 		newLayer.setToolTipText("Open as a new layer or replace all current layers.");
 		if (Main.main.getMapFrame() == null) {
@@ -85,32 +85,34 @@ public class OpenGpxAction extends AbstractAction {
 		if (fc.showOpenDialog(Main.main) != JFileChooser.APPROVE_OPTION)
 			return;
 		
-		File gpxFile = fc.getSelectedFile();
-		if (gpxFile == null)
+		File filename = fc.getSelectedFile();
+		if (filename == null)
 			return;
-		
+
 		try {
 			Layer layer;
 			if (rawGps.isSelected()) {
-				Collection<Collection<GeoPoint>> data = new RawGpsReader(new FileReader(gpxFile)).parse();
-				layer = new RawGpsDataLayer(data, gpxFile.getName());
+				Collection<Collection<GeoPoint>> data = new RawGpsReader(new FileReader(filename)).parse();
+				layer = new RawGpsDataLayer(data, filename.getName());
 			} else {
-				DataSet dataSet = new GpxReader(new FileReader(gpxFile)).parse();
+				DataSet dataSet = filename.getName().toLowerCase().endsWith("gpx") ?
+						new GpxReader(new FileReader(filename)).parse() :
+						new OsmReader(new FileReader(filename)).parse();
 				Collection<OsmPrimitive> l = Main.main.ds.mergeFrom(dataSet);
-				layer = new OsmDataLayer(l, gpxFile.getName());
+				layer = new OsmDataLayer(l, filename.getName());
 			}
 			
 			if (Main.main.getMapFrame() == null || !newLayer.isSelected())
-				Main.main.setMapFrame(gpxFile.getName(), new MapFrame(layer));
+				Main.main.setMapFrame(filename.getName(), new MapFrame(layer));
 			else
 				Main.main.getMapFrame().mapView.addLayer(layer);
-			
+
 		} catch (JDOMException x) {
 			x.printStackTrace();
 			JOptionPane.showMessageDialog(Main.main, x.getMessage());
 		} catch (IOException x) {
 			x.printStackTrace();
-			JOptionPane.showMessageDialog(Main.main, "Could not read '"+gpxFile.getName()+"'\n"+x.getMessage());
+			JOptionPane.showMessageDialog(Main.main, "Could not read '"+filename.getName()+"'\n"+x.getMessage());
 		}
 	}
 }

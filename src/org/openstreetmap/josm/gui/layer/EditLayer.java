@@ -41,7 +41,7 @@ public class EditLayer extends Layer implements LayerChangeListener, PropertyCha
 	/**
 	 * All commands that were made on the dataset.
 	 */
-	public Collection<Command> commands = new LinkedList<Command>();
+	public LinkedList<Command> commands = new LinkedList<Command>();
 
 	/**
 	 * The map view this layer belongs to.

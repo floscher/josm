@@ -46,6 +46,8 @@ public class OsmReader {
 			final SAXBuilder builder = new SAXBuilder();
 			Element root = builder.build(source).getRootElement();
 			return parseDataSet(root);
+		} catch (NumberFormatException nfe) {
+			throw new JDOMException("NumberFormatException. Probably a tag is missing.", nfe);
 		} catch (NullPointerException npe) {
 			throw new JDOMException("NullPointerException. Probably a tag name mismatch.", npe);
 		} catch (ClassCastException cce) {
@@ -95,7 +97,7 @@ public class OsmReader {
 				else {
 					String token = t.nextToken();
 					if (!" ".equals(token))
-						data.keys.put(Key.get(token), "yes");
+						data.keys.put(Key.get(token), "");
 				}
 			}
 		}

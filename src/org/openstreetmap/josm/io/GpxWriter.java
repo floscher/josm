@@ -99,23 +99,45 @@ public class GpxWriter {
 			}
 			// line segments
 			for (LineSegment ls : t.segments) {
-				Element lsElem = new Element("trkseg", GPX);
-				if (ls.keys != null)
-				addPropertyExtensions(lsElem, ls.keys);
-				lsElem.getChildren().add(parseWaypoint(ls.start, "trkpt"));
-				lsElem.getChildren().add(parseWaypoint(ls.end, "trkpt"));
+				tElem.getChildren().add(parseLineSegment(ls));
 				nodes.remove(ls.start);
 				nodes.remove(ls.end);
-				tElem.getChildren().add(lsElem);
 			}
+
 			e.getChildren().add(tElem);
 		}
 		
+		// encode pending line segments as tracks
+		for (LineSegment ls : Main.main.ds.pendingLineSegments) {
+			Element t = new Element("trk", GPX);
+			t.getChildren().add(parseLineSegment(ls));
+			nodes.remove(ls.start);
+			nodes.remove(ls.end);
+			Element ext = new Element("extensions", GPX);
+			ext.getChildren().add(new Element("segment", OSM));
+			t.getChildren().add(ext);
+			e.getChildren().add(t);
+		}
+
 		// waypoints (missing nodes)
 		for (Node n : nodes)
 			e.getChildren().add(parseWaypoint(n, "wpt"));
 
 		return e;
+	}
+
+
+	/**
+	 * Parse a line segment and store it into a JDOM-Element. Return that element.
+	 */
+	@SuppressWarnings("unchecked")
+	private Element parseLineSegment(LineSegment ls) {
+		Element lsElem = new Element("trkseg", GPX);
+		if (ls.keys != null)
+		addPropertyExtensions(lsElem, ls.keys);
+		lsElem.getChildren().add(parseWaypoint(ls.start, "trkpt"));
+		lsElem.getChildren().add(parseWaypoint(ls.end, "trkpt"));
+		return lsElem;
 	}
 
 	/**
@@ -212,7 +234,7 @@ public class GpxWriter {
 	private void addPropertyExtensions(Element e, Map<Key, String> keys) {
 		if (keys.isEmpty())
 			return;
-		Element extensions = e.getChild("extensions");
+		Element extensions = e.getChild("extensions", GPX);
 		if (extensions == null)
 			e.getChildren().add(extensions = new Element("extensions", GPX));
 		for (Entry<Key, String> prop : keys.entrySet()) {

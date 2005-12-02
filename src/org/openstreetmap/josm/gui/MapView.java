@@ -140,6 +140,8 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 		if (layers.remove(layer))
 			for (LayerChangeListener l : listeners)
 				l.layerRemoved(layer);
+		if (layer == editLayer)
+			editLayer = null;
 	}
 
 	/**

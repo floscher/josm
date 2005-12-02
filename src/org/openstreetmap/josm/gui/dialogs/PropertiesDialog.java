@@ -12,6 +12,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -291,6 +292,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 			propertyTable.getCellEditor().cancelCellEditing();
 		data.setRowCount(0);
 		TreeMap<String, Collection<String>> props = new TreeMap<String, Collection<String>>();
+		HashMap<String, Integer> valueCounts = new HashMap<String, Integer>();
 		for (OsmPrimitive osm : newSelection) {
 			if (osm.keys != null) {
 				for (Entry<Key, String> e : osm.keys.entrySet()) {
@@ -300,13 +302,19 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 						props.put(e.getKey().name, value);
 					}
 					value.add(e.getValue());
+					
+					Integer count = valueCounts.get(e.getValue());
+					if (count == null)
+						count = 0;
+					valueCounts.put(e.getValue(), count+1);
 				}
 			}
 		}
+		int selCount = newSelection.size();
 		for (Entry<String, Collection<String>> e : props.entrySet()) {
 			JComboBox value = new JComboBox(e.getValue().toArray());
 			value.setEditable(true);
-			if (e.getValue().size() > 1)
+			if (e.getValue().size() > 1 || valueCounts.get(e.getValue().iterator().next()) != selCount)
 				value.getEditor().setItem("<different>");
 			data.addRow(new Object[]{e.getKey(), value});
 		}

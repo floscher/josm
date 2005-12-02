@@ -33,7 +33,7 @@ public class GpxReader {
 	/**
 	 * The OSM namespace used (for extensions).
 	 */
-	private static final Namespace OSM = Namespace.getNamespace("osm");
+	private static final Namespace OSM = Namespace.getNamespace("osm", "http://www.openstreetmap.org");
 
 	/**
 	 * The data source from this reader.
@@ -114,6 +114,8 @@ public class GpxReader {
 	 */
 	private void parseTrack(Element e, DataSet ds) {
 		Track track = new Track();
+		boolean pendingLS = false; // is this track just a fake?
+
 		for (Object o : e.getChildren()) {
 			Element child = (Element)o;
 
@@ -126,19 +128,24 @@ public class GpxReader {
 						start = node;
 					else {
 						LineSegment lineSegment = new LineSegment(start, node);
-						parseKeyValueExtensions(lineSegment, ((Element)w).getChild("extensions", GPX));
+						parseKeyValueExtensions(lineSegment, child.getChild("extensions", GPX));
 						track.add(lineSegment);
 						start = null;
 					}
 				}
-			} else if (child.getName().equals("extensions"))
+			} else if (child.getName().equals("extensions")) {
 				parseKeyValueExtensions(track, child);
-			else if (child.getName().equals("link"))
+				if (child.getChild("segment", OSM) != null)
+					pendingLS = true;
+			} else if (child.getName().equals("link"))
 				parseKeyValueLink(track, child);
 			else
 				parseKeyValueTag(track, child);
 		}
-		ds.tracks.add(track);
+		if (pendingLS && track.segments.size() == 1)
+			ds.pendingLineSegments.add(track.segments.get(0));
+		else
+			ds.tracks.add(track);
 	}
 	
 
@@ -174,12 +181,18 @@ public class GpxReader {
 	 */
 	private void parseKeyValueExtensions(OsmPrimitive osm, Element e) {
 		if (e != null) {
-			if (osm.keys == null)
-				osm.keys = new HashMap<Key, String>();
 			for (Object o : e.getChildren("property", OSM)) {
+				if (osm.keys == null)
+					osm.keys = new HashMap<Key, String>();
 				Element child = (Element)o;
-				Key key = Key.get(child.getAttributeValue("name"));
-				osm.keys.put(key, child.getAttributeValue("value"));
+				String keyname = child.getAttributeValue("key");
+				if (keyname != null) {
+					Key key = Key.get(keyname);
+					String value = child.getAttributeValue("value");
+					if (value == null)
+						value = "";
+					osm.keys.put(key, value);
+				}
 			}
 		}
 	}
