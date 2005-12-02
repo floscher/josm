@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
+import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 import org.openstreetmap.josm.data.GeoPoint;
 
@@ -33,6 +34,11 @@ public class RawGpsReader {
 	}
 
 	/**
+	 * The gpx namespace.
+	 */
+	private Namespace GPX = Namespace.getNamespace("http://www.topografix.com/GPX/1/0");
+	
+	/**
 	 * Parse and return the read data
 	 */
 	public Collection<Collection<GeoPoint>> parse() throws JDOMException, IOException {
@@ -51,21 +57,24 @@ public class RawGpsReader {
 	private Collection<Collection<GeoPoint>> parseData(Element root) {
 		Collection<Collection<GeoPoint>> data = new LinkedList<Collection<GeoPoint>>();
 
-		for (Object o : root.getChildren("wpt", GpxReader.GPX)) {
+		// workaround for bug where the server adds /gpx.asd to the namespace
+		GPX = Namespace.getNamespace(root.getNamespaceURI());
+		
+		for (Object o : root.getChildren("wpt", GPX)) {
 			Collection<GeoPoint> line = new LinkedList<GeoPoint>();
 			line.add(new GeoPoint(
 					Float.parseFloat(((Element)o).getAttributeValue("lat")),
 					Float.parseFloat(((Element)o).getAttributeValue("lon"))));
 			data.add(line);
 		}
-		for (Object o : root.getChildren("rte", GpxReader.GPX)) {
-			Collection<GeoPoint> line = parseLine(((Element)o).getChildren("rtept", GpxReader.GPX));
+		for (Object o : root.getChildren("rte", GPX)) {
+			Collection<GeoPoint> line = parseLine(((Element)o).getChildren("rtept", GPX));
 			if (!line.isEmpty())
 				data.add(line);
 		}
-		for (Object o : root.getChildren("trk", GpxReader.GPX)) {
-			for (Object seg : ((Element)o).getChildren("trkseg", GpxReader.GPX)) {
-				Collection<GeoPoint> line = parseLine(((Element)seg).getChildren("trkpt", GpxReader.GPX));
+		for (Object o : root.getChildren("trk", GPX)) {
+			for (Object seg : ((Element)o).getChildren("trkseg", GPX)) {
+				Collection<GeoPoint> line = parseLine(((Element)seg).getChildren("trkpt", GPX));
 				if (!line.isEmpty())
 					data.add(line);
 			}

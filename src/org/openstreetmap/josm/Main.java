@@ -15,11 +15,12 @@ import javax.swing.UIManager;
 
 import org.openstreetmap.josm.actions.AboutAction;
 import org.openstreetmap.josm.actions.ExitAction;
-import org.openstreetmap.josm.actions.OpenGpxAction;
+import org.openstreetmap.josm.actions.OpenAction;
 import org.openstreetmap.josm.actions.OpenOsmServerAction;
 import org.openstreetmap.josm.actions.PreferencesAction;
 import org.openstreetmap.josm.actions.SaveAction;
 import org.openstreetmap.josm.actions.SaveGpxAction;
+import org.openstreetmap.josm.actions.UndoAction;
 import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.Preferences.PreferencesException;
 import org.openstreetmap.josm.data.osm.DataSet;
@@ -75,10 +76,11 @@ public class Main extends JFrame {
 		
 		// creating actions
 		OpenOsmServerAction openServerAction = new OpenOsmServerAction();
-		OpenGpxAction openGpxAction = new OpenGpxAction();
+		OpenAction openAction = new OpenAction();
 		SaveAction saveAction = new SaveAction();
 		SaveGpxAction saveGpxAction = new SaveGpxAction();
 		ExitAction exitAction = new ExitAction();
+		UndoAction undoAction = new UndoAction();
 		PreferencesAction preferencesAction = new PreferencesAction();
 		AboutAction aboutAction = new AboutAction();
 
@@ -88,12 +90,13 @@ public class Main extends JFrame {
 
 		JMenu fileMenu = new JMenu("Files");
 		fileMenu.setMnemonic('F');
-		fileMenu.add(openGpxAction);
+		fileMenu.add(openAction);
 		fileMenu.add(saveAction);
 		fileMenu.add(saveGpxAction);
 		fileMenu.addSeparator();
 		fileMenu.add(exitAction);
 		mainMenu.add(fileMenu);
+
 		
 		JMenu connectionMenu = new JMenu("Connection");
 		connectionMenu.setMnemonic('C');
@@ -102,6 +105,8 @@ public class Main extends JFrame {
 		
 		JMenu editMenu = new JMenu("Edit");
 		editMenu.setMnemonic('E');
+		//editMenu.add(undoAction);
+		editMenu.addSeparator();
 		editMenu.add(preferencesAction);
 		mainMenu.add(editMenu);
 		
@@ -115,9 +120,11 @@ public class Main extends JFrame {
 		JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
 		toolBar.add(openServerAction);
-		toolBar.add(openGpxAction);
+		toolBar.add(openAction);
 		toolBar.add(saveAction);
 		toolBar.add(saveGpxAction);
+		toolBar.addSeparator();
+		//toolBar.add(undoAction);
 		toolBar.addSeparator();
 		toolBar.add(preferencesAction);
 		

@@ -23,6 +23,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
@@ -153,6 +154,7 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 			public void actionPerformed(ActionEvent e) {
 				if (model.size() == 1) {
 					Main.main.setMapFrame(null, null);
+					Main.main.ds = new DataSet();
 				} else {
 					int sel = layers.getSelectedIndex();
 					mapView.removeLayer((Layer)layers.getSelectedValue());
