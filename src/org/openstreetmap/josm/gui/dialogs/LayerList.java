@@ -73,9 +73,8 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 	 * Create an layerlist and attach it to the given mapView.
 	 */
 	public LayerList(MapFrame mapFrame) {
-		super(mapFrame, "Layers", "List of all layers", "layerlist", KeyEvent.VK_L, "Open a list of all loaded layers.");
-		setSize(250,256);
-		setMinimumSize(new Dimension(70,70));
+		super("Layers", "List of all layers", "layerlist", KeyEvent.VK_L, "Open a list of all loaded layers.");
+		setPreferredSize(new Dimension(320,100));
 		add(new JScrollPane(layers), BorderLayout.CENTER);
 		layers.setBackground(UIManager.getColor("Button.background"));
 		layers.setCellRenderer(new DefaultListCellRenderer(){

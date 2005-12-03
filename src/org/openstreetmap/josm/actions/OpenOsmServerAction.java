@@ -4,11 +4,10 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.util.Collection;
 
-import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -17,6 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -24,10 +24,8 @@ import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.BookmarkList;
 import org.openstreetmap.josm.gui.GBC;
-import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.BookmarkList.Bookmark;
@@ -44,7 +42,7 @@ import org.openstreetmap.josm.io.OsmServerReader;
  *  
  * @author imi
  */
-public class OpenOsmServerAction extends AbstractAction {
+public class OpenOsmServerAction extends JosmAction {
 
 	JTextField[] latlon = new JTextField[]{
 			new JTextField(9),
@@ -54,9 +52,8 @@ public class OpenOsmServerAction extends AbstractAction {
 	JCheckBox rawGps = new JCheckBox("Open as raw gps data", false);
 
 	public OpenOsmServerAction() {
-		super("Connect to OSM", ImageProvider.get("connectosm"));
-		putValue(MNEMONIC_KEY, KeyEvent.VK_C);
-		putValue(SHORT_DESCRIPTION, "Open a connection to the OSM server.");
+		super("Connect to OSM", "connectosm", "Open a connection to the OSM server.", KeyEvent.VK_C, 
+				KeyStroke.getAWTKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -162,8 +159,7 @@ public class OpenOsmServerAction extends AbstractAction {
 				if (dataSet.nodes.isEmpty())
 					JOptionPane.showMessageDialog(Main.main, "No data imported.");
 				
-				Collection<OsmPrimitive> data = Main.main.ds.mergeFrom(dataSet);
-				layer = new OsmDataLayer(data, name);
+				layer = new OsmDataLayer(dataSet, name);
 			}
 
 			if (Main.main.getMapFrame() == null)

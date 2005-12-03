@@ -3,9 +3,7 @@ package org.openstreetmap.josm.data.osm.visitor;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.util.Collection;
 
-import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
@@ -50,58 +48,20 @@ public class SimplePaintVisitor implements Visitor {
 	
 	/**
 	 * Draw a small rectangle. 
-	 * 
-	 * - White if selected (as always)
-	 * - Yellow, if not used by any tracks or areas.
-	 * - Green, if only used by pending line segments.
-	 * - Darkblue, if used in tracks but are only as inbound node. Inbound are
-	 *   all nodes, that have only line segments of the same track and
-	 *   at least two different line segments attached.
-	 * - Red otherwise (means, this is a dead end or is part of more than
-	 *   one track).
+	 * White if selected (as always) or red otherwise.
 	 * 
 	 * @param n The node to draw.
 	 */
 	public void visit(Node n) {
-		if (n.isSelected()) {
-			drawNode(n, Color.WHITE); // selected
-			return;
-		}
-
-		Collection<LineSegment> lineSegments = Main.main.ds.nodeLsRef.get(n);
-		if (lineSegments == null || lineSegments.isEmpty()) {
-			drawNode(n, Color.YELLOW); // single waypoint only
-			return;
-		}
-
-		Collection<Track> tracks = Main.main.ds.nodeTrackRef.get(n);
-		if (tracks == null || tracks.isEmpty()) {
-			drawNode(n, Color.GREEN); // pending line
-			return;
-		}
-		if (tracks.size() > 1) {
-			drawNode(n, Color.RED); // more than one track
-			return;
-		}
-		int segmentUsed = 0;
-		for (LineSegment ls : tracks.iterator().next().segments)
-			if (n == ls.start || n == ls.end)
-				++segmentUsed;
-		drawNode(n, segmentUsed > 1 ? darkblue : Color.RED);
+		drawNode(n, n.isSelected() ? Color.WHITE : Color.RED);
 	}
 
+	/**
+	 * Draw just a line between the points.
+	 * White if selected (as always) or green otherwise.
+	 */
 	public void visit(LineSegment ls) {
-		if (forceColor != null)
-			g.setColor(forceColor);
-		else if (ls.isSelected())
-			g.setColor(Color.WHITE);
-		else if (Main.main.ds.pendingLineSegments.contains(ls))
-			g.setColor(darkgreen);
-		else
-			g.setColor(darkblue);
-		Point p1 = mv.getScreenPoint(ls.start.coor);
-		Point p2 = mv.getScreenPoint(ls.end.coor);
-		g.drawLine(p1.x, p1.y, p2.x, p2.y);
+		drawLineSegment(ls, darkgreen);
 	}
 
 	/**
@@ -110,9 +70,12 @@ public class SimplePaintVisitor implements Visitor {
 	 */
 	public void visit(Track t) {
 		for (LineSegment ls : t.segments)
-			visit(ls);
+			drawLineSegment(ls, darkblue);
 	}
 
+	/**
+	 * Do not draw a key.
+	 */
 	public void visit(Key k) {
 	}
 	
@@ -126,5 +89,19 @@ public class SimplePaintVisitor implements Visitor {
 		Point p = mv.getScreenPoint(n.coor);
 		g.setColor(forceColor != null ? forceColor : color);
 		g.drawRect(p.x-1, p.y-1, 2, 2);
+	}
+
+	/**
+	 * Draw a line with the given color.
+	 */
+	private void drawLineSegment(LineSegment ls, Color col) {
+		if (forceColor != null)
+			col = forceColor;
+		else if (ls.isSelected())
+			col = Color.WHITE;
+		g.setColor(col);
+		Point p1 = mv.getScreenPoint(ls.start.coor);
+		Point p2 = mv.getScreenPoint(ls.end.coor);
+		g.drawLine(p1.x, p1.y, p2.x, p2.y);
 	}
 }

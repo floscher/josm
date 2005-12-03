@@ -27,11 +27,6 @@ abstract public class OsmPrimitive {
 	public long id = 0;
 
 	/**
-	 * If set to true, this object has been modified in the current session.
-	 */
-	transient public boolean modified = false;
-	
-	/**
 	 * If set to true, this object is currently selected.
 	 */
 	transient private boolean selected = false;

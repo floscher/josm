@@ -1,20 +1,17 @@
 package org.openstreetmap.josm.gui.dialogs;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.AbstractButton;
 import javax.swing.Action;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.KeyStroke;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
-import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.gui.ImageProvider;
-import org.openstreetmap.josm.gui.MapFrame;
 
 /**
  * This class is a toggle dialog that can be turned on and off. It is attached
@@ -22,28 +19,22 @@ import org.openstreetmap.josm.gui.MapFrame;
  * 
  * @author imi
  */
-public class ToggleDialog extends JDialog implements Action {
+public class ToggleDialog extends JPanel implements Action {
 
 	/**
 	 * Create a new ToggleDialog.
 	 * @param title The title of the dialog.
 	 */
-	public ToggleDialog(MapFrame mapFrame, String title, String name, String iconName, int mnemonic, String tooltip) {
-		super(Main.main, title, false);
+	public ToggleDialog(String title, String name, String iconName, int mnemonic, String tooltip) {
 		putValue(SMALL_ICON, ImageProvider.get("dialogs", iconName));
 		putValue(NAME, name);
 		putValue(MNEMONIC_KEY, mnemonic);
-		KeyStroke ks = KeyStroke.getKeyStroke(mnemonic,0);
-		putValue(ACCELERATOR_KEY, ks);
-		mapFrame.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ks, this);
-		mapFrame.getActionMap().put(this, this);
-		putValue(LONG_DESCRIPTION, tooltip);
-		mapFrame.addPropertyChangeListener("visible", new PropertyChangeListener(){
-			public void propertyChange(PropertyChangeEvent evt) {
-				if (evt.getNewValue() == Boolean.FALSE)
-					setVisible(false);
-			}
-		});
+		putValue(SHORT_DESCRIPTION, tooltip);
+		
+		setLayout(new BorderLayout());
+		add(new JLabel(title), BorderLayout.NORTH);
+		setVisible(false);
+		setBorder(BorderFactory.createEtchedBorder());
 	}
 
 	/**

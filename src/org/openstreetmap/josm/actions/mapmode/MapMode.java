@@ -5,11 +5,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
-import javax.swing.AbstractAction;
-import javax.swing.JComponent;
-import javax.swing.KeyStroke;
-
-import org.openstreetmap.josm.gui.ImageProvider;
+import org.openstreetmap.josm.actions.JosmAction;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 
@@ -21,7 +17,7 @@ import org.openstreetmap.josm.gui.MapView;
  * MapModes should register/deregister all necessary listener on the map's view
  * control. 
  */
-abstract public class MapMode extends AbstractAction implements MouseListener, MouseMotionListener {
+abstract public class MapMode extends JosmAction implements MouseListener, MouseMotionListener {
 
 	/**
 	 * The parent mapframe this mode belongs to.
@@ -39,12 +35,7 @@ abstract public class MapMode extends AbstractAction implements MouseListener, M
 	 * @param mapFrame The parent MapFrame, this MapMode belongs to.
 	 */
 	public MapMode(String name, String iconName, String tooltip, int mnemonic, MapFrame mapFrame) {
-		super(name, ImageProvider.get("mapmode", iconName));
-		putValue(MNEMONIC_KEY, mnemonic);
-		putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(mnemonic,0));
-		putValue(LONG_DESCRIPTION, tooltip);
-		mapFrame.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(mnemonic,0), this);
-		mapFrame.getActionMap().put(this, this);
+		super(name, "mapmode/"+iconName, tooltip, mnemonic, null);
 		this.mapFrame = mapFrame;
 		mv = mapFrame.mapView;
 	}

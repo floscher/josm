@@ -1,7 +1,11 @@
 package org.openstreetmap.josm.command;
 
 import java.awt.Component;
+import java.awt.geom.Point2D;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.JLabel;
 
@@ -20,7 +24,7 @@ public class MoveCommand implements Command {
 	/**
 	 * The objects that should be moved.
 	 */
-	private Collection<OsmPrimitive> objects;
+	private List<OsmPrimitive> objects;
 	/**
 	 * x difference movement. Coordinates are in northern/eastern 
 	 */
@@ -31,20 +35,17 @@ public class MoveCommand implements Command {
 	private double y;
 
 	/**
+	 * x/y List of all old positions of the objects.
+	 */
+	private List<Point2D.Double> oldPositions;
+	
+	/**
 	 * Create a MoveCommand and assign the initial object set and movement vector.
 	 */
 	public MoveCommand(Collection<OsmPrimitive> objects, double x, double y) {
-		this.objects = objects;
+		this.objects = new LinkedList<OsmPrimitive>(objects);
 		this.x = x;
 		this.y = y;
-	}
-
-	/**
-	 * Move the objects additional to the current movement.
-	 */
-	public void move(double x, double y) {
-		this.x += x;
-		this.y += y;
 	}
 
 	public void executeCommand() {
@@ -57,6 +58,18 @@ public class MoveCommand implements Command {
 		}
 	}
 
+	public void undoCommand() {
+		AllNodesVisitor visitor = new AllNodesVisitor();
+		for (OsmPrimitive osm : objects)
+			osm.visit(visitor);
+		Iterator<Point2D.Double> it = oldPositions.iterator();
+		for (Node n : visitor.nodes) {
+			Point2D.Double p = it.next();
+			n.coor.x = p.x;
+			n.coor.y = p.y;
+		}
+	}
+
 	public Component commandDescription() {
 		String xstr = Math.abs(x) + (x < 0 ? "W" : "E");
 		String ystr = Math.abs(y) + (y < 0 ? "S" : "N");
@@ -64,9 +77,8 @@ public class MoveCommand implements Command {
 	}
 
 	public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {
-		if (modified != null)
-			for (OsmPrimitive osm : objects)
-				if (!modified.contains(osm))
-					modified.add(osm);
+		for (OsmPrimitive osm : objects)
+			if (!modified.contains(osm))
+				modified.add(osm);
 	}
 }

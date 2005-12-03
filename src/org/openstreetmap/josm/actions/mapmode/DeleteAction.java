@@ -1,9 +1,12 @@
 package org.openstreetmap.josm.actions.mapmode;
 
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import javax.swing.JOptionPane;
@@ -11,7 +14,7 @@ import javax.swing.JOptionPane;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.CombineAndDeleteCommand;
 import org.openstreetmap.josm.command.DeleteCommand;
-import org.openstreetmap.josm.command.CombineAndDeleteCommand.LineSegmentCombineEntry;
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -31,16 +34,9 @@ import org.openstreetmap.josm.gui.MapFrame;
  * If the user presses Ctrl, no combining is possible. Otherwise, DeleteAction 
  * tries to combine the referencing objects as follows:
  *
- * If a node is part of exactly two line segments from a track, the two line 
- * segments are combined into one. The first line segment spans now to the end 
- * of the second and the second line segment gets deleted. This is checked for
- * every track.
- * 
- * If a node is the end of the ending line segment of one track and the start of
- * exactly one other tracks start segment, the tracks are combined into one track,
- * deleting the second track and keeping the first one. The ending line segment 
- * of the fist track is combined with the starting line segment of the second 
- * track.
+ * If a node is part of exactly two line segments, the two line segments are 
+ * combined into one. The first line segment spans now to the end of the 
+ * second and the second line segment gets deleted.
  * 
  * Combining is only possible, if both objects that should be combined have no
  * key with a different property value. The remaining keys are merged together.
@@ -54,7 +50,7 @@ import org.openstreetmap.josm.gui.MapFrame;
  * 
  * 
  * If the user enters the mapmode and any object is selected, all selected
- * objects get deleted. Combining applies to the selected objects.
+ * objects that can be deleted will. Combining applies to the selected objects.
  * 
  * @author imi
  */
@@ -65,7 +61,7 @@ public class DeleteAction extends MapMode {
 	 * @param mapFrame The frame this action belongs to.
 	 */
 	public DeleteAction(MapFrame mapFrame) {
-		super("Delete", "delete", "Delete nodes, streets or areas.", KeyEvent.VK_DELETE, mapFrame);
+		super("Delete", "delete", "Delete nodes, streets or areas.", KeyEvent.VK_D, mapFrame);
 	}
 
 	@Override
@@ -78,6 +74,32 @@ public class DeleteAction extends MapMode {
 	public void unregisterListener() {
 		super.unregisterListener();
 		mv.removeMouseListener(this);
+	}
+
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		super.actionPerformed(e);
+		boolean ctrl = (e.getModifiers() & ActionEvent.CTRL_MASK) != 0;
+		Collection<OsmPrimitive> selection = Main.main.ds.getSelected();
+		
+		int selSize = 0;
+		// loop as long as the selection size changes
+		while(selSize != selection.size()) {
+			selSize = selection.size();
+
+			for (Iterator<OsmPrimitive> it = selection.iterator(); it.hasNext();) {
+				OsmPrimitive osm = it.next();
+				if (ctrl) {
+					deleteWithReferences(osm);
+					it.remove();
+				} else {
+					if (delete(osm, false))
+						it.remove();
+				}
+			}
+		}
+		mv.repaint();
 	}
 
 	/**
@@ -96,7 +118,7 @@ public class DeleteAction extends MapMode {
 		if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) != 0)
 			deleteWithReferences(sel);
 		else
-			delete(sel);
+			delete(sel, true);
 
 		mv.repaint();
 	}
@@ -123,11 +145,11 @@ public class DeleteAction extends MapMode {
 	 * If you delete y, then y and C gets deleted.
 	 * TODO If you delete x, then a,B,C and x gets deleted. A now consist of b only.
 	 * If you delete a or b, then A, a, b and z gets deleted.
-	 *
+	 * 
 	 * @param osm The object to delete.
 	 */
 	private void deleteWithReferences(OsmPrimitive osm) {
-		// collect all tracks, areas and pending line segments that should be deleted
+		// collect all tracks, areas and line segments that should be deleted
 		ArrayList<Track> tracksToDelete = new ArrayList<Track>();
 		ArrayList<LineSegment> lineSegmentsToDelete = new ArrayList<LineSegment>();
 
@@ -137,7 +159,7 @@ public class DeleteAction extends MapMode {
 				for (LineSegment ls : t.segments)
 					if (ls.start == osm || ls.end == osm)
 						tracksToDelete.add(t);
-			for (LineSegment ls : Main.main.ds.pendingLineSegments)
+			for (LineSegment ls : Main.main.ds.lineSegments)
 				if (ls.start == osm || ls.end == osm)
 					lineSegmentsToDelete.add(ls);
 				
@@ -163,7 +185,7 @@ public class DeleteAction extends MapMode {
 			checkUnreferencing.add(ls.start);
 			checkUnreferencing.add(ls.end);
 		}
-		
+
 		Collection<OsmPrimitive> deleteData = new LinkedList<OsmPrimitive>();
 		deleteData.addAll(tracksToDelete);
 		deleteData.addAll(lineSegmentsToDelete);
@@ -174,8 +196,8 @@ public class DeleteAction extends MapMode {
 		// now, all references are killed. Delete the node (if it was a node)
 		if (osm instanceof Node)
 			deleteData.add(osm);
-		
-		mv.editLayer().add(new DeleteCommand(deleteData));
+
+		mv.editLayer().add(new DeleteCommand(Main.main.ds, deleteData));
 	}
 
 	/**
@@ -184,15 +206,16 @@ public class DeleteAction extends MapMode {
 	 * If this fails, inform the user and do not delete.
 	 * 
 	 * @param osm The object to delete.
+	 * @param msgBox Whether a message box for errors should be shown
+	 * @return <code>true</code> if the object could be deleted
 	 */
-	private void delete(OsmPrimitive osm) {
-		if (osm instanceof Node && isReferenced((Node)osm)) {
-			combineAndDelete((Node)osm);
-			return;
-		}
+	private boolean delete(OsmPrimitive osm, boolean msgBox) {
+		if (osm instanceof Node && isReferenced((Node)osm))
+			return combineAndDelete((Node)osm, msgBox);
 		Collection<OsmPrimitive> c = new LinkedList<OsmPrimitive>();
 		c.add(osm);
-		mv.editLayer().add(new DeleteCommand(c));
+		mv.editLayer().add(new DeleteCommand(Main.main.ds, c));
+		return true;
 	}
 
 	
@@ -202,11 +225,7 @@ public class DeleteAction extends MapMode {
 	 * @return Whether the node is used by a track or area.
 	 */
 	private boolean isReferenced(Node n) {
-		for (Track t : Main.main.ds.tracks)
-			for (LineSegment ls : t.segments)
-				if (ls.start == n || ls.end == n)
-					return true;
-		for (LineSegment ls : Main.main.ds.pendingLineSegments)
+		for (LineSegment ls : Main.main.ds.lineSegments)
 			if (ls.start == n || ls.end == n)
 				return true;
 		// TODO areas
@@ -219,109 +238,52 @@ public class DeleteAction extends MapMode {
 	 * <code>null</code>.
 	 *
 	 * @param n The node that is going to be deleted.
-	 * @return <code>null</code> if combining suceded or an error string if there
-	 * 		are problems combining the node.
+	 * @param msgBox Whether a message box should be displayed in case of problems
+	 * @return <code>true</code> if combining suceded.
 	 */
-	private void combineAndDelete(Node n) {
-		// first, check for pending line segments
-		for (LineSegment ls : Main.main.ds.pendingLineSegments)
-			if (n == ls.start || n == ls.end) {
-				JOptionPane.showMessageDialog(Main.main, "Node used by a line segment which is not part of any track. Remove this first.");
-				return;
-			}
-		
-		// These line segments must be combined within the track combining
-		ArrayList<LineSegment> pendingLineSegmentsForTrack = new ArrayList<LineSegment>();
+	private boolean combineAndDelete(Node n, boolean msgBox) {
+		DataSet ds = Main.main.ds;
+		Collection<LineSegment> lineSegmentsUsed = new HashSet<LineSegment>();
+		for (LineSegment ls : ds.lineSegments)
+			if (ls.start == n || ls.end == n)
+				lineSegmentsUsed.add(ls);
 
-		// try to combine line segments
+		if (lineSegmentsUsed.isEmpty())
+			// should not be called
+			throw new IllegalStateException();
 		
-		// These line segments are combinable. The inner arraylist has always 
-		// two elements. The keys maps to the track, the line segments are in.
-		Collection<LineSegmentCombineEntry> lineSegments = new ArrayList<LineSegmentCombineEntry>();
-		
-		for (Track t : Main.main.ds.tracks) {
-			ArrayList<LineSegment> current = new ArrayList<LineSegment>();
-			for (LineSegment ls : t.segments)
-				if (ls.start == n || ls.end == n)
-					current.add(ls);
-			if (!current.isEmpty()) {
-				if (current.size() > 2) {
-					JOptionPane.showMessageDialog(Main.main, "Node used by more than two line segments.");
-					return;
-				}
-				if (current.size() == 1 && 
-						(current.get(0) == t.getStartingSegment() || current.get(0) == t.getEndingSegment()))
-					pendingLineSegmentsForTrack.add(current.get(0));
-				else if (current.get(0).end != current.get(1).start &&
-						current.get(1).end != current.get(0).start) {
-					JOptionPane.showMessageDialog(Main.main, "Node used by line segments that points together.");
-					return;
-				} else if (!current.get(0).keyPropertiesMergable(current.get(1))) {
-					JOptionPane.showMessageDialog(Main.main, "Node used by line segments with different properties.");
-					return;
-				} else {
-					LineSegmentCombineEntry e = new LineSegmentCombineEntry();
-					e.first = current.get(0);
-					e.second = current.get(1);
-					e.track = t;
-					lineSegments.add(e);
-				}
-			}
+		if (lineSegmentsUsed.size() == 1) {
+			if (msgBox)
+				JOptionPane.showMessageDialog(Main.main, "Node used by a line segment. Delete this first.");
+			return false;
+		}
+			
+		if (lineSegmentsUsed.size() > 2) {
+			if (msgBox)
+				JOptionPane.showMessageDialog(Main.main, "Node used by more than two line segments. Delete them first.");
+			return false;
 		}
 		
-		// try to combine tracks
-		ArrayList<Track> tracks = new ArrayList<Track>();
-		for (Track t : Main.main.ds.tracks)
-			if (t.getStartingNode() == n || t.getEndingNode() == n)
-				tracks.add(t);
-		if (!tracks.isEmpty()) {
-			if (tracks.size() > 2) {
-				JOptionPane.showMessageDialog(Main.main, "Node used by more than two tracks.");
-				return;
-			}
-			if (tracks.size() == 1) {
-				JOptionPane.showMessageDialog(Main.main, "Node used by a track.");
-				return;
-			}
-			Track t1 = tracks.get(0);
-			Track t2 = tracks.get(1);
-			if (t1.getStartingNode() != t2.getEndingNode() &&
-					t2.getStartingNode() != t1.getEndingNode()) {
-				if (t1.getStartingNode() == t2.getStartingNode() ||
-						t1.getEndingNode() == t2.getEndingNode()) {
-					JOptionPane.showMessageDialog(Main.main, "Node used by tracks that point together.");
-					return;
-				}
-				JOptionPane.showMessageDialog(Main.main, "Node used by tracks that cannot be combined.");
-				return;
-			}
-			if (!t1.keyPropertiesMergable(t2)) {
-				JOptionPane.showMessageDialog(Main.main, "Node used by tracks with different properties.");
-				return;
-			}
+		Iterator<LineSegment> it = lineSegmentsUsed.iterator();
+		LineSegment first = it.next();
+		LineSegment second = it.next();
+		
+		// wrong direction?
+		if (first.start == second.end) {
+			LineSegment t = first;
+			first = second;
+			second = t;
 		}
 		
-		// try to match the pending line segments
-		if (pendingLineSegmentsForTrack.size() == 2) {
-			LineSegment l1 = pendingLineSegmentsForTrack.get(0);
-			LineSegment l2 = pendingLineSegmentsForTrack.get(1);
-			if (l1.start == l2.start || l1.end == l2.end) {
-				JOptionPane.showMessageDialog(Main.main, "Node used by line segments that points together.");
-				return;
-			}
-			if (l1.start == l2.end || l2.start == l1.end)
-				pendingLineSegmentsForTrack.clear(); // resolved.
-		}
-		
-		// still pending line segments?
-		if (!pendingLineSegmentsForTrack.isEmpty()) {
-			JOptionPane.showMessageDialog(Main.main, "Node used by tracks that cannot be combined.");
-			return;
+		// combinable?
+		if (first.end != second.start || !first.end.keyPropertiesMergable(second.start)) {
+			if (msgBox)
+				JOptionPane.showMessageDialog(Main.main, "Node used by line segments that cannot be combined.");
+			return false;
 		}
 
 		// Ok, we can combine. Do it.
-		Track firstTrack = tracks.isEmpty() ? null : tracks.get(0);
-		Track secondTrack = tracks.isEmpty() ? null : tracks.get(1);
-		mv.editLayer().add(new CombineAndDeleteCommand(n, lineSegments, firstTrack, secondTrack));
+		mv.editLayer().add(new CombineAndDeleteCommand(ds, first, second));
+		return true;
 	}
 }

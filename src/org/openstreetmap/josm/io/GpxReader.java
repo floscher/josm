@@ -114,7 +114,7 @@ public class GpxReader {
 	 */
 	private void parseTrack(Element e, DataSet ds) {
 		Track track = new Track();
-		boolean pendingLS = false; // is this track just a fake?
+		boolean realLineSegment = false; // is this track just a fake?
 
 		for (Object o : e.getChildren()) {
 			Element child = (Element)o;
@@ -136,16 +136,18 @@ public class GpxReader {
 			} else if (child.getName().equals("extensions")) {
 				parseKeyValueExtensions(track, child);
 				if (child.getChild("segment", OSM) != null)
-					pendingLS = true;
+					realLineSegment = true;
 			} else if (child.getName().equals("link"))
 				parseKeyValueLink(track, child);
 			else
 				parseKeyValueTag(track, child);
 		}
-		if (pendingLS && track.segments.size() == 1)
-			ds.pendingLineSegments.add(track.segments.get(0));
-		else
+		if (realLineSegment && track.segments.size() == 1)
+			ds.lineSegments.add(track.segments.get(0));
+		else {
 			ds.tracks.add(track);
+			ds.lineSegments.addAll(track.segments);
+		}
 	}
 	
 

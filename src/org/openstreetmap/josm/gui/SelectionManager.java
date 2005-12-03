@@ -277,7 +277,7 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 			}
 			
 			// pending line segments
-			for (LineSegment ls : Main.main.ds.pendingLineSegments)
+			for (LineSegment ls : Main.main.ds.lineSegments)
 				if (rectangleContainLineSegment(r, alt, ls))
 					selection.add(ls);
 

@@ -117,12 +117,12 @@ public class OsmReader {
 				addNode(data, parseNode(child));
 			else if (child.getName().equals("segment")) {
 				LineSegment ls = parseLineSegment(child, data);
-				if (data.pendingLineSegments.contains(ls))
+				if (data.lineSegments.contains(ls))
 					throw new JDOMException("Double segment definition "+ls.id);
 				for (Track t : data.tracks)
 					if (t.segments.contains(ls))
 						throw new JDOMException("Double segment definition "+ls.id);
-				data.pendingLineSegments.add(ls);
+				data.lineSegments.add(ls);
 			} else if (child.getName().equals("track")) {
 				Track track = parseTrack(child, data);
 				if (data.tracks.contains(track))
@@ -174,10 +174,10 @@ public class OsmReader {
 		for (Object o : e.getChildren("segment")) {
 			Element child = (Element)o;
 			long id = Long.parseLong(child.getAttributeValue("uid"));
-			LineSegment ls = findLineSegment(data.pendingLineSegments, id);
+			LineSegment ls = findLineSegment(data.lineSegments, id);
 			if (ls != null) {
 				track.segments.add(ls);
-				data.pendingLineSegments.remove(ls);
+				data.lineSegments.remove(ls);
 				continue;
 			}
 			for (Track t : data.tracks) {

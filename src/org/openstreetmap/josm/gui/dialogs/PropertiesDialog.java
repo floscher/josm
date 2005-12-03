@@ -2,6 +2,7 @@ package org.openstreetmap.josm.gui.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -209,11 +210,10 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	 * Create a new PropertiesDialog
 	 */
 	public PropertiesDialog(MapFrame mapFrame) {
-		super(mapFrame, "Properties", "Properties Dialog", "properties", KeyEvent.VK_P, "Property for selected objects.");
+		super("Properties", "Properties Dialog", "properties", KeyEvent.VK_P, "Property for selected objects.");
 		mv = mapFrame.mapView;
 
-		setLayout(new BorderLayout());
-		setSize(350,450);
+		setPreferredSize(new Dimension(320,150));
 		
 		data.setColumnIdentifiers(new String[]{"Key", "Value"});
 		propertyTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -240,7 +240,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 
 		JScrollPane scrollPane = new JScrollPane(propertyTable);
 		scrollPane.addMouseListener(new DblClickWatch());
-		getContentPane().add(scrollPane, BorderLayout.CENTER);
+		add(scrollPane, BorderLayout.CENTER);
 		
 		JPanel buttonPanel = new JPanel(new GridLayout(1,3));
 		ActionListener buttonAction = new ActionListener(){
@@ -263,8 +263,8 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		};
 		buttonPanel.add(createButton("Add", "Add a new key/value pair to all objects", KeyEvent.VK_A, buttonAction));
 		buttonPanel.add(createButton("Edit", "Edit the value of the selected key for all objects", KeyEvent.VK_E, buttonAction));
-		buttonPanel.add(createButton("Delete", "Delete the selected key in all objects", KeyEvent.VK_DELETE, buttonAction));
-		getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+		buttonPanel.add(createButton("Delete", "Delete the selected key in all objects", KeyEvent.VK_D, buttonAction));
+		add(buttonPanel, BorderLayout.SOUTH);
 	}
 	
 	private JButton createButton(String name, String tooltip, int mnemonic, ActionListener actionListener) {

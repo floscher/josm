@@ -108,7 +108,7 @@ public class GpxWriter {
 		}
 		
 		// encode pending line segments as tracks
-		for (LineSegment ls : Main.main.ds.pendingLineSegments) {
+		for (LineSegment ls : Main.main.ds.lineSegments) {
 			Element t = new Element("trk", GPX);
 			t.getChildren().add(parseLineSegment(ls));
 			nodes.remove(ls.start);
