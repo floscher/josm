@@ -61,7 +61,7 @@ public class OsmWriter extends OsmConnection {
 		Collection<Element> properties = new LinkedList<Element>();
 		for (Node n : ds.nodes)
 			list.add(parseNode(n, properties));
-		for (LineSegment ls : ds.pendingLineSegments)
+		for (LineSegment ls : ds.lineSegments)
 			list.add(parseLineSegment(ls, properties));
 		// all other line segments
 		Collection<LineSegment> lineSegments = new HashSet<LineSegment>();
@@ -158,7 +158,7 @@ public class OsmWriter extends OsmConnection {
 		HashSet<Long> ids = new HashSet<Long>();
 		for (OsmPrimitive osm : ds.nodes)
 			addIdAndKeyIds(osm, ids);
-		for (OsmPrimitive osm : ds.pendingLineSegments)
+		for (OsmPrimitive osm : ds.lineSegments)
 			addIdAndKeyIds(osm, ids);
 		for (Track t : ds.tracks) {
 			addIdAndKeyIds(t, ids);

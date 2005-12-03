@@ -9,7 +9,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collection;
 
-import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
@@ -23,9 +22,7 @@ import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.GBC;
-import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
@@ -40,16 +37,13 @@ import org.openstreetmap.josm.io.RawGpsReader;
  * 
  * @author imi
  */
-public class OpenAction extends AbstractAction {
+public class OpenAction extends JosmAction {
 
 	/**
 	 * Create an open action. The name is "Open GPX".
 	 */
 	public OpenAction() {
-		super("Open", ImageProvider.get("open"));
-		putValue(ACCELERATOR_KEY, KeyStroke.getAWTKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
-		putValue(MNEMONIC_KEY, KeyEvent.VK_O);
-		putValue(SHORT_DESCRIPTION, "Open a file.");
+		super("Open", "open", "Open a file.", null, KeyStroke.getAWTKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -95,11 +89,10 @@ public class OpenAction extends AbstractAction {
 				Collection<Collection<GeoPoint>> data = new RawGpsReader(new FileReader(filename)).parse();
 				layer = new RawGpsDataLayer(data, filename.getName());
 			} else {
-				DataSet dataSet = filename.getName().toLowerCase().endsWith("gpx") ?
+				DataSet dataSet = filename.getName().toLowerCase().endsWith(".gpx") ?
 						new GpxReader(new FileReader(filename)).parse() :
 						new OsmReader(new FileReader(filename)).parse();
-				Collection<OsmPrimitive> l = Main.main.ds.mergeFrom(dataSet);
-				layer = new OsmDataLayer(l, filename.getName());
+				layer = new OsmDataLayer(dataSet, filename.getName());
 			}
 			
 			if (Main.main.getMapFrame() == null || !newLayer.isSelected())

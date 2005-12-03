@@ -7,14 +7,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.gui.ImageProvider;
+import org.openstreetmap.josm.io.GpxWriter;
 import org.openstreetmap.josm.io.OsmWriter;
 
 /**
@@ -24,15 +23,13 @@ import org.openstreetmap.josm.io.OsmWriter;
  *  
  * @author imi
  */
-public class SaveAction extends AbstractAction {
+public class SaveAction extends JosmAction {
 
 	/**
 	 * Construct the action with "Save" as label.
 	 */
 	public SaveAction() {
-		super("Save", ImageProvider.get("save"));
-		putValue(ACCELERATOR_KEY, KeyStroke.getAWTKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
-		putValue(SHORT_DESCRIPTION, "Save the current data.");
+		super("Save", "save", "Save the current data.", null, KeyStroke.getAWTKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
 	}
 	
 	public void actionPerformed(ActionEvent event) {
@@ -45,11 +42,11 @@ public class SaveAction extends AbstractAction {
 			@Override
 			public boolean accept(File f) {
 				String name = f.getName().toLowerCase();
-				return f.isDirectory() || name.endsWith(".xml");
+				return f.isDirectory() || name.endsWith(".xml") || name.endsWith(".gpx");
 			}
 			@Override
 			public String getDescription() {
-				return "XML Files";
+				return "GPX or XML Files";
 			}
 		});
 		fc.showSaveDialog(Main.main);
@@ -59,8 +56,10 @@ public class SaveAction extends AbstractAction {
 		
 		try {
 			FileWriter fileWriter = new FileWriter(file);
-			OsmWriter out = new OsmWriter(fileWriter, Main.main.ds);
-			out.output();
+			if (file.getName().endsWith(".gpx"))
+				new GpxWriter(fileWriter).output();
+			else
+				new OsmWriter(fileWriter, Main.main.ds).output();
 			fileWriter.close();
 		} catch (IOException e) {
 			e.printStackTrace();

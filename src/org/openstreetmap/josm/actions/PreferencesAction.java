@@ -1,13 +1,8 @@
 package org.openstreetmap.josm.actions;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
-import javax.swing.AbstractAction;
-import javax.swing.KeyStroke;
-
-import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.PreferenceDialog;
 
 /**
@@ -15,16 +10,14 @@ import org.openstreetmap.josm.gui.PreferenceDialog;
  *
  * @author imi
  */
-public class PreferencesAction extends AbstractAction {
+public class PreferencesAction extends JosmAction {
 
 	/**
 	 * Create the preference action with "&Preferences" as label.
 	 */
 	public PreferencesAction() {
-		super("Preferences", ImageProvider.get("preference"));
-		putValue(ACCELERATOR_KEY, KeyStroke.getAWTKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK));
-		putValue(MNEMONIC_KEY, KeyEvent.VK_P);
-		putValue(SHORT_DESCRIPTION, "Open a preferences page for global settings.");
+		super("Preferences", "preference", "Open a preferences page for global settings.",
+				KeyEvent.VK_P, null);
 	}
 
 	/**

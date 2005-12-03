@@ -3,24 +3,18 @@ package org.openstreetmap.josm.actions;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
-import javax.swing.AbstractAction;
-
-import org.openstreetmap.josm.gui.ImageProvider;
-
 /**
  * Exit the application. May ask for permition first (if something has changed).
  *  
  * @author imi
  */
-public class ExitAction extends AbstractAction {
+public class ExitAction extends JosmAction {
 
 	/**
 	 * Construct the action with "Exit" as label
 	 */
 	public ExitAction() {
-		super("Exit", ImageProvider.get("exit"));
-		putValue(MNEMONIC_KEY, KeyEvent.VK_X);
-		putValue(SHORT_DESCRIPTION, "Exit the application.");
+		super("Exit", "exit", "Exit the application.", KeyEvent.VK_X, null);
 	}
 	
 	public void actionPerformed(ActionEvent e) {

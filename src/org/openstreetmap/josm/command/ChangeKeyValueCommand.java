@@ -3,6 +3,10 @@ package org.openstreetmap.josm.command;
 import java.awt.Component;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.JLabel;
 
@@ -20,7 +24,7 @@ public class ChangeKeyValueCommand implements Command {
 	/**
 	 * All primitives, that are affected with this command.
 	 */
-	private final Collection<OsmPrimitive> objects;
+	private final List<OsmPrimitive> objects;
 	/**
 	 * The key that is subject to change.
 	 */
@@ -31,14 +35,24 @@ public class ChangeKeyValueCommand implements Command {
 	 * those objects that do not have the key yet.
 	 */
 	private final String value;
+	
+	/**
+	 * These are the old values of the objects to do a proper undo.
+	 */
+	private List<Map<Key, String>> oldProperties;
 
 	public ChangeKeyValueCommand(Collection<OsmPrimitive> objects, Key key, String value) {
-		this.objects = objects;
+		this.objects = new LinkedList<OsmPrimitive>(objects);
 		this.key = key;
 		this.value = value;
 	}
 	
 	public void executeCommand() {
+		// save old
+		oldProperties = new LinkedList<Map<Key, String>>();
+		for (OsmPrimitive osm : objects)
+			oldProperties.add(osm.keys == null ? null : new HashMap<Key, String>(osm.keys));
+			
 		if (value == null) {
 			for (OsmPrimitive osm : objects) {
 				if (osm.keys != null) {
@@ -54,6 +68,12 @@ public class ChangeKeyValueCommand implements Command {
 				osm.keys.put(key, value);
 			}
 		}
+	}
+
+	public void undoCommand() {
+		Iterator<Map<Key, String>> it = oldProperties.iterator();
+		for (OsmPrimitive osm : objects)
+			osm.keys = it.next();
 	}
 
 	public Component commandDescription() {

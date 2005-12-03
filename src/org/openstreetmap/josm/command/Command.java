@@ -10,6 +10,10 @@ import org.openstreetmap.josm.data.osm.OsmPrimitive;
  * Classes implementing Command modify a dataset in a specific way. A command is
  * one atomic action on a specific dataset, such as move or delete.
  *
+ * Remember, that the command must be executable and undoable, even if the 
+ * Main.main.ds has changed, so the command must save the dataset it operates on
+ * if necessary.
+ *
  * @author imi
  */
 public interface Command {
@@ -20,18 +24,24 @@ public interface Command {
 	void executeCommand();
 
 	/**
+	 * Undoes the command. 
+	 * It can be assumed, that all objects are in the same state they were before.
+	 * It can also be assumed that executeCommand was called exactly once before.
+	 */
+	void undoCommand();
+	
+	/**
 	 * Give a description of the command as component to draw
 	 */
 	Component commandDescription();
 	
 	/**
-	 * Fill in the changed data this command operates on (for sending to the server).
-	 * Add to the lists, don't clear them. The lists can be <code>null</code>
-	 * in which case they are ignored.
+	 * Fill in the changed data this command operates on.
+	 * Add to the lists, don't clear them.
 	 * 
-	 * @param modified  The modified primitives or <code>null</code>
-	 * @param deleted   The deleted primitives or <code>null</code>
-	 * @param added		The added primitives or <code>null</code>
+	 * @param modified  The modified primitives
+	 * @param deleted   The deleted primitives
+	 * @param added		The added primitives
 	 */
 	void fillModifiedData(Collection<OsmPrimitive> modified,
 			Collection<OsmPrimitive> deleted,

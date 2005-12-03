@@ -2,6 +2,7 @@ package org.openstreetmap.josm.gui.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -45,9 +46,8 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 	 * @param mapView The mapView to get the dataset from.
 	 */
 	public SelectionListDialog(MapFrame mapFrame) {
-		super(mapFrame, "Current Selection", "Selection List", "selectionlist", KeyEvent.VK_E, "Open a selection list window.");
-		setLayout(new BorderLayout());
-		setSize(300,400);
+		super("Current Selection", "Selection List", "selectionlist", KeyEvent.VK_E, "Open a selection list window.");
+		setPreferredSize(new Dimension(320,150));
 		displaylist.setCellRenderer(new DefaultListCellRenderer(){
 			private SelectionComponentVisitor visitor = new SelectionComponentVisitor();
 			@Override
@@ -63,7 +63,7 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 		});
 		displaylist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
-		getContentPane().add(new JScrollPane(displaylist), BorderLayout.CENTER);
+		add(new JScrollPane(displaylist), BorderLayout.CENTER);
 
 		JButton button = new JButton("Select", ImageProvider.get("mapmode", "selection"));
 		button.setToolTipText("Set the selected elements on the map to the selected items in the list above.");
@@ -72,7 +72,7 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 				updateMap();
 			}
 		});
-		getContentPane().add(button, BorderLayout.SOUTH);
+		add(button, BorderLayout.SOUTH);
 
 		selectionChanged(Main.main.ds.getSelected());
 	}

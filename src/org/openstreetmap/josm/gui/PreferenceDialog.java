@@ -61,7 +61,6 @@ public class PreferenceDialog extends JDialog {
 				Main.pref.osmDataPassword = null;
 			Main.pref.setDrawRawGpsLines(drawRawGpsLines.isSelected());
 			Main.pref.setForceRawGpsLines(forceRawGpsLines.isSelected());
-			Main.pref.setDrawDeleted(drawDeleted.isSelected());
 			try {
 				Main.pref.save();
 			} catch (PreferencesException x) {
@@ -125,10 +124,6 @@ public class PreferenceDialog extends JDialog {
 	 * The checkbox stating whether raw gps lines should be forced.
 	 */
 	JCheckBox forceRawGpsLines = new JCheckBox("Force lines if no line segments imported.");
-	/**
-	 * The checkbox stating whether deleted nodes should be drawn.
-	 */
-	JCheckBox drawDeleted = new JCheckBox("Draw deleted lines.");
 	/**
 	 * The checkbox stating whether nodes should be merged together.
 	 */
@@ -202,8 +197,6 @@ public class PreferenceDialog extends JDialog {
 		forceRawGpsLines.setToolTipText("Force drawing of lines if the imported data contain no line information.");
 		forceRawGpsLines.setSelected(Main.pref.isForceRawGpsLines());
 		forceRawGpsLines.setEnabled(drawRawGpsLines.isSelected());
-		drawDeleted.setToolTipText("Draw dark hints where objects were deleted.");
-		drawDeleted.setSelected(Main.pref.isDrawDeleted());
 		mergeNodes.setToolTipText("When importing GPX data, all nodes with exact the same lat/lon are merged.");
 		mergeNodes.setSelected(Main.pref.mergeNodes);
 
@@ -218,7 +211,6 @@ public class PreferenceDialog extends JDialog {
 		display.add(lafCombo, GBC.eol().fill(GBC.HORIZONTAL));
 		display.add(drawRawGpsLines, GBC.eol().insets(20,0,0,0));
 		display.add(forceRawGpsLines, GBC.eol().insets(40,0,0,0));
-		display.add(drawDeleted, GBC.eol().insets(20,0,0,0));
 		display.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
 
 		// Connection tab

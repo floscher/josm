@@ -1,6 +1,7 @@
 package org.openstreetmap.josm.actions.mapmode;
 
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.Collection;
 import java.util.Iterator;
@@ -60,6 +61,13 @@ public class AddTrackAction extends MapMode implements SelectionEnded {
 		selectionManager.unregister(mv);
 	}
 
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		makeTrack();
+		super.actionPerformed(e);
+	}
+
 	/**
 	 * If Shift is pressed, only add the selected line segments to the selection.
 	 * If Ctrl is pressed, only remove the selected line segments from the selection.
@@ -89,6 +97,13 @@ public class AddTrackAction extends MapMode implements SelectionEnded {
 		if (ctrl || shift)
 			return; // no new track yet.
 		
+		makeTrack();
+	}
+
+	/**
+	 * Just make a track of all selected items.
+	 */
+	private void makeTrack() {
 		Collection<OsmPrimitive> selection = Main.main.ds.getSelected();
 		if (selection.isEmpty())
 			return;
@@ -134,7 +149,8 @@ public class AddTrackAction extends MapMode implements SelectionEnded {
 		Track t = new Track();
 		for (LineSegment ls : sortedLineSegments)
 			t.add(ls);
-		mv.editLayer().add(new AddCommand(t));
+		mv.editLayer().add(new AddCommand(Main.main.ds, t));
 		Main.main.ds.clearSelection();
+		mv.repaint();
 	}
 }

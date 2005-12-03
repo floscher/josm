@@ -12,7 +12,6 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.AbstractAction;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -35,12 +34,10 @@ import org.openstreetmap.josm.gui.ImageProvider;
  * 
  * @author imi
  */
-public class AboutAction extends AbstractAction {
+public class AboutAction extends JosmAction {
 	
 	public AboutAction() {
-		super("About", ImageProvider.get("about"));
-		putValue(MNEMONIC_KEY, KeyEvent.VK_A);
-		putValue(SHORT_DESCRIPTION, "Display the about screen.");
+		super("About", "about", "Display the about screen.", KeyEvent.VK_A, null);
 	}
 	
 	public void actionPerformed(ActionEvent e) {

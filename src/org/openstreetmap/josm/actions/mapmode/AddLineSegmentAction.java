@@ -3,32 +3,24 @@ package org.openstreetmap.josm.actions.mapmode;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-
-import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.AddCommand;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.Track;
 import org.openstreetmap.josm.gui.MapFrame;
 
 /**
  * The user can add a new line segment between two nodes by pressing on the 
  * starting node and dragging to the ending node. 
  * 
- * If the Alt key was pressed when releasing the mouse, this action tries to
- * add the line segment to a track. The new line segment gets added to all tracks
- * of the first node that end in the first node. If no tracks are found, the
- * line segment gets added to all tracks in the second node that start with
- * the second node.
- * 
  * No line segment can be created if there is already a line segment containing
- * both nodes in the same order.
+ * both nodes.
  * 
  * @author imi
  */
@@ -71,6 +63,13 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 		drawHint(false);
 	}
 
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		super.actionPerformed(e);
+		makeLineSegment();
+	}
+
 	/**
 	 * If user clicked on a node, start the dragging with that node. 
 	 */
@@ -107,14 +106,21 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 	}
 
 	/**
-	 * Create the line segment if first and second are different and there is
-	 * not already a line segment.
+	 * If left button was released, try to create the line segment.
 	 */
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		if (e.getButton() != MouseEvent.BUTTON1)
-			return;
+		if (e.getButton() == MouseEvent.BUTTON1) {
+			makeLineSegment();
+			first = null; // release line segment drawing
+		}
+	}
 
+	/**
+	 * Create the line segment if first and second are different and there is
+	 * not already a line segment.
+	 */
+	private void makeLineSegment() {
 		if (first == null || second == null) {
 			first = null;
 			second = null;
@@ -125,22 +131,19 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 		
 		Node start = first;
 		Node end = second;
-		first = null;
+		first = second;
 		second = null;
 		
 		if (start != end) {
 			// try to find a line segment
-			for (Track t : Main.main.ds.tracks)
-				for (LineSegment ls : t.segments)
-					if (start == ls.start && end == ls.end) {
-						JOptionPane.showMessageDialog(Main.main, "There is already an line segment with the same direction between the selected nodes.");
-						return;
-					}
+			for (LineSegment ls : Main.main.ds.lineSegments)
+				if ((start == ls.start && end == ls.end) || (end == ls.start && start == ls.end))
+					return; // already a line segment here - be happy, do nothing.
 
 			LineSegment ls = new LineSegment(start, end);
-			mv.editLayer().add(new AddCommand(ls));
+			mv.editLayer().add(new AddCommand(Main.main.ds, ls));
 		}
-		
+
 		mv.repaint();
 	}
 

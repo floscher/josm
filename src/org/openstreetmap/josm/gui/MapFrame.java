@@ -3,12 +3,11 @@ package org.openstreetmap.josm.gui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.AbstractButton;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
@@ -18,7 +17,6 @@ import org.openstreetmap.josm.actions.AutoScaleAction;
 import org.openstreetmap.josm.actions.mapmode.AddLineSegmentAction;
 import org.openstreetmap.josm.actions.mapmode.AddNodeAction;
 import org.openstreetmap.josm.actions.mapmode.AddTrackAction;
-import org.openstreetmap.josm.actions.mapmode.CombineAction;
 import org.openstreetmap.josm.actions.mapmode.DeleteAction;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
 import org.openstreetmap.josm.actions.mapmode.MoveAction;
@@ -53,6 +51,18 @@ public class MapFrame extends JPanel {
 	 * The status line below the map
 	 */
 	public MapStatus statusLine;
+	/**
+	 * The action to open the layer list
+	 */
+	private LayerList layerList;
+	/**
+	 * Action to open the properties panel for the selected objects
+	 */
+	private PropertiesDialog propertiesDialog;
+	/**
+	 * Action to open a list of all selected objects
+	 */
+	private SelectionListDialog selectionListDialog;
 
 	/**
 	 * Construct a map with a given DataSet. The set cannot be replaced after 
@@ -75,7 +85,6 @@ public class MapFrame extends JPanel {
 		toolBarActions.add(new IconToggleButton(this, new AddNodeAction(this)));
 		toolBarActions.add(new IconToggleButton(this, new AddLineSegmentAction(this)));
 		toolBarActions.add(new IconToggleButton(this, new AddTrackAction(this)));
-		toolBarActions.add(new IconToggleButton(this, new CombineAction(this)));
 		toolBarActions.add(new IconToggleButton(this, new DeleteAction(this)));
 
 		// all map modes in one button group
@@ -98,22 +107,17 @@ public class MapFrame extends JPanel {
 			}
 		});
 
-		// layer list
-		toolBarActions.add(new IconToggleButton(this, new LayerList(this)));
-		
-		// properties
-		toolBarActions.add(new IconToggleButton(this, new PropertiesDialog(this)));
+		JPanel toggleDialogs = new JPanel();
+		add(toggleDialogs, BorderLayout.EAST);
 
-		// selection dialog
-		SelectionListDialog selectionList = new SelectionListDialog(this);
-		final IconToggleButton buttonSelection = new IconToggleButton(this, selectionList);
-		selectionList.addWindowListener(new WindowAdapter(){
-			@Override
-			public void windowClosing(WindowEvent e) {
-				buttonSelection.setSelected(false);
-			}
-		});
-		toolBarActions.add(buttonSelection);
+		toggleDialogs.setLayout(new BoxLayout(toggleDialogs, BoxLayout.Y_AXIS));
+		toolBarActions.add(new IconToggleButton(this, layerList = new LayerList(this)));
+		toggleDialogs.add(layerList);
+		toolBarActions.add(new IconToggleButton(this, propertiesDialog = new PropertiesDialog(this)));
+		toggleDialogs.add(propertiesDialog);
+		toolBarActions.add(new IconToggleButton(this, selectionListDialog = new SelectionListDialog(this)));
+		toggleDialogs.add(selectionListDialog);
+		
 
 		// status line below the map
 		statusLine = new MapStatus(this);

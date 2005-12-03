@@ -2,15 +2,17 @@ package org.openstreetmap.josm.command;
 
 import java.awt.Component;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JLabel;
 
-import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
-import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Track;
 import org.openstreetmap.josm.data.osm.visitor.SelectionComponentVisitor;
@@ -18,84 +20,104 @@ import org.openstreetmap.josm.data.osm.visitor.SelectionComponentVisitor;
 /**
  * This is a combination of first combining objects to get a node free of 
  * references and then delete that node. It is used by the delete action.
+ * 
+ * The rules is as follow:
+ * If the node to delete is between exact two line segments, which are
+ * in a straight (not pointing together), the second line segment is deleted
+ * and the first now spans to the last node of the second line segment.
+ * 
  * @author imi
  */
 public class CombineAndDeleteCommand implements Command {
 
 	/**
-	 * This class is used as one line segment pair that needs to get combined
-	 * for the node to be deleted.
-	 * @author imi
+	 * The dataset, this command operates on.
 	 */
-	public static class LineSegmentCombineEntry {
-		public LineSegment first, second;
-		public Track track;
-	}
-	
+	private DataSet ds;
 	/**
-	 * The node that get deleted
+	 * This line segment is combined with the second line segment.
+	 * The node that get deleted is the end of this segment.
 	 */
-	private Node node;
+	private LineSegment first;
 	/**
-	 * These line segments are 
+	 * This line segment is deleted by the combining.
+	 * The node that get deleted is the start of this segment.
 	 */
-	private Collection<LineSegmentCombineEntry> combineLineSegments;
-	/**
-	 * These tracks are combined
-	 */
-	private Track firstTrack, secondTrack;
-	/**
-	 * This line segment is deleted together with the second track. It was the
-	 * first segment of the second track (the other line segments were integrated
-	 * into the first track).
-	 */
-	private LineSegment firstOfSecond;
+	private LineSegment second;
 
 	/**
-	 * Create the command and assign the data entries.
+	 * The tracks (if any) the line segments are part of.
 	 */
-	public CombineAndDeleteCommand(Node nodeToDelete, 
-			Collection<LineSegmentCombineEntry> combineLineSegments,
-			Track firstTrack, Track secondTrack) {
-		node = nodeToDelete;
-		this.combineLineSegments = combineLineSegments;
-		this.firstTrack = firstTrack;
-		this.secondTrack = secondTrack;
+	private List<Track> track;
+
+	
+	// stuff for undo
+
+	/**
+	 * The old properties of the first line segment (for undo)
+	 */
+	private Map<Key, String> oldProperties;
+	/**
+	 * The positions of the second line segment in the tracks (if any track)
+	 */
+	private List<Integer> lineSegmentTrackPos;
+	
+	/**
+	 * Create the command and assign the data entries.
+	 * @param ds     The dataset this command operates on.
+	 * @param first  The line segment that remain alive
+	 * @param second The line segment that get deleted
+	 */
+	public CombineAndDeleteCommand(DataSet ds, LineSegment first, LineSegment second) {
+		this.ds = ds;
+		this.first = first;
+		this.second = second;
+		if (first.end != second.start)
+			throw new IllegalArgumentException();
 	}
 	
 	public void executeCommand() {
-		// line segments
-		DataSet ds = Main.main.ds;
-		for (LineSegmentCombineEntry e : combineLineSegments) {
-			if (e.first.start == e.second.end) {
-				LineSegment tmp = e.first;
-				e.first = e.second;
-				e.second = tmp;
+		first.end = second.end;
+		oldProperties = new HashMap<Key, String>(first.keys);
+		first.keys = mergeKeys(first.keys, second.keys);
+
+		// delete second line segment
+		for (Track t : ds.tracks) {
+			if (t.segments.contains(second)) {
+				if (track == null)
+					track = new LinkedList<Track>();
+				track.add(t);
 			}
-			e.first.end = e.second.end;
-			e.first.keys = mergeKeys(e.first.keys, e.second.keys);
-			e.track.segments.remove(e.second);
 		}
+		if (track != null) {
+			lineSegmentTrackPos = new LinkedList<Integer>();
+			for (Track t : track) {
+				int i = t.segments.indexOf(second);
+				if (i != -1)
+					t.segments.remove(second);
+				lineSegmentTrackPos.add(i);
+			}
+		}
+		ds.lineSegments.remove(second);
 		
-		// tracks
-		if (firstTrack != null && secondTrack != null) {
-			if (firstTrack.getStartingNode() == secondTrack.getEndingNode()) {
-				Track t = firstTrack;
-				firstTrack = secondTrack;
-				secondTrack = t;
+		// delete node
+		ds.nodes.remove(second.start);
+	}
+
+	public void undoCommand() {
+		ds.nodes.add(second.start);
+		ds.lineSegments.add(second);
+		
+		if (track != null) {
+			Iterator<Track> it = track.iterator();
+			for (int i : lineSegmentTrackPos) {
+				Track t = it.next();
+				if (i != -1)
+					t.segments.add(i, second);
 			}
-			// concatenate the line segments.
-			LineSegment lastOfFirst = firstTrack.getEndingSegment();
-			firstOfSecond = secondTrack.getStartingSegment();
-			lastOfFirst.end = firstOfSecond.end;
-			lastOfFirst.keys = mergeKeys(lastOfFirst.keys, firstOfSecond.keys);
-			secondTrack.segments.remove(firstOfSecond);
-			// move the remaining line segments to first track.
-			firstTrack.segments.addAll(secondTrack.segments);
-			ds.tracks.remove(secondTrack);
 		}
-		ds.nodes.remove(node);
-		ds.rebuildBackReferences();
+		first.keys = oldProperties;
+		first.end = second.start;
 	}
 
 	/**
@@ -114,23 +136,16 @@ public class CombineAndDeleteCommand implements Command {
 
 	public Component commandDescription() {
 		SelectionComponentVisitor v = new SelectionComponentVisitor();
-		v.visit(node);
+		v.visit(second.start);
 		return new JLabel("Remove "+v.name, v.icon, JLabel.LEADING);
 	}
 
 	public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {
-		deleted.add(node);
-		if (firstTrack != null)
-			modified.add(firstTrack);
-		if (secondTrack != null)
-			deleted.add(secondTrack);
-		if (firstOfSecond != null)
-			deleted.add(firstOfSecond);
-		for (LineSegmentCombineEntry e : combineLineSegments) {
-			modified.add(e.first);
-			deleted.add(e.second);
-			modified.add(e.track);
-		}
+		deleted.add(second);
+		deleted.add(second.start);
+		modified.add(first);
+		if (track != null)
+			modified.addAll(track);
 	}
 
 }

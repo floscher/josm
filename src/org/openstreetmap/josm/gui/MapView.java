@@ -19,13 +19,14 @@ import javax.swing.event.ChangeListener;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Track;
 import org.openstreetmap.josm.data.projection.Projection;
-import org.openstreetmap.josm.gui.layer.EditLayer;
 import org.openstreetmap.josm.gui.layer.Layer;
+import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 
 /**
  * This is a component used in the MapFrame for browsing the map. It use is to
@@ -73,7 +74,7 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 	/**
 	 * Direct link to the edit layer (if any) in the layers list.
 	 */
-	private EditLayer editLayer;
+	private OsmDataLayer editLayer;
 	/**
 	 * The layer from the layers list that is currently active.
 	 */
@@ -108,27 +109,32 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 	 * position.
 	 */
 	public void addLayer(Layer layer) {
-		if (layer instanceof EditLayer) {
-			if (editLayer != null) {
-				// there can only be one EditLayer
-				editLayer.mergeFrom(layer);
-				return;
-			}
-			editLayer = (EditLayer)layer;
-		}
-		
-		layers.add(0,layer);
-
 		// initialize the projection if it is the first layer
-		if (layers.size() == 1)
+		if (layers.isEmpty())
 			Main.pref.getProjection().init(layer.getBoundsLatLon());
 
 		// reinitialize layer's data
 		layer.init(Main.pref.getProjection());
 
+		if (layer instanceof OsmDataLayer) {
+			if (editLayer != null) {
+				// merge the layer into the existing one
+				if (!editLayer.isMergable(layer))
+					throw new IllegalArgumentException("Cannot merge argument");
+				editLayer.mergeFrom(layer);
+				repaint();
+				return;
+			}
+			editLayer = (OsmDataLayer)layer;
+		}
+
+		// add as a new layer
+		layers.add(0,layer);
+
 		for (LayerChangeListener l : listeners)
 			l.layerAdded(layer);
 
+		// autoselect the new layer
 		setActiveLayer(layer);
 	}
 
@@ -247,7 +253,7 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 			return minPrimitive;
 		
 		// pending line segments
-		for (LineSegment ls : Main.main.ds.pendingLineSegments) {
+		for (LineSegment ls : Main.main.ds.lineSegments) {
 			Point A = getScreenPoint(ls.start.coor);
 			Point B = getScreenPoint(ls.end.coor);
 			double c = A.distanceSq(B);
@@ -466,12 +472,15 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 
 	/**
 	 * Set the active selection to the given value and raise an layerchange event.
+	 * Also, swap the active dataset in Main.main if it is a datalayer.
 	 */
 	public void setActiveLayer(Layer layer) {
 		if (!layers.contains(layer))
 			throw new IllegalArgumentException("layer must be in layerlist");
 		Layer old = activeLayer;
 		activeLayer = layer;
+		if (layer instanceof OsmDataLayer)
+			Main.main.ds = ((OsmDataLayer)layer).data;
 		if (old != layer) {
 			for (LayerChangeListener l : listeners)
 				l.activeLayerChange(old, layer);
@@ -490,9 +499,9 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 	 * @return The current edit layer. If no edit layer exist, one is created.
 	 * 		So editLayer does never return <code>null</code>.
 	 */
-	public EditLayer editLayer() {
+	public OsmDataLayer editLayer() {
 		if (editLayer == null)
-			addLayer(new EditLayer(this));
+			addLayer(new OsmDataLayer(new DataSet(), "unnamed"));
 		return editLayer;
 	}
 }
