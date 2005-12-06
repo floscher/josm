@@ -148,7 +148,7 @@ public class AddTrackAction extends MapMode implements SelectionEnded {
 		
 		Track t = new Track();
 		for (LineSegment ls : sortedLineSegments)
-			t.add(ls);
+			t.segments.add(ls);
 		mv.editLayer().add(new AddCommand(Main.main.ds, t));
 		Main.main.ds.clearSelection();
 		mv.repaint();

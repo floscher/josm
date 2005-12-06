@@ -10,17 +10,17 @@ import org.openstreetmap.josm.Main;
 
 
 /**
- * Undoes the last command.
+ * Redoes the last command.
  * 
  * @author imi
  */
-public class UndoAction extends JosmAction {
+public class RedoAction extends JosmAction {
 
 	/**
 	 * Construct the action with "Undo" as label.
 	 */
-	public UndoAction() {
-		super("Undo", "undo", "Undo the last action.", null, KeyStroke.getAWTKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
+	public RedoAction() {
+		super("Redo", "redo", "Redo the last undone action.", null, KeyStroke.getAWTKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
 		setEnabled(false);
 	}
 
@@ -28,6 +28,6 @@ public class UndoAction extends JosmAction {
 		if (Main.main.getMapFrame() == null)
 			return;
 		Main.main.getMapFrame().repaint();
-		Main.main.getMapFrame().mapView.editLayer().undo();
+		Main.main.getMapFrame().mapView.editLayer().redo();
 	}
 }

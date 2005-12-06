@@ -93,7 +93,6 @@ public class OsmServerReader extends OsmConnection {
 	 * @return An reader reading the input stream (servers answer) or <code>null</code>.
 	 */
 	private Reader getReader(String urlStr) throws IOException {
-		System.out.println(urlStr);
 		initAuthentication();
 		URL url = new URL(urlStr);
 		HttpURLConnection con = (HttpURLConnection)url.openConnection();

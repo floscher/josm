@@ -7,6 +7,7 @@ import java.awt.event.MouseEvent;
 import java.util.Collection;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.MoveCommand;
 import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -82,7 +83,11 @@ public class MoveAction extends MapMode {
 			return;
 
 		Collection<OsmPrimitive> selection = Main.main.ds.getSelected();
-		mv.editLayer().add(new MoveCommand(selection, dx, dy));
+		Command c = mv.editLayer().lastCommand();
+		if (c instanceof MoveCommand && MoveCommand.getAffectedNodes(selection).equals(((MoveCommand)c).objects))
+			((MoveCommand)c).moveAgain(dx,dy);
+		else
+			mv.editLayer().add(new MoveCommand(selection, dx, dy));
 		
 		mv.repaint();
 		mousePos = e.getPoint();

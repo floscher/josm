@@ -1,6 +1,5 @@
 package org.openstreetmap.josm.command;
 
-import java.awt.Component;
 import java.util.Collection;
 
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -29,11 +28,6 @@ public interface Command {
 	 * It can also be assumed that executeCommand was called exactly once before.
 	 */
 	void undoCommand();
-	
-	/**
-	 * Give a description of the command as component to draw
-	 */
-	Component commandDescription();
 	
 	/**
 	 * Fill in the changed data this command operates on.
