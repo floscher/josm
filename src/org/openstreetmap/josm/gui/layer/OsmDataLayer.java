@@ -1,9 +1,8 @@
 package org.openstreetmap.josm.gui.layer;
 
 import java.awt.Graphics;
-import java.io.FileWriter;
-import java.io.StringWriter;
 import java.util.LinkedList;
+import java.util.Stack;
 
 import javax.swing.Icon;
 
@@ -15,7 +14,6 @@ import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Track;
 import org.openstreetmap.josm.data.osm.visitor.BoundingVisitor;
-import org.openstreetmap.josm.data.osm.visitor.CsvVisitor;
 import org.openstreetmap.josm.data.osm.visitor.SimplePaintVisitor;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.ImageProvider;
@@ -40,7 +38,10 @@ public class OsmDataLayer extends Layer {
 	 * All commands that were made on the dataset.
 	 */
 	private LinkedList<Command> commands = new LinkedList<Command>();
-	private LinkedList<String> debugDsBefore = new LinkedList<String>();
+	/**
+	 * The stack for redoing commands
+	 */
+	private Stack<Command> redoCommands = new Stack<Command>();
 
 	/**
 	 * Construct a OsmDataLayer.
@@ -70,10 +71,10 @@ public class OsmDataLayer extends Layer {
 	public void paint(Graphics g, MapView mv) {
 		SimplePaintVisitor visitor = new SimplePaintVisitor(g, mv, null);
 
-		for (Track t : data.tracks)
-			visitor.visit(t);
 		for (LineSegment ls : data.lineSegments)
 			visitor.visit(ls);
+		for (Track t : data.tracks)
+			visitor.visit(t);
 		for (Node n : data.nodes)
 			visitor.visit(n);
 	}
@@ -116,28 +117,23 @@ public class OsmDataLayer extends Layer {
 	}
 
 	/**
+	 * @return the last command added or <code>null</code> if no command in queue.
+	 */
+	public Command lastCommand() {
+		return commands.isEmpty() ? null : commands.getLast();
+	}
+	
+	/**
 	 * Execute the command and add it to the intern command queue. Also mark all
 	 * primitives in the command as modified.
 	 */
 	public void add(Command c) {
-		StringWriter sw = new StringWriter();
-		CsvVisitor v = new CsvVisitor(sw);
-		for (Node n : Main.main.ds.nodes) {
-			v.visit(n);
-			sw.append('\n');
-		}
-		for (LineSegment ls : Main.main.ds.lineSegments) {
-			v.visit(ls);
-			sw.append('\n');
-		}
-		for (Track t : Main.main.ds.tracks) {
-			v.visit(t);
-			sw.append('\n');
-		}
-		debugDsBefore.add(sw.getBuffer().toString());
-		
 		c.executeCommand();
 		commands.add(c);
+		redoCommands.clear();
+		// TODO: Replace with listener scheme
+		Main.main.undoAction.setEnabled(true);
+		Main.main.redoAction.setEnabled(false);
 	}
 
 	/**
@@ -148,34 +144,22 @@ public class OsmDataLayer extends Layer {
 			return;
 		Command c = commands.removeLast();
 		c.undoCommand();
-		
-		//DEBUG
-		StringWriter sw = new StringWriter();
-		CsvVisitor v = new CsvVisitor(sw);
-		for (Node n : Main.main.ds.nodes) {
-			v.visit(n);
-			sw.append('\n');
-		}
-		for (LineSegment ls : Main.main.ds.lineSegments) {
-			v.visit(ls);
-			sw.append('\n');
-		}
-		for (Track t : Main.main.ds.tracks) {
-			v.visit(t);
-			sw.append('\n');
-		}
-		String s = Main.main.getMapFrame().mapView.editLayer().debugDsBefore.removeLast();
-		if (!s.equals(sw.getBuffer().toString())) {
-			try {
-				FileWriter fw = new FileWriter("/home/imi/richtig");
-				fw.append(sw.getBuffer().toString());
-				fw.close();
-				fw = new FileWriter("/home/imi/falsch");
-				fw.append(s);
-				fw.close();
-			} catch (Exception x) {
-				x.printStackTrace();
-			}
-		}
+		redoCommands.push(c);
+		//TODO: Replace with listener scheme
+		Main.main.undoAction.setEnabled(!commands.isEmpty());
+		Main.main.redoAction.setEnabled(true);
+	}
+	/**
+	 * Redoes the last undoed command.
+	 */
+	public void redo() {
+		if (redoCommands.isEmpty())
+			return;
+		Command c = redoCommands.pop();
+		c.executeCommand();
+		commands.add(c);
+		//TODO: Replace with listener scheme
+		Main.main.undoAction.setEnabled(true);
+		Main.main.redoAction.setEnabled(!redoCommands.isEmpty());
 	}
 }

@@ -129,7 +129,7 @@ public class GpxReader {
 					else {
 						LineSegment lineSegment = new LineSegment(start, node);
 						parseKeyValueExtensions(lineSegment, child.getChild("extensions", GPX));
-						track.add(lineSegment);
+						track.segments.add(lineSegment);
 						start = null;
 					}
 				}

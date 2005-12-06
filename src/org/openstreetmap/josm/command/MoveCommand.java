@@ -1,13 +1,10 @@
 package org.openstreetmap.josm.command;
 
-import java.awt.Component;
 import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.swing.JLabel;
 
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -24,7 +21,7 @@ public class MoveCommand implements Command {
 	/**
 	 * The objects that should be moved.
 	 */
-	private List<OsmPrimitive> objects;
+	public List<Node> objects = new LinkedList<Node>();
 	/**
 	 * x difference movement. Coordinates are in northern/eastern 
 	 */
@@ -37,48 +34,65 @@ public class MoveCommand implements Command {
 	/**
 	 * x/y List of all old positions of the objects.
 	 */
-	private List<Point2D.Double> oldPositions;
-	
+	private List<Point2D.Double> oldPositions = new LinkedList<Point2D.Double>();
+
 	/**
 	 * Create a MoveCommand and assign the initial object set and movement vector.
 	 */
 	public MoveCommand(Collection<OsmPrimitive> objects, double x, double y) {
-		this.objects = new LinkedList<OsmPrimitive>(objects);
 		this.x = x;
 		this.y = y;
+		this.objects = getAffectedNodes(objects);
+		for (Node n : this.objects)
+			oldPositions.add(new Point2D.Double(n.coor.x, n.coor.y));
 	}
 
-	public void executeCommand() {
+	/**
+	 * @return a list of all nodes that will be moved if using the given set of
+	 * objects.
+	 */
+	public static List<Node> getAffectedNodes(Collection<OsmPrimitive> objects) {
 		AllNodesVisitor visitor = new AllNodesVisitor();
 		for (OsmPrimitive osm : objects)
 			osm.visit(visitor);
-		for (Node n : visitor.nodes) {
+		return new LinkedList<Node>(visitor.nodes);
+	}
+	
+	/**
+	 * Move the same set of objects again by the specified vector. The vectors
+	 * are added together and so the resulting will be moved to the previous
+	 * vector plus this one.
+	 * 
+	 * The move is immediatly executed and any undo will undo both vectors to
+	 * the original position the objects had before first moving.
+	 */
+	public void moveAgain(double x, double y) {
+		for (Node n : objects) {
+			n.coor.x += x;
+			n.coor.y += y;
+		}
+		this.x += x;
+		this.y += y;
+	}
+	
+	public void executeCommand() {
+		for (Node n : objects) {
 			n.coor.x += x;
 			n.coor.y += y;
 		}
 	}
 
 	public void undoCommand() {
-		AllNodesVisitor visitor = new AllNodesVisitor();
-		for (OsmPrimitive osm : objects)
-			osm.visit(visitor);
 		Iterator<Point2D.Double> it = oldPositions.iterator();
-		for (Node n : visitor.nodes) {
+		for (Node n : objects) {
 			Point2D.Double p = it.next();
 			n.coor.x = p.x;
 			n.coor.y = p.y;
 		}
 	}
 
-	public Component commandDescription() {
-		String xstr = Math.abs(x) + (x < 0 ? "W" : "E");
-		String ystr = Math.abs(y) + (y < 0 ? "S" : "N");
-		return new JLabel("Move "+objects.size()+" primitives "+xstr+" "+ystr);
-	}
-
 	public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {
 		for (OsmPrimitive osm : objects)
-			if (!modified.contains(osm))
-				modified.add(osm);
+			modified.add(osm);
 	}
 }

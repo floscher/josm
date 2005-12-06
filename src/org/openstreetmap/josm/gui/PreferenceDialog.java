@@ -242,7 +242,7 @@ public class PreferenceDialog extends JDialog {
 		map.add(mergeNodes, GBC.eol().insets(20,0,0,0));
 		map.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
 
-		
+
 		tabPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 	
 		// OK/Cancel panel at bottom
@@ -260,7 +260,7 @@ public class PreferenceDialog extends JDialog {
 		setModal(true);
 		pack();
 		Dimension s = Main.main.getSize();
-		setLocation(s.width/2-getWidth()/2, s.height/2-getHeight()/2);
+		setLocation(Main.main.getX()+s.width/2-getWidth()/2, Main.main.getY()+s.height/2-getHeight()/2);
 	}
 
 	/**

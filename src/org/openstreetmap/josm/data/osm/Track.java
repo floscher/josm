@@ -19,13 +19,6 @@ public class Track extends OsmPrimitive {
 
 	
 	/**
-	 * Add the line segment to the track.
-	 */
-	public void add(LineSegment ls) {
-		segments.add(ls);
-	}
-
-	/**
 	 * Return the last node in the track. This is the node, which no line segment
 	 * has as start, but at least one has it as end. If there are not exact one
 	 * such nodes found, <code>null</code> is returned.

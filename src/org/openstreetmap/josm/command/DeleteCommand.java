@@ -1,16 +1,13 @@
 package org.openstreetmap.josm.command;
 
-import java.awt.Component;
 import java.util.Collection;
-
-import javax.swing.JLabel;
+import java.util.HashSet;
 
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.Key;
-import org.openstreetmap.josm.data.osm.LineSegment;
-import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.data.osm.visitor.AddVisitor;
+import org.openstreetmap.josm.data.osm.visitor.CollectBackReferencesVisitor;
+import org.openstreetmap.josm.data.osm.visitor.DeleteVisitor;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
 
 /**
@@ -22,56 +19,30 @@ public class DeleteCommand implements Command {
 	/**
 	 * The dataset this command operates on.
 	 */
-	DataSet ds;
+	final DataSet ds;
+	/**
+	 * The primitive that get deleted.
+	 */
+	final Collection<OsmPrimitive> data = new HashSet<OsmPrimitive>();
 
-	/**
-	 * Helper that adds the object.
-	 * @author imi
-	 */
-	private final class AddVisitor implements Visitor {
-		public void visit(Node n) {ds.nodes.add(n);}
-		public void visit(LineSegment ls) {ds.lineSegments.add(ls);}
-		public void visit(Track t) {ds.tracks.add(t);}
-		public void visit(Key k) {throw new IllegalStateException("Keys are added by using ChangeKeyValueCommand");}
-	}
-
-	/**
-	 * Helper that deletes the object. Does not respect back reference cache.
-	 * @author imi
-	 */
-	private final class DeleteVisitor implements Visitor {
-		public void visit(Node n) {ds.nodes.remove(n);}
-		public void visit(LineSegment ls) {ds.lineSegments.remove(ls);}
-		public void visit(Track t) {ds.tracks.remove(t);}
-		public void visit(Key k) {throw new IllegalStateException("Keys are added by using ChangeKeyValueCommand");}
-	}
-	
-	
-	
-	/**
-	 * The primitives that are going to deleted.
-	 */
-	private final Collection<OsmPrimitive> data;
-	
-	public DeleteCommand(DataSet ds, Collection<OsmPrimitive> data) {
+	public DeleteCommand(DataSet ds, OsmPrimitive osm) {
 		this.ds = ds;
-		this.data = data;
+		CollectBackReferencesVisitor v = new CollectBackReferencesVisitor(ds);
+		osm.visit(v);
+		data.addAll(v.data);
+		data.add(osm);
 	}
 	
 	public void executeCommand() {
-		Visitor v = new DeleteVisitor();
+		Visitor v = new DeleteVisitor(ds);
 		for (OsmPrimitive osm : data)
 			osm.visit(v);
 	}
 
 	public void undoCommand() {
-		Visitor v = new AddVisitor();
+		Visitor v = new AddVisitor(ds);
 		for (OsmPrimitive osm : data)
 			osm.visit(v);
-	}
-
-	public Component commandDescription() {
-		return new JLabel("Delete "+data.size()+" primitives");
 	}
 
 	public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {

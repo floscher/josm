@@ -18,6 +18,7 @@ import org.openstreetmap.josm.actions.ExitAction;
 import org.openstreetmap.josm.actions.OpenAction;
 import org.openstreetmap.josm.actions.OpenOsmServerAction;
 import org.openstreetmap.josm.actions.PreferencesAction;
+import org.openstreetmap.josm.actions.RedoAction;
 import org.openstreetmap.josm.actions.SaveAction;
 import org.openstreetmap.josm.actions.UndoAction;
 import org.openstreetmap.josm.data.Preferences;
@@ -60,6 +61,9 @@ public class Main extends JFrame {
 	 * The mapFrame currently loaded.
 	 */
 	private MapFrame mapFrame;
+
+	public final UndoAction undoAction;
+	public final RedoAction redoAction;
 	
 	/**
 	 * Construct an main frame, ready sized and operating. Does not 
@@ -78,7 +82,8 @@ public class Main extends JFrame {
 		OpenAction openAction = new OpenAction();
 		SaveAction saveAction = new SaveAction();
 		ExitAction exitAction = new ExitAction();
-		UndoAction undoAction = new UndoAction();
+		undoAction = new UndoAction();
+		redoAction = new RedoAction();
 		PreferencesAction preferencesAction = new PreferencesAction();
 		AboutAction aboutAction = new AboutAction();
 
@@ -103,6 +108,7 @@ public class Main extends JFrame {
 		JMenu editMenu = new JMenu("Edit");
 		editMenu.setMnemonic('E');
 		editMenu.add(undoAction);
+		editMenu.add(redoAction);
 		editMenu.addSeparator();
 		editMenu.add(preferencesAction);
 		mainMenu.add(editMenu);
@@ -121,6 +127,7 @@ public class Main extends JFrame {
 		toolBar.add(saveAction);
 		toolBar.addSeparator();
 		toolBar.add(undoAction);
+		toolBar.add(redoAction);
 		toolBar.addSeparator();
 		toolBar.add(preferencesAction);
 		

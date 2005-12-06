@@ -14,6 +14,11 @@ import org.openstreetmap.josm.data.osm.visitor.Visitor;
  */
 abstract public class OsmPrimitive {
 
+	private static int idcount = 0;
+	public OsmPrimitive() {
+		id = ++idcount;
+	}
+	
 	/**
 	 * The key/value list for this primitive.
 	 */

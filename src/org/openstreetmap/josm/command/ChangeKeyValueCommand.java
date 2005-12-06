@@ -1,14 +1,11 @@
 package org.openstreetmap.josm.command;
 
-import java.awt.Component;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import javax.swing.JLabel;
 
 import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -74,13 +71,6 @@ public class ChangeKeyValueCommand implements Command {
 		Iterator<Map<Key, String>> it = oldProperties.iterator();
 		for (OsmPrimitive osm : objects)
 			osm.keys = it.next();
-	}
-
-	public Component commandDescription() {
-		String objStr = objects.size()+" object" + (objects.size()==1?"":"s");
-		if (value == null)
-			return new JLabel("Delete the key '"+key+"' of "+objStr);
-		return new JLabel("Change the key '"+key+"' of "+objStr+" to '"+value+"'");
 	}
 
 	public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {
