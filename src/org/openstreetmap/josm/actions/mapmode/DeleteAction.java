@@ -110,7 +110,8 @@ public class DeleteAction extends MapMode {
 		Collection<Command> deleteCommands = new LinkedList<Command>();
 		for (OsmPrimitive osm : selection)
 			deleteCommands.add(new DeleteCommand(Main.main.ds, osm));
-		mv.editLayer().add(new SequenceCommand(deleteCommands));
+		if (!deleteCommands.isEmpty())
+			mv.editLayer().add(new SequenceCommand(deleteCommands));
 	}
 
 	/**
@@ -132,6 +133,7 @@ public class DeleteAction extends MapMode {
 			} else
 				deleteCommands.add(new DeleteCommand(Main.main.ds, osm));
 		}
-		mv.editLayer().add(new SequenceCommand(deleteCommands));
+		if (!deleteCommands.isEmpty())
+			mv.editLayer().add(new SequenceCommand(deleteCommands));
 	}
 }

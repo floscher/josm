@@ -81,7 +81,7 @@ public class OsmDataLayer extends Layer {
 
 	@Override
 	public String getToolTipText() {
-		return data.nodes.size()+" nodes, "+data.tracks.size()+" streets.";
+		return data.nodes.size()+" nodes, "+data.lineSegments.size()+" segments, "+data.tracks.size()+" streets.";
 	}
 
 	@Override

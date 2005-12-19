@@ -32,6 +32,14 @@ abstract public class OsmPrimitive {
 	public long id = 0;
 
 	/**
+	 * <code>true</code>, if the object has been modified since it was loaded from
+	 * the server. In this case, on next upload, this object will be updated. Deleted
+	 * objects are deleted from the server, even if they are modified. If the objects
+	 * are added (id=0), the modified is ignored and the object is added to the server. 
+	 */
+	public boolean modified = false;
+	
+	/**
 	 * If set to true, this object is currently selected.
 	 */
 	transient private boolean selected = false;

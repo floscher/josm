@@ -119,9 +119,6 @@ public class OsmReader {
 				LineSegment ls = parseLineSegment(child, data);
 				if (data.lineSegments.contains(ls))
 					throw new JDOMException("Double segment definition "+ls.id);
-				for (Track t : data.tracks)
-					if (t.segments.contains(ls))
-						throw new JDOMException("Double segment definition "+ls.id);
 				data.lineSegments.add(ls);
 			} else if (child.getName().equals("track")) {
 				Track track = parseTrack(child, data);
@@ -175,18 +172,7 @@ public class OsmReader {
 			Element child = (Element)o;
 			long id = Long.parseLong(child.getAttributeValue("uid"));
 			LineSegment ls = findLineSegment(data.lineSegments, id);
-			if (ls != null) {
-				track.segments.add(ls);
-				data.lineSegments.remove(ls);
-				continue;
-			}
-			for (Track t : data.tracks) {
-				ls = findLineSegment(t.segments, id);
-				if (ls != null) {
-					track.segments.add(ls);
-					break;
-				}
-			}
+			track.segments.add(ls);
 		}
 		return track;
 	}
@@ -194,11 +180,11 @@ public class OsmReader {
 	/**
 	 * Search for a segment in a collection by comparing the id.
 	 */
-	private LineSegment findLineSegment(Collection<LineSegment> segments, long id) {
+	private LineSegment findLineSegment(Collection<LineSegment> segments, long id) throws JDOMException {
 		for (LineSegment ls : segments)
 			if (ls.id == id)
 				return ls;
-		return null;
+		throw new JDOMException("Unknown line segment reference: "+id);
 	}
 	
 	/**

@@ -37,6 +37,11 @@ public class ChangeKeyValueCommand implements Command {
 	 * These are the old values of the objects to do a proper undo.
 	 */
 	private List<Map<Key, String>> oldProperties;
+	
+	/**
+	 * These are the old modified states of the data.
+	 */
+	private List<Boolean> oldModified = new LinkedList<Boolean>();
 
 	public ChangeKeyValueCommand(Collection<OsmPrimitive> objects, Key key, String value) {
 		this.objects = new LinkedList<OsmPrimitive>(objects);
@@ -47,8 +52,10 @@ public class ChangeKeyValueCommand implements Command {
 	public void executeCommand() {
 		// save old
 		oldProperties = new LinkedList<Map<Key, String>>();
-		for (OsmPrimitive osm : objects)
+		for (OsmPrimitive osm : objects) {
 			oldProperties.add(osm.keys == null ? null : new HashMap<Key, String>(osm.keys));
+			oldModified.add(osm.modified);
+		}
 			
 		if (value == null) {
 			for (OsmPrimitive osm : objects) {
@@ -69,8 +76,11 @@ public class ChangeKeyValueCommand implements Command {
 
 	public void undoCommand() {
 		Iterator<Map<Key, String>> it = oldProperties.iterator();
-		for (OsmPrimitive osm : objects)
+		Iterator<Boolean> itMod = oldModified.iterator();
+		for (OsmPrimitive osm : objects) {
 			osm.keys = it.next();
+			osm.modified = itMod.next();
+		}
 	}
 
 	public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {
