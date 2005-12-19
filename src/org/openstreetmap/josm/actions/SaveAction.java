@@ -10,7 +10,6 @@ import java.io.IOException;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
-import javax.swing.filechooser.FileFilter;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.io.GpxWriter;
@@ -38,17 +37,9 @@ public class SaveAction extends JosmAction {
 			return;
 		}
 		JFileChooser fc = new JFileChooser("data");
-		fc.setFileFilter(new FileFilter(){
-			@Override
-			public boolean accept(File f) {
-				String name = f.getName().toLowerCase();
-				return f.isDirectory() || name.endsWith(".xml") || name.endsWith(".gpx");
-			}
-			@Override
-			public String getDescription() {
-				return "GPX or XML Files";
-			}
-		});
+		for (int i = 0; i < ExtensionFileFilter.filters.length; ++i)
+			fc.addChoosableFileFilter(ExtensionFileFilter.filters[i]);
+		fc.setAcceptAllFileFilterUsed(true);
 		fc.showSaveDialog(Main.main);
 		File file = fc.getSelectedFile();
 		if (file == null)

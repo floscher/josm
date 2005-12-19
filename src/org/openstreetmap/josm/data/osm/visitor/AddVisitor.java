@@ -25,12 +25,15 @@ public class AddVisitor implements Visitor {
 	
 	public void visit(Node n) {
 		ds.nodes.add(n);
+		ds.deleted.remove(n); // remove if there.
 	}
 	public void visit(LineSegment ls) {
 		ds.lineSegments.add(ls);
+		ds.deleted.remove(ls); // remove if there.
 	}
 	public void visit(Track t) {
 		ds.tracks.add(t);
+		ds.deleted.remove(t); // remove if there.
 	}
 	public void visit(Key k) {}
 }

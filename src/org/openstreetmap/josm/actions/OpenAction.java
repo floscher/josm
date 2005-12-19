@@ -16,7 +16,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
-import javax.swing.filechooser.FileFilter;
 
 import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
@@ -48,16 +47,9 @@ public class OpenAction extends JosmAction {
 
 	public void actionPerformed(ActionEvent e) {
 		JFileChooser fc = new JFileChooser("data");
-		fc.setFileFilter(new FileFilter(){
-			@Override
-			public boolean accept(File f) {
-				String name = f.getName().toLowerCase();
-				return f.isDirectory() || name.endsWith(".gpx") || name.endsWith(".xml");
-			}
-			@Override
-			public String getDescription() {
-				return "GPX or XML Files";
-			}});
+		for (int i = 0; i < ExtensionFileFilter.filters.length; ++i)
+			fc.addChoosableFileFilter(ExtensionFileFilter.filters[i]);
+		fc.setAcceptAllFileFilterUsed(true);
 		
 		// additional options
 		JCheckBox rawGps = new JCheckBox("Raw GPS data", true);

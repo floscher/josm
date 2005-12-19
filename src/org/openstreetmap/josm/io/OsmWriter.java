@@ -63,12 +63,6 @@ public class OsmWriter extends OsmConnection {
 			list.add(parseNode(n, properties));
 		for (LineSegment ls : ds.lineSegments)
 			list.add(parseLineSegment(ls, properties));
-		// all other line segments
-		Collection<LineSegment> lineSegments = new HashSet<LineSegment>();
-		for (Track t : ds.tracks)
-			lineSegments.addAll(t.segments);
-		for (LineSegment ls : lineSegments)
-			list.add(parseLineSegment(ls, properties));
 		for (Track t : ds.tracks)
 			list.add(parseTrack(t, properties));
 		list.addAll(properties);

@@ -79,9 +79,11 @@ public class GpxWriter {
 	private Element parseDataSet() {
 		Element e = new Element("gpx", GPX);
 		e.setAttribute("version", "1.0");
-		e.setAttribute("creator", "JOSM Beta2");
+		e.setAttribute("creator", "JOSM");
 		// for getting all unreferenced waypoints in the wpt-list
-		LinkedList<Node> nodes = new LinkedList<Node>(Main.main.ds.nodes);
+		LinkedList<Node> unrefNodes = new LinkedList<Node>(Main.main.ds.nodes);
+		// for getting all unreferenced line segments
+		LinkedList<LineSegment> unrefLs = new LinkedList<LineSegment>(Main.main.ds.lineSegments);
 
 		// tracks
 		for (Track t : Main.main.ds.tracks) {
@@ -100,19 +102,20 @@ public class GpxWriter {
 			// line segments
 			for (LineSegment ls : t.segments) {
 				tElem.getChildren().add(parseLineSegment(ls));
-				nodes.remove(ls.start);
-				nodes.remove(ls.end);
+				unrefNodes.remove(ls.start);
+				unrefNodes.remove(ls.end);
+				unrefLs.remove(ls);
 			}
 
 			e.getChildren().add(tElem);
 		}
 		
 		// encode pending line segments as tracks
-		for (LineSegment ls : Main.main.ds.lineSegments) {
+		for (LineSegment ls : unrefLs) {
 			Element t = new Element("trk", GPX);
 			t.getChildren().add(parseLineSegment(ls));
-			nodes.remove(ls.start);
-			nodes.remove(ls.end);
+			unrefNodes.remove(ls.start);
+			unrefNodes.remove(ls.end);
 			Element ext = new Element("extensions", GPX);
 			ext.getChildren().add(new Element("segment", OSM));
 			t.getChildren().add(ext);
@@ -120,7 +123,7 @@ public class GpxWriter {
 		}
 
 		// waypoints (missing nodes)
-		for (Node n : nodes)
+		for (Node n : unrefNodes)
 			e.getChildren().add(parseWaypoint(n, "wpt"));
 
 		return e;

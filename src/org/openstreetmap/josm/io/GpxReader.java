@@ -98,7 +98,7 @@ public class GpxReader {
 		for (Object o : e.getChildren("wpt", GPX))
 			addNode(data, parseWaypoint((Element)o));
 	
-		// read tracks
+		// read tracks (and line segments)
 		for (Object trackElement : e.getChildren("trk", GPX))
 			parseTrack((Element)trackElement, data);
 	
@@ -142,12 +142,9 @@ public class GpxReader {
 			else
 				parseKeyValueTag(track, child);
 		}
-		if (realLineSegment && track.segments.size() == 1)
-			ds.lineSegments.add(track.segments.get(0));
-		else {
+		ds.lineSegments.addAll(track.segments);
+		if (!realLineSegment)
 			ds.tracks.add(track);
-			ds.lineSegments.addAll(track.segments);
-		}
 	}
 	
 

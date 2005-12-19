@@ -43,6 +43,11 @@ public class DataSet extends SelectionTracker {
 	public Collection<Track> tracks = new LinkedList<Track>();
 
 	/**
+	 * All deleted objects goes here.
+	 */
+	public Collection<OsmPrimitive> deleted = new LinkedList<OsmPrimitive>();
+
+	/**
 	 * Return the bounds of this DataSet, depending on X/Y values.
 	 * The min of the return value is the upper left GeoPoint, the max the lower
 	 * down GeoPoint, regarding to the X/Y values.

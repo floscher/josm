@@ -1,6 +1,5 @@
 package org.openstreetmap.josm.command;
 
-import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -32,9 +31,19 @@ public class MoveCommand implements Command {
 	private double y;
 
 	/**
-	 * x/y List of all old positions of the objects.
+	 * Small helper for holding the interesting part of the old data state of the
+	 * objects. 
+	 * @author imi
 	 */
-	private List<Point2D.Double> oldPositions = new LinkedList<Point2D.Double>();
+	class OldState
+	{
+		double x,y;
+		boolean modified;
+	}
+	/**
+	 * List of all old states of the objects.
+	 */
+	private List<OldState> oldState = new LinkedList<OldState>();
 
 	/**
 	 * Create a MoveCommand and assign the initial object set and movement vector.
@@ -43,8 +52,13 @@ public class MoveCommand implements Command {
 		this.x = x;
 		this.y = y;
 		this.objects = getAffectedNodes(objects);
-		for (Node n : this.objects)
-			oldPositions.add(new Point2D.Double(n.coor.x, n.coor.y));
+		for (Node n : this.objects) {
+			OldState os = new OldState();
+			os.x = n.coor.x;
+			os.y = n.coor.y;
+			os.modified = n.modified;
+			oldState.add(os);
+		}
 	}
 
 	/**
@@ -79,15 +93,17 @@ public class MoveCommand implements Command {
 		for (Node n : objects) {
 			n.coor.x += x;
 			n.coor.y += y;
+			n.modified = true;
 		}
 	}
 
 	public void undoCommand() {
-		Iterator<Point2D.Double> it = oldPositions.iterator();
+		Iterator<OldState> it = oldState.iterator();
 		for (Node n : objects) {
-			Point2D.Double p = it.next();
-			n.coor.x = p.x;
-			n.coor.y = p.y;
+			OldState os = it.next();
+			n.coor.x = os.x;
+			n.coor.y = os.y;
+			n.modified = os.modified;
 		}
 	}
 

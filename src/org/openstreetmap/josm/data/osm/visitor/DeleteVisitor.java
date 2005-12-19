@@ -24,13 +24,16 @@ public class DeleteVisitor implements Visitor {
 	}
 	
 	public void visit(Node n) {
-		ds.nodes.remove(n);
+		if (ds.nodes.remove(n))
+			ds.deleted.add(n);
 	}
 	public void visit(LineSegment ls) {
-		ds.lineSegments.remove(ls);
+		if (ds.lineSegments.remove(ls))
+			ds.deleted.add(ls);
 	}
 	public void visit(Track t) {
-		ds.tracks.remove(t);
+		if (ds.tracks.remove(t))
+			ds.deleted.add(t);
 	}
 	public void visit(Key k) {}
 }
