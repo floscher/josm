@@ -16,11 +16,12 @@ import javax.swing.UIManager;
 import org.openstreetmap.josm.actions.AboutAction;
 import org.openstreetmap.josm.actions.ExitAction;
 import org.openstreetmap.josm.actions.OpenAction;
-import org.openstreetmap.josm.actions.OpenOsmServerAction;
+import org.openstreetmap.josm.actions.DownloadAction;
 import org.openstreetmap.josm.actions.PreferencesAction;
 import org.openstreetmap.josm.actions.RedoAction;
 import org.openstreetmap.josm.actions.SaveAction;
 import org.openstreetmap.josm.actions.UndoAction;
+import org.openstreetmap.josm.actions.UploadAction;
 import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.Preferences.PreferencesException;
 import org.openstreetmap.josm.data.osm.DataSet;
@@ -78,7 +79,8 @@ public class Main extends JFrame {
 		setExtendedState(MAXIMIZED_BOTH); // some platform are able to maximize
 		
 		// creating actions
-		OpenOsmServerAction openServerAction = new OpenOsmServerAction();
+		DownloadAction downloadAction = new DownloadAction();
+		UploadAction uploadAction = new UploadAction();
 		OpenAction openAction = new OpenAction();
 		SaveAction saveAction = new SaveAction();
 		ExitAction exitAction = new ExitAction();
@@ -102,7 +104,8 @@ public class Main extends JFrame {
 		
 		JMenu connectionMenu = new JMenu("Connection");
 		connectionMenu.setMnemonic('C');
-		connectionMenu.add(openServerAction);
+		connectionMenu.add(downloadAction);
+		connectionMenu.add(uploadAction);
 		mainMenu.add(connectionMenu);
 		
 		JMenu editMenu = new JMenu("Edit");
@@ -122,7 +125,8 @@ public class Main extends JFrame {
 		// creating toolbar
 		JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
-		toolBar.add(openServerAction);
+		toolBar.add(downloadAction);
+		toolBar.add(uploadAction);
 		toolBar.add(openAction);
 		toolBar.add(saveAction);
 		toolBar.addSeparator();

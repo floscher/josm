@@ -3,10 +3,8 @@ package org.openstreetmap.josm.io;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.Map.Entry;
 
 import org.jdom.Document;
@@ -19,13 +17,14 @@ import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.data.osm.visitor.Visitor;
 
 
 /**
  * Save the dataset into a stream as osm intern xml format.
  * @author imi
  */
-public class OsmWriter extends OsmConnection {
+public class OsmWriter implements Visitor {
 
 	/**
 	 * The output writer to write the xml stream to.
@@ -36,13 +35,18 @@ public class OsmWriter extends OsmConnection {
 	 */
 	private DataSet ds;
 	/**
-	 * ID generator start for all nodes with id==0
+	 * The counter for new created objects. Starting at -1 and goes down.
 	 */
-	private long id = 0;
+	private long newIdCounter = -1;
+
 	/**
-	 * A collection of all ids used so far to look up and jump over used ids.
+	 * Set from the visitor functions as result.
 	 */
-	private Set<Long> ids;
+	private Element element;
+	/**
+	 * Filled with all generated properties tags.
+	 */
+	private Collection<Element> properties;
 	
 	public OsmWriter(Writer out, DataSet dataSet) {
 		this.out = out;
@@ -55,17 +59,32 @@ public class OsmWriter extends OsmConnection {
 	 */
 	@SuppressWarnings("unchecked")
 	public void output() throws IOException {
-		ids = allUsedIds();
 		Element root = new Element("osm");
 		List<Element> list = root.getChildren();
-		Collection<Element> properties = new LinkedList<Element>();
-		for (Node n : ds.nodes)
-			list.add(parseNode(n, properties));
-		for (LineSegment ls : ds.lineSegments)
-			list.add(parseLineSegment(ls, properties));
-		for (Track t : ds.tracks)
-			list.add(parseTrack(t, properties));
+		properties = new LinkedList<Element>();
+		for (Node n : ds.nodes) {
+			visit(n);
+			list.add(element);
+		}
+		for (LineSegment ls : ds.lineSegments) {
+			visit(ls);
+			list.add(element);
+		}
+		for (Track t : ds.tracks) {
+			visit(t);
+			list.add(element);
+		}
 		list.addAll(properties);
+		properties = new LinkedList<Element>();
+		Element deleted = new Element("deleted");
+		Collection<Element> allDeleted = deleted.getChildren();
+		for (OsmPrimitive osm : ds.deleted) {
+			osm.visit(this);
+			allDeleted.add(element);
+		}
+		allDeleted.addAll(properties);
+		if (!allDeleted.isEmpty())
+			list.add(deleted);
 
 		Document d = new Document(root);
 		XMLOutputter xmlOut = new XMLOutputter(Format.getPrettyFormat());
@@ -73,51 +92,12 @@ public class OsmWriter extends OsmConnection {
 	}
 
 	/**
-	 * Create an track element. Add all properties of the node to the properties-list.
-	 */
-	@SuppressWarnings("unchecked")
-	private Element parseTrack(Track t, Collection<Element> properties) {
-		Element e = new Element("track");
-		addProperties(e, t, properties);
-		for (LineSegment ls : t.segments)
-			e.getChildren().add(new Element("segment").setAttribute("uid", ""+ls.id));
-		return e;
-	}
-
-	/**
-	 * Create an node element. Add all properties of the node to the properties-list.
-	 */
-	private Element parseNode(Node n, Collection<Element> properties) {
-		Element e = new Element("node");
-		addProperties(e, n, properties);
-		e.setAttribute("lat", ""+n.coor.lat);
-		e.setAttribute("lon", ""+n.coor.lon);
-		return e;
-	}
-
-	
-
-	/**
-	 * Create an line segment element. Add all properties of the node to the properties-list.
-	 */
-	private Element parseLineSegment(LineSegment ls, Collection<Element> properties) {
-		Element e = new Element("segment");
-		addProperties(e, ls, properties);
-		e.setAttribute("from", ""+ls.start.id);
-		e.setAttribute("to", ""+ls.end.id);
-		return e;
-	}
-	
-	/**
 	 * Create a properties element.
 	 */
 	private Element parseProperty(OsmPrimitive osm, Entry<Key, String> entry) {
 		Element e = new Element("property");
 		Key key = entry.getKey();
-		if (key.id == 0)
-			key.id = generateId();
-		e.setAttribute("uid", ""+key.id);
-		e.setAttribute("object", ""+osm.id);
+		e.setAttribute("uid", ""+osm.id);
 		e.setAttribute("key", key.name);
 		e.setAttribute("value", entry.getValue());
 		return e;
@@ -126,9 +106,9 @@ public class OsmWriter extends OsmConnection {
 	/**
 	 * Add the id attribute to the element and the properties to the collection.
 	 */
-	private void addProperties(Element e, OsmPrimitive osm, Collection<Element> properties) {
+	private void addProperties(Element e, OsmPrimitive osm) {
 		if (osm.id == 0)
-			osm.id = generateId();
+			osm.id = newIdCounter--;
 		e.setAttribute("uid", ""+osm.id);
 		if (osm.keys != null)
 			for (Entry<Key, String> entry : osm.keys.entrySet())
@@ -136,43 +116,39 @@ public class OsmWriter extends OsmConnection {
 	}
 
 	/**
-	 * Generate an new unused id.
+	 * Create an node element. Add all properties of the node to the properties-list.
 	 */
-	private long generateId() {
-		while (ids.contains(Long.valueOf(id)))
-			id++;
-		ids.add(id);
-		return id;
+	public void visit(Node n) {
+		element = new Element("node");
+		addProperties(element, n);
+		element.setAttribute("lat", ""+n.coor.lat);
+		element.setAttribute("lon", ""+n.coor.lon);
 	}
 
 	/**
-	 * Return all used ids in a set. 
+	 * Create an line segment element. Add all properties of the node to the properties-list.
 	 */
-	private Set<Long> allUsedIds() {
-		HashSet<Long> ids = new HashSet<Long>();
-		for (OsmPrimitive osm : ds.nodes)
-			addIdAndKeyIds(osm, ids);
-		for (OsmPrimitive osm : ds.lineSegments)
-			addIdAndKeyIds(osm, ids);
-		for (Track t : ds.tracks) {
-			addIdAndKeyIds(t, ids);
-			for (LineSegment ls : t.segments) {
-				addIdAndKeyIds(ls, ids);
-				addIdAndKeyIds(ls.start, ids);
-				addIdAndKeyIds(ls.end, ids);
-			}
-		}
-		return ids;
+	public void visit(LineSegment ls) {
+		element = new Element("segment");
+		addProperties(element, ls);
+		element.setAttribute("from", ""+ls.start.id);
+		element.setAttribute("to", ""+ls.end.id);
 	}
 
 	/**
-	 * Return all used ids in the given osm primitive.
+	 * Create an track element. Add all properties of the node to the properties-list.
 	 */
-	private void addIdAndKeyIds(OsmPrimitive osm, Collection<Long> ids) {
-		ids.add(osm.id);
-		if (osm.keys != null)
-			for (Key key : osm.keys.keySet())
-				ids.add(key.id);
+	@SuppressWarnings("unchecked")
+	public void visit(Track t) {
+		Element e = new Element("track");
+		addProperties(e, t);
+		for (LineSegment ls : t.segments)
+			e.getChildren().add(new Element("segment").setAttribute("uid", ""+ls.id));
+	}
+
+	public void visit(Key k) {
+		element = new Element("property");
+		addProperties(element, k);
 	}
 }
 

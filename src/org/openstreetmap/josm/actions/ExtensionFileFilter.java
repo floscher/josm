@@ -20,7 +20,7 @@ public class ExtensionFileFilter extends FileFilter {
 		new ExtensionFileFilter(".gpx", "GPX Files Version 0.1 (.gpx)"),
 		//new ExtensionFileFilter(".josm", "JOSM Savefiles (.josm)")
 	};
-	
+
 	/**
 	 * Construct an extension file filter by giving the extension to check after.
 	 *

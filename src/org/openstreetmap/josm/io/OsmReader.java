@@ -9,7 +9,6 @@ import java.util.StringTokenizer;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.Key;
@@ -17,6 +16,7 @@ import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.data.osm.visitor.AddVisitor;
 
 /**
  * Reads an osm xml stream and construct a DataSet out of it. 
@@ -76,33 +76,22 @@ public class OsmReader {
 	}
 
 	/**
-	 * Parse the common part (properties and uid) of the element.
-	 * @param data	To store the data in. 
-	 * @param e		The element to extract the common information.
-	 * @throws JDOMException In case of a parsing error
+	 * Parse any (yet unknown) object and return it.
 	 */
-	private void parseCommon(OsmPrimitive data, Element e) throws JDOMException {
-		data.id = Long.parseLong(e.getAttributeValue("uid"));
-		if (data.id == 0)
-			throw new JDOMException("Object has illegal or no id.");
-		
-		String propStr = e.getAttributeValue("tags");
-		if (propStr != null && !propStr.equals("")) {
-			data.keys = new HashMap<Key, String>();
-			StringTokenizer st = new StringTokenizer(propStr, ";");
-			while (st.hasMoreTokens()) {
-				StringTokenizer t = new StringTokenizer(st.nextToken(), "=");
-				if (t.countTokens() > 1)
-					data.keys.put(Key.get(t.nextToken()), t.nextToken());
-				else {
-					String token = t.nextToken();
-					if (!" ".equals(token))
-						data.keys.put(Key.get(token), "");
-				}
-			}
+	private OsmPrimitive parseObject(Element e, DataSet data) throws JDOMException {
+		if (e.getName().equals("node"))
+			return parseNode(e);
+		else if (e.getName().equals("segment"))
+			return parseLineSegment(e, data);
+		else if (e.getName().equals("track"))
+			return parseTrack(e, data);
+		else if (e.getName().equals("property")) {
+			parseProperty(e, data);
+			return null;
 		}
+		throw new JDOMException("unknown tag: "+e.getName());
 	}
-
+	
 	/**
 	 * Read a data set from the element.
 	 * @param e 	The element to parse
@@ -111,20 +100,16 @@ public class OsmReader {
 	 */
 	private DataSet parseDataSet(Element e) throws JDOMException {
 		DataSet data = new DataSet();
+		AddVisitor visitor = new AddVisitor(data);
 		for (Object o : e.getChildren()) {
 			Element child = (Element)o;
-			if (child.getName().equals("node"))
-				addNode(data, parseNode(child));
-			else if (child.getName().equals("segment")) {
-				LineSegment ls = parseLineSegment(child, data);
-				if (data.lineSegments.contains(ls))
-					throw new JDOMException("Double segment definition "+ls.id);
-				data.lineSegments.add(ls);
-			} else if (child.getName().equals("track")) {
-				Track track = parseTrack(child, data);
-				if (data.tracks.contains(track))
-					throw new JDOMException("Double track definition "+track.id);
-				data.tracks.add(track);
+			if (child.getName().equals("deleted"))
+				for (Object delObj : child.getChildren())
+					data.deleted.add(parseObject((Element)delObj, data));
+			else {
+				OsmPrimitive osm = parseObject(child, data);
+				if (osm != null)
+					osm.visit(visitor);
 			}
 		}
 
@@ -178,6 +163,70 @@ public class OsmReader {
 	}
 	
 	/**
+	 * Parse the common part (properties and uid) of the element.
+	 * @param data	To store the data in. 
+	 * @param e		The element to extract the common information.
+	 * @throws JDOMException In case of a parsing error
+	 */
+	private void parseCommon(OsmPrimitive data, Element e) {
+		String suid = e.getAttributeValue("uid");
+		if (suid != null)
+			data.id = Long.parseLong(suid);
+		if (data.id < 0)
+			data.id = 0;
+		
+		String propStr = e.getAttributeValue("tags");
+		if (propStr != null && !propStr.equals("")) {
+			data.keys = new HashMap<Key, String>();
+			StringTokenizer st = new StringTokenizer(propStr, ";");
+			while (st.hasMoreTokens()) {
+				StringTokenizer t = new StringTokenizer(st.nextToken(), "=");
+				if (t.countTokens() > 1)
+					data.keys.put(Key.get(t.nextToken()), t.nextToken());
+				else {
+					String token = t.nextToken();
+					if (!" ".equals(token))
+						data.keys.put(Key.get(token), "");
+				}
+			}
+		}
+	}
+
+	/**
+	 * Parse a property tag and assign the property to a previous found object.
+	 */
+	private void parseProperty(Element e, DataSet data) throws JDOMException {
+		long id = Long.parseLong(e.getAttributeValue("uid"));
+		OsmPrimitive osm = findObject(data, id);
+		Key key = Key.get(e.getAttributeValue("key"));
+		String value =e.getAttributeValue("value");
+		if (value != null) {
+			if (osm.keys == null)
+				osm.keys = new HashMap<Key, String>();
+			osm.keys.put(key, value);
+		}
+	}
+
+	/**
+	 * Search for an object in the dataset by comparing the id.
+	 */
+	private OsmPrimitive findObject(DataSet data, long id) throws JDOMException {
+		for (OsmPrimitive osm : data.nodes)
+			if (osm.id == id)
+				return osm;
+		for (OsmPrimitive osm : data.lineSegments)
+			if (osm.id == id)
+				return osm;
+		for (OsmPrimitive osm : data.tracks)
+			if (osm.id == id)
+				return osm;
+		for (OsmPrimitive osm : data.deleted)
+			if (osm.id == id)
+				return osm;
+		throw new JDOMException("Unknown object reference: "+id);
+	}
+
+	/**
 	 * Search for a segment in a collection by comparing the id.
 	 */
 	private LineSegment findLineSegment(Collection<LineSegment> segments, long id) throws JDOMException {
@@ -185,26 +234,5 @@ public class OsmReader {
 			if (ls.id == id)
 				return ls;
 		throw new JDOMException("Unknown line segment reference: "+id);
-	}
-	
-	/**
-	 * Adds the node to allNodes if it is not already listed. Does respect the
-	 * preference setting "mergeNodes". Return the node in the list that correspond
-	 * to the node in the list (either the new added or the old found).
-	 * 
-	 * If reading raw gps data, mergeNodes are always on (To save memory. You
-	 * can't edit raw gps nodes anyway.)
-	 * 
-	 * @param data The DataSet to add the node to.
-	 * @param node The node that should be added.
-	 * @return Either the parameter node or the old node found in the dataset. 
-	 */
-	private Node addNode(DataSet data, Node node) {
-		if (Main.pref.mergeNodes)
-			for (Node n : data.nodes)
-				if (node.coor.equalsLatLon(n.coor))
-					return n;
-		data.nodes.add(node);
-		return node;
 	}
 }

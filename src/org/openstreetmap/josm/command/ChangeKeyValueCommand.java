@@ -55,8 +55,9 @@ public class ChangeKeyValueCommand implements Command {
 		for (OsmPrimitive osm : objects) {
 			oldProperties.add(osm.keys == null ? null : new HashMap<Key, String>(osm.keys));
 			oldModified.add(osm.modified);
+			osm.modified = true;
 		}
-			
+
 		if (value == null) {
 			for (OsmPrimitive osm : objects) {
 				if (osm.keys != null) {

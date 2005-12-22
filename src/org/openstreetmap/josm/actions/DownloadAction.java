@@ -35,14 +35,14 @@ import org.openstreetmap.josm.gui.layer.RawGpsDataLayer;
 import org.openstreetmap.josm.io.OsmServerReader;
 
 /**
- * Action that opens a connection to the osm server.
+ * Action that opens a connection to the osm server and download map data.
  * 
  * An dialog is displayed asking the user to specify a rectangle to grab.
  * The url and account settings from the preferences are used.
  *  
  * @author imi
  */
-public class OpenOsmServerAction extends JosmAction {
+public class DownloadAction extends JosmAction {
 
 	JTextField[] latlon = new JTextField[]{
 			new JTextField(9),
@@ -51,9 +51,9 @@ public class OpenOsmServerAction extends JosmAction {
 			new JTextField(9)};
 	JCheckBox rawGps = new JCheckBox("Open as raw gps data", false);
 
-	public OpenOsmServerAction() {
-		super("Connect to OSM", "connectosm", "Open a connection to the OSM server.", KeyEvent.VK_C, 
-				KeyStroke.getAWTKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
+	public DownloadAction() {
+		super("Download from OSM", "download", "Download map data from the OSM server.", KeyEvent.VK_D, 
+				KeyStroke.getAWTKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
 	}
 
 	public void actionPerformed(ActionEvent e) {

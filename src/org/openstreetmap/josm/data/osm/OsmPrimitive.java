@@ -14,11 +14,6 @@ import org.openstreetmap.josm.data.osm.visitor.Visitor;
  */
 abstract public class OsmPrimitive {
 
-	private static int idcount = 0;
-	public OsmPrimitive() {
-		id = ++idcount;
-	}
-	
 	/**
 	 * The key/value list for this primitive.
 	 */
@@ -42,7 +37,7 @@ abstract public class OsmPrimitive {
 	/**
 	 * If set to true, this object is currently selected.
 	 */
-	transient private boolean selected = false;
+	private boolean selected = false;
 
 	/**
 	 * Implementation of the visitor scheme. Subclases have to call the correct
@@ -59,7 +54,7 @@ abstract public class OsmPrimitive {
 	 * @param other		The second key-set to compare with.
 	 * @return	True, if the keysets are mergable
 	 */
-	public boolean keyPropertiesMergable(OsmPrimitive other) {
+	final public boolean keyPropertiesMergable(OsmPrimitive other) {
 		if ((keys == null) != (other.keys == null))
 			return false;
 
@@ -79,7 +74,7 @@ abstract public class OsmPrimitive {
 	 * changed later, if the value actualy changed.
 	 * @param selected Whether the primitive should be selected or not.
 	 */
-	public void setSelected(boolean selected) {
+	final public void setSelected(boolean selected) {
 		if (selected != this.selected)
 			Main.main.ds.fireSelectionChanged();
 		this.selected = selected;
@@ -88,7 +83,7 @@ abstract public class OsmPrimitive {
 	/**
 	 * @return Return whether the primitive is selected on screen.
 	 */
-	public boolean isSelected() {
+	final public boolean isSelected() {
 		return selected;
 	}
 
