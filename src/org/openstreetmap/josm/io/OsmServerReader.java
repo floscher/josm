@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import org.jdom.JDOMException;
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.DataSet;
 
@@ -20,9 +21,8 @@ import org.openstreetmap.josm.data.osm.DataSet;
 public class OsmServerReader extends OsmConnection {
 
 	/**
-	 * The url string of the desired map data.
+	 * The boundings of the desired map data.
 	 */
-	private String urlStr;
 	private final double lat1;
 	private final double lon1;
 	private final double lat2;
@@ -31,13 +31,11 @@ public class OsmServerReader extends OsmConnection {
 	/**
 	 * Construct the reader and store the information for attaching
 	 */
-	public OsmServerReader(String server, 
-			double lat1, double lon1, double lat2, double lon2) {
+	public OsmServerReader(double lat1, double lon1, double lat2, double lon2) {
 		this.lon2 = lon2;
 		this.lat2 = lat2;
 		this.lon1 = lon1;
 		this.lat1 = lat1;
-		urlStr = server.endsWith("/") ? server : server+"/";
 	}
 
 
@@ -48,7 +46,7 @@ public class OsmServerReader extends OsmConnection {
 	 * 		tracks.
 	 */
 	public Collection<Collection<GeoPoint>> parseRawGps() throws IOException, JDOMException {
-		String url = urlStr+"trackpoints?bbox="+lon1+","+lat1+","+lon2+","+lat2+"&page=";
+		String url = Main.pref.osmDataServer+"/trackpoints?bbox="+lon1+","+lat1+","+lon2+","+lat2+"&page=";
 		Collection<Collection<GeoPoint>> data = new LinkedList<Collection<GeoPoint>>();
 		Collection<GeoPoint> list = new LinkedList<GeoPoint>();
 		
@@ -79,7 +77,7 @@ public class OsmServerReader extends OsmConnection {
 	 * @return A data set containing all data retrieved from that url
 	 */
 	public DataSet parseOsm() throws JDOMException, IOException {
-		Reader r = getReader(urlStr+"map?bbox="+lon1+","+lat1+","+lon2+","+lat2);
+		Reader r = getReader(Main.pref.osmDataServer+"/map?bbox="+lon1+","+lat1+","+lon2+","+lat2);
 		if (r == null)
 			return null;
 		return new OsmReader(r).parse();
@@ -94,6 +92,7 @@ public class OsmServerReader extends OsmConnection {
 	 */
 	private Reader getReader(String urlStr) throws IOException {
 		initAuthentication();
+		System.out.println(urlStr);
 		URL url = new URL(urlStr);
 		HttpURLConnection con = (HttpURLConnection)url.openConnection();
 		con.setConnectTimeout(20000);

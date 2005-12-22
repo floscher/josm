@@ -60,13 +60,13 @@ public class DownloadAction extends JosmAction {
 		JPanel dlg = new JPanel(new GridBagLayout());
 		dlg.add(new JLabel("Bounding box"), GBC.eol());
 
-		dlg.add(new JLabel("min lat"), GBC.std().insets(10,0,5,0));
-		dlg.add(latlon[0], GBC.std());
-		dlg.add(new JLabel("max lat"), GBC.std().insets(10,0,5,0));
-		dlg.add(latlon[1], GBC.eol());
 		dlg.add(new JLabel("min lon"), GBC.std().insets(10,0,5,0));
-		dlg.add(latlon[2], GBC.std());
+		dlg.add(latlon[0], GBC.std());
+		dlg.add(new JLabel("min lat"), GBC.std().insets(10,0,5,0));
+		dlg.add(latlon[1], GBC.eol());
 		dlg.add(new JLabel("max lon"), GBC.std().insets(10,0,5,0));
+		dlg.add(latlon[2], GBC.std());
+		dlg.add(new JLabel("max lat"), GBC.std().insets(10,0,5,0));
 		dlg.add(latlon[3], GBC.eop());
 
 		if (Main.main.getMapFrame() != null) {
@@ -143,8 +143,7 @@ public class DownloadAction extends JosmAction {
 			JOptionPane.showMessageDialog(Main.main, "Please enter the desired coordinates or click on a bookmark.");
 			return;
 		}
-		OsmServerReader osmReader = new OsmServerReader(Main.pref.osmDataServer,
-				b.latlon[0], b.latlon[1], b.latlon[2], b.latlon[3]);
+		OsmServerReader osmReader = new OsmServerReader(b.latlon[0], b.latlon[1], b.latlon[2], b.latlon[3]);
 		try {
 			String name = latlon[0].getText()+" "+latlon[1].getText()+" x "+
 					latlon[2].getText()+" "+latlon[3].getText();
