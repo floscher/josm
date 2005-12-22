@@ -17,6 +17,7 @@ import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
+import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Track;
 
 /**
@@ -33,14 +34,16 @@ public class GpxWriter {
 
 	/**
 	 * The GPX namespace used.
-	 * TODO unify with GpxReader
 	 */
-	private static final Namespace GPX = Namespace.getNamespace("http://www.topografix.com/GPX/1/0");
+	public static final Namespace GPX = Namespace.getNamespace("http://www.topografix.com/GPX/1/0");
 	/**
 	 * The OSM namespace used (for extensions).
-	 * TODO unify with GpxReader
 	 */
-	private static final Namespace OSM = Namespace.getNamespace("osm", "http://www.openstreetmap.org");
+	public static final Namespace OSM = Namespace.getNamespace("osm", "http://www.openstreetmap.org");
+	/**
+	 * The JOSM namespace (for JOSM-extensions).
+	 */
+	public static final Namespace JOSM = Namespace.getNamespace("josm", "http://wiki.eigenheimstrasse.de/wiki/JOSM");
 
 	/**
 	 * This is the output writer to store the resulting data in.
@@ -65,6 +68,7 @@ public class GpxWriter {
 	public void output() throws IOException {
 		Element root = parseDataSet();
 		root.addNamespaceDeclaration(OSM);
+		root.addNamespaceDeclaration(JOSM);
 		Document d = new Document(root);
 		XMLOutputter xmlOut = new XMLOutputter(Format.getPrettyFormat());
 		xmlOut.output(d, out);
@@ -88,8 +92,9 @@ public class GpxWriter {
 		// tracks
 		for (Track t : Main.main.ds.tracks) {
 			Element tElem = new Element("trk", GPX);
+			HashMap<Key, String> keys = null;
 			if (t.keys != null) {
-				HashMap<Key, String> keys = new HashMap<Key, String>(t.keys);
+				keys = new HashMap<Key, String>(t.keys);
 				addAndRemovePropertyTag("name", tElem, keys);
 				addAndRemovePropertyTag("cmt", tElem, keys);
 				addAndRemovePropertyTag("desc", tElem, keys);
@@ -97,8 +102,9 @@ public class GpxWriter {
 				addAndRemovePropertyLinkTag(tElem, keys);
 				addAndRemovePropertyTag("number", tElem, keys);
 				addAndRemovePropertyTag("type", tElem, keys);
-				addPropertyExtensions(tElem, keys);
 			}
+			addPropertyExtensions(tElem, keys, t);
+
 			// line segments
 			for (LineSegment ls : t.segments) {
 				tElem.getChildren().add(parseLineSegment(ls));
@@ -117,7 +123,7 @@ public class GpxWriter {
 			unrefNodes.remove(ls.start);
 			unrefNodes.remove(ls.end);
 			Element ext = new Element("extensions", GPX);
-			ext.getChildren().add(new Element("segment", OSM));
+			ext.getChildren().add(new Element("segment", JOSM));
 			t.getChildren().add(ext);
 			e.getChildren().add(t);
 		}
@@ -136,8 +142,7 @@ public class GpxWriter {
 	@SuppressWarnings("unchecked")
 	private Element parseLineSegment(LineSegment ls) {
 		Element lsElem = new Element("trkseg", GPX);
-		if (ls.keys != null)
-		addPropertyExtensions(lsElem, ls.keys);
+		addPropertyExtensions(lsElem, ls.keys, ls);
 		lsElem.getChildren().add(parseWaypoint(ls.start, "trkpt"));
 		lsElem.getChildren().add(parseWaypoint(ls.end, "trkpt"));
 		return lsElem;
@@ -155,8 +160,9 @@ public class GpxWriter {
 		Element e = new Element(name, GPX);
 		e.setAttribute("lat", Double.toString(n.coor.lat));
 		e.setAttribute("lon", Double.toString(n.coor.lon));
+		HashMap<Key, String> keys = null;
 		if (n.keys != null) {
-			HashMap<Key, String> keys = new HashMap<Key, String>(n.keys);
+			keys = new HashMap<Key, String>(n.keys);
 			addAndRemovePropertyTag("ele", e, keys);
 			addAndRemovePropertyTag("time", e, keys);
 			addAndRemovePropertyTag("magvar", e, keys);
@@ -175,8 +181,8 @@ public class GpxWriter {
 			addAndRemovePropertyTag("pdop", e, keys);
 			addAndRemovePropertyTag("ageofdgpsdata", e, keys);
 			addAndRemovePropertyTag("dgpsid", e, keys);
-			addPropertyExtensions(e, keys);
 		}
+		addPropertyExtensions(e, keys, n);
 		return e;
 	}
 
@@ -234,17 +240,30 @@ public class GpxWriter {
 	 * @param prop	The property to add.
 	 */
 	@SuppressWarnings("unchecked")
-	private void addPropertyExtensions(Element e, Map<Key, String> keys) {
-		if (keys.isEmpty())
+	private void addPropertyExtensions(Element e, Map<Key, String> keys, OsmPrimitive osm) {
+		if ((keys == null || keys.isEmpty()) && osm.id == 0 && !osm.modified)
 			return;
 		Element extensions = e.getChild("extensions", GPX);
 		if (extensions == null)
 			e.getChildren().add(extensions = new Element("extensions", GPX));
-		for (Entry<Key, String> prop : keys.entrySet()) {
-			Element propElement = new Element("property", OSM);
-			propElement.setAttribute("key", prop.getKey().name);
-			propElement.setAttribute("value", prop.getValue());
+		if (keys != null && !keys.isEmpty()) {
+			for (Entry<Key, String> prop : keys.entrySet()) {
+				Element propElement = new Element("property", OSM);
+				propElement.setAttribute("key", prop.getKey().name);
+				propElement.setAttribute("value", prop.getValue());
+				extensions.getChildren().add(propElement);
+			}
+		}
+		// id
+		if (osm.id != 0) {
+			Element propElement = new Element("uid", JOSM);
+			propElement.setText(""+osm.id);
 			extensions.getChildren().add(propElement);
+		}
+		// modified
+		if (osm.modified) {
+			Element modElement = new Element("modified", JOSM);
+			extensions.getChildren().add(modElement);
 		}
 	}
 }

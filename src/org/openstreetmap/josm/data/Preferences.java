@@ -49,10 +49,6 @@ public class Preferences {
 	 * lines in the imported document.
 	 */
 	private boolean forceRawGpsLines = false;
-	/**
-	 * Whether nodes on the same place should be considered identical.
-	 */
-	public boolean mergeNodes = true;
 
 	/**
 	 * Base URL to the osm data server
@@ -131,7 +127,6 @@ public class Preferences {
 				osmDataUsername = osmServer.getChildText("username");
 				osmDataPassword = osmServer.getChildText("password");
 			}
-			mergeNodes = root.getChild("mergeNodes") != null;
 			drawRawGpsLines = root.getChild("drawRawGpsLines") != null;
 			forceRawGpsLines = root.getChild("forceRawGpsLines") != null;
 		} catch (Exception e) {
@@ -152,8 +147,6 @@ public class Preferences {
 		List children = root.getChildren();
 		children.add(new Element("laf").setText(laf.getClassName()));
 		children.add(new Element("projection").setText(getProjection().getClass().getName()));
-		if (mergeNodes)
-			children.add(new Element("mergeNodes"));
 		if (drawRawGpsLines)
 			children.add(new Element("drawRawGpsLines"));
 		if (forceRawGpsLines)

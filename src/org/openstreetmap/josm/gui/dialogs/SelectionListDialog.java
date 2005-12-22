@@ -1,17 +1,14 @@
 package org.openstreetmap.josm.gui.dialogs;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.Collection;
 
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
@@ -19,9 +16,9 @@ import javax.swing.ListSelectionModel;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.SelectionChangedListener;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.visitor.SelectionComponentVisitor;
 import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.MapFrame;
+import org.openstreetmap.josm.gui.OsmPrimitivRenderer;
 
 /**
  * A small tool dialog for displaying the current selection. The selection manager
@@ -48,19 +45,7 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 	public SelectionListDialog(MapFrame mapFrame) {
 		super("Current Selection", "Selection List", "selectionlist", KeyEvent.VK_E, "Open a selection list window.");
 		setPreferredSize(new Dimension(320,150));
-		displaylist.setCellRenderer(new DefaultListCellRenderer(){
-			private SelectionComponentVisitor visitor = new SelectionComponentVisitor();
-			@Override
-			public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-				Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-				if (c instanceof JLabel && value != null) {
-					((OsmPrimitive)value).visit(visitor);
-					((JLabel)c).setText(visitor.name);
-					((JLabel)c).setIcon(visitor.icon);
-				}
-				return c;
-			}
-		});
+		displaylist.setCellRenderer(new OsmPrimitivRenderer());
 		displaylist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
 		add(new JScrollPane(displaylist), BorderLayout.CENTER);

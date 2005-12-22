@@ -1,14 +1,16 @@
 package org.openstreetmap.josm.io;
 
+import static org.openstreetmap.josm.io.GpxWriter.GPX;
+import static org.openstreetmap.josm.io.GpxWriter.OSM;
+import static org.openstreetmap.josm.io.GpxWriter.JOSM;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.util.HashMap;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
-import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.Key;
@@ -25,15 +27,6 @@ import org.openstreetmap.josm.data.osm.Track;
  * @author imi
  */
 public class GpxReader {
-
-	/**
-	 * The GPX namespace used.
-	 */
-	public static final Namespace GPX = Namespace.getNamespace("http://www.topografix.com/GPX/1/0");
-	/**
-	 * The OSM namespace used (for extensions).
-	 */
-	private static final Namespace OSM = Namespace.getNamespace("osm", "http://www.openstreetmap.org");
 
 	/**
 	 * The data source from this reader.
@@ -135,7 +128,7 @@ public class GpxReader {
 				}
 			} else if (child.getName().equals("extensions")) {
 				parseKeyValueExtensions(track, child);
-				if (child.getChild("segment", OSM) != null)
+				if (child.getChild("segment", JOSM) != null)
 					realLineSegment = true;
 			} else if (child.getName().equals("link"))
 				parseKeyValueLink(track, child);
@@ -161,10 +154,9 @@ public class GpxReader {
 	 * @return Either the parameter node or the old node found in the dataset. 
 	 */
 	private Node addNode(DataSet data, Node node) {
-		if (Main.pref.mergeNodes)
-			for (Node n : data.nodes)
-				if (node.coor.equalsLatLon(n.coor))
-					return n;
+		for (Node n : data.nodes)
+			if (node.coor.equalsLatLon(n.coor))
+				return n;
 		data.nodes.add(node);
 		return node;
 	}
@@ -193,6 +185,10 @@ public class GpxReader {
 					osm.keys.put(key, value);
 				}
 			}
+			Element idElement = e.getChild("uid", JOSM);
+			if (idElement != null)
+				osm.id = Long.parseLong(idElement.getText());
+			osm.modified = e.getChild("modified", JOSM) != null;
 		}
 	}
 

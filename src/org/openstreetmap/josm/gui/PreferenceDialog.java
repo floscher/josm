@@ -53,7 +53,6 @@ public class PreferenceDialog extends JDialog {
 			Projection projection = (Projection)projectionCombo.getSelectedItem();
 			projection.commitConfigurationPanel();
 			Main.pref.setProjection(projection);
-			Main.pref.mergeNodes = mergeNodes.isSelected();
 			Main.pref.osmDataServer = osmDataServer.getText();
 			Main.pref.osmDataUsername = osmDataUsername.getText();
 			Main.pref.osmDataPassword = String.valueOf(osmDataPassword.getPassword());
@@ -124,10 +123,6 @@ public class PreferenceDialog extends JDialog {
 	 * The checkbox stating whether raw gps lines should be forced.
 	 */
 	JCheckBox forceRawGpsLines = new JCheckBox("Force lines if no line segments imported.");
-	/**
-	 * The checkbox stating whether nodes should be merged together.
-	 */
-	JCheckBox mergeNodes = new JCheckBox("Merge nodes with equal latitude/longitude.");
 
 	/**
 	 * Create a preference setting dialog from an preferences-file. If the file does not
@@ -197,8 +192,6 @@ public class PreferenceDialog extends JDialog {
 		forceRawGpsLines.setToolTipText("Force drawing of lines if the imported data contain no line information.");
 		forceRawGpsLines.setSelected(Main.pref.isForceRawGpsLines());
 		forceRawGpsLines.setEnabled(drawRawGpsLines.isSelected());
-		mergeNodes.setToolTipText("When importing GPX data, all nodes with exact the same lat/lon are merged.");
-		mergeNodes.setSelected(Main.pref.mergeNodes);
 
 		osmDataServer.setText(Main.pref.osmDataServer);
 		osmDataUsername.setText(Main.pref.osmDataUsername);
@@ -237,9 +230,6 @@ public class PreferenceDialog extends JDialog {
 		map.add(new JLabel("Projection details:"), GBC.std());
 		map.add(GBC.glue(5,0), GBC.std().fill(GBC.HORIZONTAL));
 		map.add(projectionDetail, GBC.eop());
-		
-		map.add(new JLabel("GPX import / export"), GBC.eol());
-		map.add(mergeNodes, GBC.eol().insets(20,0,0,0));
 		map.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
 
 
