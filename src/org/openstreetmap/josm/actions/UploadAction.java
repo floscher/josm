@@ -14,10 +14,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 
+import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.GBC;
 import org.openstreetmap.josm.gui.OsmPrimitivRenderer;
+import org.openstreetmap.josm.io.OsmServerWriter;
 
 /**
  * Action that opens a connection to the osm server and upload all changes.
@@ -60,7 +62,17 @@ public class UploadAction extends JosmAction {
 		if (!displayUploadScreen(add, update, delete))
 			return;
 		
-		JOptionPane.showMessageDialog(Main.main, "not implemented yet.");
+		OsmServerWriter server = new OsmServerWriter();
+		try {
+			Collection<OsmPrimitive> all = new LinkedList<OsmPrimitive>();
+			all.addAll(add);
+			all.addAll(update);
+			all.addAll(delete);
+			server.uploadOsm(all);
+		} catch (JDOMException x) {
+			x.printStackTrace();
+			JOptionPane.showMessageDialog(Main.main, x.getMessage());
+		}
 	}
 	
 	/**

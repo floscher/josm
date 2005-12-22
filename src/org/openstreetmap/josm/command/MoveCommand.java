@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.visitor.AllNodesVisitor;
@@ -37,7 +38,7 @@ public class MoveCommand implements Command {
 	 */
 	class OldState
 	{
-		double x,y;
+		double x,y,lat,lon;
 		boolean modified;
 	}
 	/**
@@ -56,6 +57,8 @@ public class MoveCommand implements Command {
 			OldState os = new OldState();
 			os.x = n.coor.x;
 			os.y = n.coor.y;
+			os.lat = n.coor.lat;
+			os.lon = n.coor.lon;
 			os.modified = n.modified;
 			oldState.add(os);
 		}
@@ -84,6 +87,7 @@ public class MoveCommand implements Command {
 		for (Node n : objects) {
 			n.coor.x += x;
 			n.coor.y += y;
+			Main.pref.getProjection().xy2latlon(n.coor);
 		}
 		this.x += x;
 		this.y += y;
@@ -93,6 +97,7 @@ public class MoveCommand implements Command {
 		for (Node n : objects) {
 			n.coor.x += x;
 			n.coor.y += y;
+			Main.pref.getProjection().xy2latlon(n.coor);
 			n.modified = true;
 		}
 	}
@@ -103,6 +108,8 @@ public class MoveCommand implements Command {
 			OldState os = it.next();
 			n.coor.x = os.x;
 			n.coor.y = os.y;
+			n.coor.lat = os.lat;
+			n.coor.lon = os.lon;
 			n.modified = os.modified;
 		}
 	}
