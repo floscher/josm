@@ -252,7 +252,29 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 		if (minPrimitive != null)
 			return minPrimitive;
 		
-		// pending line segments
+		// for whole tracks, try the tracks first
+		minDistanceSq = Double.MAX_VALUE;
+		if (wholeTrack) {
+			for (Track t : Main.main.ds.tracks) {
+				for (LineSegment ls : t.segments) {
+					Point A = getScreenPoint(ls.start.coor);
+					Point B = getScreenPoint(ls.end.coor);
+					double c = A.distanceSq(B);
+					double a = p.distanceSq(B);
+					double b = p.distanceSq(A);
+					double perDist = a-(a-b+c)*(a-b+c)/4/c; // perpendicular distance squared
+					if (perDist < 100 && minDistanceSq > perDist && a < c+100 && b < c+100) {
+						minDistanceSq = perDist;
+						minPrimitive = t;
+					}
+				}			
+			}
+			if (minPrimitive != null)
+				return minPrimitive;
+		}
+		
+		minDistanceSq = Double.MAX_VALUE;
+		// line segments
 		for (LineSegment ls : Main.main.ds.lineSegments) {
 			Point A = getScreenPoint(ls.start.coor);
 			Point B = getScreenPoint(ls.end.coor);
@@ -266,28 +288,7 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 			}
 		}
 
-		// tracks & line segments
-		minDistanceSq = Double.MAX_VALUE;
-		for (Track t : Main.main.ds.tracks) {
-			for (LineSegment ls : t.segments) {
-				Point A = getScreenPoint(ls.start.coor);
-				Point B = getScreenPoint(ls.end.coor);
-				double c = A.distanceSq(B);
-				double a = p.distanceSq(B);
-				double b = p.distanceSq(A);
-				double perDist = a-(a-b+c)*(a-b+c)/4/c; // perpendicular distance squared
-				if (perDist < 100 && minDistanceSq > perDist && a < c+100 && b < c+100) {
-					minDistanceSq = perDist;
-					minPrimitive = wholeTrack ? t : ls;
-				}
-			}			
-		}
-		if (minPrimitive != null)
-			return minPrimitive;
-		
-		// TODO areas
-		
-		return null; // nothing found
+		return minPrimitive;
 	}
 
 	

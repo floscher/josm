@@ -29,21 +29,15 @@ public class SimplePaintVisitor implements Visitor {
 	 * MapView to get screen coordinates.
 	 */
 	private final MapView mv;
-	/**
-	 * Can be set to non-<code>null</code> and then replace every other color.
-	 */
-	private final Color forceColor;
 	
 	/**
 	 * Construct the painter visitor.
 	 * @param g   The graphics to draw to.
 	 * @param mv  The view to get screen coordinates from.
-	 * @param forceColor If non-<code>null</code>, always draw with this color.
 	 */
-	public SimplePaintVisitor(Graphics g, MapView mv, Color forceColor) {
+	public SimplePaintVisitor(Graphics g, MapView mv) {
 		this.g = g;
 		this.mv = mv;
-		this.forceColor = forceColor;
 	}
 	
 	/**
@@ -69,8 +63,10 @@ public class SimplePaintVisitor implements Visitor {
 	 * @param t The track to draw.
 	 */
 	public void visit(Track t) {
+		// only to overwrite with blue
 		for (LineSegment ls : t.segments)
-			drawLineSegment(ls, darkblue);
+			if (!ls.isSelected()) // selected already in good color
+				drawLineSegment(ls, t.isSelected() ? Color.WHITE : darkblue);
 	}
 
 	/**
@@ -87,7 +83,7 @@ public class SimplePaintVisitor implements Visitor {
 	 */
 	private void drawNode(Node n, Color color) {
 		Point p = mv.getScreenPoint(n.coor);
-		g.setColor(forceColor != null ? forceColor : color);
+		g.setColor(color);
 		g.drawRect(p.x-1, p.y-1, 2, 2);
 	}
 
@@ -95,9 +91,7 @@ public class SimplePaintVisitor implements Visitor {
 	 * Draw a line with the given color.
 	 */
 	private void drawLineSegment(LineSegment ls, Color col) {
-		if (forceColor != null)
-			col = forceColor;
-		else if (ls.isSelected())
+		if (ls.isSelected())
 			col = Color.WHITE;
 		g.setColor(col);
 		Point p1 = mv.getScreenPoint(ls.start.coor);

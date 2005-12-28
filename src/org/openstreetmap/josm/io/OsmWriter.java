@@ -62,25 +62,21 @@ public class OsmWriter implements Visitor {
 		Element root = new Element("osm");
 		List<Element> list = root.getChildren();
 		properties = new LinkedList<Element>();
-		for (Node n : ds.nodes) {
-			visit(n);
-			list.add(element);
-		}
-		for (LineSegment ls : ds.lineSegments) {
-			visit(ls);
-			list.add(element);
-		}
-		for (Track t : ds.tracks) {
-			visit(t);
-			list.add(element);
+		for (OsmPrimitive osm : ds.allPrimitives()) {
+			if (!osm.isDeleted()) {
+				osm.visit(this);
+				list.add(element);
+			}
 		}
 		list.addAll(properties);
 		properties = new LinkedList<Element>();
 		Element deleted = new Element("deleted");
 		Collection<Element> allDeleted = deleted.getChildren();
-		for (OsmPrimitive osm : ds.deleted) {
-			osm.visit(this);
-			allDeleted.add(element);
+		for (OsmPrimitive osm : ds.allPrimitives()) {
+			if (osm.isDeleted()) {
+				osm.visit(this);
+				allDeleted.add(element);
+			}
 		}
 		allDeleted.addAll(properties);
 		if (!allDeleted.isEmpty())

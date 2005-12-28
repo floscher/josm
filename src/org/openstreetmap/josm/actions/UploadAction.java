@@ -17,6 +17,7 @@ import javax.swing.KeyStroke;
 import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.data.osm.Track;
 import org.openstreetmap.josm.gui.GBC;
 import org.openstreetmap.josm.gui.OsmPrimitivRenderer;
 import org.openstreetmap.josm.io.OsmServerWriter;
@@ -40,28 +41,26 @@ public class UploadAction extends JosmAction {
 		Collection<OsmPrimitive> add = new LinkedList<OsmPrimitive>();
 		Collection<OsmPrimitive> update = new LinkedList<OsmPrimitive>();
 		Collection<OsmPrimitive> delete = new LinkedList<OsmPrimitive>();
-		for (OsmPrimitive osm : Main.main.ds.nodes)
-			if (osm.id == 0)
+		for (OsmPrimitive osm : Main.main.ds.allPrimitives()) {
+			if (osm instanceof Track) {
+				int answer = JOptionPane.showConfirmDialog(Main.main, 
+						"The server currently does not understand the concept of Tracks.\n" +
+						"All tracks will be ignored on upload. Continue anyway?",
+						"No Track support", JOptionPane.YES_NO_OPTION);
+				if (answer != JOptionPane.YES_OPTION)
+					return;
+			}
+			if (osm.id == 0 && !osm.isDeleted())
 				add.add(osm);
-			else if (osm.modified)
+			else if ((osm.modified || osm.modifiedProperties) && !osm.isDeleted())
 				update.add(osm);
-		for (OsmPrimitive osm : Main.main.ds.lineSegments)
-			if (osm.id == 0)
-				add.add(osm);
-			else if (osm.modified)
-				update.add(osm);
-		for (OsmPrimitive osm : Main.main.ds.tracks)
-			if (osm.id == 0)
-				add.add(osm);
-			else if (osm.modified)
-				update.add(osm);
-		for (OsmPrimitive osm : Main.main.ds.deleted)
-			if (osm.id != 0)
+			else if (osm.isDeleted() && osm.id != 0)
 				delete.add(osm);
+		}
 
 		if (!displayUploadScreen(add, update, delete))
 			return;
-		
+
 		OsmServerWriter server = new OsmServerWriter();
 		try {
 			Collection<OsmPrimitive> all = new LinkedList<OsmPrimitive>();
@@ -69,6 +68,8 @@ public class UploadAction extends JosmAction {
 			all.addAll(update);
 			all.addAll(delete);
 			server.uploadOsm(all);
+			// finished without errors -> clean dataset
+			Main.main.getMapFrame().mapView.editLayer().cleanData();
 		} catch (JDOMException x) {
 			x.printStackTrace();
 			JOptionPane.showMessageDialog(Main.main, x.getMessage());
@@ -86,7 +87,7 @@ public class UploadAction extends JosmAction {
 			JOptionPane.showMessageDialog(Main.main, "No changes to upload.");
 			return false;
 		}
-		
+
 		JPanel p = new JPanel(new GridBagLayout());
 
 		OsmPrimitivRenderer renderer = new OsmPrimitivRenderer();

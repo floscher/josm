@@ -103,10 +103,15 @@ public class OsmReader {
 		AddVisitor visitor = new AddVisitor(data);
 		for (Object o : e.getChildren()) {
 			Element child = (Element)o;
-			if (child.getName().equals("deleted"))
-				for (Object delObj : child.getChildren())
-					data.deleted.add(parseObject((Element)delObj, data));
-			else {
+			if (child.getName().equals("deleted")) {
+				for (Object delObj : child.getChildren()) {
+					OsmPrimitive osm = parseObject((Element)delObj, data);
+					if (osm != null) {
+						osm.visit(visitor);
+						osm.setDeleted(true);
+					}
+				}
+			} else {
 				OsmPrimitive osm = parseObject(child, data);
 				if (osm != null)
 					osm.visit(visitor);
@@ -199,7 +204,7 @@ public class OsmReader {
 		long id = Long.parseLong(e.getAttributeValue("uid"));
 		OsmPrimitive osm = findObject(data, id);
 		Key key = Key.get(e.getAttributeValue("key"));
-		String value =e.getAttributeValue("value");
+		String value = e.getAttributeValue("value");
 		if (value != null) {
 			if (osm.keys == null)
 				osm.keys = new HashMap<Key, String>();
@@ -218,9 +223,6 @@ public class OsmReader {
 			if (osm.id == id)
 				return osm;
 		for (OsmPrimitive osm : data.tracks)
-			if (osm.id == id)
-				return osm;
-		for (OsmPrimitive osm : data.deleted)
 			if (osm.id == id)
 				return osm;
 		throw new JDOMException("Unknown object reference: "+id);
