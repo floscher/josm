@@ -54,8 +54,8 @@ public class ChangeKeyValueCommand implements Command {
 		oldProperties = new LinkedList<Map<Key, String>>();
 		for (OsmPrimitive osm : objects) {
 			oldProperties.add(osm.keys == null ? null : new HashMap<Key, String>(osm.keys));
-			oldModified.add(osm.modified);
-			osm.modified = true;
+			oldModified.add(osm.modifiedProperties);
+			osm.modifiedProperties = true;
 		}
 
 		if (value == null) {
@@ -80,7 +80,7 @@ public class ChangeKeyValueCommand implements Command {
 		Iterator<Boolean> itMod = oldModified.iterator();
 		for (OsmPrimitive osm : objects) {
 			osm.keys = it.next();
-			osm.modified = itMod.next();
+			osm.modifiedProperties = itMod.next();
 		}
 	}
 

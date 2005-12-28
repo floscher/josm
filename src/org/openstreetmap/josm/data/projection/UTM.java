@@ -38,6 +38,8 @@ public class UTM extends Projection {
 	public final static double DEG_TO_RAD = Math.PI / 180;
 	public final static double RAD_TO_DEG = 180 / Math.PI;
 
+	public final static double k0 = 0.9996012717;
+	
 	/**
 	 * A reference ellipsoid used in Projections
 	 */
@@ -115,8 +117,6 @@ public class UTM extends Projection {
 		// lat and long are in decimal degrees
 		// Written by Chuck Gantz- chuck.gantz@globalstar.com
 		// ported to Ruby by Ben Gimpert- ben@somethingmodern.com
-		double k0 = 0.9996012717;
-		
 		double lat_rad = p.lat * DEG_TO_RAD;
 		double long_temp = (p.lon + 180) - (Math.floor((p.lon + 180) / 360) * 360) - 180;
 		double long_rad = long_temp * DEG_TO_RAD;
@@ -149,7 +149,6 @@ public class UTM extends Projection {
 		// lat and long are in decimal degrees. 
 		// Written by Chuck Gantz- chuck.gantz@globalstar.com
 		// ported to Ruby by Ben Gimpert- ben@somethingmodern.com
-		double k0 = 0.9996;
 		double e1 = (1-Math.sqrt(1-ellipsoid.ecc_squared))/(1+Math.sqrt(1-ellipsoid.ecc_squared));
 		double x = p.x - 500000.0;
 		double y = p.y;

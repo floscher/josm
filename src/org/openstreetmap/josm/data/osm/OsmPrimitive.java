@@ -14,6 +14,7 @@ import org.openstreetmap.josm.data.osm.visitor.Visitor;
  */
 abstract public class OsmPrimitive {
 
+
 	/**
 	 * The key/value list for this primitive.
 	 */
@@ -27,13 +28,25 @@ abstract public class OsmPrimitive {
 	public long id = 0;
 
 	/**
-	 * <code>true</code>, if the object has been modified since it was loaded from
-	 * the server. In this case, on next upload, this object will be updated. Deleted
-	 * objects are deleted from the server, even if they are modified. If the objects
-	 * are added (id=0), the modified is ignored and the object is added to the server. 
+	 * <code>true</code>, if the objects content (not the properties) has been 
+	 * modified since it was loaded from the server. In this case, on next upload,
+	 * this object will be updated. Deleted objects are deleted from the server.
+	 * If the objects are added (id=0), the modified is ignored and the object is
+	 * added to the server. 
 	 */
 	public boolean modified = false;
+
+	/**
+	 * <code>true</code>, if the object's keys has been changed by JOSM since
+	 * last update.
+	 */
+	public boolean modifiedProperties = false;
 	
+	/**
+	 * <code>true</code>, if the object has been deleted.
+	 */
+	private boolean deleted = false;
+
 	/**
 	 * If set to true, this object is currently selected.
 	 */
@@ -88,18 +101,24 @@ abstract public class OsmPrimitive {
 	}
 
 
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
+		setSelected(false);
+	}
+
+	public boolean isDeleted() {
+		return deleted;
+	}
+
 	/**
-	 * Equal, if the id is equal. If both ids are 0, use the super classes equal
-	 * instead.
+	 * Equal, if the id (and class) is equal. If both ids are 0, use the super classes
+	 * equal instead.
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof OsmPrimitive))
-			return false;
-		OsmPrimitive osm = (OsmPrimitive)obj;
-		if (id == 0 && osm.id == 0)
+		if (getClass() != obj.getClass() || id == 0 || obj == null || ((OsmPrimitive)obj).id == 0)
 			return super.equals(obj);
-		return id == osm.id;
+		return id == ((OsmPrimitive)obj).id;
 	}
 
 	/**

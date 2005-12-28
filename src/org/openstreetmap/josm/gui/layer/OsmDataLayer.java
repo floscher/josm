@@ -1,6 +1,7 @@
 package org.openstreetmap.josm.gui.layer;
 
 import java.awt.Graphics;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Stack;
 
@@ -12,8 +13,10 @@ import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
+import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Track;
 import org.openstreetmap.josm.data.osm.visitor.BoundingVisitor;
+import org.openstreetmap.josm.data.osm.visitor.MergeVisitor;
 import org.openstreetmap.josm.data.osm.visitor.SimplePaintVisitor;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.ImageProvider;
@@ -69,14 +72,16 @@ public class OsmDataLayer extends Layer {
 	 */
 	@Override
 	public void paint(Graphics g, MapView mv) {
-		SimplePaintVisitor visitor = new SimplePaintVisitor(g, mv, null);
-
-		for (LineSegment ls : data.lineSegments)
-			visitor.visit(ls);
-		for (Track t : data.tracks)
-			visitor.visit(t);
-		for (Node n : data.nodes)
-			visitor.visit(n);
+		SimplePaintVisitor visitor = new SimplePaintVisitor(g, mv);
+		for (OsmPrimitive osm : data.lineSegments)
+			if (!osm.isDeleted())
+				osm.visit(visitor);
+		for (OsmPrimitive osm : data.tracks)
+			if (!osm.isDeleted())
+				osm.visit(visitor);
+		for (OsmPrimitive osm : data.nodes)
+			if (!osm.isDeleted())
+				osm.visit(visitor);
 	}
 
 	@Override
@@ -86,7 +91,9 @@ public class OsmDataLayer extends Layer {
 
 	@Override
 	public void mergeFrom(Layer from) {
-		data.mergeFrom(((OsmDataLayer)from).data);
+		MergeVisitor visitor = new MergeVisitor(data);
+		for (OsmPrimitive osm : ((OsmDataLayer)from).data.allPrimitives())
+			osm.visit(visitor);
 	}
 
 	@Override
@@ -161,5 +168,29 @@ public class OsmDataLayer extends Layer {
 		//TODO: Replace with listener scheme
 		Main.main.undoAction.setEnabled(true);
 		Main.main.redoAction.setEnabled(!redoCommands.isEmpty());
+	}
+
+	/**
+	 * Clean out the data behind the layer. This means clearing the redo/undo lists,
+	 * really deleting all deleted objects and reset the modified flags. This is done
+	 * after a successfull upload.
+	 */
+	public void cleanData() {
+		redoCommands.clear();
+		commands.clear();
+		for (Iterator<Node> it = data.nodes.iterator(); it.hasNext();)
+			cleanIterator(it);
+		for (Iterator<LineSegment> it = data.lineSegments.iterator(); it.hasNext();)
+			cleanIterator(it);
+		for (Iterator<Track> it = data.tracks.iterator(); it.hasNext();)
+			cleanIterator(it);
+	}
+
+	private void cleanIterator(Iterator<? extends OsmPrimitive> it) {
+		OsmPrimitive osm = it.next();
+		osm.modified = false;
+		osm.modifiedProperties = false;
+		if (osm.isDeleted())
+			it.remove();
 	}
 }

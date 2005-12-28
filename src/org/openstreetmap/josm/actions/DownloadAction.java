@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.swing.DefaultListModel;
@@ -168,6 +169,9 @@ public class DownloadAction extends JosmAction {
 		} catch (JDOMException x) {
 			x.printStackTrace();
 			JOptionPane.showMessageDialog(Main.main, x.getMessage());
+		} catch (FileNotFoundException x) {
+			x.printStackTrace();
+			JOptionPane.showMessageDialog(Main.main, "URL nicht gefunden: "+x.getMessage());
 		} catch (IOException x) {
 			x.printStackTrace();
 			JOptionPane.showMessageDialog(Main.main, x.getMessage());

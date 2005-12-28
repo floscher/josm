@@ -7,7 +7,6 @@ import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.visitor.AddVisitor;
 import org.openstreetmap.josm.data.osm.visitor.CollectBackReferencesVisitor;
-import org.openstreetmap.josm.data.osm.visitor.DeleteVisitor;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
 
 /**
@@ -34,9 +33,8 @@ public class DeleteCommand implements Command {
 	}
 	
 	public void executeCommand() {
-		Visitor v = new DeleteVisitor(ds);
 		for (OsmPrimitive osm : data)
-			osm.visit(v);
+			osm.setDeleted(true);
 	}
 
 	public void undoCommand() {

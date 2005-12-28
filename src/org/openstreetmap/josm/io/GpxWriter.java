@@ -241,7 +241,7 @@ public class GpxWriter {
 	 */
 	@SuppressWarnings("unchecked")
 	private void addPropertyExtensions(Element e, Map<Key, String> keys, OsmPrimitive osm) {
-		if ((keys == null || keys.isEmpty()) && osm.id == 0 && !osm.modified)
+		if ((keys == null || keys.isEmpty()) && osm.id == 0 && !osm.modified && !osm.modifiedProperties)
 			return;
 		Element extensions = e.getChild("extensions", GPX);
 		if (extensions == null)
@@ -254,15 +254,17 @@ public class GpxWriter {
 				extensions.getChildren().add(propElement);
 			}
 		}
-		// id
 		if (osm.id != 0) {
 			Element propElement = new Element("uid", JOSM);
 			propElement.setText(""+osm.id);
 			extensions.getChildren().add(propElement);
 		}
-		// modified
 		if (osm.modified) {
 			Element modElement = new Element("modified", JOSM);
+			extensions.getChildren().add(modElement);
+		}
+		if (osm.modifiedProperties) {
+			Element modElement = new Element("modifiedProperties", JOSM);
 			extensions.getChildren().add(modElement);
 		}
 	}

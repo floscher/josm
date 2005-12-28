@@ -1,10 +1,8 @@
 package org.openstreetmap.josm.data.osm;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Map;
 
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.SelectionTracker;
@@ -43,10 +41,17 @@ public class DataSet extends SelectionTracker {
 	public Collection<Track> tracks = new LinkedList<Track>();
 
 	/**
-	 * All deleted objects goes here.
+	 * @return A collection containing all primitives (except keys) of the
+	 * dataset.
 	 */
-	public Collection<OsmPrimitive> deleted = new LinkedList<OsmPrimitive>();
-
+	public Collection<OsmPrimitive> allPrimitives() {
+		Collection<OsmPrimitive> o = new LinkedList<OsmPrimitive>();
+		o.addAll(nodes);
+		o.addAll(lineSegments);
+		o.addAll(tracks);
+		return o;
+	}
+	
 	/**
 	 * Return the bounds of this DataSet, depending on X/Y values.
 	 * The min of the return value is the upper left GeoPoint, the max the lower
@@ -132,85 +137,6 @@ public class DataSet extends SelectionTracker {
 	}
 
 	/**
-	 * Import the given dataset by merging all data with this dataset.
-	 * The objects imported are not cloned, so from now on, these data belong
-	 * to both datasets. So use mergeFrom only if you are about to abandon the
-	 * other dataset.
-	 *
-	 * Elements are tried to merged. 
-	 * Nodes are merged first, if their lat/lon are equal.
-	 * Line segments are merged, if they have the same nodes.
-	 * Tracks are merged, if they consist of the same line segments.
-	 *
-	 * TODO Additional to that, every two objects with the same id are merged.
-	 *
-	 * @param ds	The DataSet to merge into this one.
-	 */
-	public void mergeFrom(DataSet ds) {
-		// merge nodes
-		
-		Map<Node, Node> nodeMap = new HashMap<Node, Node>();
-
-		// find mergable
-		for (Node otherNode : ds.nodes)
-			for (Node myNode : nodes)
-				if (otherNode.coor.equalsLatLon(myNode.coor))
-					nodeMap.put(otherNode, myNode);
-		// add
-		for (Node n : ds.nodes)
-			if (!nodeMap.containsKey(n))
-				nodes.add(n);
-		// reassign
-		for (LineSegment ls : ds.lineSegments) {
-			Node n = nodeMap.get(ls.start);
-			if (n != null)
-				ls.start = n;
-			n = nodeMap.get(ls.end);
-			if (n != null)
-				ls.end = n;
-		}
-
-
-		// merge line segments
-
-		Map<LineSegment, LineSegment> lsMap = new HashMap<LineSegment, LineSegment>();
-		// find mergable
-		for (LineSegment otherLS : ds.lineSegments)
-			for (LineSegment myLS : lineSegments)
-				if (otherLS.start == myLS.start && otherLS.end == myLS.end)
-					lsMap.put(otherLS, myLS);
-		// add ls
-		for (LineSegment ls : ds.lineSegments)
-			if (!lsMap.containsKey(ls))
-				lineSegments.add(ls);
-		// reassign
-		for (Track t : ds.tracks) {
-			for (int i = 0; i < t.segments.size(); ++i) {
-				LineSegment newLS = lsMap.get(t.segments.get(i));
-				if (newLS != null)
-					t.segments.set(i, newLS);
-			}
-		}
-
-
-		// merge tracks
-		
-		LinkedList<Track> trackToAdd = new LinkedList<Track>();
-		for (Track otherTrack : ds.tracks) {
-			boolean found = false;
-			for (Track myTrack : tracks) {
-				if (myTrack.segments.equals(otherTrack.segments)) {
-					found = true;
-					break;
-				}
-			}
-			if (!found)
-				trackToAdd.add(otherTrack);
-		}
-		tracks.addAll(trackToAdd);
-	}
-
-	/**
 	 * Remove the selection from every value in the collection.
 	 * @param list The collection to remove the selection from.
 	 */
@@ -233,7 +159,7 @@ public class DataSet extends SelectionTracker {
 		if (list == null)
 			return sel;
 		for (OsmPrimitive osm : list) {
-			if (osm.isSelected())
+			if (osm.isSelected() && !osm.isDeleted())
 				sel.add(osm);
 			if (osm.keys != null)
 				sel.addAll(getSelected(osm.keys.keySet()));

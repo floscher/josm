@@ -189,6 +189,7 @@ public class GpxReader {
 			if (idElement != null)
 				osm.id = Long.parseLong(idElement.getText());
 			osm.modified = e.getChild("modified", JOSM) != null;
+			osm.modifiedProperties = e.getChild("modifiedProperties", JOSM) != null;
 		}
 	}
 

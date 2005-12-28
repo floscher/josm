@@ -92,7 +92,6 @@ public class OsmServerReader extends OsmConnection {
 	 */
 	private Reader getReader(String urlStr) throws IOException {
 		initAuthentication();
-		System.out.println(urlStr);
 		URL url = new URL(urlStr);
 		HttpURLConnection con = (HttpURLConnection)url.openConnection();
 		con.setConnectTimeout(20000);

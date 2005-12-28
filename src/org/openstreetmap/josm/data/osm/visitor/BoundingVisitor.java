@@ -20,10 +20,10 @@ public class BoundingVisitor implements Visitor {
 	/**
 	 * Calculate regarding lat/lon or x/y?
 	 */
-	public static enum Type {LATLON, XY};
+	public static enum Type {LATLON, XY}
 	private Type type;
-	
-	
+
+
 	public BoundingVisitor(Type type) {
 		this.type = type;
 	}
