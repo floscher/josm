@@ -1,6 +1,8 @@
 package org.openstreetmap.josm.gui;
 
 import java.awt.AWTEvent;
+import java.awt.Font;
+import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
@@ -9,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collection;
 import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
@@ -62,11 +65,7 @@ public class MapStatus extends JPanel {
 		/**
 		 * The last object displayed in status line.
 		 */
-		OsmPrimitive osmStatus;
-		/**
-		 * A visitor to retrieve name information about the osm primitive
-		 */
-		private SelectionComponentVisitor visitor = new SelectionComponentVisitor();
+		Collection<OsmPrimitive> osmStatus;
 		/**
 		 * The old modifiers, that was pressed the last time this collector ran.
 		 */
@@ -95,37 +94,51 @@ public class MapStatus extends JPanel {
 					return;
 				if ((ms.modifiers & MouseEvent.CTRL_DOWN_MASK) != 0 || ms.mousePos == null)
 					continue; // freeze display when holding down ctrl
-				OsmPrimitive osm = mv.getNearest(ms.mousePos, (ms.modifiers & MouseEvent.ALT_DOWN_MASK) != 0);
-				if (osm == osmStatus && ms.modifiers == oldModifiers)
+				Collection<OsmPrimitive> osms = mv.getAllNearest(ms.mousePos);
+				
+				if (osms == null && osmStatus == null && ms.modifiers == oldModifiers)
 					continue;
-				osmStatus = osm;
+				if (osms != null && osms.equals(osmStatus) && ms.modifiers == oldModifiers)
+					continue;
+
+				osmStatus = osms;
 				oldModifiers = ms.modifiers;
-				if (osm != null) {
-					osm.visit(visitor);
+				
+				// Set the text label in the bottom status bar
+				OsmPrimitive osmNearest = mv.getNearest(ms.mousePos, (ms.modifiers & MouseEvent.ALT_DOWN_MASK) != 0);
+				if (osmNearest != null) {
+					SelectionComponentVisitor visitor = new SelectionComponentVisitor();
+					osmNearest.visit(visitor);
 					nameText.setText(visitor.name);
 				} else
 					nameText.setText("");
 				
 				// Popup Information
-				if ((ms.modifiers & MouseEvent.BUTTON2_DOWN_MASK) != 0 && osm != null) {
+				if ((ms.modifiers & MouseEvent.BUTTON2_DOWN_MASK) != 0 && osms != null) {
 					if (popup != null)
 						popup.hide();
 					
-					StringBuilder text = new StringBuilder("<html>");
-					text.append(visitor.name);
-					if (osm.keys != null) {
-						for (Entry<Key, String> e : osm.keys.entrySet()) {
-							text.append("<br>");
-							text.append(e.getKey().name);
-							text.append("=");
-							text.append(e.getValue());
-						}
+					JPanel c = new JPanel(new GridBagLayout());
+					for (OsmPrimitive osm : osms) {
+						SelectionComponentVisitor visitor = new SelectionComponentVisitor();
+						osm.visit(visitor);
+						StringBuilder text = new StringBuilder("<html>");
+						if (osm.id == 0 || osm.modified || osm.modifiedProperties)
+							visitor.name = "<i><b>"+visitor.name+"*</b></i>";
+						text.append(visitor.name);
+						if (osm.id != 0)
+							text.append("<br>id="+osm.id);
+						if (osm.keys != null)
+							for (Entry<Key, String> e : osm.keys.entrySet())
+								text.append("<br>"+e.getKey().name+"="+e.getValue());
+						JLabel l = new JLabel(text.toString()+"</html>", visitor.icon, JLabel.HORIZONTAL);
+						l.setFont(l.getFont().deriveFont(Font.PLAIN));
+						l.setVerticalTextPosition(JLabel.TOP);
+						c.add(l, GBC.eol());
 					}
-					JLabel l = new JLabel(text.toString(), visitor.icon, JLabel.HORIZONTAL);
-					l.setVerticalTextPosition(JLabel.TOP);
 					
 					Point p = mv.getLocationOnScreen();
-					popup = PopupFactory.getSharedInstance().getPopup(mv, l, p.x+ms.mousePos.x+16, p.y+ms.mousePos.y+16);
+					popup = PopupFactory.getSharedInstance().getPopup(mv, c, p.x+ms.mousePos.x+16, p.y+ms.mousePos.y+16);
 					popup.show();
 				} else if (popup != null) {
 					popup.hide();
