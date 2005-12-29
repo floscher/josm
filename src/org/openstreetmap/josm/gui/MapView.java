@@ -10,6 +10,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 
 import javax.swing.JComponent;
@@ -136,6 +137,7 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 
 		// autoselect the new layer
 		setActiveLayer(layer);
+		recalculateCenterScale();
 	}
 
 	/**
@@ -291,6 +293,58 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 		return minPrimitive;
 	}
 
+	/**
+	 * @return A list of all objects that are nearest to 
+	 * the mouse. To do this, first the nearest object is 
+	 * determined.
+	 * 
+	 * If its a node, return all line segments and
+	 * streets the node is part of, as well as all nodes
+	 * (with their line segments and tracks) with the same
+	 * location.
+	 * 
+	 * If its a line segment, return all tracks this segment 
+	 * belongs to as well as all line segments that are between
+	 * the same nodes (in both direction) with all their tracks.
+	 * 
+	 * @return A collection of all items or <code>null</code>
+	 * 		if no item under or near the point. The returned
+	 * 		list is never empty.
+	 */
+	public Collection<OsmPrimitive> getAllNearest(Point p) {
+		OsmPrimitive osm = getNearest(p, false);
+		if (osm == null)
+			return null;
+		Collection<OsmPrimitive> c = new HashSet<OsmPrimitive>();
+		c.add(osm);
+		if (osm instanceof Node) {
+			Node node = (Node)osm;
+			for (Node n : Main.main.ds.nodes)
+				if (n.coor.equalsLatLon(node.coor))
+					c.add(n);
+			for (LineSegment ls : Main.main.ds.lineSegments)
+				// line segments never match nodes, so they are skipped by contains
+				if (c.contains(ls.start) || c.contains(ls.end))
+					c.add(ls);
+		} 
+		if (osm instanceof LineSegment) {
+			LineSegment line = (LineSegment)osm;
+			for (LineSegment ls : Main.main.ds.lineSegments)
+				if (ls.equalPlace(line))
+					c.add(ls);
+		}
+		if (osm instanceof Node || osm instanceof LineSegment) {
+			for (Track t : Main.main.ds.tracks) {
+				for (LineSegment ls : t.segments) {
+					if (c.contains(ls)) {
+						c.add(t);
+						break;
+					}
+				}
+			}
+		}
+		return c;
+	}
 	
 	/**
 	 * Zoom to the given coordinate.

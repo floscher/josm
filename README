@@ -6,9 +6,8 @@ Install Notes
 
 To run JOSM, you need:
 
-* josm-beta.jar
+* The jar file (e.g. josm-latest.jar)
 * The latest Java Runtime Environment 1.5. 
-
 
 
 How to get Java
@@ -44,7 +43,7 @@ If this does not help, open a command shell and type
 "java -jar josm-beta.jar" in the directory that holds the file.
 
 Under Linux open a shell, go to the file directory and type
-"java -jar josm-beta.jar" to launch. If this don't help, try to set
+"java -jar josm-latest.jar" to launch. If this don't help, try to set
 you JAVA_HOME variable to the java location (the root location, not
 the bin. "/usr/lib/sun-j2se5.0-jdk" if you used the prebuild 
 package).
@@ -55,9 +54,8 @@ MacOS people just click on the jar-file.
 How to get the Source
 ---------------------
 
-Download it from http://www.eigenheimstrasse.de/josm/josm-beta-src.zip
-or directly from the subversion at 
-http://www.eigenheimstrasse.de/svn/josm. The beta was Revision 12.
+Download it directly from the subversion at 
+http://www.eigenheimstrasse.de/svn/josm.
 
 
 
@@ -68,4 +66,3 @@ Have fun.
 
 
 Imi.
-

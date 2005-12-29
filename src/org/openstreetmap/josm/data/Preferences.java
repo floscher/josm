@@ -18,6 +18,7 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.openstreetmap.josm.data.projection.LatitudeLongitude;
+import org.openstreetmap.josm.data.projection.Mercator;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.data.projection.UTM;
 
@@ -68,6 +69,7 @@ public class Preferences {
 	 * List of all available Projections.
 	 */
 	public static final Projection[] allProjections = new Projection[]{
+		new Mercator(),
 		new UTM(),
 		new LatitudeLongitude()
 	};

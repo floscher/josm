@@ -95,7 +95,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		p.add(combo, BorderLayout.CENTER);
 
 		final JOptionPane optionPane = new JOptionPane(p, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
-		final JDialog dlg = optionPane.createDialog(PropertiesDialog.this, "Change values?");
+		final JDialog dlg = optionPane.createDialog(Main.main, "Change values?");
 		dlg.addWindowFocusListener(new WindowFocusListener(){
 			public void windowGainedFocus(WindowEvent e) {
 				combo.requestFocusInWindow();
@@ -161,7 +161,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		p2.add(new JLabel("Please select a value"), BorderLayout.NORTH);
 		JTextField values = new JTextField();
 		p2.add(values, BorderLayout.CENTER);
-		int answer = JOptionPane.showConfirmDialog(PropertiesDialog.this, p, 
+		int answer = JOptionPane.showConfirmDialog(Main.main, p, 
 				"Change values?", JOptionPane.OK_CANCEL_OPTION); 
 		if (answer != JOptionPane.OK_OPTION)
 			return;
@@ -250,12 +250,12 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 					add();
 				else if (e.getActionCommand().equals("Edit")) {
 					if (sel == -1)
-						JOptionPane.showMessageDialog(PropertiesDialog.this, "Please select the row to edit.");
+						JOptionPane.showMessageDialog(Main.main, "Please select the row to edit.");
 					else
 						edit(sel);
 				} else if (e.getActionCommand().equals("Delete")) {
 					if (sel == -1)
-						JOptionPane.showMessageDialog(PropertiesDialog.this, "Please select the row to delete.");
+						JOptionPane.showMessageDialog(Main.main, "Please select the row to delete.");
 					else
 						delete(sel);
 				}

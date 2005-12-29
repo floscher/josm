@@ -1,5 +1,6 @@
 package org.openstreetmap.josm.data.osm;
 
+import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
 
 
@@ -33,5 +34,20 @@ public class LineSegment extends OsmPrimitive {
 	@Override
 	public void visit(Visitor visitor) {
 		visitor.visit(this);
+	}
+	
+	/**
+	 * @return <code>true</code>, if the <code>ls</code> occupy
+	 * exactly the same place as <code>this</code>.
+	 */
+	public boolean equalPlace(LineSegment ls) {
+		if (equals(ls))
+			return true;
+		GeoPoint s1 = start.coor;
+		GeoPoint s2 = ls.start.coor;
+		GeoPoint e1 = end.coor;
+		GeoPoint e2 = ls.end.coor;
+		return ((s1.equalsLatLon(s2) && e1.equalsLatLon(e2)) ||
+				(s1.equalsLatLon(e2) && e1.equalsLatLon(s2)));
 	}
 }	
