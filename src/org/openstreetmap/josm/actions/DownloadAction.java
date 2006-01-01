@@ -61,13 +61,13 @@ public class DownloadAction extends JosmAction {
 		JPanel dlg = new JPanel(new GridBagLayout());
 		dlg.add(new JLabel("Bounding box"), GBC.eol());
 
-		dlg.add(new JLabel("min lon"), GBC.std().insets(10,0,5,0));
-		dlg.add(latlon[0], GBC.std());
 		dlg.add(new JLabel("min lat"), GBC.std().insets(10,0,5,0));
+		dlg.add(latlon[0], GBC.std());
+		dlg.add(new JLabel("min lon"), GBC.std().insets(10,0,5,0));
 		dlg.add(latlon[1], GBC.eol());
-		dlg.add(new JLabel("max lon"), GBC.std().insets(10,0,5,0));
-		dlg.add(latlon[2], GBC.std());
 		dlg.add(new JLabel("max lat"), GBC.std().insets(10,0,5,0));
+		dlg.add(latlon[2], GBC.std());
+		dlg.add(new JLabel("max lon"), GBC.std().insets(10,0,5,0));
 		dlg.add(latlon[3], GBC.eop());
 
 		if (Main.main.getMapFrame() != null) {

@@ -77,7 +77,9 @@ public class OsmServerReader extends OsmConnection {
 	 * @return A data set containing all data retrieved from that url
 	 */
 	public DataSet parseOsm() throws JDOMException, IOException {
+		long start = System.currentTimeMillis();
 		Reader r = getReader(Main.pref.osmDataServer+"/map?bbox="+lon1+","+lat1+","+lon2+","+lat2);
+		System.out.println(System.currentTimeMillis() - start);
 		if (r == null)
 			return null;
 		return new OsmReader(r).parse();
