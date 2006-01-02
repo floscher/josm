@@ -7,7 +7,9 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.Collection;
+import java.util.LinkedList;
 
 import javax.swing.Box;
 import javax.swing.JCheckBox;
@@ -28,6 +30,7 @@ import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.RawGpsDataLayer;
 import org.openstreetmap.josm.io.GpxReader;
 import org.openstreetmap.josm.io.OsmReader;
+import org.openstreetmap.josm.io.RawCsvReader;
 import org.openstreetmap.josm.io.RawGpsReader;
 
 /**
@@ -54,40 +57,56 @@ public class OpenAction extends JosmAction {
 		// additional options
 		JCheckBox rawGps = new JCheckBox("Raw GPS data", true);
 		rawGps.setToolTipText("Check this, if the data were obtained from a gps device.");
-		JCheckBox newLayer = new JCheckBox("As Layer", true); 
-		newLayer.setToolTipText("Open as a new layer or replace all current layers.");
-		if (Main.main.getMapFrame() == null) {
-			newLayer.setEnabled(false);
-			newLayer.setSelected(false);
-		}
 		
 		JPanel p = new JPanel(new GridBagLayout());
 		p.add(new JLabel("Options"), GBC.eop());
 		p.add(rawGps, GBC.eol());
-		p.add(newLayer, GBC.eol());
 		p.add(Box.createVerticalGlue(), GBC.eol().fill());
 		fc.setAccessory(p);
 
 		if (fc.showOpenDialog(Main.main) != JFileChooser.APPROVE_OPTION)
 			return;
-		
+
 		File filename = fc.getSelectedFile();
 		if (filename == null)
 			return;
 
 		try {
 			Layer layer;
+			Reader in = new FileReader(filename);
+			String extension = filename.getName().toLowerCase().substring(filename.getName().lastIndexOf('.')+1);
 			if (rawGps.isSelected()) {
-				Collection<Collection<GeoPoint>> data = new RawGpsReader(new FileReader(filename)).parse();
+				Collection<Collection<GeoPoint>> data;
+				if (extension.equals("gpx"))
+					data = new RawGpsReader(in).parse();
+				else if (extension.equals("xml") || extension.equals("osm")) {
+					JOptionPane.showMessageDialog(Main.main, "Osm server data import for GPS data is not supported.");
+					return;
+				} else if (extension.equals("csv") || extension.equals("txt")) {
+					data = new LinkedList<Collection<GeoPoint>>();
+					data.add(new RawCsvReader(in).parse());
+				} else {
+					JOptionPane.showMessageDialog(Main.main, "Unknown file extension: "+extension);
+					return;
+				}
 				layer = new RawGpsDataLayer(data, filename.getName());
 			} else {
-				DataSet dataSet = filename.getName().toLowerCase().endsWith(".gpx") ?
-						new GpxReader(new FileReader(filename)).parse() :
-						new OsmReader(new FileReader(filename)).parse();
+				DataSet dataSet;
+				if (extension.equals("gpx"))
+					dataSet = new GpxReader(in).parse();
+				else if (extension.equals("xml") || extension.equals("osm"))
+					dataSet = new OsmReader(in).parse();
+				else if (extension.equals("csv") || extension.equals("txt")) {
+					JOptionPane.showMessageDialog(Main.main, "CSV Data import for non-GPS data is not implemented yet.");
+					return;
+				} else {
+					JOptionPane.showMessageDialog(Main.main, "Unknown file extension: "+extension);
+					return;
+				}
 				layer = new OsmDataLayer(dataSet, filename.getName());
 			}
 			
-			if (Main.main.getMapFrame() == null || !newLayer.isSelected())
+			if (Main.main.getMapFrame() == null)
 				Main.main.setMapFrame(filename.getName(), new MapFrame(layer));
 			else
 				Main.main.getMapFrame().mapView.addLayer(layer);
