@@ -1,0 +1,82 @@
+package org.openstreetmap.josm.io;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.StringTokenizer;
+
+import org.jdom.JDOMException;
+import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.data.GeoPoint;
+
+/**
+ * Read raw information from a csv style file (as defined in the preferences).
+ * @author imi
+ */
+public class RawCsvReader {
+
+	/**
+	 * Reader to read the input from.
+	 */
+	private BufferedReader in;
+
+	public RawCsvReader(Reader in) {
+		this.in = new BufferedReader(in);
+	}
+	
+	public Collection<GeoPoint> parse() throws JDOMException, IOException {
+		Collection<GeoPoint> data = new LinkedList<GeoPoint>();
+		String formatStr = Main.pref.csvImportString;
+		if (formatStr == null)
+			formatStr = in.readLine();
+		if (formatStr == null)
+			throw new JDOMException("Could not detect data format string.");
+		
+		// get delimiter
+		String delim = ",";
+		for (int i = 0; i < formatStr.length(); ++i) {
+			if (!Character.isLetterOrDigit(formatStr.charAt(i))) {
+				delim = ""+formatStr.charAt(i);
+				break;
+			}
+		}
+		
+		// convert format string
+		ArrayList<String> format = new ArrayList<String>();
+		for (StringTokenizer st = new StringTokenizer(formatStr, delim); st.hasMoreTokens();)
+			format.add(st.nextToken());
+
+		// test for completness
+		if (!format.contains("lat") || !format.contains("lon")) {
+			if (Main.pref.csvImportString != null)
+				throw new JDOMException("Format string is incomplete. Need at least 'lat' and 'lon' specification");
+			throw new JDOMException("Format string in data is incomplete or not found. Try setting an manual format string in Preferences.");
+		}
+		
+		int lineNo = 0;
+		try {
+			for (String line = in.readLine(); line != null; line = in.readLine()) {
+				lineNo++;
+				StringTokenizer st = new StringTokenizer(line, delim);
+				GeoPoint p = new GeoPoint();
+				for (String token : format) {
+					if (token.equals("lat"))
+						p.lat = Double.parseDouble(st.nextToken());
+					else if (token.equals("lon"))
+						p.lon = Double.parseDouble(st.nextToken());
+					else if (token.equals("ignore"))
+						st.nextToken();
+					else
+						throw new JDOMException("Unknown data type: '"+token+"'."+(Main.pref.csvImportString == null ? " Maybe add an format string in preferences." : ""));
+				}
+				data.add(p);
+			}
+		} catch (RuntimeException e) {
+			throw new JDOMException("Parsing error in line "+lineNo, e);
+		}
+		return data;
+	}
+}

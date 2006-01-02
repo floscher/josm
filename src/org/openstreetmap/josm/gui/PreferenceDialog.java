@@ -58,6 +58,7 @@ public class PreferenceDialog extends JDialog {
 			Main.pref.osmDataPassword = String.valueOf(osmDataPassword.getPassword());
 			if (Main.pref.osmDataPassword == "")
 				Main.pref.osmDataPassword = null;
+			Main.pref.csvImportString = csvImportString.getText();
 			Main.pref.setDrawRawGpsLines(drawRawGpsLines.isSelected());
 			Main.pref.setForceRawGpsLines(forceRawGpsLines.isSelected());
 			try {
@@ -115,6 +116,11 @@ public class PreferenceDialog extends JDialog {
 	 * Passwordfield for the userpassword of the REST API.
 	 */
 	JPasswordField osmDataPassword = new JPasswordField(20);
+	/**
+	 * Comma seperated import string specifier or <code>null</code> if the first
+	 * data line should be interpreted as one.
+	 */
+	JTextField csvImportString = new JTextField(20);
 	/**
 	 * The checkbox stating whether nodes should be merged together.
 	 */
@@ -187,6 +193,12 @@ public class PreferenceDialog extends JDialog {
 		osmDataServer.setToolTipText("The base URL to the OSM server (REST API)");
 		osmDataUsername.setToolTipText("Login name (email) to the OSM account.");
 		osmDataPassword.setToolTipText("Login password to the OSM account. Leave blank to not store any password.");
+		csvImportString.setToolTipText("<html>Import string specification. Currently, only lat/lon pairs are imported.<br>" +
+				"<b>lat</b>: The latitude coordinate<br>" +
+				"<b>lon</b>: The longitude coordinate<br>" +
+				"<b>ignore</b>: Skip this field<br>" +
+				"An example: \"ignore ignore lat lon\" will use ' ' as delimiter, skip the first two values and read then lat/lon.<br>" +
+				"Other example: \"lat,lon\" will just read lat/lon values comma seperated.</html>");
 		drawRawGpsLines.setToolTipText("If your gps device draw to few lines, select this to draw lines along your track.");
 		drawRawGpsLines.setSelected(Main.pref.isDrawRawGpsLines());
 		forceRawGpsLines.setToolTipText("Force drawing of lines if the imported data contain no line information.");
@@ -196,6 +208,7 @@ public class PreferenceDialog extends JDialog {
 		osmDataServer.setText(Main.pref.osmDataServer);
 		osmDataUsername.setText(Main.pref.osmDataUsername);
 		osmDataPassword.setText(Main.pref.osmDataPassword);
+		csvImportString.setText(Main.pref.csvImportString);
 
 		// Display tab
 		JPanel display = createPreferenceTab("display", "Display Settings", "Various settings that influence the visual representation of the whole program.");
@@ -220,7 +233,8 @@ public class PreferenceDialog extends JDialog {
 				"<b>Do not use a valuable Password.</b></html>");
 		warning.setFont(warning.getFont().deriveFont(Font.ITALIC));
 		con.add(warning, GBC.eop().fill(GBC.HORIZONTAL));
-
+		con.add(new JLabel("CSV import specification (empty: read from first line in data)"), GBC.eol());
+		con.add(csvImportString, GBC.eop().fill(GBC.HORIZONTAL));
 		
 		// Map tab
 		JPanel map = createPreferenceTab("map", "Map Settings", "Settings for the map projection and data interpretation.");

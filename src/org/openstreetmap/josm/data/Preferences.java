@@ -64,6 +64,14 @@ public class Preferences {
 	 * stored.
 	 */
 	public String osmDataPassword = null;
+	/**
+	 * The csv input style string or <code>null</code> for auto. The style is a
+	 * comma seperated list of identifiers as specified in the tooltip help text
+	 * of csvImportString in PreferenceDialog.
+	 * 
+	 * @see org.openstreetmap.josm.gui.PreferenceDialog#csvImportString
+	 */
+	public String csvImportString = null;
 
 	/**
 	 * List of all available Projections.
@@ -128,6 +136,7 @@ public class Preferences {
 				osmDataServer = osmServer.getChildText("url");
 				osmDataUsername = osmServer.getChildText("username");
 				osmDataPassword = osmServer.getChildText("password");
+				csvImportString = osmServer.getChildText("csvImportString");
 			}
 			drawRawGpsLines = root.getChild("drawRawGpsLines") != null;
 			forceRawGpsLines = root.getChild("forceRawGpsLines") != null;
@@ -157,6 +166,7 @@ public class Preferences {
 		osmServer.getChildren().add(new Element("url").setText(osmDataServer));
 		osmServer.getChildren().add(new Element("username").setText(osmDataUsername));
 		osmServer.getChildren().add(new Element("password").setText(osmDataPassword));
+		osmServer.getChildren().add(new Element("csvImportString").setText(csvImportString));
 		children.add(osmServer);
 
 		try {

@@ -41,7 +41,7 @@ public class RawGpsDataLayer extends Layer {
 					return;
 				}
 				if (evt.getPropertyName().equals("drawRawGpsLines") ||
-						evt.getPropertyName().equals("drawRawGpsLines"))
+						evt.getPropertyName().equals("forceRawGpsLines"))
 					Main.main.getMapFrame().repaint();
 			}
 		});
@@ -66,12 +66,11 @@ public class RawGpsDataLayer extends Layer {
 				old = null;
 			for (GeoPoint p : c) {
 				Point screen = mv.getScreenPoint(p);
-				if (Main.pref.isDrawRawGpsLines() && old != null) {
+				if (Main.pref.isDrawRawGpsLines() && old != null)
 					g.drawLine(old.x, old.y, screen.x, screen.y);
-				} else {
+				else
 					g.drawRect(screen.x, screen.y, 0, 0);
-					old = screen;
-				}
+				old = screen;
 			}
 		}
 	}
