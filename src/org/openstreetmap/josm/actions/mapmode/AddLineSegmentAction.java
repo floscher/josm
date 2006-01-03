@@ -78,7 +78,7 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 		if (e.getButton() != MouseEvent.BUTTON1)
 			return;
 
-		OsmPrimitive clicked = mv.getNearest(e.getPoint(), false);
+		OsmPrimitive clicked = mv.getNearest(e.getPoint(), true);
 		if (clicked == null || !(clicked instanceof Node))
 			return;
 

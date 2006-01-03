@@ -82,6 +82,9 @@ public class OsmDataLayer extends Layer {
 		for (OsmPrimitive osm : data.nodes)
 			if (!osm.isDeleted())
 				osm.visit(visitor);
+		for (OsmPrimitive osm : data.getSelected())
+			if (!osm.isDeleted())
+				osm.visit(visitor);
 	}
 
 	@Override

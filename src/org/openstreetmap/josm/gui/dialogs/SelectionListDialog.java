@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Collection;
 
 import javax.swing.DefaultListModel;
@@ -47,6 +49,14 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 		setPreferredSize(new Dimension(320,150));
 		displaylist.setCellRenderer(new OsmPrimitivRenderer());
 		displaylist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		displaylist.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() < 2)
+					return;
+				updateMap();
+			}
+		});
 
 		add(new JScrollPane(displaylist), BorderLayout.CENTER);
 
