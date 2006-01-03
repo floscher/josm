@@ -1,12 +1,14 @@
 package org.openstreetmap.josm.gui;
 
 import java.awt.AWTEvent;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.InputEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.beans.PropertyChangeEvent;
@@ -22,6 +24,7 @@ import javax.swing.JTextField;
 import javax.swing.Popup;
 import javax.swing.PopupFactory;
 
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -119,10 +122,10 @@ public class MapStatus extends JPanel {
 						popup.hide();
 					
 					JPanel c = new JPanel(new GridBagLayout());
-					for (OsmPrimitive osm : osms) {
+					for (final OsmPrimitive osm : osms) {
 						SelectionComponentVisitor visitor = new SelectionComponentVisitor();
 						osm.visit(visitor);
-						StringBuilder text = new StringBuilder("<html>");
+						final StringBuilder text = new StringBuilder();
 						if (osm.id == 0 || osm.modified || osm.modifiedProperties)
 							visitor.name = "<i><b>"+visitor.name+"*</b></i>";
 						text.append(visitor.name);
@@ -131,9 +134,26 @@ public class MapStatus extends JPanel {
 						if (osm.keys != null)
 							for (Entry<Key, String> e : osm.keys.entrySet())
 								text.append("<br>"+e.getKey().name+"="+e.getValue());
-						JLabel l = new JLabel(text.toString()+"</html>", visitor.icon, JLabel.HORIZONTAL);
+						final JLabel l = new JLabel("<html>"+text.toString()+"</html>", visitor.icon, JLabel.HORIZONTAL);
 						l.setFont(l.getFont().deriveFont(Font.PLAIN));
 						l.setVerticalTextPosition(JLabel.TOP);
+						l.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+						l.addMouseListener(new MouseAdapter(){
+							@Override
+							public void mouseEntered(MouseEvent e) {
+								l.setText("<html><u color='blue'>"+text.toString()+"</u></html>");
+							}
+							@Override
+							public void mouseExited(MouseEvent e) {
+								l.setText("<html>"+text.toString()+"</html>");
+							}
+							@Override
+							public void mouseClicked(MouseEvent e) {
+								Main.main.ds.clearSelection();
+								osm.setSelected(true);
+								mv.repaint();
+							}
+						});
 						c.add(l, GBC.eol());
 					}
 					

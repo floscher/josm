@@ -233,17 +233,19 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 	 * 
 	 * If no area is found, return <code>null</code>.
 	 * 
-	 * @param p				The point on screen.
-	 * @param wholeTrack	Whether the whole track or only the line segment
-	 * 					 	should be returned.
+	 * @param p				 The point on screen.
+	 * @param lsInsteadTrack Whether the line segment (true) or only the whole
+	 * 					 	 track should be returned.
 	 * @return	The primitive, that is nearest to the point p.
 	 */
-	public OsmPrimitive getNearest(Point p, boolean wholeTrack) {
+	public OsmPrimitive getNearest(Point p, boolean lsInsteadTrack) {
 		double minDistanceSq = Double.MAX_VALUE;
 		OsmPrimitive minPrimitive = null;
 
 		// nodes
 		for (Node n : Main.main.ds.nodes) {
+			if (n.isDeleted())
+				continue;
 			Point sp = getScreenPoint(n.coor);
 			double dist = p.distanceSq(sp);
 			if (minDistanceSq > dist && dist < 100) {
@@ -256,9 +258,13 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 		
 		// for whole tracks, try the tracks first
 		minDistanceSq = Double.MAX_VALUE;
-		if (wholeTrack) {
+		if (!lsInsteadTrack) {
 			for (Track t : Main.main.ds.tracks) {
+				if (t.isDeleted())
+					continue;
 				for (LineSegment ls : t.segments) {
+					if (ls.isDeleted())
+						continue;
 					Point A = getScreenPoint(ls.start.coor);
 					Point B = getScreenPoint(ls.end.coor);
 					double c = A.distanceSq(B);
@@ -278,6 +284,8 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 		minDistanceSq = Double.MAX_VALUE;
 		// line segments
 		for (LineSegment ls : Main.main.ds.lineSegments) {
+			if (ls.isDeleted())
+				continue;
 			Point A = getScreenPoint(ls.start.coor);
 			Point B = getScreenPoint(ls.end.coor);
 			double c = A.distanceSq(B);
@@ -312,7 +320,7 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 	 * 		list is never empty.
 	 */
 	public Collection<OsmPrimitive> getAllNearest(Point p) {
-		OsmPrimitive osm = getNearest(p, false);
+		OsmPrimitive osm = getNearest(p, true);
 		if (osm == null)
 			return null;
 		Collection<OsmPrimitive> c = new HashSet<OsmPrimitive>();
@@ -320,23 +328,25 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 		if (osm instanceof Node) {
 			Node node = (Node)osm;
 			for (Node n : Main.main.ds.nodes)
-				if (n.coor.equalsLatLon(node.coor))
+				if (!n.isDeleted() && n.coor.equalsLatLon(node.coor))
 					c.add(n);
 			for (LineSegment ls : Main.main.ds.lineSegments)
 				// line segments never match nodes, so they are skipped by contains
-				if (c.contains(ls.start) || c.contains(ls.end))
+				if (!ls.isDeleted() && (c.contains(ls.start) || c.contains(ls.end)))
 					c.add(ls);
 		} 
 		if (osm instanceof LineSegment) {
 			LineSegment line = (LineSegment)osm;
 			for (LineSegment ls : Main.main.ds.lineSegments)
-				if (ls.equalPlace(line))
+				if (!ls.isDeleted() && ls.equalPlace(line))
 					c.add(ls);
 		}
 		if (osm instanceof Node || osm instanceof LineSegment) {
 			for (Track t : Main.main.ds.tracks) {
+				if (t.isDeleted())
+					continue;
 				for (LineSegment ls : t.segments) {
-					if (c.contains(ls)) {
+					if (!ls.isDeleted() && c.contains(ls)) {
 						c.add(t);
 						break;
 					}

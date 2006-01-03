@@ -47,10 +47,19 @@ public class SaveAction extends JosmAction {
 		
 		try {
 			FileWriter fileWriter = new FileWriter(file);
-			if (file.getName().endsWith(".gpx"))
+			String fn = file.getName();
+			if (fn.endsWith(".gpx"))
 				new GpxWriter(fileWriter).output();
-			else
+			else if (fn.endsWith(".xml") || fn.endsWith(".osm"))
 				new OsmWriter(fileWriter, Main.main.ds).output();
+			else if (fn.endsWith(".txt") || fn.endsWith(".csv")) {
+				JOptionPane.showMessageDialog(Main.main, "CSV output not supported yet.");
+				return;
+			} else {
+				JOptionPane.showMessageDialog(Main.main, "Unknown file extension.");
+				return;
+			}
+				
 			fileWriter.close();
 		} catch (IOException e) {
 			e.printStackTrace();

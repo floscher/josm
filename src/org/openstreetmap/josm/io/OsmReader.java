@@ -117,6 +117,11 @@ public class OsmReader {
 					osm.visit(visitor);
 			}
 		}
+		
+		// clear all negative ids (new to this file)
+		for (OsmPrimitive osm : data.allPrimitives())
+			if (osm.id < 0)
+				osm.id = 0;
 
 		return data;
 	}
@@ -177,8 +182,6 @@ public class OsmReader {
 		String suid = e.getAttributeValue("uid");
 		if (suid != null)
 			data.id = Long.parseLong(suid);
-		if (data.id < 0)
-			data.id = 0;
 		
 		String propStr = e.getAttributeValue("tags");
 		if (propStr != null && !propStr.equals("")) {

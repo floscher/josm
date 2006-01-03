@@ -8,7 +8,7 @@ import org.openstreetmap.josm.data.GeoPoint;
  * Implement Mercator Projection code, coded after documentation
  * from wikipedia.
  * 
- * The center of the mercator projection is always the 0° 
+ * The center of the mercator projection is always the 0 grad 
  * coordinate.
  * 
  * @author imi
