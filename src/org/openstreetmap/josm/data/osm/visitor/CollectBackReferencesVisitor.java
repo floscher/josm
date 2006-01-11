@@ -13,6 +13,9 @@ import org.openstreetmap.josm.data.osm.Track;
 /**
  * Helper that collect all line segments a node is part of, all tracks
  * a node or line segment is part of and all areas a node is part of. 
+ * 
+ * Deleted objects are not collected.
+ * 
  * @author imi
  */
 public class CollectBackReferencesVisitor implements Visitor {
@@ -24,12 +27,19 @@ public class CollectBackReferencesVisitor implements Visitor {
 	 */
 	public final Collection<OsmPrimitive> data = new HashSet<OsmPrimitive>();
 
+
+	/**
+	 * Construct a back reference counter.
+	 * @param ds The dataset to operate on.
+	 */
 	public CollectBackReferencesVisitor(DataSet ds) {
 		this.ds = ds;
 	}
 	
 	public void visit(Node n) {
 		for (Track t : ds.tracks) {
+			if (t.isDeleted())
+				continue;
 			for (LineSegment ls : t.segments) {
 				if (ls.start == n || ls.end == n) {
 					data.add(t);
@@ -37,14 +47,20 @@ public class CollectBackReferencesVisitor implements Visitor {
 				}
 			}
 		}
-		for (LineSegment ls : ds.lineSegments)
+		for (LineSegment ls : ds.lineSegments) {
+			if (ls.isDeleted())
+				continue;
 			if (ls.start == n || ls.end == n)
 				data.add(ls);
+		}
 	}
 	public void visit(LineSegment ls) {
-		for (Track t : ds.tracks)
+		for (Track t : ds.tracks) {
+			if (t.isDeleted())
+				continue;
 			if (t.segments.contains(ls))
 				data.add(t);
+		}
 	}
 	public void visit(Track t) {}
 	public void visit(Key k) {}

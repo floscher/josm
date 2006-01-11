@@ -1,5 +1,8 @@
 package org.openstreetmap.josm.data;
 
+import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.data.projection.Projection;
+
 /**
  * This is a simple data class for "rectangular" areas of the world, given in lat/lon/min/max
  * values.
@@ -44,7 +47,17 @@ public class Bounds {
 		this.min = min;
 		this.max = max;
 	}
-	
+
+	/**
+	 * Construct bounds that span the whole world.
+	 */
+	public Bounds() {
+		min = new GeoPoint(-Projection.MAX_LAT, -Projection.MAX_LON);
+		Main.pref.getProjection().latlon2xy(min);
+		max = new GeoPoint(Projection.MAX_LAT, Projection.MAX_LON);
+		Main.pref.getProjection().latlon2xy(max);
+	}
+
 	/**
 	 * @return The bounding rectangle that covers <code>this</code> and 
 	 * 		the <code>other</code> bounds, regarding the x/y values.
@@ -58,7 +71,7 @@ public class Bounds {
 		nmax.y = Math.max(max.y, other.max.y);
 		return new Bounds(nmin, nmax);
 	}
-	
+
 	/**
 	 * @return The bounding rectangle that covers <code>this</code> and 
 	 * 		the <code>other</code> bounds, regarding the lat/lon values.

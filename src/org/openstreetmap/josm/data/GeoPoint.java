@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.data;
 
+import org.openstreetmap.josm.data.projection.Projection;
+
 
 
 /**
@@ -64,5 +66,14 @@ public class GeoPoint implements Cloneable {
 	public boolean equalsLatLon(GeoPoint other) {
 		return lat == other.lat && lon == other.lon && 
 				!Double.isNaN(lat) && !Double.isNaN(lon);
+	}
+
+	/**
+	 * @return <code>true</code>, if the coordinate is outside the world, compared
+	 * by using lat/lon.
+	 */
+	public boolean isOutSideWorld() {
+		return lat < -Projection.MAX_LAT || lat > Projection.MAX_LAT || 
+			lon < -Projection.MAX_LON || lon > Projection.MAX_LON;
 	}
 }

@@ -6,10 +6,13 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
 
+import javax.swing.JOptionPane;
+
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.MoveCommand;
 import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.MapFrame;
 
@@ -83,8 +86,18 @@ public class MoveAction extends MapMode {
 			return;
 
 		Collection<OsmPrimitive> selection = Main.main.ds.getSelected();
+		Collection<Node> affectedNodes = MoveCommand.getAffectedNodes(selection);
+		
+		// check if any coordinate would be outside the world
+		for (OsmPrimitive osm : affectedNodes) {
+			if (osm instanceof Node && ((Node)osm).coor.isOutSideWorld()) {
+				JOptionPane.showMessageDialog(Main.main, "Cannot move objects outside of the world.");
+				return;
+			}
+		}
+		
 		Command c = mv.editLayer().lastCommand();
-		if (c instanceof MoveCommand && MoveCommand.getAffectedNodes(selection).equals(((MoveCommand)c).objects))
+		if (c instanceof MoveCommand && affectedNodes.equals(((MoveCommand)c).objects))
 			((MoveCommand)c).moveAgain(dx,dy);
 		else
 			mv.editLayer().add(new MoveCommand(selection, dx, dy));

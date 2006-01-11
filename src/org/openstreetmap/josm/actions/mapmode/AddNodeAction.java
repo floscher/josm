@@ -3,6 +3,8 @@ package org.openstreetmap.josm.actions.mapmode;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
+import javax.swing.JOptionPane;
+
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.AddCommand;
 import org.openstreetmap.josm.data.osm.Node;
@@ -49,6 +51,10 @@ public class AddNodeAction extends MapMode {
 		if (e.getButton() == MouseEvent.BUTTON1) {
 			Node node = new Node();
 			node.coor = mv.getPoint(e.getX(), e.getY(), true);
+			if (node.coor.isOutSideWorld()) {
+				JOptionPane.showMessageDialog(Main.main, "Can not add a node outside of the world.");
+				return;
+			}
 			mv.editLayer().add(new AddCommand(Main.main.ds, node));
 			mv.repaint();
 		}

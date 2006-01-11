@@ -15,22 +15,22 @@ import org.openstreetmap.josm.data.osm.Track;
  * 
  * @author imi
  */
-public class AddVisitor implements Visitor {
+public class DeleteVisitor implements Visitor {
 	
 	private final DataSet ds;
 	
-	public AddVisitor(DataSet ds) {
+	public DeleteVisitor(DataSet ds) {
 		this.ds = ds;
 	}
 	
 	public void visit(Node n) {
-		ds.nodes.add(n);
+		ds.nodes.remove(n);
 	}
 	public void visit(LineSegment ls) {
-		ds.lineSegments.add(ls);
+		ds.lineSegments.remove(ls);
 	}
 	public void visit(Track t) {
-		ds.tracks.add(t);
+		ds.tracks.remove(t);
 	}
 	public void visit(Key k) {}
 }

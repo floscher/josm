@@ -5,9 +5,7 @@ import java.util.HashSet;
 
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.visitor.AddVisitor;
 import org.openstreetmap.josm.data.osm.visitor.CollectBackReferencesVisitor;
-import org.openstreetmap.josm.data.osm.visitor.Visitor;
 
 /**
  * A command to delete a number of primitives from the dataset.
@@ -38,9 +36,8 @@ public class DeleteCommand implements Command {
 	}
 
 	public void undoCommand() {
-		Visitor v = new AddVisitor(ds);
 		for (OsmPrimitive osm : data)
-			osm.visit(v);
+			osm.setDeleted(false);
 	}
 
 	public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {
