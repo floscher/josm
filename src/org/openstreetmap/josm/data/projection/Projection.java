@@ -18,6 +18,9 @@ import org.openstreetmap.josm.data.GeoPoint;
  */
 abstract public class Projection implements Cloneable {
 
+	public static double MAX_LAT = 85; // yep - JOSM cannot cartograph the poles.
+	public static double MAX_LON = 179.99999;
+
 	/**
 	 * The event list with all state chaned listener
 	 */

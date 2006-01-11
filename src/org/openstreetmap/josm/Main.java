@@ -14,9 +14,9 @@ import javax.swing.JToolBar;
 import javax.swing.UIManager;
 
 import org.openstreetmap.josm.actions.AboutAction;
+import org.openstreetmap.josm.actions.DownloadAction;
 import org.openstreetmap.josm.actions.ExitAction;
 import org.openstreetmap.josm.actions.OpenAction;
-import org.openstreetmap.josm.actions.DownloadAction;
 import org.openstreetmap.josm.actions.PreferencesAction;
 import org.openstreetmap.josm.actions.RedoAction;
 import org.openstreetmap.josm.actions.SaveAction;
@@ -25,6 +25,7 @@ import org.openstreetmap.josm.actions.UploadAction;
 import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.Preferences.PreferencesException;
 import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.gui.BugReportExceptionHandler;
 import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.MapFrame;
 
@@ -143,6 +144,7 @@ public class Main extends JFrame {
 	 * @param args	No parameters accepted.
 	 */
 	public static void main(String[] args) {
+		setupExceptionHandler();
 		setupUiDefaults();
 		
 		// load preferences
@@ -215,5 +217,13 @@ public class Main extends JFrame {
 		UIManager.put("OptionPane.yesIcon", UIManager.get("OptionPane.okIcon"));
 		UIManager.put("OptionPane.cancelIcon", ImageProvider.get("cancel"));
 		UIManager.put("OptionPane.noIcon", UIManager.get("OptionPane.cancelIcon"));
+	}
+
+	/**
+	 * Setup an exception handler that displays a sorry message and the possibility
+	 * to do a bug report.
+	 */
+	private static void setupExceptionHandler() {
+		Thread.setDefaultUncaughtExceptionHandler(new BugReportExceptionHandler());
 	}
 }

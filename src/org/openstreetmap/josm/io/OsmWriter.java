@@ -62,11 +62,9 @@ public class OsmWriter implements Visitor {
 		Element root = new Element("osm");
 		List<Element> list = root.getChildren();
 		properties = new LinkedList<Element>();
-		for (OsmPrimitive osm : ds.allPrimitives()) {
-			if (!osm.isDeleted()) {
-				osm.visit(this);
-				list.add(element);
-			}
+		for (OsmPrimitive osm : ds.allNonDeletedPrimitives()) {
+			osm.visit(this);
+			list.add(element);
 		}
 		list.addAll(properties);
 		properties = new LinkedList<Element>();

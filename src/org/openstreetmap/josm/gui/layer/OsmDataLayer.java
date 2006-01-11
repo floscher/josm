@@ -1,6 +1,7 @@
 package org.openstreetmap.josm.gui.layer;
 
 import java.awt.Graphics;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Stack;
@@ -89,7 +90,9 @@ public class OsmDataLayer extends Layer {
 
 	@Override
 	public String getToolTipText() {
-		return data.nodes.size()+" nodes, "+data.lineSegments.size()+" segments, "+data.tracks.size()+" streets.";
+		return undeletedSize(data.nodes)+" nodes, "+
+			undeletedSize(data.lineSegments)+" segments, "+
+			undeletedSize(data.tracks)+" streets.";
 	}
 
 	@Override
@@ -109,7 +112,7 @@ public class OsmDataLayer extends Layer {
 		BoundingVisitor b = new BoundingVisitor(BoundingVisitor.Type.LATLON);
 		for (Node n : data.nodes)
 			b.visit(n);
-		return b.bounds;
+		return b.bounds != null ? b.bounds : new Bounds();
 	}
 
 	@Override
@@ -117,7 +120,7 @@ public class OsmDataLayer extends Layer {
 		BoundingVisitor b = new BoundingVisitor(BoundingVisitor.Type.XY);
 		for (Node n : data.nodes)
 			b.visit(n);
-		return b.bounds;
+		return b.bounds != null ? b.bounds : new Bounds();
 	}
 
 	@Override
@@ -195,5 +198,16 @@ public class OsmDataLayer extends Layer {
 		osm.modifiedProperties = false;
 		if (osm.isDeleted())
 			it.remove();
+	}
+
+	/**
+	 * @return The number of not-deleted primitives in the list.
+	 */
+	private int undeletedSize(Collection<? extends OsmPrimitive> list) {
+		int size = 0;
+		for (OsmPrimitive osm : list)
+			if (!osm.isDeleted())
+				size++;
+		return size;
 	}
 }

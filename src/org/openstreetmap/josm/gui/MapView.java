@@ -393,6 +393,17 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 			if (l.visible)
 				l.paint(g, this);
 		}
+		
+		// draw world borders
+		g.setColor(Color.DARK_GRAY);
+		Bounds b = new Bounds();
+		Point min = getScreenPoint(b.min);
+		Point max = getScreenPoint(b.max);
+		int x1 = Math.min(min.x, max.x);
+		int y1 = Math.min(min.y, max.y);
+		int x2 = Math.max(min.x, max.x);
+		int y2 = Math.max(min.y, max.y);
+		g.drawRect(x1, y1, x2-x1+1, y2-y1+1);
 	}
 
 	/**

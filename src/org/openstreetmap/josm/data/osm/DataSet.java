@@ -51,6 +51,17 @@ public class DataSet extends SelectionTracker {
 		o.addAll(tracks);
 		return o;
 	}
+
+	/**
+	 * @return A collection containing all not-deleted primitives (except keys).
+	 */
+	public Collection<OsmPrimitive> allNonDeletedPrimitives() {
+		Collection<OsmPrimitive> o = new LinkedList<OsmPrimitive>();
+		for (OsmPrimitive osm : allPrimitives())
+			if (!osm.isDeleted())
+				o.add(osm);
+		return o;
+	}
 	
 	/**
 	 * Return the bounds of this DataSet, depending on X/Y values.

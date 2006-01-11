@@ -76,6 +76,10 @@ public class DownloadAction extends JosmAction {
 			int h = mv.getHeight();
 			GeoPoint bottomLeft = mv.getPoint(0, h, true);
 			GeoPoint topRight = mv.getPoint(w, 0, true);
+			if (bottomLeft.isOutSideWorld())
+				bottomLeft = new GeoPoint(-89.999, -179.999); // do not use the Projection constants, since this look better.
+			if (topRight.isOutSideWorld())
+				topRight = new GeoPoint(89.999, 179.999);
 			latlon[0].setText(""+bottomLeft.lat);
 			latlon[1].setText(""+bottomLeft.lon);
 			latlon[2].setText(""+topRight.lat);

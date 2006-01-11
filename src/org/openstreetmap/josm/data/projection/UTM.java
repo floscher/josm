@@ -194,8 +194,6 @@ public class UTM extends Projection {
 	 */
 	ZoneData autoDetect(Bounds b) {
 		ZoneData zd = new ZoneData();
-		if (b == null)
-			return zd;
 		GeoPoint center = b.centerLatLon();
 		double lat = center.lat;
 		double lon = center.lon;

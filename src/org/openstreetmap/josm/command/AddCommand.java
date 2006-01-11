@@ -5,6 +5,7 @@ import java.util.Collection;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.visitor.AddVisitor;
+import org.openstreetmap.josm.data.osm.visitor.DeleteVisitor;
 
 /**
  * A command that adds an osm primitive to a dataset. Keys cannot be added this
@@ -37,7 +38,7 @@ public class AddCommand implements Command {
 	}
 
 	public void undoCommand() {
-		osm.setDeleted(true);
+		osm.visit(new DeleteVisitor(ds));
 	}
 
 	public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {
