@@ -1,5 +1,6 @@
 package org.openstreetmap.josm.actions;
 
+import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -29,6 +30,7 @@ import org.openstreetmap.josm.gui.BookmarkList;
 import org.openstreetmap.josm.gui.GBC;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
+import org.openstreetmap.josm.gui.WorldChooser;
 import org.openstreetmap.josm.gui.BookmarkList.Bookmark;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
@@ -59,8 +61,11 @@ public class DownloadAction extends JosmAction {
 
 	public void actionPerformed(ActionEvent e) {
 		JPanel dlg = new JPanel(new GridBagLayout());
-		dlg.add(new JLabel("Bounding box"), GBC.eol());
+		
+		WorldChooser wc = new WorldChooser();
+		dlg.add(wc, GBC.eop());
 
+		dlg.add(new JLabel("Bounding box"), GBC.eol());
 		dlg.add(new JLabel("min lat"), GBC.std().insets(10,0,5,0));
 		dlg.add(latlon[0], GBC.std());
 		dlg.add(new JLabel("min lon"), GBC.std().insets(10,0,5,0));
@@ -137,6 +142,9 @@ public class DownloadAction extends JosmAction {
 		});
 		buttons.add(remove);
 		dlg.add(buttons, GBC.eop().fill(GBC.HORIZONTAL));
+		
+		Dimension d = dlg.getPreferredSize();
+		wc.setPreferredSize(new Dimension(d.width, d.width/2));
 		
 		int r = JOptionPane.showConfirmDialog(Main.main, dlg, "Choose an area", 
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);

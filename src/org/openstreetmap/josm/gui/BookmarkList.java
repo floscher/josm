@@ -43,7 +43,7 @@ public class BookmarkList extends JList {
 	public BookmarkList() {
 		setModel(new DefaultListModel());
 		load();
-		setVisibleRowCount(10);
+		setVisibleRowCount(7);
 		setCellRenderer(new DefaultListCellRenderer(){
 			@Override
 			public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {

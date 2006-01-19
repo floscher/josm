@@ -122,7 +122,6 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 				OutputStream out = con.getOutputStream();
 				Document doc = new Document(root);
 				xmlOut.output(doc, out);
-				xmlOut.output(doc, System.out);
 				out.close();
 			}
 
