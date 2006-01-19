@@ -37,6 +37,16 @@ public class GeoPoint implements Cloneable {
 	}
 
 	/**
+	 * Construct the point with all values available.
+	 */
+	public GeoPoint(double lat, double lon, double x, double y) {
+		this.lat = lat;
+		this.lon = lon;
+		this.x = x;
+		this.y = y;
+	}
+
+	/**
 	 * Construct the point with all values unset (set to NaN)
 	 */
 	public GeoPoint() {

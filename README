@@ -20,14 +20,14 @@ download the latest Java5 executable.
 
 To get Java under linux, I recommend downloading the environment 
 directly from Sun at http://java.sun.com. There is a linux 
-binary installer which you have to execute from a java console.
+binary installer which you have to execute from a console.
 
 However, if you run Debian or Ubuntu or any other dpkg-based
 distribution, you may use unofficial precompiled packages.
 You have to add the following line to your /etc/apt/sources.list
 (replace "stable" with your installation)
 
-http://ftp.debian-unofficial.org/debian/ stable non-free
+deb http://ftp.debian-unofficial.org/debian/ stable non-free
 
 The package is called sun-j2se5.0-jdk-binary.
 
@@ -38,9 +38,11 @@ http://www.apple.com/support/downloads/java2se50release1.html
 How to launch
 -------------
 
-Microsoft Windows people launch by double clicking on josm-beta.jar.
+Microsoft Windows people launch by double clicking on the jar file.
 If this does not help, open a command shell and type 
-"java -jar josm-beta.jar" in the directory that holds the file.
+"java -jar josm-latest.jar" in the directory that holds the file.
+(Please replace josm-latest.jar with the name of your jar file, if
+you don't used the latest version.)
 
 Under Linux open a shell, go to the file directory and type
 "java -jar josm-latest.jar" to launch. If this don't help, try to set
@@ -55,14 +57,16 @@ How to get the Source
 ---------------------
 
 Download it directly from the subversion at 
-http://www.eigenheimstrasse.de/svn/josm.
+http://www.eigenheimstrasse.de/svn/josm. To use the command line
+subverion client, type
+
+svn co http://www.eigenheimstrasse.de/svn/josm
 
 
 
-And gimme feedback: immanuel.scholz@gmx.de (start your mail subject 
+And gimme feedback: josm@eigenheimstrasse.de (start your mail subject 
 with "JOSM", so my spam filter will not eat you)
 
-Have fun.
 
 
-Imi.
+Ciao, Imi.

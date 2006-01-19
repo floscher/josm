@@ -29,7 +29,7 @@ public class ImageProvider {
 	/**
 	 * The icon cache
 	 */
-	private static Map<URL, Icon> cache = new HashMap<URL, Icon>();
+	private static Map<URL, ImageIcon> cache = new HashMap<URL, ImageIcon>();
 	
 	/**
 	 * Return an image from the specified location.
@@ -38,13 +38,13 @@ public class ImageProvider {
 	 * @param name		The icons name (without the ending of ".png")
 	 * @return	The requested ImageIcon.
 	 */
-	public static Icon get(String subdir, String name) {
+	public static ImageIcon get(String subdir, String name) {
 		if (subdir != "")
 			subdir += "/";
 		URL path = Main.class.getResource("/images/"+subdir+name+".png");
-		Icon icon = cache.get(path);
+		ImageIcon icon = cache.get(path);
 		if (icon == null) {
-			icon = new ImageIcon(Main.class.getResource("/images/"+subdir+name+".png"));
+			icon = new ImageIcon(path);
 			cache.put(path, icon);
 		}
 		return icon;
@@ -53,7 +53,7 @@ public class ImageProvider {
 	/**
 	 * Shortcut for get("", name);
 	 */
-	public static Icon get(String name) {
+	public static ImageIcon get(String name) {
 		return get("", name);
 	}
 

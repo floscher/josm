@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import javax.swing.JComponent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -42,7 +41,7 @@ import org.openstreetmap.josm.gui.layer.OsmDataLayer;
  *
  * @author imi
  */
-public class MapView extends JComponent implements ChangeListener, PropertyChangeListener {
+public class MapView extends NavigatableComponent implements ChangeListener, PropertyChangeListener  {
 
 	/**
 	 * Interface to notify listeners of the change of the active layer.
@@ -58,15 +57,6 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 	 * Whether to adjust the scale property on every resize.
 	 */
 	boolean autoScale = true;
-
-	/**
-	 * The scale factor in meter per pixel.
-	 */
-	private double scale;
-	/**
-	 * Center n/e coordinate of the desired screen center.
-	 */
-	private GeoPoint center;
 
 	/**
 	 * A list of all layers currently loaded.
@@ -168,51 +158,6 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 			layers.add(layer);
 		else
 			layers.add(pos, layer);
-	}
-
-	/**
-	 * Get geographic coordinates from a specific pixel coordination
-	 * on the screen.
-	 * 
-	 * If you don't need it, provide false at third parameter to speed
-	 * up the calculation.
-	 *  
-	 * @param x X-Pixelposition to get coordinate from
-	 * @param y Y-Pixelposition to get coordinate from
-	 * @param latlon If set, the return value will also have the 
-	 * 				 latitude/longitude filled.
-	 * 
-	 * @return The geographic coordinate, filled with x/y (northing/easting)
-	 * 		settings and, if requested with latitude/longitude.
-	 */
-	public GeoPoint getPoint(int x, int y, boolean latlon) {
-		GeoPoint p = new GeoPoint();
-		p.x = (x - getWidth()/2.0)*scale + center.x;
-		p.y = (getHeight()/2.0 - y)*scale + center.y;
-		if (latlon)
-			Main.pref.getProjection().xy2latlon(p);
-		return p;
-	}
-	
-	/**
-	 * Return the point on the screen where this GeoPoint would be.
-	 * @param point The point, where this geopoint would be drawn.
-	 * @return The point on screen where "point" would be drawn, relative
-	 * 		to the own top/left.
-	 */
-	public Point getScreenPoint(GeoPoint point) {
-		GeoPoint p;
-		if (!Double.isNaN(point.x) && !Double.isNaN(point.y))
-			p = point;
-		else {
-			if (Double.isNaN(point.lat) || Double.isNaN(point.lon))
-				throw new IllegalArgumentException("point: Either lat/lon or x/y must be set.");
-			p = point.clone();
-			Main.pref.getProjection().latlon2xy(p);
-		}
-		int x = ((int)Math.round((p.x-center.x) / scale + getWidth()/2));
-		int y = ((int)Math.round((center.y-p.y) / scale + getHeight()/2));
-		return new Point(x,y);
 	}
 
 	/**
@@ -357,30 +302,6 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 	}
 	
 	/**
-	 * Zoom to the given coordinate.
-	 * @param centerX The center x-value (easting) to zoom to.
-	 * @param centerY The center y-value (northing) to zoom to.
-	 * @param scale The scale to use.
-	 */
-	public void zoomTo(GeoPoint newCenter, double scale) {
-		boolean oldAutoScale = autoScale;
-		GeoPoint oldCenter = center;
-		double oldScale = this.scale;
-		
-		autoScale = false;
-		center = newCenter.clone();
-		Main.pref.getProjection().xy2latlon(center);
-		this.scale = scale;
-		recalculateCenterScale();
-
-		firePropertyChange("center", oldCenter, center);
-		if (oldAutoScale != autoScale)
-			firePropertyChange("autoScale", oldAutoScale, autoScale);
-		if (oldScale != scale)
-			firePropertyChange("scale", oldScale, scale);
-	}
-
-	/**
 	 * Draw the component.
 	 */
 	@Override
@@ -393,9 +314,9 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 			if (l.visible)
 				l.paint(g, this);
 		}
-		
+
 		// draw world borders
-		g.setColor(Color.DARK_GRAY);
+		g.setColor(Color.WHITE);
 		Bounds b = new Bounds();
 		Point min = getScreenPoint(b.min);
 		Point max = getScreenPoint(b.max);
@@ -403,27 +324,8 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 		int y1 = Math.min(min.y, max.y);
 		int x2 = Math.max(min.x, max.x);
 		int y2 = Math.max(min.y, max.y);
-		g.drawRect(x1, y1, x2-x1+1, y2-y1+1);
-	}
-
-	/**
-	 * Notify from the projection, that something has changed.
-	 * @param e
-	 */
-	public void stateChanged(ChangeEvent e) {
-		// reset all datasets.
-		Projection p = Main.pref.getProjection();
-		for (Node n : Main.main.ds.nodes)
-			p.latlon2xy(n.coor);
-		recalculateCenterScale();
-	}
-
-	/**
-	 * Return the current scale value.
-	 * @return The scale value currently used in display
-	 */
-	public double getScale() {
-		return scale;
+		if (x1 > 0 || y1 > 0 || x2 < getWidth() || y2 < getHeight())
+			g.drawRect(x1, y1, x2-x1+1, y2-y1+1);
 	}
 
 	/**
@@ -443,34 +345,6 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 			recalculateCenterScale();
 		}
 	}
-	/**
-	 * @return Returns the center point. A copy is returned, so users cannot
-	 * 		change the center by accessing the return value. Use zoomTo instead.
-	 */
-	public GeoPoint getCenter() {
-		return center.clone();
-	}
-
-	
-	/**
-	 * Change to the new projection. Recalculate the dataset and zoom, if autoZoom
-	 * is active.
-	 * @param oldProjection The old projection. Unregister from this.
-	 * @param newProjection	The new projection. Register as state change listener.
-	 */
-	public void propertyChange(PropertyChangeEvent evt) {
-		if (!evt.getPropertyName().equals("projection"))
-			return;
-		if (evt.getOldValue() != null)
-			((Projection)evt.getOldValue()).removeChangeListener(this);
-		if (evt.getNewValue() != null) {
-			Projection p = (Projection)evt.getNewValue();
-			p.addChangeListener(this);
-
-			stateChanged(new ChangeEvent(this));
-		}
-	}
-	
 	/**
 	 * Set the new dimension to the projection class. Also adjust the components 
 	 * scale, if in autoScale mode.
@@ -579,5 +453,57 @@ public class MapView extends JComponent implements ChangeListener, PropertyChang
 		if (editLayer == null)
 			addLayer(new OsmDataLayer(new DataSet(), "unnamed"));
 		return editLayer;
+	}
+
+	/**
+	 * In addition to the base class funcitonality, this keep trak of the autoscale
+	 * feature.
+	 */
+	@Override
+	public void zoomTo(GeoPoint newCenter, double scale) {
+		boolean oldAutoScale = autoScale;
+		GeoPoint oldCenter = center;
+		double oldScale = this.scale;
+		autoScale = false;
+
+		super.zoomTo(newCenter, scale);
+		
+		recalculateCenterScale();
+		
+		firePropertyChange("center", oldCenter, center);
+		if (oldAutoScale != autoScale)
+			firePropertyChange("autoScale", oldAutoScale, autoScale);
+		if (oldScale != scale)
+			firePropertyChange("scale", oldScale, scale);
+	}
+
+	/**
+	 * Notify from the projection, that something has changed.
+	 */
+	public void stateChanged(ChangeEvent e) {
+		// reset all datasets.
+		Projection p = Main.pref.getProjection();
+		for (Node n : Main.main.ds.nodes)
+			p.latlon2xy(n.coor);
+		recalculateCenterScale();
+	}
+
+	/**
+	 * Change to the new projection. Recalculate the dataset and zoom, if autoZoom
+	 * is active.
+	 * @param oldProjection The old projection. Unregister from this.
+	 * @param newProjection	The new projection. Register as state change listener.
+	 */
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (!evt.getPropertyName().equals("projection"))
+			return;
+		if (evt.getOldValue() != null)
+			((Projection)evt.getOldValue()).removeChangeListener(this);
+		if (evt.getNewValue() != null) {
+			Projection p = (Projection)evt.getNewValue();
+			p.addChangeListener(this);
+	
+			stateChanged(new ChangeEvent(this));
+		}
 	}
 }

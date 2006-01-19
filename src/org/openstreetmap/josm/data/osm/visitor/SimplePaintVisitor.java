@@ -8,7 +8,7 @@ import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Track;
-import org.openstreetmap.josm.gui.MapView;
+import org.openstreetmap.josm.gui.NavigatableComponent;
 
 /**
  * A visitor that paint a simple scheme of every primitive it visits to a 
@@ -28,16 +28,16 @@ public class SimplePaintVisitor implements Visitor {
 	/**
 	 * MapView to get screen coordinates.
 	 */
-	private final MapView mv;
+	private final NavigatableComponent nc;
 	
 	/**
 	 * Construct the painter visitor.
 	 * @param g   The graphics to draw to.
 	 * @param mv  The view to get screen coordinates from.
 	 */
-	public SimplePaintVisitor(Graphics g, MapView mv) {
+	public SimplePaintVisitor(Graphics g, NavigatableComponent mv) {
 		this.g = g;
-		this.mv = mv;
+		this.nc = mv;
 	}
 	
 	/**
@@ -82,7 +82,7 @@ public class SimplePaintVisitor implements Visitor {
 	 * @param color The color of the node.
 	 */
 	private void drawNode(Node n, Color color) {
-		Point p = mv.getScreenPoint(n.coor);
+		Point p = nc.getScreenPoint(n.coor);
 		g.setColor(color);
 		g.drawRect(p.x-1, p.y-1, 2, 2);
 	}
@@ -94,8 +94,8 @@ public class SimplePaintVisitor implements Visitor {
 		if (ls.isSelected())
 			col = Color.WHITE;
 		g.setColor(col);
-		Point p1 = mv.getScreenPoint(ls.start.coor);
-		Point p2 = mv.getScreenPoint(ls.end.coor);
+		Point p1 = nc.getScreenPoint(ls.start.coor);
+		Point p2 = nc.getScreenPoint(ls.end.coor);
 		g.drawLine(p1.x, p1.y, p2.x, p2.y);
 	}
 }

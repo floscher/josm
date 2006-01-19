@@ -25,7 +25,7 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 	/**
 	 * The map to move around.
 	 */
-	private final MapView mv;
+	private final NavigatableComponent nc;
 	/**
 	 * The old cursor when we changed it to movement cursor.
 	 */
@@ -35,11 +35,11 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 	 * Create a new MapMover
 	 * @param mapView The map that should be moved.
 	 */
-	public MapMover(MapView mapView) {
-		this.mv = mapView;
-		mv.addMouseListener(this);
-		mv.addMouseMotionListener(this);
-		mv.addMouseWheelListener(this);
+	public MapMover(NavigatableComponent mapView) {
+		this.nc = mapView;
+		nc.addMouseListener(this);
+		nc.addMouseMotionListener(this);
+		nc.addMouseWheelListener(this);
 	}
 	
 	/**
@@ -50,12 +50,12 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 		if ((e.getModifiersEx() & (MouseEvent.BUTTON3_DOWN_MASK | offMask)) == MouseEvent.BUTTON3_DOWN_MASK) {
 			if (mousePosMove == null)
 				startMovement(e);
-			GeoPoint center = mv.getCenter();
-			GeoPoint mouseCenter = mv.getPoint(e.getX(), e.getY(), false);
+			GeoPoint center = nc.getCenter();
+			GeoPoint mouseCenter = nc.getPoint(e.getX(), e.getY(), false);
 			GeoPoint p = new GeoPoint();
 			p.x = mousePosMove.x + center.x - mouseCenter.x;  
 			p.y = mousePosMove.y + center.y - mouseCenter.y;
-			mv.zoomTo(p, mv.getScale());
+			nc.zoomTo(p, nc.getScale());
 		} else
 			endMovement();
 	}
@@ -85,9 +85,9 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 	 * @param e The mouse event that leat to the movement start.
 	 */
 	private void startMovement(MouseEvent e) {
-		mousePosMove = mv.getPoint(e.getX(), e.getY(), false);
-		oldCursor = mv.getCursor();
-		mv.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+		mousePosMove = nc.getPoint(e.getX(), e.getY(), false);
+		oldCursor = nc.getCursor();
+		nc.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
 	}
 	
 	/**
@@ -95,9 +95,9 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 	 */
 	private void endMovement() {
 		if (oldCursor != null)
-			mv.setCursor(oldCursor);
+			nc.setCursor(oldCursor);
 		else
-			mv.setCursor(Cursor.getDefaultCursor());
+			nc.setCursor(Cursor.getDefaultCursor());
 		mousePosMove = null;
 		oldCursor = null;
 	}
@@ -108,7 +108,7 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 	 */
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		double zoom = Math.max(0.1, 1 + e.getWheelRotation()/5.0);
-		mv.zoomTo(mv.getCenter(), mv.getScale()*zoom);
+		nc.zoomTo(nc.getCenter(), nc.getScale()*zoom);
 	}
 
 	/**
