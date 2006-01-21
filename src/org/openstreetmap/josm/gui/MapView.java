@@ -10,7 +10,6 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedList;
 
 import javax.swing.event.ChangeEvent;
@@ -20,10 +19,7 @@ import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
-import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.Track;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
@@ -102,10 +98,10 @@ public class MapView extends NavigatableComponent implements ChangeListener, Pro
 	public void addLayer(Layer layer) {
 		// initialize the projection if it is the first layer
 		if (layers.isEmpty())
-			Main.pref.getProjection().init(layer.getBoundsLatLon());
+			getProjection().init(layer.getBoundsLatLon());
 
 		// reinitialize layer's data
-		layer.init(Main.pref.getProjection());
+		layer.init(getProjection());
 
 		if (layer instanceof OsmDataLayer) {
 			if (editLayer != null) {
@@ -160,147 +156,6 @@ public class MapView extends NavigatableComponent implements ChangeListener, Pro
 			layers.add(pos, layer);
 	}
 
-	/**
-	 * Return the object, that is nearest to the given screen point.
-	 * 
-	 * First, a node will be searched. If a node within 10 pixel is found, the
-	 * nearest node is returned.
-	 * 
-	 * If no node is found, search for pending line segments.
-	 * 
-	 * If no such line segment is found, and a non-pending line segment is 
-	 * within 10 pixel to p, this segment is returned, except when 
-	 * <code>wholeTrack</code> is <code>true</code>, in which case the 
-	 * corresponding Track is returned.
-	 * 
-	 * If no line segment is found and the point is within an area, return that
-	 * area.
-	 * 
-	 * If no area is found, return <code>null</code>.
-	 * 
-	 * @param p				 The point on screen.
-	 * @param lsInsteadTrack Whether the line segment (true) or only the whole
-	 * 					 	 track should be returned.
-	 * @return	The primitive, that is nearest to the point p.
-	 */
-	public OsmPrimitive getNearest(Point p, boolean lsInsteadTrack) {
-		double minDistanceSq = Double.MAX_VALUE;
-		OsmPrimitive minPrimitive = null;
-
-		// nodes
-		for (Node n : Main.main.ds.nodes) {
-			if (n.isDeleted())
-				continue;
-			Point sp = getScreenPoint(n.coor);
-			double dist = p.distanceSq(sp);
-			if (minDistanceSq > dist && dist < 100) {
-				minDistanceSq = p.distanceSq(sp);
-				minPrimitive = n;
-			}
-		}
-		if (minPrimitive != null)
-			return minPrimitive;
-		
-		// for whole tracks, try the tracks first
-		minDistanceSq = Double.MAX_VALUE;
-		if (!lsInsteadTrack) {
-			for (Track t : Main.main.ds.tracks) {
-				if (t.isDeleted())
-					continue;
-				for (LineSegment ls : t.segments) {
-					if (ls.isDeleted())
-						continue;
-					Point A = getScreenPoint(ls.start.coor);
-					Point B = getScreenPoint(ls.end.coor);
-					double c = A.distanceSq(B);
-					double a = p.distanceSq(B);
-					double b = p.distanceSq(A);
-					double perDist = a-(a-b+c)*(a-b+c)/4/c; // perpendicular distance squared
-					if (perDist < 100 && minDistanceSq > perDist && a < c+100 && b < c+100) {
-						minDistanceSq = perDist;
-						minPrimitive = t;
-					}
-				}			
-			}
-			if (minPrimitive != null)
-				return minPrimitive;
-		}
-		
-		minDistanceSq = Double.MAX_VALUE;
-		// line segments
-		for (LineSegment ls : Main.main.ds.lineSegments) {
-			if (ls.isDeleted())
-				continue;
-			Point A = getScreenPoint(ls.start.coor);
-			Point B = getScreenPoint(ls.end.coor);
-			double c = A.distanceSq(B);
-			double a = p.distanceSq(B);
-			double b = p.distanceSq(A);
-			double perDist = a-(a-b+c)*(a-b+c)/4/c; // perpendicular distance squared
-			if (perDist < 100 && minDistanceSq > perDist && a < c+100 && b < c+100) {
-				minDistanceSq = perDist;
-				minPrimitive = ls;
-			}
-		}
-
-		return minPrimitive;
-	}
-
-	/**
-	 * @return A list of all objects that are nearest to 
-	 * the mouse. To do this, first the nearest object is 
-	 * determined.
-	 * 
-	 * If its a node, return all line segments and
-	 * streets the node is part of, as well as all nodes
-	 * (with their line segments and tracks) with the same
-	 * location.
-	 * 
-	 * If its a line segment, return all tracks this segment 
-	 * belongs to as well as all line segments that are between
-	 * the same nodes (in both direction) with all their tracks.
-	 * 
-	 * @return A collection of all items or <code>null</code>
-	 * 		if no item under or near the point. The returned
-	 * 		list is never empty.
-	 */
-	public Collection<OsmPrimitive> getAllNearest(Point p) {
-		OsmPrimitive osm = getNearest(p, true);
-		if (osm == null)
-			return null;
-		Collection<OsmPrimitive> c = new HashSet<OsmPrimitive>();
-		c.add(osm);
-		if (osm instanceof Node) {
-			Node node = (Node)osm;
-			for (Node n : Main.main.ds.nodes)
-				if (!n.isDeleted() && n.coor.equalsLatLon(node.coor))
-					c.add(n);
-			for (LineSegment ls : Main.main.ds.lineSegments)
-				// line segments never match nodes, so they are skipped by contains
-				if (!ls.isDeleted() && (c.contains(ls.start) || c.contains(ls.end)))
-					c.add(ls);
-		} 
-		if (osm instanceof LineSegment) {
-			LineSegment line = (LineSegment)osm;
-			for (LineSegment ls : Main.main.ds.lineSegments)
-				if (!ls.isDeleted() && ls.equalPlace(line))
-					c.add(ls);
-		}
-		if (osm instanceof Node || osm instanceof LineSegment) {
-			for (Track t : Main.main.ds.tracks) {
-				if (t.isDeleted())
-					continue;
-				for (LineSegment ls : t.segments) {
-					if (!ls.isDeleted() && c.contains(ls)) {
-						c.add(t);
-						break;
-					}
-				}
-			}
-		}
-		return c;
-	}
-	
 	/**
 	 * Draw the component.
 	 */
@@ -377,11 +232,11 @@ public class MapView extends NavigatableComponent implements ChangeListener, Pro
 			if (bounds == null) {
 				// no bounds means standard scale and center 
 				center = new GeoPoint(51.526447, -0.14746371);
-				Main.pref.getProjection().latlon2xy(center);
+				getProjection().latlon2xy(center);
 				scale = 10;
 			} else {
 				center = bounds.centerXY();
-				Main.pref.getProjection().xy2latlon(center);
+				getProjection().xy2latlon(center);
 				double scaleX = (bounds.max.x-bounds.min.x)/w;
 				double scaleY = (bounds.max.y-bounds.min.y)/h;
 				scale = Math.max(scaleX, scaleY); // minimum scale to see all of the screen
@@ -482,7 +337,7 @@ public class MapView extends NavigatableComponent implements ChangeListener, Pro
 	 */
 	public void stateChanged(ChangeEvent e) {
 		// reset all datasets.
-		Projection p = Main.pref.getProjection();
+		Projection p = getProjection();
 		for (Node n : Main.main.ds.nodes)
 			p.latlon2xy(n.coor);
 		recalculateCenterScale();

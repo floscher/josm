@@ -88,9 +88,9 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 	 */
 	private Point mousePos;
 	/**
-	 * The MapView, the selection rectangle is drawn onto.
+	 * The Component, the selection rectangle is drawn onto.
 	 */
-	private final MapView mv;
+	private final NavigatableComponent nc;
 	/**
 	 * Whether the selection rectangle must obtain the aspect ratio of the 
 	 * drawComponent.
@@ -104,12 +104,12 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 	 * 		the left button is released.
 	 * @param aspectRatio If true, the selection window must obtain the aspect
 	 * 		ratio of the drawComponent.
-	 * @param mapView The view, the rectangle is drawn onto.
+	 * @param navComp The component, the rectangle is drawn onto.
 	 */
-	public SelectionManager(SelectionEnded selectionEndedListener, boolean aspectRatio, MapView mapView) {
+	public SelectionManager(SelectionEnded selectionEndedListener, boolean aspectRatio, NavigatableComponent navComp) {
 		this.selectionEndedListener = selectionEndedListener;
 		this.aspectRatio = aspectRatio;
-		this.mv = mapView;
+		this.nc = navComp;
 	}
 	
 	/**
@@ -195,7 +195,7 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 	private void paintRect() {
 		if (mousePos == null || mousePosStart == null || mousePos == mousePosStart)
 			return;
-		Graphics g = mv.getGraphics();
+		Graphics g = nc.getGraphics();
 		g.setColor(Color.BLACK);
 		g.setXORMode(Color.WHITE);
 
@@ -223,7 +223,7 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 		
 		if (aspectRatio) {
 			// keep the aspect ration by shrinking the rectangle
-			double aspectRatio = (double)mv.getWidth()/mv.getHeight();
+			double aspectRatio = (double)nc.getWidth()/nc.getHeight();
 			if ((double)w/h > aspectRatio) {
 				int neww = (int)(h*aspectRatio);
 				if (mousePos.x < mousePosStart.x)
@@ -266,13 +266,13 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 		Point center = new Point(r.x+r.width/2, r.y+r.height/2);
 
 		if (clicked) {
-			OsmPrimitive osm = mv.getNearest(center, alt);
+			OsmPrimitive osm = nc.getNearest(center, alt);
 			if (osm != null)
 				selection.add(osm);
 		} else {
 			// nodes
 			for (Node n : Main.main.ds.nodes) {
-				if (r.contains(mv.getScreenPoint(n.coor)))
+				if (r.contains(nc.getScreenPoint(n.coor)))
 					selection.add(n);
 			}
 			
@@ -309,13 +309,13 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 	 */
 	private boolean rectangleContainLineSegment(Rectangle r, boolean alt, LineSegment ls) {
 		if (alt) {
-			Point p1 = mv.getScreenPoint(ls.start.coor);
-			Point p2 = mv.getScreenPoint(ls.end.coor);
+			Point p1 = nc.getScreenPoint(ls.start.coor);
+			Point p2 = nc.getScreenPoint(ls.end.coor);
 			if (r.intersectsLine(p1.x, p1.y, p2.x, p2.y))
 				return true;
 		} else {
-			if (r.contains(mv.getScreenPoint(ls.start.coor))
-					&& r.contains(mv.getScreenPoint(ls.end.coor)))
+			if (r.contains(nc.getScreenPoint(ls.start.coor))
+					&& r.contains(nc.getScreenPoint(ls.end.coor)))
 				return true;
 		}
 		return false;
