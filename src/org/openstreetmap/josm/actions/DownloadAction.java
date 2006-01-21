@@ -109,6 +109,8 @@ public class DownloadAction extends JosmAction {
 				rawGps.setSelected(b == null ? false : b.rawgps);
 			}
 		});
+		wc.addListMarker(bookmarks);
+		wc.addLatLonInputField(latlon);
 		dlg.add(new JScrollPane(bookmarks), GBC.eol().fill());
 
 		JPanel buttons = new JPanel(new GridLayout(1,2));

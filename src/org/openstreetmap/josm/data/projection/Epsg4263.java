@@ -9,7 +9,7 @@ import org.openstreetmap.josm.data.GeoPoint;
  *
  * @author imi
  */
-public class LatitudeLongitude extends Projection {
+public class Epsg4263 extends Projection {
 
 	@Override
 	public void latlon2xy(GeoPoint p) {
@@ -25,7 +25,7 @@ public class LatitudeLongitude extends Projection {
 
 	@Override
 	public String toString() {
-		return "Latitude/Longitude";
+		return "EPSG:4263";
 	}
 
 	@Override

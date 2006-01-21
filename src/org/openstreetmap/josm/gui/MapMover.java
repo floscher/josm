@@ -31,12 +31,12 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 	 */
 	private Cursor oldCursor;
 
+	
 	/**
 	 * Create a new MapMover
-	 * @param mapView The map that should be moved.
 	 */
-	public MapMover(NavigatableComponent mapView) {
-		this.nc = mapView;
+	MapMover(NavigatableComponent navComp) {
+		this.nc = navComp;
 		nc.addMouseListener(this);
 		nc.addMouseMotionListener(this);
 		nc.addMouseWheelListener(this);
