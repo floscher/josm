@@ -7,6 +7,7 @@ import java.awt.event.KeyEvent;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -41,39 +42,58 @@ public class UploadAction extends JosmAction {
 		Collection<OsmPrimitive> add = new LinkedList<OsmPrimitive>();
 		Collection<OsmPrimitive> update = new LinkedList<OsmPrimitive>();
 		Collection<OsmPrimitive> delete = new LinkedList<OsmPrimitive>();
+		boolean acceptedTracks = false;
 		for (OsmPrimitive osm : Main.main.ds.allPrimitives()) {
-			if (osm instanceof Track) {
-				int answer = JOptionPane.showConfirmDialog(Main.main, 
-						"The server currently does not understand the concept of Tracks.\n" +
-						"All tracks will be ignored on upload. Continue anyway?",
-						"No Track support", JOptionPane.YES_NO_OPTION);
-				if (answer != JOptionPane.YES_OPTION)
-					return;
-			}
+			boolean doSomething = true;
 			if (osm.id == 0 && !osm.isDeleted())
 				add.add(osm);
 			else if ((osm.modified || osm.modifiedProperties) && !osm.isDeleted())
 				update.add(osm);
 			else if (osm.isDeleted() && osm.id != 0)
 				delete.add(osm);
+			else
+				doSomething = false;
+
+			if (osm instanceof Track && doSomething && !acceptedTracks) {
+				int answer = JOptionPane.showConfirmDialog(Main.main, 
+						"The server currently does not understand the concept of Tracks.\n" +
+						"All tracks will be ignored on upload. Continue anyway?",
+						"No Track support", JOptionPane.YES_NO_OPTION);
+				if (answer != JOptionPane.YES_OPTION)
+					return;
+				acceptedTracks = true;
+			}
 		}
 
 		if (!displayUploadScreen(add, update, delete))
 			return;
 
-		OsmServerWriter server = new OsmServerWriter();
-		try {
-			Collection<OsmPrimitive> all = new LinkedList<OsmPrimitive>();
-			all.addAll(add);
-			all.addAll(update);
-			all.addAll(delete);
-			server.uploadOsm(all);
-			// finished without errors -> clean dataset
-			Main.main.getMapFrame().mapView.editLayer().cleanData();
-		} catch (JDOMException x) {
-			x.printStackTrace();
-			JOptionPane.showMessageDialog(Main.main, x.getMessage());
-		}
+		final OsmServerWriter server = new OsmServerWriter();
+		final Collection<OsmPrimitive> all = new LinkedList<OsmPrimitive>();
+		all.addAll(add);
+		all.addAll(update);
+		all.addAll(delete);
+		
+		final JDialog dlg = createPleaseWaitDialog("Uploading data");
+		new Thread(){
+			@Override
+			public void run() {
+				try {
+					server.uploadOsm(all);
+				} catch (JDOMException x) {
+					dlg.setVisible(false);
+					x.printStackTrace();
+					JOptionPane.showMessageDialog(Main.main, x.getMessage());
+				} finally {
+					dlg.setVisible(false);
+				}
+			}
+		}.start();
+		
+		dlg.setVisible(true);
+		
+		// finished without errors -> clean dataset
+		Main.main.getMapFrame().mapView.editLayer().cleanData();
 	}
 	
 	/**

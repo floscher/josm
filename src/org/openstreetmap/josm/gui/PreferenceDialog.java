@@ -14,7 +14,6 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -50,9 +49,7 @@ public class PreferenceDialog extends JDialog {
 		}
 		public void actionPerformed(ActionEvent e) {
 			Main.pref.laf = (LookAndFeelInfo)lafCombo.getSelectedItem();
-			Projection projection = (Projection)projectionCombo.getSelectedItem();
-			projection.commitConfigurationPanel();
-			Main.pref.setProjection(projection);
+			Main.pref.setProjection((Projection)projectionCombo.getSelectedItem());
 			Main.pref.osmDataServer = osmDataServer.getText();
 			Main.pref.osmDataUsername = osmDataUsername.getText();
 			Main.pref.osmDataPassword = String.valueOf(osmDataPassword.getPassword());
@@ -98,7 +95,7 @@ public class PreferenceDialog extends JDialog {
 	/**
 	 * Combobox with all projections available
 	 */
-	JComboBox projectionCombo = new JComboBox(Preferences.allProjections.clone());
+	JComboBox projectionCombo = new JComboBox(Preferences.allProjections);
 	/**
 	 * The main tab panel.
 	 */
@@ -159,26 +156,6 @@ public class PreferenceDialog extends JDialog {
 				break;
 			}
 		}
-		JButton projectionDetail = new JButton("Configure");
-		projectionDetail.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e) {
-				Projection p = (Projection)projectionCombo.getSelectedItem();
-				JComponent configurationPanel = p.getConfigurationPanel();
-				if (configurationPanel == null) {
-					JOptionPane.showMessageDialog(PreferenceDialog.this,
-							"This projection does not need any configuration.");
-					return;
-				}
-				JPanel detail = new JPanel(new GridBagLayout());
-				detail.setLayout(new GridBagLayout());
-				detail.add(configurationPanel, GBC.eop().fill());
-				int result = JOptionPane.showConfirmDialog(
-						PreferenceDialog.this, detail, "Configuration of "+p, 
-						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-				if (result != JOptionPane.OK_OPTION)
-					p.getConfigurationPanel(); // rollback
-			}
-		});
 		
 		// drawRawGpsLines
 		drawRawGpsLines.addActionListener(new ActionListener(){
@@ -241,9 +218,6 @@ public class PreferenceDialog extends JDialog {
 		map.add(new JLabel("Projection method"), GBC.std());
 		map.add(GBC.glue(5,0), GBC.std().fill(GBC.HORIZONTAL));
 		map.add(projectionCombo, GBC.eol().fill(GBC.HORIZONTAL).insets(0,0,0,5));
-		map.add(new JLabel("Projection details:"), GBC.std());
-		map.add(GBC.glue(5,0), GBC.std().fill(GBC.HORIZONTAL));
-		map.add(projectionDetail, GBC.eop());
 		map.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
 
 

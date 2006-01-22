@@ -3,7 +3,11 @@ package org.openstreetmap.josm.actions;
 import java.awt.AWTKeyStroke;
 
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
 
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.gui.ImageProvider;
 
 /**
@@ -28,5 +32,24 @@ abstract public class JosmAction extends AbstractAction {
 			putValue(MNEMONIC_KEY, mnemonic);
 		if (shortCut != null)
 			putValue(ACCELERATOR_KEY, shortCut);
+	}
+
+	/**
+	 * @return A dialog labeled "... Please Wait." where ... is the message parameter.
+	 */
+	protected JDialog createPleaseWaitDialog(String msg) {
+		final JDialog pleaseWaitDlg = new JDialog(Main.main, true);
+		pleaseWaitDlg.setUndecorated(true);
+		JLabel l = new JLabel(msg+". Please Wait.");
+		l.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createEtchedBorder(),
+				BorderFactory.createEmptyBorder(20,20,20,20)));
+		pleaseWaitDlg.getContentPane().add(l);
+		pleaseWaitDlg.pack();
+		pleaseWaitDlg.setLocation(Main.main.getWidth()/2-pleaseWaitDlg.getWidth()/2,
+				Main.main.getHeight()/2-pleaseWaitDlg.getHeight()/2);
+		pleaseWaitDlg.setResizable(false);
+		pleaseWaitDlg.setAlwaysOnTop(true);
+		return pleaseWaitDlg;
 	}
 }

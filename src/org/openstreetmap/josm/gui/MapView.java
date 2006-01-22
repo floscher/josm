@@ -19,7 +19,6 @@ import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
@@ -96,10 +95,6 @@ public class MapView extends NavigatableComponent implements ChangeListener, Pro
 	 * position.
 	 */
 	public void addLayer(Layer layer) {
-		// initialize the projection if it is the first layer
-		if (layers.isEmpty())
-			getProjection().init(layer.getBoundsLatLon());
-
 		// reinitialize layer's data
 		layer.init(getProjection());
 
@@ -338,8 +333,8 @@ public class MapView extends NavigatableComponent implements ChangeListener, Pro
 	public void stateChanged(ChangeEvent e) {
 		// reset all datasets.
 		Projection p = getProjection();
-		for (Node n : Main.main.ds.nodes)
-			p.latlon2xy(n.coor);
+		for (Layer l : layers)
+			l.init(p);
 		recalculateCenterScale();
 	}
 
@@ -350,15 +345,7 @@ public class MapView extends NavigatableComponent implements ChangeListener, Pro
 	 * @param newProjection	The new projection. Register as state change listener.
 	 */
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (!evt.getPropertyName().equals("projection"))
-			return;
-		if (evt.getOldValue() != null)
-			((Projection)evt.getOldValue()).removeChangeListener(this);
-		if (evt.getNewValue() != null) {
-			Projection p = (Projection)evt.getNewValue();
-			p.addChangeListener(this);
-	
+		if (evt.getPropertyName().equals("projection"))
 			stateChanged(new ChangeEvent(this));
-		}
 	}
 }
