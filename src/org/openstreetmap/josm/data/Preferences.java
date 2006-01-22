@@ -20,7 +20,6 @@ import org.jdom.output.XMLOutputter;
 import org.openstreetmap.josm.data.projection.Epsg4263;
 import org.openstreetmap.josm.data.projection.Mercator;
 import org.openstreetmap.josm.data.projection.Projection;
-import org.openstreetmap.josm.data.projection.UTM;
 
 
 /**
@@ -38,7 +37,7 @@ public class Preferences {
 	/**
 	 * The convertor used to translate lat/lon points to screen points.
 	 */
-	private Projection projection = new UTM();
+	private Projection projection = new Epsg4263();
 
 
 	/**
@@ -77,9 +76,8 @@ public class Preferences {
 	 * List of all available Projections.
 	 */
 	public static final Projection[] allProjections = new Projection[]{
-		new Mercator(),
-		new UTM(),
-		new Epsg4263()
+		new Epsg4263(),
+		new Mercator()
 	};
 
 	/**
@@ -123,7 +121,7 @@ public class Preferences {
 			
 			// projection
 			Class<?> projectionClass = Class.forName(root.getChildText("projection"));
-			projection = allProjections[0]; // defaults to UTM
+			projection = allProjections[0];
 			for (Projection p : allProjections) {
 				if (p.getClass() == projectionClass) {
 					projection = p;

@@ -13,6 +13,7 @@ import java.io.IOException;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -73,7 +74,7 @@ public class DownloadAction extends JosmAction {
 		dlg.add(new JLabel("max lat"), GBC.std().insets(10,0,5,0));
 		dlg.add(latlon[2], GBC.std());
 		dlg.add(new JLabel("max lon"), GBC.std().insets(10,0,5,0));
-		dlg.add(latlon[3], GBC.eop());
+		dlg.add(latlon[3], GBC.eol());
 
 		if (Main.main.getMapFrame() != null) {
 			MapView mv = Main.main.getMapFrame().mapView;
@@ -158,38 +159,59 @@ public class DownloadAction extends JosmAction {
 			JOptionPane.showMessageDialog(Main.main, "Please enter the desired coordinates or click on a bookmark.");
 			return;
 		}
-		OsmServerReader osmReader = new OsmServerReader(b.latlon[0], b.latlon[1], b.latlon[2], b.latlon[3]);
-		try {
-			String name = latlon[0].getText()+" "+latlon[1].getText()+" x "+
-					latlon[2].getText()+" "+latlon[3].getText();
-			
-			Layer layer;
-			if (rawGps.isSelected()) {
-				layer = new RawGpsDataLayer(osmReader.parseRawGps(), name);
-			} else {
-				DataSet dataSet = osmReader.parseOsm();
-				if (dataSet == null)
-					return; // user cancelled download
-				if (dataSet.nodes.isEmpty())
-					JOptionPane.showMessageDialog(Main.main, "No data imported.");
-				
-				layer = new OsmDataLayer(dataSet, name);
-			}
+		
+		final OsmServerReader osmReader = new OsmServerReader(b.latlon[0], b.latlon[1], b.latlon[2], b.latlon[3]);
+		
+		final JDialog pleaseWaitDlg = createPleaseWaitDialog("Downloading data");
+		
+		new Thread(){
+			@Override
+			public void run() {
+				try {
+					String name = latlon[0].getText() + " "
+							+ latlon[1].getText() + " x " + latlon[2].getText()
+							+ " " + latlon[3].getText();
 
-			if (Main.main.getMapFrame() == null)
-				Main.main.setMapFrame(name, new MapFrame(layer));
-			else
-				Main.main.getMapFrame().mapView.addLayer(layer);
-		} catch (JDOMException x) {
-			x.printStackTrace();
-			JOptionPane.showMessageDialog(Main.main, x.getMessage());
-		} catch (FileNotFoundException x) {
-			x.printStackTrace();
-			JOptionPane.showMessageDialog(Main.main, "URL nicht gefunden: "+x.getMessage());
-		} catch (IOException x) {
-			x.printStackTrace();
-			JOptionPane.showMessageDialog(Main.main, x.getMessage());
-		}
+					Layer layer = null;
+					if (rawGps.isSelected()) {
+						layer = new RawGpsDataLayer(osmReader.parseRawGps(),
+								name);
+					} else {
+						DataSet dataSet = osmReader.parseOsm();
+						if (dataSet == null)
+							return; // user cancelled download
+						if (dataSet.nodes.isEmpty())
+							JOptionPane.showMessageDialog(Main.main,
+									"No data imported.");
+
+						layer = new OsmDataLayer(dataSet, name);
+					}
+
+					if (Main.main.getMapFrame() == null)
+						Main.main.setMapFrame(name, new MapFrame(layer));
+					else
+						Main.main.getMapFrame().mapView.addLayer(layer);
+					pleaseWaitDlg.setVisible(false);
+				} catch (JDOMException x) {
+					pleaseWaitDlg.setVisible(false);
+					x.printStackTrace();
+					JOptionPane.showMessageDialog(Main.main, x.getMessage());
+				} catch (FileNotFoundException x) {
+					pleaseWaitDlg.setVisible(false);
+					x.printStackTrace();
+					JOptionPane.showMessageDialog(Main.main,
+							"URL nicht gefunden: " + x.getMessage());
+				} catch (IOException x) {
+					pleaseWaitDlg.setVisible(false);
+					x.printStackTrace();
+					JOptionPane.showMessageDialog(Main.main, x.getMessage());
+				} finally {
+					pleaseWaitDlg.setVisible(false);
+				}
+			}
+		}.start();
+		
+		pleaseWaitDlg.setVisible(true);
 	}
 	
 	/**

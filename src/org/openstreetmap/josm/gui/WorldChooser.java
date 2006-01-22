@@ -12,7 +12,6 @@ import java.beans.PropertyChangeListener;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
@@ -62,12 +61,10 @@ public class WorldChooser extends NavigatableComponent {
 		setPreferredSize(new Dimension(200, 100));
 		new MapMover(this);
 		projection = new Projection(){
-			@Override
 			public void latlon2xy(GeoPoint p) {
 				p.x = (p.lon+180) / 360 * world.getIconWidth();
 				p.y = (p.lat+90) / 180 * world.getIconHeight();
 			}
-			@Override
 			public void xy2latlon(GeoPoint p) {
 				p.lon = p.x*360/world.getIconWidth() - 180;
 				p.lat = p.y*180/world.getIconHeight() - 90;
@@ -75,13 +72,6 @@ public class WorldChooser extends NavigatableComponent {
 			@Override
 			public String toString() {
 				return "WorldChooser";
-			}
-			@Override
-			public JComponent getConfigurationPanel() {
-				return null;
-			}
-			@Override
-			public void commitConfigurationPanel() {
 			}
 		};
 	}

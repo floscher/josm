@@ -7,7 +7,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Collection;
+import java.util.HashMap;
 
 import org.jdom.Document;
 import org.jdom.Element;
@@ -55,9 +57,9 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 	/**
 	 * Upload a single node.
 	 */
-	@SuppressWarnings("unchecked")
 	public void visit(Node n) {
 		if (n.id == 0 && !n.isDeleted()) {
+			setCredits(n);
 			sendRequest("PUT", "newnode", n, true);
 		} else if (n.isDeleted()) {
 			sendRequest("DELETE", "node/" + n.id, n, false);
@@ -66,14 +68,29 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 		}
 	}
 
+	/**
+	 * Upload a line segment (without the nodes).
+	 */
 	public void visit(LineSegment ls) {
 		if (ls.id == 0 && !ls.isDeleted()) {
+			setCredits(ls);
 			sendRequest("PUT", "newsegment", ls, true);
 		} else if (ls.isDeleted()) {
 			sendRequest("DELETE", "segment/" + ls.id, ls, false);
 		} else {
 			sendRequest("PUT", "segment/" + ls.id, ls, true);
 		}
+	}
+
+	/**
+	 * Add the created_by - property to indicate that JOSM was the
+	 * creating application.
+	 * @param osm The primitive to add the credits to
+	 */
+	private void setCredits(OsmPrimitive osm) {
+		if (osm.keys == null)
+			osm.keys = new HashMap<Key, String>();
+		osm.keys.put(Key.get("created_by"), "JOSM");
 	}
 
 	public void visit(Track t) {
@@ -129,6 +146,8 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 			if (retCode == 200 && osm.id == 0)
 				osm.id = readId(con.getInputStream());
 			con.disconnect();
+		} catch (UnknownHostException e) {
+			throw new RuntimeException("Unknown host: "+e.getMessage(), e);
 		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage(), e);
 		}
