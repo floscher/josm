@@ -56,10 +56,6 @@ public class Main extends JFrame {
 	 */
 	private Container panel;
 	/**
-	 * The name of the current loaded mapFrame
-	 */
-	private String name;
-	/**
 	 * The mapFrame currently loaded.
 	 */
 	private MapFrame mapFrame;
@@ -181,9 +177,8 @@ public class Main extends JFrame {
 	 * ask the user whether he want to save, discard or abort. If the user
 	 * aborts, nothing happens. 
 	 */
-	public void setMapFrame(String name, MapFrame mapFrame) {
+	public void setMapFrame(MapFrame mapFrame) {
 		//TODO: Check for changes and ask user
-		this.name = name;
 		if (this.mapFrame != null)
 			this.mapFrame.setVisible(false);
 		this.mapFrame = mapFrame;
@@ -194,12 +189,6 @@ public class Main extends JFrame {
 			panel.setVisible(true);
 			mapFrame.setVisible(true);
 		}
-	}
-	/**
-	 * @return Returns the name.
-	 */
-	public String getNameOfLoadedMapFrame() {
-		return name;
 	}
 	/**
 	 * @return Returns the mapFrame.

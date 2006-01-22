@@ -65,8 +65,8 @@ public class OsmReader {
 	private Node parseNode(Element e) throws JDOMException {
 		Node data = new Node();
 		data.coor = new GeoPoint(
-			Float.parseFloat(e.getAttributeValue("lat")),
-			Float.parseFloat(e.getAttributeValue("lon")));
+			Double.parseDouble(e.getAttributeValue("lat")),
+			Double.parseDouble(e.getAttributeValue("lon")));
 		if (Double.isNaN(data.coor.lat) || 
 				data.coor.lat < -90 || data.coor.lat > 90 ||
 				data.coor.lon < -180 || data.coor.lon > 180)

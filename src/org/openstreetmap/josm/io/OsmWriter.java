@@ -101,9 +101,10 @@ public class OsmWriter implements Visitor {
 	 * Add the id attribute to the element and the properties to the collection.
 	 */
 	private void addProperties(Element e, OsmPrimitive osm) {
-		if (osm.id == 0)
-			osm.id = newIdCounter--;
-		e.setAttribute("uid", ""+osm.id);
+		long id = osm.id;
+		if (id == 0)
+			id = newIdCounter--;
+		e.setAttribute("uid", ""+id);
 		if (osm.keys != null)
 			for (Entry<Key, String> entry : osm.keys.entrySet())
 				properties.add(parseProperty(osm, entry));
@@ -134,10 +135,10 @@ public class OsmWriter implements Visitor {
 	 */
 	@SuppressWarnings("unchecked")
 	public void visit(Track t) {
-		Element e = new Element("track");
-		addProperties(e, t);
+		element = new Element("track");
+		addProperties(element, t);
 		for (LineSegment ls : t.segments)
-			e.getChildren().add(new Element("segment").setAttribute("uid", ""+ls.id));
+			element.getChildren().add(new Element("segment").setAttribute("uid", ""+ls.id));
 	}
 
 	public void visit(Key k) {

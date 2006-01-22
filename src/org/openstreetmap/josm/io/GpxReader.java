@@ -65,8 +65,8 @@ public class GpxReader {
 	private Node parseWaypoint(Element e) {
 		Node data = new Node();
 		data.coor = new GeoPoint(
-			Float.parseFloat(e.getAttributeValue("lat")),
-			Float.parseFloat(e.getAttributeValue("lon")));
+			Double.parseDouble(e.getAttributeValue("lat")),
+			Double.parseDouble(e.getAttributeValue("lon")));
 		
 		for (Object o : e.getChildren()) {
 			Element child = (Element)o;
@@ -189,6 +189,7 @@ public class GpxReader {
 			if (idElement != null)
 				osm.id = Long.parseLong(idElement.getText());
 			osm.modified = e.getChild("modified", JOSM) != null;
+			osm.setDeleted(e.getChild("deleted", JOSM) != null);
 			osm.modifiedProperties = e.getChild("modifiedProperties", JOSM) != null;
 		}
 	}

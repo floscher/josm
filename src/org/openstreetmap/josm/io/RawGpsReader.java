@@ -62,7 +62,7 @@ public class RawGpsReader {
 		
 		for (Object o : root.getChildren("wpt", GPX)) {
 			Collection<GeoPoint> line = new LinkedList<GeoPoint>();
-			line.add(new GeoPoint(parseFloat((Element)o, LatLon.lat), parseFloat((Element)o, LatLon.lon)));
+			line.add(new GeoPoint(parseDouble((Element)o, LatLon.lat), parseDouble((Element)o, LatLon.lon)));
 			data.add(line);
 		}
 		for (Object o : root.getChildren("rte", GPX)) {
@@ -87,11 +87,11 @@ public class RawGpsReader {
 	 * @param attr The name of the attribute.
 	 * @throws JDOMException If the absolute of the value is out of bound.
 	 */
-	private float parseFloat(Element e, LatLon attr) throws JDOMException {
-		float f = Float.parseFloat(e.getAttributeValue(attr.toString()));
-		if (Math.abs(f) > (attr == LatLon.lat ? 90 : 180))
-			throw new JDOMException("Data error: "+attr+" value '"+f+"' is out of bound.");
-		return f;
+	private double parseDouble(Element e, LatLon attr) throws JDOMException {
+		double d = Double.parseDouble(e.getAttributeValue(attr.toString()));
+		if (Math.abs(d) > (attr == LatLon.lat ? 90 : 180))
+			throw new JDOMException("Data error: "+attr+" value '"+d+"' is out of bound.");
+		return d;
 	}
 
 	/**
@@ -101,7 +101,7 @@ public class RawGpsReader {
 	private Collection<GeoPoint> parseLine(List<Element> wpt) throws JDOMException {
 		Collection<GeoPoint> data = new LinkedList<GeoPoint>();
 		for (Element e : wpt)
-			data.add(new GeoPoint(parseFloat(e, LatLon.lat), parseFloat(e, LatLon.lon)));
+			data.add(new GeoPoint(parseDouble(e, LatLon.lat), parseDouble(e, LatLon.lon)));
 		return data;
 	}
 }

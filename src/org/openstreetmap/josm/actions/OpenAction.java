@@ -81,11 +81,11 @@ public class OpenAction extends JosmAction {
 					JOptionPane.showMessageDialog(Main.main, "Unknown file extension: "+extension);
 					return;
 				}
-				layer = new OsmDataLayer(dataSet, filename.getName());
+				layer = new OsmDataLayer(dataSet, "Data Layer");
 			}
 			
 			if (Main.main.getMapFrame() == null)
-				Main.main.setMapFrame(filename.getName(), new MapFrame(layer));
+				Main.main.setMapFrame(new MapFrame(layer));
 			else
 				Main.main.getMapFrame().mapView.addLayer(layer);
 

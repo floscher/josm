@@ -82,10 +82,14 @@ public class UploadAction extends JosmAction {
 					server.uploadOsm(all);
 				} catch (JDOMException x) {
 					dlg.setVisible(false);
+					dlg.dispose();
 					x.printStackTrace();
 					JOptionPane.showMessageDialog(Main.main, x.getMessage());
 				} finally {
-					dlg.setVisible(false);
+					if (dlg.isVisible()) {
+						dlg.setVisible(false);
+						dlg.dispose();
+					}
 				}
 			}
 		}.start();

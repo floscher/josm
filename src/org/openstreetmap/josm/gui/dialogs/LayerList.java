@@ -152,7 +152,7 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 		deleteButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				if (model.size() == 1) {
-					Main.main.setMapFrame(null, null);
+					Main.main.setMapFrame(null);
 					Main.main.ds = new DataSet();
 				} else {
 					int sel = layers.getSelectedIndex();

@@ -26,6 +26,7 @@ import org.openstreetmap.josm.Main;
  */
 public final class BugReportExceptionHandler implements Thread.UncaughtExceptionHandler {
 	public void uncaughtException(Thread t, Throwable e) {
+		e.printStackTrace();
 		if (Main.main == null)
 			e.printStackTrace();
 		else {
