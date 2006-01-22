@@ -46,10 +46,9 @@ abstract public class JosmAction extends AbstractAction {
 				BorderFactory.createEmptyBorder(20,20,20,20)));
 		pleaseWaitDlg.getContentPane().add(l);
 		pleaseWaitDlg.pack();
-		pleaseWaitDlg.setLocation(Main.main.getWidth()/2-pleaseWaitDlg.getWidth()/2,
-				Main.main.getHeight()/2-pleaseWaitDlg.getHeight()/2);
+		pleaseWaitDlg.setLocation(Main.main.getX()+Main.main.getWidth()/2-pleaseWaitDlg.getWidth()/2,
+				Main.main.getY()+Main.main.getHeight()/2-pleaseWaitDlg.getHeight()/2);
 		pleaseWaitDlg.setResizable(false);
-		pleaseWaitDlg.setAlwaysOnTop(true);
 		return pleaseWaitDlg;
 	}
 }

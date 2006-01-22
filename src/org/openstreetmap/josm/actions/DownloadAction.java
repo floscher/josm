@@ -174,39 +174,47 @@ public class DownloadAction extends JosmAction {
 
 					Layer layer = null;
 					if (rawGps.isSelected()) {
-						layer = new RawGpsDataLayer(osmReader.parseRawGps(),
-								name);
+						layer = new RawGpsDataLayer(osmReader.parseRawGps(), name);
 					} else {
 						DataSet dataSet = osmReader.parseOsm();
 						if (dataSet == null)
 							return; // user cancelled download
-						if (dataSet.nodes.isEmpty())
+						if (dataSet.nodes.isEmpty()) {
+							pleaseWaitDlg.setVisible(false);
+							pleaseWaitDlg.dispose();
 							JOptionPane.showMessageDialog(Main.main,
 									"No data imported.");
+						}
 
-						layer = new OsmDataLayer(dataSet, name);
+						layer = new OsmDataLayer(dataSet, "Data Layer");
 					}
 
 					if (Main.main.getMapFrame() == null)
-						Main.main.setMapFrame(name, new MapFrame(layer));
+						Main.main.setMapFrame(new MapFrame(layer));
 					else
 						Main.main.getMapFrame().mapView.addLayer(layer);
 					pleaseWaitDlg.setVisible(false);
 				} catch (JDOMException x) {
 					pleaseWaitDlg.setVisible(false);
+					pleaseWaitDlg.dispose();
 					x.printStackTrace();
 					JOptionPane.showMessageDialog(Main.main, x.getMessage());
 				} catch (FileNotFoundException x) {
 					pleaseWaitDlg.setVisible(false);
+					pleaseWaitDlg.dispose();
 					x.printStackTrace();
 					JOptionPane.showMessageDialog(Main.main,
 							"URL nicht gefunden: " + x.getMessage());
 				} catch (IOException x) {
 					pleaseWaitDlg.setVisible(false);
+					pleaseWaitDlg.dispose();
 					x.printStackTrace();
 					JOptionPane.showMessageDialog(Main.main, x.getMessage());
 				} finally {
-					pleaseWaitDlg.setVisible(false);
+					if (pleaseWaitDlg.isVisible()) {
+						pleaseWaitDlg.setVisible(false);
+						pleaseWaitDlg.dispose();
+					}
 				}
 			}
 		}.start();
