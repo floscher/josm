@@ -188,13 +188,16 @@ public class OsmReader {
 			data.keys = new HashMap<Key, String>();
 			StringTokenizer st = new StringTokenizer(propStr, ";");
 			while (st.hasMoreTokens()) {
-				StringTokenizer t = new StringTokenizer(st.nextToken(), "=");
-				if (t.countTokens() > 1)
-					data.keys.put(Key.get(t.nextToken()), t.nextToken());
+				String next = st.nextToken();
+				System.out.println(next);
+				if (next.trim().equals(""))
+					continue;
+				int equalPos = next.indexOf('=');
+				if (equalPos == -1)
+					data.keys.put(Key.get(next), "");
 				else {
-					String token = t.nextToken();
-					if (!" ".equals(token))
-						data.keys.put(Key.get(token), "");
+					String keyStr = next.substring(0, equalPos);
+					data.keys.put(Key.get(keyStr), next.substring(equalPos+1));
 				}
 			}
 		}
