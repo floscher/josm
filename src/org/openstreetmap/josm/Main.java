@@ -3,6 +3,11 @@ package org.openstreetmap.josm;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.util.Arrays;
+import java.util.Collection;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -28,6 +33,7 @@ import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.gui.BugReportExceptionHandler;
 import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.MapFrame;
+import org.openstreetmap.josm.gui.ShowModifiers;
 
 /**
  * Main window class application.
@@ -73,7 +79,7 @@ public class Main extends JFrame {
 		panel = new JPanel(new BorderLayout());
 		getContentPane().add(panel, BorderLayout.CENTER);
 		setSize(1000,740); // some strange default size
-		setExtendedState(MAXIMIZED_BOTH); // some platform are able to maximize
+		setVisible(true);
 		
 		// creating actions
 		DownloadAction downloadAction = new DownloadAction();
@@ -142,7 +148,7 @@ public class Main extends JFrame {
 	public static void main(String[] args) {
 		setupExceptionHandler();
 		setupUiDefaults();
-		
+
 		// load preferences
 		String errMsg = null;
 		try {
@@ -169,6 +175,24 @@ public class Main extends JFrame {
 		main = new Main();
 		main.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		main.setVisible(true);
+
+		Collection<String> arguments = Arrays.asList(args);
+
+		if (arguments.contains("--show-modifiers")) {
+			Point p = main.getLocationOnScreen();
+			Dimension s = main.getSize();
+			new ShowModifiers(p.x + s.width - 3, p.y + s.height - 32);
+			main.setVisible(true);
+		}
+		
+		if (!arguments.contains("--no-fullscreen")) {
+			if (Toolkit.getDefaultToolkit().isFrameStateSupported(MAXIMIZED_BOTH))
+				main.setExtendedState(MAXIMIZED_BOTH); // some platform are able to maximize
+			else {
+				Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+				main.setSize(d);
+			}
+		}
 	}
 
 
