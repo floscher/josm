@@ -65,6 +65,7 @@ public class OsmServerReader extends OsmConnection {
 			}
 			if (!foundSomething)
 				break;
+			r.close();
 		}
 
 		data.add(list);
@@ -80,7 +81,9 @@ public class OsmServerReader extends OsmConnection {
 		Reader r = getReader(Main.pref.osmDataServer+"/map?bbox="+lon1+","+lat1+","+lon2+","+lat2);
 		if (r == null)
 			return null;
-		return new OsmReader(r).parse();
+		DataSet data = new OsmReader(r).parse();
+		r.close();
+		return data;
 	}
 
 

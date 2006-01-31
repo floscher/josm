@@ -189,7 +189,6 @@ public class OsmReader {
 			StringTokenizer st = new StringTokenizer(propStr, ";");
 			while (st.hasMoreTokens()) {
 				String next = st.nextToken();
-				System.out.println(next);
 				if (next.trim().equals(""))
 					continue;
 				int equalPos = next.indexOf('=');

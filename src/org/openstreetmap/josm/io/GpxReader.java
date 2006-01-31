@@ -123,7 +123,7 @@ public class GpxReader {
 						LineSegment lineSegment = new LineSegment(start, node);
 						parseKeyValueExtensions(lineSegment, child.getChild("extensions", GPX));
 						track.segments.add(lineSegment);
-						start = null;
+						start = node;
 					}
 				}
 			} else if (child.getName().equals("extensions")) {
