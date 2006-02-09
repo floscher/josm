@@ -53,7 +53,7 @@ public class SaveAction extends JosmAction {
 			String fn = file.getName();
 			FileWriter fileWriter;
 			if (fn.endsWith(".gpx"))
-				new GpxWriter(fileWriter = new FileWriter(file)).output();
+				new GpxWriter(fileWriter = new FileWriter(file), Main.main.ds).output();
 			else if (fn.endsWith(".xml") || fn.endsWith(".osm"))
 				new OsmWriter(fileWriter = new FileWriter(file), Main.main.ds).output();
 			else if (fn.endsWith(".txt") || fn.endsWith(".csv")) {
