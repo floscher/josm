@@ -3,6 +3,7 @@ package org.openstreetmap.josm.io;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -38,6 +39,11 @@ public class OsmWriter implements Visitor {
 	 * The counter for new created objects. Starting at -1 and goes down.
 	 */
 	private long newIdCounter = -1;
+	/**
+	 * All newly created ids and their primitive that uses it. This is a back reference
+	 * map to allow references to use the correnct primitives.
+	 */
+	private HashMap<OsmPrimitive, Long> usedNewIds = new HashMap<OsmPrimitive, Long>();
 
 	/**
 	 * Set from the visitor functions as result.
@@ -71,7 +77,7 @@ public class OsmWriter implements Visitor {
 		Element deleted = new Element("deleted");
 		Collection<Element> allDeleted = deleted.getChildren();
 		for (OsmPrimitive osm : ds.allPrimitives()) {
-			if (osm.isDeleted()) {
+			if (osm.isDeleted() && osm.id != 0) {
 				osm.visit(this);
 				allDeleted.add(element);
 			}
@@ -102,8 +108,10 @@ public class OsmWriter implements Visitor {
 	 */
 	private void addProperties(Element e, OsmPrimitive osm) {
 		long id = osm.id;
-		if (id == 0)
+		if (id == 0) {
 			id = newIdCounter--;
+			usedNewIds.put(osm, id);
+		}
 		e.setAttribute("uid", ""+id);
 		if (osm.keys != null)
 			for (Entry<Key, String> entry : osm.keys.entrySet())
@@ -126,8 +134,15 @@ public class OsmWriter implements Visitor {
 	public void visit(LineSegment ls) {
 		element = new Element("segment");
 		addProperties(element, ls);
-		element.setAttribute("from", ""+ls.start.id);
-		element.setAttribute("to", ""+ls.end.id);
+		element.setAttribute("from", ""+getUsedId(ls.start));
+		element.setAttribute("to", ""+getUsedId(ls.end));
+	}
+
+	/**
+	 * Return the id for the given osm primitive (may access the usedId map)
+	 */
+	private Long getUsedId(OsmPrimitive osm) {
+		return osm.id == 0 ? usedNewIds.get(osm) : osm.id;
 	}
 
 	/**
@@ -138,7 +153,7 @@ public class OsmWriter implements Visitor {
 		element = new Element("track");
 		addProperties(element, t);
 		for (LineSegment ls : t.segments)
-			element.getChildren().add(new Element("segment").setAttribute("uid", ""+ls.id));
+			element.getChildren().add(new Element("segment").setAttribute("uid", ""+getUsedId(ls)));
 	}
 
 	public void visit(Key k) {
@@ -146,4 +161,3 @@ public class OsmWriter implements Visitor {
 		addProperties(element, k);
 	}
 }
-

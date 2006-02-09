@@ -1,8 +1,8 @@
 package org.openstreetmap.josm.io;
 
 import static org.openstreetmap.josm.io.GpxWriter.GPX;
-import static org.openstreetmap.josm.io.GpxWriter.OSM;
 import static org.openstreetmap.josm.io.GpxWriter.JOSM;
+import static org.openstreetmap.josm.io.GpxWriter.OSM;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -32,6 +32,15 @@ public class GpxReader {
 	 * The data source from this reader.
 	 */
 	public Reader source;
+	/**
+	 * Mapper to find new created objects that occoure more than once.
+	 */
+	private HashMap<Long, OsmPrimitive> newCreatedPrimitives = new HashMap<Long, OsmPrimitive>();
+	/**
+	 * Either set to true or false, depending whether the JOSM namespace declaration 
+	 * was found.
+	 */
+	private boolean mergeNodes = false;
 
 	/**
 	 * Construct a parser from a specific data source.
@@ -48,6 +57,7 @@ public class GpxReader {
 		try {
 			final SAXBuilder builder = new SAXBuilder();
 			Element root = builder.build(source).getRootElement();
+			mergeNodes = !root.getAdditionalNamespaces().contains(JOSM);
 			return parseDataSet(root);
 		} catch (NullPointerException npe) {
 			throw new JDOMException("NullPointerException. Probably a tag name mismatch.", npe);
@@ -77,6 +87,7 @@ public class GpxReader {
 			else
 				parseKeyValueTag(data, child);
 		}
+		data = (Node)getNewIfSeenBefore(data);
 		return data;
 	}
 
@@ -88,13 +99,20 @@ public class GpxReader {
 	private DataSet parseDataSet(Element e) {
 		DataSet data = new DataSet();
 		// read waypoints not contained in tracks or areas
-		for (Object o : e.getChildren("wpt", GPX))
-			addNode(data, parseWaypoint((Element)o));
+		for (Object o : e.getChildren("wpt", GPX)) {
+			Node node = parseWaypoint((Element)o);
+			addNode(data, node);
+		}
 	
 		// read tracks (and line segments)
 		for (Object trackElement : e.getChildren("trk", GPX))
 			parseTrack((Element)trackElement, data);
-	
+
+		// reset new created ids to zero
+		for (OsmPrimitive osm : data.allPrimitives())
+			if (osm.id < 0)
+				osm.id = 0;
+		
 		return data;
 	}
 
@@ -115,13 +133,13 @@ public class GpxReader {
 			if (child.getName().equals("trkseg")) {
 				Node start = null;
 				for (Object w : child.getChildren("trkpt", GPX)) {
-					Node node = parseWaypoint((Element)w);
-					node = addNode(ds, node);
+					Node node = addNode(ds, parseWaypoint((Element)w));
 					if (start == null)
 						start = node;
 					else {
 						LineSegment lineSegment = new LineSegment(start, node);
 						parseKeyValueExtensions(lineSegment, child.getChild("extensions", GPX));
+						lineSegment = (LineSegment)getNewIfSeenBefore(lineSegment);
 						track.segments.add(lineSegment);
 						start = node;
 					}
@@ -135,30 +153,39 @@ public class GpxReader {
 			else
 				parseKeyValueTag(track, child);
 		}
+		track = (Track)getNewIfSeenBefore(track);
 		ds.lineSegments.addAll(track.segments);
 		if (!realLineSegment)
 			ds.tracks.add(track);
 	}
-	
 
 	/**
 	 * Adds the node to allNodes if it is not already listed. Does respect the
-	 * preference setting "mergeNodes". Return the node in the list that correspond
+	 * setting "mergeNodes". Return the node in the list that correspond
 	 * to the node in the list (either the new added or the old found).
-	 * 
-	 * If reading raw gps data, mergeNodes are always on (To save memory. You
-	 * can't edit raw gps nodes anyway.)
 	 * 
 	 * @param data The DataSet to add the node to.
 	 * @param node The node that should be added.
 	 * @return Either the parameter node or the old node found in the dataset. 
 	 */
 	private Node addNode(DataSet data, Node node) {
-		for (Node n : data.nodes)
-			if (node.coor.equalsLatLon(n.coor))
-				return n;
+		if (mergeNodes)
+			for (Node n : data.nodes)
+				if (node.coor.equalsLatLon(n.coor))
+					return n;
 		data.nodes.add(node);
 		return node;
+	}
+	
+
+	/**
+	 * @return Either the parameter or an index from the newCreatedPrimitives map
+	 * 		with the id seen before.
+	 */
+	private OsmPrimitive getNewIfSeenBefore(OsmPrimitive osm) {
+		if (newCreatedPrimitives.containsKey(osm.id))
+			return newCreatedPrimitives.get(osm.id);
+		return osm;
 	}
 
 	/**
@@ -188,6 +215,8 @@ public class GpxReader {
 			Element idElement = e.getChild("uid", JOSM);
 			if (idElement != null)
 				osm.id = Long.parseLong(idElement.getText());
+			if (osm.id < 0 && !newCreatedPrimitives.containsKey(osm.id))
+				newCreatedPrimitives.put(osm.id, osm);
 			osm.modified = e.getChild("modified", JOSM) != null;
 			osm.setDeleted(e.getChild("deleted", JOSM) != null);
 			osm.modifiedProperties = e.getChild("modifiedProperties", JOSM) != null;

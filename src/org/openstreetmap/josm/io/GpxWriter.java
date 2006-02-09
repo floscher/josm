@@ -2,6 +2,7 @@ package org.openstreetmap.josm.io;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -13,7 +14,7 @@ import org.jdom.Element;
 import org.jdom.Namespace;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
@@ -49,6 +50,21 @@ public class GpxWriter {
 	 * This is the output writer to store the resulting data in.
 	 */
 	private Writer out;
+	/**
+	 * The dataset beeing processed.
+	 */
+	private DataSet ds;
+	/**
+	 * Map all new primitives to the element which hold them. After inserting everything,
+	 * the writer sets ids to every element that was in the list and had more than one
+	 * element using it. 
+	 */
+	private HashMap<OsmPrimitive, Collection<Element>> usedNewPrimitives = new HashMap<OsmPrimitive, Collection<Element>>();
+	/**
+	 * The counter for new created objects used more than once.
+	 * Starting at -1 and goes down.
+	 */
+	private long newIdCounter = -1;
 	
 	/**
 	 * Create a GpxWrite from an output writer. As example to write in a file,
@@ -56,8 +72,9 @@ public class GpxWriter {
 	 *
 	 * @param out The Writer to store the result data in.
 	 */
-	public GpxWriter(Writer out) {
+	public GpxWriter(Writer out, DataSet ds) {
 		this.out = out;
+		this.ds = ds;
 	}
 
 
@@ -85,12 +102,14 @@ public class GpxWriter {
 		e.setAttribute("version", "1.0");
 		e.setAttribute("creator", "JOSM");
 		// for getting all unreferenced waypoints in the wpt-list
-		LinkedList<Node> unrefNodes = new LinkedList<Node>(Main.main.ds.nodes);
+		LinkedList<Node> unrefNodes = new LinkedList<Node>(ds.nodes);
 		// for getting all unreferenced line segments
-		LinkedList<LineSegment> unrefLs = new LinkedList<LineSegment>(Main.main.ds.lineSegments);
+		LinkedList<LineSegment> unrefLs = new LinkedList<LineSegment>(ds.lineSegments);
 
 		// tracks
-		for (Track t : Main.main.ds.tracks) {
+		for (Track t : ds.tracks) {
+			if (t.isDeleted() && t.id == 0)
+				continue;
 			Element tElem = new Element("trk", GPX);
 			HashMap<Key, String> keys = null;
 			if (t.keys != null) {
@@ -118,6 +137,8 @@ public class GpxWriter {
 		
 		// encode pending line segments as tracks
 		for (LineSegment ls : unrefLs) {
+			if (ls.isDeleted() && ls.id == 0)
+				continue;
 			Element t = new Element("trk", GPX);
 			t.getChildren().add(parseLineSegment(ls));
 			unrefNodes.remove(ls.start);
@@ -129,8 +150,24 @@ public class GpxWriter {
 		}
 
 		// waypoints (missing nodes)
-		for (Node n : unrefNodes)
+		for (Node n : unrefNodes) {
+			if (n.isDeleted() && n.id == 0)
+				continue;
 			e.getChildren().add(parseWaypoint(n, "wpt"));
+		}
+
+		// link all ids used more than once
+		for (Entry<OsmPrimitive, Collection<Element>> entry : usedNewPrimitives.entrySet()) {
+			if (entry.getValue().size() > 1) {
+				long id = newIdCounter--;
+				for (Element element : entry.getValue()) {
+					Element ext = element.getChild("extensions", GPX);
+					if (ext == null)
+						element.getChildren().add(ext = new Element("extensions", GPX));
+					ext.getChildren().add(new Element("uid", JOSM).setText(""+id));
+				}
+			}
+		}
 
 		return e;
 	}
@@ -241,35 +278,46 @@ public class GpxWriter {
 	 */
 	@SuppressWarnings("unchecked")
 	private void addPropertyExtensions(Element e, Map<Key, String> keys, OsmPrimitive osm) {
-		if ((keys == null || keys.isEmpty()) && osm.id == 0 && !osm.modified && !osm.isDeleted() && !osm.modifiedProperties)
-			return;
-		Element extensions = e.getChild("extensions", GPX);
-		if (extensions == null)
-			e.getChildren().add(extensions = new Element("extensions", GPX));
+		LinkedList<Element> extensions = new LinkedList<Element>();
 		if (keys != null && !keys.isEmpty()) {
 			for (Entry<Key, String> prop : keys.entrySet()) {
 				Element propElement = new Element("property", OSM);
 				propElement.setAttribute("key", prop.getKey().name);
 				propElement.setAttribute("value", prop.getValue());
-				extensions.getChildren().add(propElement);
+				extensions.add(propElement);
 			}
 		}
+		
 		if (osm.id != 0) {
 			Element propElement = new Element("uid", JOSM);
 			propElement.setText(""+osm.id);
-			extensions.getChildren().add(propElement);
+			extensions.add(propElement);
+		} else {
+			Collection<Element> l = usedNewPrimitives.get(osm);
+			if (l == null)
+				l = new LinkedList<Element>();
+			l.add(e);
+			usedNewPrimitives.put(osm, l);
 		}
 		if (osm.modified) {
 			Element modElement = new Element("modified", JOSM);
-			extensions.getChildren().add(modElement);
+			extensions.add(modElement);
 		}
 		if (osm.isDeleted()) {
 			Element modElement = new Element("deleted", JOSM);
-			extensions.getChildren().add(modElement);
+			extensions.add(modElement);
 		}
 		if (osm.modifiedProperties) {
 			Element modElement = new Element("modifiedProperties", JOSM);
-			extensions.getChildren().add(modElement);
+			extensions.add(modElement);
 		}
+		
+		if (extensions.isEmpty())
+			return;
+
+		Element ext = e.getChild("extensions", GPX);
+		if (ext == null)
+			e.getChildren().add(ext = new Element("extensions", GPX));
+		ext.getChildren().addAll(extensions);
 	}
 }
