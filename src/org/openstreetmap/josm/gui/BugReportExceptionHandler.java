@@ -27,9 +27,7 @@ import org.openstreetmap.josm.Main;
 public final class BugReportExceptionHandler implements Thread.UncaughtExceptionHandler {
 	public void uncaughtException(Thread t, Throwable e) {
 		e.printStackTrace();
-		if (Main.main == null)
-			e.printStackTrace();
-		else {
+		if (Main.main != null) {
 			Object[] options = new String[]{"Do nothing", "Report Bug"};
 			int answer = JOptionPane.showOptionDialog(Main.main, "An unexpected exception occoured.\n\n" +
 					"This is always a coding error. If you are running the latest\n" +
