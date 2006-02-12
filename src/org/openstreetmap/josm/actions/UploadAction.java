@@ -7,7 +7,6 @@ import java.awt.event.KeyEvent;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -74,27 +73,18 @@ public class UploadAction extends JosmAction {
 		all.addAll(update);
 		all.addAll(delete);
 		
-		final JDialog dlg = createPleaseWaitDialog("Uploading data");
-		new Thread(){
+		new Thread(new PleaseWaitRunnable("Uploading data"){
 			@Override
-			public void run() {
+			public void realRun() {
 				try {
 					server.uploadOsm(all);
 				} catch (JDOMException x) {
-					dlg.setVisible(false);
-					dlg.dispose();
+					closeDialog();
 					x.printStackTrace();
 					JOptionPane.showMessageDialog(Main.main, x.getMessage());
-				} finally {
-					if (dlg.isVisible()) {
-						dlg.setVisible(false);
-						dlg.dispose();
-					}
 				}
 			}
-		}.start();
-		
-		dlg.setVisible(true);
+		}).start();
 		
 		// finished without errors -> clean dataset
 		Main.main.getMapFrame().mapView.editLayer().cleanData();

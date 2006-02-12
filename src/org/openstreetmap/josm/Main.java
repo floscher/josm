@@ -6,6 +6,8 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -34,6 +36,8 @@ import org.openstreetmap.josm.gui.BugReportExceptionHandler;
 import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.ShowModifiers;
+import org.openstreetmap.josm.gui.layer.Layer;
+import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 
 /**
  * Main window class application.
@@ -139,6 +143,30 @@ public class Main extends JFrame {
 		toolBar.add(preferencesAction);
 		
 		getContentPane().add(toolBar, BorderLayout.NORTH);
+	
+		addWindowListener(new WindowAdapter(){
+			@Override
+			public void windowClosing(WindowEvent arg0) {
+				if (mapFrame != null) {
+					boolean changed = false;
+					for (Layer l : mapFrame.mapView.getAllLayers()) {
+						if (l instanceof OsmDataLayer && ((OsmDataLayer)l).isModified()) {
+							changed = true;
+							break;
+						}
+					}
+					if (changed) {
+						int answer = JOptionPane.showConfirmDialog(
+								Main.this, "There are unsaved changes. Really quit?",
+								"Unsaved Changes", JOptionPane.YES_NO_OPTION);
+						if (answer != JOptionPane.YES_OPTION)
+							return;
+					}
+				}
+				System.exit(0);
+			}
+		});
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 	}
 
 	/**
@@ -173,7 +201,6 @@ public class Main extends JFrame {
 		}
 		
 		main = new Main();
-		main.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		main.setVisible(true);
 
 		Collection<String> arguments = Arrays.asList(args);

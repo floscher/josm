@@ -33,6 +33,10 @@ import org.openstreetmap.josm.gui.MapView;
  */
 public class OsmDataLayer extends Layer {
 
+	public interface ModifiedChangedListener {
+		void modifiedChanged(boolean value, OsmDataLayer source);
+	}
+	
 	private static Icon icon;
 
 	/**
@@ -40,6 +44,10 @@ public class OsmDataLayer extends Layer {
 	 */
 	public final DataSet data;
 
+	/**
+	 * Whether the data of this layer was modified during the session.
+	 */
+	private boolean modified = false;
 	/**
 	 * All commands that were made on the dataset.
 	 */
@@ -49,6 +57,11 @@ public class OsmDataLayer extends Layer {
 	 */
 	private Stack<Command> redoCommands = new Stack<Command>();
 
+	/**
+	 * List of all listeners for changes of modified flag.
+	 */
+	LinkedList<ModifiedChangedListener> listener;
+	
 	/**
 	 * Construct a OsmDataLayer.
 	 */
@@ -156,6 +169,7 @@ public class OsmDataLayer extends Layer {
 		// TODO: Replace with listener scheme
 		Main.main.undoAction.setEnabled(true);
 		Main.main.redoAction.setEnabled(false);
+		setModified(true);
 	}
 
 	/**
@@ -170,6 +184,8 @@ public class OsmDataLayer extends Layer {
 		//TODO: Replace with listener scheme
 		Main.main.undoAction.setEnabled(!commands.isEmpty());
 		Main.main.redoAction.setEnabled(true);
+		if (commands.isEmpty())
+			setModified(false);
 	}
 	/**
 	 * Redoes the last undoed command.
@@ -199,6 +215,34 @@ public class OsmDataLayer extends Layer {
 			cleanIterator(it);
 		for (Iterator<Track> it = data.tracks.iterator(); it.hasNext();)
 			cleanIterator(it);
+		
+		// not modified anymore, since either everything reverted to file state or 
+		// everything uploaded properly.		
+		setModified(false); 
+		
+	}
+
+	public boolean isModified() {
+		return modified;
+	}
+
+	public void setModified(boolean modified) {
+		if (modified == this.modified)
+			return;
+		this.modified = modified;
+		if (listener != null)
+			for (ModifiedChangedListener l : listener)
+				l.modifiedChanged(modified, this);
+	}
+
+	/**
+	 * Add the parameter to the intern list of listener for modified state.
+	 * @param l Listener to add to the list. Must not be null.
+	 */
+	public void addModifiedListener(ModifiedChangedListener l) {
+		if (listener == null)
+			listener = new LinkedList<ModifiedChangedListener>();
+		listener.add(l);
 	}
 
 	private void cleanIterator(Iterator<? extends OsmPrimitive> it) {

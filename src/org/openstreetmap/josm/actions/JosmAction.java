@@ -6,6 +6,7 @@ import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.gui.ImageProvider;
@@ -16,6 +17,51 @@ import org.openstreetmap.josm.gui.ImageProvider;
  */
 abstract public class JosmAction extends AbstractAction {
 
+	/**
+	 * Instanced of this thread will display a "Please Wait" message in middle of JOSM
+	 * to indicate a progress beeing executed.
+	 *  
+	 * @author Imi
+	 */
+	protected abstract class PleaseWaitRunnable implements Runnable {
+		private String msg;
+		private JDialog pleaseWaitDlg;
+		/**
+		 * Create the runnable object with a given message for the user.
+		 */
+		PleaseWaitRunnable(String msg) {
+			this.msg = msg;
+		}
+		public final void run() {
+			pleaseWaitDlg = new JDialog(Main.main, true);
+			pleaseWaitDlg.setUndecorated(true);
+			JLabel l = new JLabel(msg+". Please Wait.");
+			l.setBorder(BorderFactory.createCompoundBorder(
+					BorderFactory.createEtchedBorder(),
+					BorderFactory.createEmptyBorder(20,20,20,20)));
+			pleaseWaitDlg.getContentPane().add(l);
+			pleaseWaitDlg.pack();
+			pleaseWaitDlg.setLocation(Main.main.getX()+Main.main.getWidth()/2-pleaseWaitDlg.getWidth()/2,
+					Main.main.getY()+Main.main.getHeight()/2-pleaseWaitDlg.getHeight()/2);
+			pleaseWaitDlg.setResizable(false);
+			SwingUtilities.invokeLater(new Runnable(){
+				public void run() {
+					pleaseWaitDlg.setVisible(true);
+				}
+			});
+			try {
+				realRun();
+			} finally {
+				closeDialog();
+			}
+		}
+		public abstract void realRun();
+		public void closeDialog() {
+			pleaseWaitDlg.setVisible(false);
+			pleaseWaitDlg.dispose();
+		}
+	}
+	
 	/**
 	 * Construct the action.
 	 * 
@@ -32,23 +78,5 @@ abstract public class JosmAction extends AbstractAction {
 			putValue(MNEMONIC_KEY, mnemonic);
 		if (shortCut != null)
 			putValue(ACCELERATOR_KEY, shortCut);
-	}
-
-	/**
-	 * @return A dialog labeled "... Please Wait." where ... is the message parameter.
-	 */
-	protected JDialog createPleaseWaitDialog(String msg) {
-		final JDialog pleaseWaitDlg = new JDialog(Main.main, true);
-		pleaseWaitDlg.setUndecorated(true);
-		JLabel l = new JLabel(msg+". Please Wait.");
-		l.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createEtchedBorder(),
-				BorderFactory.createEmptyBorder(20,20,20,20)));
-		pleaseWaitDlg.getContentPane().add(l);
-		pleaseWaitDlg.pack();
-		pleaseWaitDlg.setLocation(Main.main.getX()+Main.main.getWidth()/2-pleaseWaitDlg.getWidth()/2,
-				Main.main.getY()+Main.main.getHeight()/2-pleaseWaitDlg.getHeight()/2);
-		pleaseWaitDlg.setResizable(false);
-		return pleaseWaitDlg;
 	}
 }
