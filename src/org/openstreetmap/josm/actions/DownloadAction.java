@@ -13,7 +13,6 @@ import java.io.IOException;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -162,11 +161,9 @@ public class DownloadAction extends JosmAction {
 		
 		final OsmServerReader osmReader = new OsmServerReader(b.latlon[0], b.latlon[1], b.latlon[2], b.latlon[3]);
 		
-		final JDialog pleaseWaitDlg = createPleaseWaitDialog("Downloading data");
-		
-		new Thread(){
+		new Thread(new PleaseWaitRunnable("Downloading data"){
 			@Override
-			public void run() {
+			public void realRun() {
 				try {
 					String name = latlon[0].getText() + " "
 							+ latlon[1].getText() + " x " + latlon[2].getText()
@@ -180,8 +177,7 @@ public class DownloadAction extends JosmAction {
 						if (dataSet == null)
 							return; // user cancelled download
 						if (dataSet.nodes.isEmpty()) {
-							pleaseWaitDlg.setVisible(false);
-							pleaseWaitDlg.dispose();
+							closeDialog();
 							JOptionPane.showMessageDialog(Main.main,
 									"No data imported.");
 						}
@@ -193,33 +189,22 @@ public class DownloadAction extends JosmAction {
 						Main.main.setMapFrame(new MapFrame(layer));
 					else
 						Main.main.getMapFrame().mapView.addLayer(layer);
-					pleaseWaitDlg.setVisible(false);
 				} catch (JDOMException x) {
-					pleaseWaitDlg.setVisible(false);
-					pleaseWaitDlg.dispose();
+					closeDialog();
 					x.printStackTrace();
 					JOptionPane.showMessageDialog(Main.main, x.getMessage());
 				} catch (FileNotFoundException x) {
-					pleaseWaitDlg.setVisible(false);
-					pleaseWaitDlg.dispose();
+					closeDialog();
 					x.printStackTrace();
 					JOptionPane.showMessageDialog(Main.main,
 							"URL nicht gefunden: " + x.getMessage());
 				} catch (IOException x) {
-					pleaseWaitDlg.setVisible(false);
-					pleaseWaitDlg.dispose();
+					closeDialog();
 					x.printStackTrace();
 					JOptionPane.showMessageDialog(Main.main, x.getMessage());
-				} finally {
-					if (pleaseWaitDlg.isVisible()) {
-						pleaseWaitDlg.setVisible(false);
-						pleaseWaitDlg.dispose();
-					}
 				}
 			}
-		}.start();
-		
-		pleaseWaitDlg.setVisible(true);
+		}).start();
 	}
 	
 	/**

@@ -165,7 +165,7 @@ public class MergeVisitor implements Visitor {
 		if (myOsm.keys != null && !myOsm.keys.equals(otherOsm.keys)) {
 			if (myOsm.keys == null)
 				myOsm.keys = otherOsm.keys;
-			else
+			else if (otherOsm.keys != null)
 				myOsm.keys.putAll(otherOsm.keys);
 			myOsm.modifiedProperties = true;
 		}

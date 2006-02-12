@@ -22,6 +22,7 @@ import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
+import org.openstreetmap.josm.gui.layer.OsmDataLayer.ModifiedChangedListener;
 
 /**
  * This is a component used in the MapFrame for browsing the map. It use is to
@@ -99,6 +100,7 @@ public class MapView extends NavigatableComponent implements ChangeListener, Pro
 		layer.init(getProjection());
 
 		if (layer instanceof OsmDataLayer) {
+			final OsmDataLayer dataLayer = (OsmDataLayer)layer;
 			if (editLayer != null) {
 				// merge the layer into the existing one
 				if (!editLayer.isMergable(layer))
@@ -107,7 +109,12 @@ public class MapView extends NavigatableComponent implements ChangeListener, Pro
 				repaint();
 				return;
 			}
-			editLayer = (OsmDataLayer)layer;
+			editLayer = dataLayer;
+			dataLayer.addModifiedListener(new ModifiedChangedListener(){
+				public void modifiedChanged(boolean value, OsmDataLayer source) {
+					Main.main.setTitle((value?"*":"")+"Java Open Street Map - Editor");
+				}
+			});
 		}
 
 		// add as a new layer
