@@ -215,7 +215,7 @@ public class MapView extends NavigatableComponent implements ChangeListener, Pro
 			int h = getHeight()-20;
 			if (h < 20)
 				h = 20;
-			
+
 			Bounds bounds = null;
 			for (Layer l : layers) {
 				if (bounds == null)
@@ -308,7 +308,7 @@ public class MapView extends NavigatableComponent implements ChangeListener, Pro
 	 */
 	public OsmDataLayer editLayer() {
 		if (editLayer == null)
-			addLayer(new OsmDataLayer(new DataSet(), "unnamed"));
+			addLayer(new OsmDataLayer(new DataSet(), "unnamed", false));
 		return editLayer;
 	}
 

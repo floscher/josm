@@ -35,7 +35,7 @@ import org.openstreetmap.josm.io.RawGpsReader;
 public class OpenAction extends JosmAction {
 
 	/**
-	 * Create an open action. The name is "Open GPX".
+	 * Create an open action. The name is "Open a file".
 	 */
 	public OpenAction() {
 		super("Open", "open", "Open a file.", null, KeyStroke.getAWTKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
@@ -46,23 +46,23 @@ public class OpenAction extends JosmAction {
 		for (int i = 0; i < ExtensionFileFilter.filters.length; ++i)
 			fc.addChoosableFileFilter(ExtensionFileFilter.filters[i]);
 		fc.setAcceptAllFileFilterUsed(true);
-		
+
 		if (fc.showOpenDialog(Main.main) != JFileChooser.APPROVE_OPTION)
 			return;
 
 		File filename = fc.getSelectedFile();
 		if (filename == null)
 			return;
+		String fn = filename.getName();
 
 		try {
 			Layer layer;
-			String extension = filename.getName().toLowerCase().substring(filename.getName().lastIndexOf('.')+1);
 
-			if (asRawData(extension)) {
+			if (asRawData(fn)) {
 				Collection<Collection<GeoPoint>> data;
-				if (extension.equals("gpx")) {
+				if (ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn)) {
 					data = new RawGpsReader(new FileReader(filename)).parse();
-				} else if (extension.equals("csv") || extension.equals("txt")) {
+				} else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
 					data = new LinkedList<Collection<GeoPoint>>();
 					data.add(new RawCsvReader(new FileReader(filename)).parse());
 				} else
@@ -70,18 +70,18 @@ public class OpenAction extends JosmAction {
 				layer = new RawGpsDataLayer(data, filename.getName());
 			} else {
 				DataSet dataSet;
-				if (extension.equals("gpx"))
+				if (ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn))
 					dataSet = new GpxReader(new FileReader(filename)).parse();
-				else if (extension.equals("xml") || extension.equals("osm"))
+				else if (ExtensionFileFilter.filters[ExtensionFileFilter.OSM].acceptName(fn))
 					dataSet = new OsmReader(new FileReader(filename)).parse();
-				else if (extension.equals("csv") || extension.equals("txt")) {
+				else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
 					JOptionPane.showMessageDialog(Main.main, "CSV Data import for non-GPS data is not implemented yet.");
 					return;
 				} else {
-					JOptionPane.showMessageDialog(Main.main, "Unknown file extension: "+extension);
+					JOptionPane.showMessageDialog(Main.main, "Unknown file extension: "+fn.substring(filename.getName().lastIndexOf('.')+1));
 					return;
 				}
-				layer = new OsmDataLayer(dataSet, "Data Layer");
+				layer = new OsmDataLayer(dataSet, "Data Layer", true);
 			}
 			
 			if (Main.main.getMapFrame() == null)
@@ -94,7 +94,7 @@ public class OpenAction extends JosmAction {
 			JOptionPane.showMessageDialog(Main.main, x.getMessage());
 		} catch (IOException x) {
 			x.printStackTrace();
-			JOptionPane.showMessageDialog(Main.main, "Could not read '"+filename.getName()+"'\n"+x.getMessage());
+			JOptionPane.showMessageDialog(Main.main, "Could not read '"+fn+"'\n"+x.getMessage());
 		}
 	}
 
@@ -102,10 +102,10 @@ public class OpenAction extends JosmAction {
 	 * @return Return whether the file should be opened as raw gps data. May ask the
 	 * user, if unsure.
 	 */
-	private boolean asRawData(String extension) {
-		if (extension.equals("csv") || extension.equals("txt"))
+	private boolean asRawData(String fn) {
+		if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn))
 			return true;
-		if (!extension.equals("gpx"))
+		if (!ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn))
 			return false;
 		return JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
 				Main.main, "Do you want to open the file as raw gps data?",

@@ -49,6 +49,15 @@ public class OsmDataLayer extends Layer {
 	 */
 	private boolean modified = false;
 	/**
+	 * Whether the data was modified due an upload of the data to the server.
+	 */
+	public boolean uploadedModified = false;
+	/**
+	 * Whether the data (or pieces of the data) was loaded from disk rather than from
+	 * the server directly. This affects the modified state.
+	 */
+	private boolean fromDisk = false;
+	/**
 	 * All commands that were made on the dataset.
 	 */
 	private LinkedList<Command> commands = new LinkedList<Command>();
@@ -61,13 +70,15 @@ public class OsmDataLayer extends Layer {
 	 * List of all listeners for changes of modified flag.
 	 */
 	LinkedList<ModifiedChangedListener> listener;
+
 	
 	/**
 	 * Construct a OsmDataLayer.
 	 */
-	public OsmDataLayer(DataSet data, String name) {
+	public OsmDataLayer(DataSet data, String name, boolean fromDisk) {
 		super(name);
 		this.data = data;
+		this.fromDisk = fromDisk;
 		Main.pref.addPropertyChangeListener(new PropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent evt) {
 				if (evt.getPropertyName().equals("projection"))
@@ -185,7 +196,7 @@ public class OsmDataLayer extends Layer {
 		Main.main.undoAction.setEnabled(!commands.isEmpty());
 		Main.main.redoAction.setEnabled(true);
 		if (commands.isEmpty())
-			setModified(false);
+			setModified(uploadedModified);
 	}
 	/**
 	 * Redoes the last undoed command.
@@ -199,27 +210,49 @@ public class OsmDataLayer extends Layer {
 		//TODO: Replace with listener scheme
 		Main.main.undoAction.setEnabled(true);
 		Main.main.redoAction.setEnabled(!redoCommands.isEmpty());
+		setModified(true);
 	}
 
 	/**
 	 * Clean out the data behind the layer. This means clearing the redo/undo lists,
 	 * really deleting all deleted objects and reset the modified flags. This is done
 	 * after a successfull upload.
+	 * @param uploaded <code>true</code>, if the data was uploaded, false if saved to disk
+	 * @param dataAdded <code>true</code>, if data was added during the upload process.
 	 */
-	public void cleanData() {
+	public void cleanData(boolean uploaded, boolean dataAdded) {
 		redoCommands.clear();
 		commands.clear();
-		for (Iterator<Node> it = data.nodes.iterator(); it.hasNext();)
-			cleanIterator(it);
-		for (Iterator<LineSegment> it = data.lineSegments.iterator(); it.hasNext();)
-			cleanIterator(it);
-		for (Iterator<Track> it = data.tracks.iterator(); it.hasNext();)
-			cleanIterator(it);
 		
-		// not modified anymore, since either everything reverted to file state or 
-		// everything uploaded properly.		
-		setModified(false); 
+		// if uploaded, clean the modified flags as well
+		if (uploaded) {
+			for (Iterator<Node> it = data.nodes.iterator(); it.hasNext();)
+				cleanModifiedFlag(it);
+			for (Iterator<LineSegment> it = data.lineSegments.iterator(); it.hasNext();)
+				cleanModifiedFlag(it);
+			for (Iterator<Track> it = data.tracks.iterator(); it.hasNext();)
+				cleanModifiedFlag(it);
+		}
 		
+		// update the modified flag
+		
+		if (fromDisk && uploaded && !dataAdded)
+			return; // do nothing when uploading non-harmful changes.
+		
+		// modified if server changed the data (esp. the id).
+		uploadedModified = fromDisk && uploaded && dataAdded;
+		setModified(uploadedModified);
+		//TODO: Replace with listener scheme
+		Main.main.undoAction.setEnabled(false);
+		Main.main.redoAction.setEnabled(false);
+	}
+
+	private void cleanModifiedFlag(Iterator<? extends OsmPrimitive> it) {
+		OsmPrimitive osm = it.next();
+		osm.modified = false;
+		osm.modifiedProperties = false;
+		if (osm.isDeleted())
+			it.remove();
 	}
 
 	public boolean isModified() {
@@ -243,14 +276,6 @@ public class OsmDataLayer extends Layer {
 		if (listener == null)
 			listener = new LinkedList<ModifiedChangedListener>();
 		listener.add(l);
-	}
-
-	private void cleanIterator(Iterator<? extends OsmPrimitive> it) {
-		OsmPrimitive osm = it.next();
-		osm.modified = false;
-		osm.modifiedProperties = false;
-		if (osm.isDeleted())
-			it.remove();
 	}
 
 	/**

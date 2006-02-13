@@ -10,6 +10,7 @@ import java.io.IOException;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
+import javax.swing.filechooser.FileFilter;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -50,13 +51,20 @@ public class SaveAction extends JosmAction {
 			return;
 
 		try {
-			String fn = file.getName();
+			String fn = file.getPath();
+			if (fn.indexOf('.') == -1) {
+				FileFilter ff = fc.getFileFilter();
+				if (ff instanceof ExtensionFileFilter) {
+					fn = fn + "." + ((ExtensionFileFilter)ff).defaultExtension;
+					file = new File(fn);
+				}
+			}
 			FileWriter fileWriter;
-			if (fn.endsWith(".gpx"))
+			if (ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn))
 				new GpxWriter(fileWriter = new FileWriter(file), Main.main.ds).output();
-			else if (fn.endsWith(".xml") || fn.endsWith(".osm"))
+			else if (ExtensionFileFilter.filters[ExtensionFileFilter.OSM].acceptName(fn))
 				new OsmWriter(fileWriter = new FileWriter(file), Main.main.ds).output();
-			else if (fn.endsWith(".txt") || fn.endsWith(".csv")) {
+			else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
 				JOptionPane.showMessageDialog(Main.main, "CSV output not supported yet.");
 				return;
 			} else {
@@ -64,6 +72,7 @@ public class SaveAction extends JosmAction {
 				return;
 			}
 			fileWriter.close();
+			Main.main.getMapFrame().mapView.editLayer().cleanData(false, false);
 		} catch (IOException e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(Main.main, "An error occoured while saving.\n"+e.getMessage());

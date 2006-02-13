@@ -38,9 +38,9 @@ public class UploadAction extends JosmAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		Collection<OsmPrimitive> add = new LinkedList<OsmPrimitive>();
-		Collection<OsmPrimitive> update = new LinkedList<OsmPrimitive>();
-		Collection<OsmPrimitive> delete = new LinkedList<OsmPrimitive>();
+		final Collection<OsmPrimitive> add = new LinkedList<OsmPrimitive>();
+		final Collection<OsmPrimitive> update = new LinkedList<OsmPrimitive>();
+		final Collection<OsmPrimitive> delete = new LinkedList<OsmPrimitive>();
 		boolean acceptedTracks = false;
 		for (OsmPrimitive osm : Main.main.ds.allPrimitives()) {
 			boolean doSomething = true;
@@ -83,11 +83,9 @@ public class UploadAction extends JosmAction {
 					x.printStackTrace();
 					JOptionPane.showMessageDialog(Main.main, x.getMessage());
 				}
+				Main.main.getMapFrame().mapView.editLayer().cleanData(true, !add.isEmpty());
 			}
 		}).start();
-		
-		// finished without errors -> clean dataset
-		Main.main.getMapFrame().mapView.editLayer().cleanData();
 	}
 	
 	/**

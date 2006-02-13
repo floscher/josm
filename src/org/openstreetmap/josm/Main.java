@@ -148,16 +148,19 @@ public class Main extends JFrame {
 			@Override
 			public void windowClosing(WindowEvent arg0) {
 				if (mapFrame != null) {
-					boolean changed = false;
+					boolean modified = false;
+					boolean uploadedModified = false;
 					for (Layer l : mapFrame.mapView.getAllLayers()) {
 						if (l instanceof OsmDataLayer && ((OsmDataLayer)l).isModified()) {
-							changed = true;
+							modified = true;
+							uploadedModified = ((OsmDataLayer)l).uploadedModified;
 							break;
 						}
 					}
-					if (changed) {
+					if (modified) {
+						String msg = uploadedModified ? "\nHint: Some changes came from uploading new data to the server." : "";
 						int answer = JOptionPane.showConfirmDialog(
-								Main.this, "There are unsaved changes. Really quit?",
+								Main.this, "There are unsaved changes. Really quit?"+msg,
 								"Unsaved Changes", JOptionPane.YES_NO_OPTION);
 						if (answer != JOptionPane.YES_OPTION)
 							return;
