@@ -21,6 +21,9 @@ public class Mercator implements Projection {
 	public void xy2latlon(GeoPoint p) {
 		p.lon = p.x*180/Math.PI;
 		p.lat = Math.atan(Math.sinh(p.y))*180/Math.PI;
+		// round values to maximum server precision
+		p.lon = Math.round(p.lon*MAX_SERVER_PRECISION)/MAX_SERVER_PRECISION;
+		p.lat = Math.round(p.lat*MAX_SERVER_PRECISION)/MAX_SERVER_PRECISION;
 	}
 
 	@Override

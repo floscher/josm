@@ -14,6 +14,7 @@ import java.awt.event.MouseMotionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
 import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
@@ -106,9 +107,17 @@ public class MapStatus extends JPanel {
 
 				osmStatus = osms;
 				oldModifiers = ms.modifiers;
-				
-				// Set the text label in the bottom status bar
-				OsmPrimitive osmNearest = mv.getNearest(ms.mousePos, (ms.modifiers & MouseEvent.ALT_DOWN_MASK) != 0);
+
+				// This try/catch is a hack to stop the flooding bug reports about this.
+				// The exception needed to handle with in the first place, means that this
+				// access to the data need to be restarted, if the main thread modifies 
+				// the data.
+				OsmPrimitive osmNearest = null;
+				try {
+					// Set the text label in the bottom status bar
+					osmNearest = mv.getNearest(ms.mousePos, (ms.modifiers & MouseEvent.ALT_DOWN_MASK) != 0);
+				} catch (ConcurrentModificationException x) {
+				}
 				if (osmNearest != null) {
 					SelectionComponentVisitor visitor = new SelectionComponentVisitor();
 					osmNearest.visit(visitor);

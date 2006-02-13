@@ -182,7 +182,7 @@ public class DownloadAction extends JosmAction {
 									"No data imported.");
 						}
 
-						layer = new OsmDataLayer(dataSet, "Data Layer");
+						layer = new OsmDataLayer(dataSet, "Data Layer", false);
 					}
 
 					if (Main.main.getMapFrame() == null)

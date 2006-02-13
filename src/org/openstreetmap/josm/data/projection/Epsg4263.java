@@ -15,8 +15,8 @@ public class Epsg4263 implements Projection {
 	}
 
 	public void xy2latlon(GeoPoint p) {
-		p.lat = p.y;
-		p.lon = p.x;
+		p.lat = Math.round(p.y*MAX_SERVER_PRECISION)/MAX_SERVER_PRECISION;
+		p.lon = Math.round(p.x*MAX_SERVER_PRECISION)/MAX_SERVER_PRECISION;
 	}
 
 	@Override
