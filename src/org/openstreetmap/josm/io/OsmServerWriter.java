@@ -10,6 +10,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 import org.jdom.Document;
 import org.jdom.Element;
@@ -40,10 +41,20 @@ import org.openstreetmap.josm.data.osm.visitor.Visitor;
 public class OsmServerWriter extends OsmConnection implements Visitor {
 
 	/**
+	 * This list contain all sucessfull processed objects. The caller of
+	 * upload* has to check this after the call and update its dataset.
+	 * 
+	 * If a server connection error occours, this may contain fewer entries
+	 * than where passed in the list to upload*.
+	 */
+	public Collection<OsmPrimitive> processed;
+	
+	/**
 	 * Send the dataset to the server. Ask the user first and does nothing if he
 	 * does not want to send the data.
 	 */
 	public void uploadOsm(Collection<OsmPrimitive> list) throws JDOMException {
+		processed = new LinkedList<OsmPrimitive>();
 		initAuthentication();
 
 		try {
@@ -66,6 +77,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 		} else {
 			sendRequest("PUT", "node/" + n.id, n, true);
 		}
+		processed.add(n);
 	}
 
 	/**
@@ -80,6 +92,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 		} else {
 			sendRequest("PUT", "segment/" + ls.id, ls, true);
 		}
+		processed.add(ls);
 	}
 
 	/**
@@ -102,7 +115,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 	}
 
 	/**
-	 * Read an long from the input stream and return it.
+	 * Read a long from the input stream and return it.
 	 */
 	private long readId(InputStream inputStream) throws IOException {
 		BufferedReader in = new BufferedReader(new InputStreamReader(
@@ -117,6 +130,16 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 		}
 	}
 
+	/**
+	 * Send the request. The objects id will be replaced if it was 0 before
+	 * (on add requests).
+	 * 
+	 * @param requestMethod The http method used when talking with the server.
+	 * @param urlSuffix The suffix to add at the server url.
+	 * @param osm The primitive to encode to the server.
+	 * @param addBody <code>true</code>, if the whole primitive body should be added. 
+	 * 		<code>false</code>, if only the id is encoded.
+	 */
 	@SuppressWarnings("unchecked")
 	private void sendRequest(String requestMethod, String urlSuffix,
 			OsmPrimitive osm, boolean addBody) {

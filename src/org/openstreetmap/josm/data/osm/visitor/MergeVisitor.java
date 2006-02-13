@@ -41,7 +41,7 @@ public class MergeVisitor implements Visitor {
 			mergeCommon(myNode, otherNode);
 			if (myNode.modified && !otherNode.modified)
 				return;
-			if (!myNode.coor.equalsLatLon(otherNode.coor)) {
+			if (!myNode.coor.equalsLatLonEpsilon(otherNode.coor)) {
 				myNode.coor = otherNode.coor;
 				myNode.modified = otherNode.modified;
 			}
@@ -50,7 +50,7 @@ public class MergeVisitor implements Visitor {
 
 	/**
 	 * Merge the line segment if id matches or if both nodes are the same (and the
-	 * id is zero of either segment). Nodes are equal when they @see match
+	 * id is zero of either segment). Nodes are the "same" when they @see match
 	 */
 	public void visit(LineSegment otherLs) {
 		LineSegment myLs = null;
@@ -119,7 +119,7 @@ public class MergeVisitor implements Visitor {
 	 */
 	private boolean match(Node n1, Node n2) {
 		if (n1.id == 0 || n2.id == 0)
-			return n1.coor.equalsLatLon(n2.coor);
+			return n1.coor.equalsLatLonEpsilon(n2.coor);
 		return n1.id == n2.id;
 	}
 	
@@ -152,22 +152,24 @@ public class MergeVisitor implements Visitor {
 	 * @param otherOsm The object, the information gets merged from
 	 */
 	private void mergeCommon(OsmPrimitive myOsm, OsmPrimitive otherOsm) {
-		if (otherOsm.modified)
-			myOsm.modified = true;
 		if (otherOsm.isDeleted())
 			myOsm.setDeleted(true);
 		if (!myOsm.modified || otherOsm.modified) {
-			if (otherOsm.id != 0 && myOsm.id == 0)
+			if (myOsm.id == 0 && otherOsm.id != 0)
 				myOsm.id = otherOsm.id; // means not ncessary the object is now modified
+			else if (myOsm.id != 0 && otherOsm.id != 0 && otherOsm.modified)
+				myOsm.modified = true;
 		}
 		if (myOsm.modifiedProperties && !otherOsm.modifiedProperties)
 			return;
-		if (myOsm.keys != null && !myOsm.keys.equals(otherOsm.keys)) {
-			if (myOsm.keys == null)
-				myOsm.keys = otherOsm.keys;
-			else if (otherOsm.keys != null)
-				myOsm.keys.putAll(otherOsm.keys);
-			myOsm.modifiedProperties = true;
-		}
+		if (otherOsm.keys == null)
+			return;
+		if (myOsm.keys != null && myOsm.keys.entrySet().containsAll(otherOsm.keys.entrySet()))
+			return;
+		if (myOsm.keys == null)
+			myOsm.keys = otherOsm.keys;
+		else
+			myOsm.keys.putAll(otherOsm.keys);
+		myOsm.modifiedProperties = true;
 	}
 }
