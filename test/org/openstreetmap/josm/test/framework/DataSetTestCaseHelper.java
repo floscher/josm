@@ -42,7 +42,7 @@ public class DataSetTestCaseHelper {
 	/**
 	 * Create a line segment with out of the given nodes.
 	 */
-	private static LineSegment createLineSegment(DataSet ds, Node n1, Node n2) {
+	public static LineSegment createLineSegment(DataSet ds, Node n1, Node n2) {
 		LineSegment ls = new LineSegment(n1, n2);
 		ds.lineSegments.add(ls);
 		return ls;
@@ -51,7 +51,7 @@ public class DataSetTestCaseHelper {
 	/**
 	 * Add a random node.
 	 */
-	private static Node createNode(DataSet ds) {
+	public static Node createNode(DataSet ds) {
 		Node node = new Node();
 		node.coor = new GeoPoint(Math.random(), Math.random());
 		ds.nodes.add(node);

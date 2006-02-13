@@ -83,7 +83,7 @@ public class UploadAction extends JosmAction {
 					x.printStackTrace();
 					JOptionPane.showMessageDialog(Main.main, x.getMessage());
 				}
-				Main.main.getMapFrame().mapView.editLayer().cleanData(true, !add.isEmpty());
+				Main.main.getMapFrame().mapView.editLayer().cleanData(server.processed, !add.isEmpty());
 			}
 		}).start();
 	}

@@ -4,8 +4,10 @@ import java.awt.Graphics;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.Stack;
 
 import javax.swing.Icon;
@@ -217,38 +219,52 @@ public class OsmDataLayer extends Layer {
 	 * Clean out the data behind the layer. This means clearing the redo/undo lists,
 	 * really deleting all deleted objects and reset the modified flags. This is done
 	 * after a successfull upload.
+	 * 
 	 * @param uploaded <code>true</code>, if the data was uploaded, false if saved to disk
-	 * @param dataAdded <code>true</code>, if data was added during the upload process.
+	 * @param processed A list of all objects, that were actually uploaded. 
+	 * 		May be <code>null</code>, which means nothing has been uploaded but 
+	 * 		saved to disk instead.
 	 */
-	public void cleanData(boolean uploaded, boolean dataAdded) {
+	public void cleanData(Collection<OsmPrimitive> processed, boolean dataAdded) {
 		redoCommands.clear();
 		commands.clear();
-		
+
 		// if uploaded, clean the modified flags as well
-		if (uploaded) {
+		if (processed != null) {
+			Set<OsmPrimitive> processedSet = new HashSet<OsmPrimitive>(processed);
 			for (Iterator<Node> it = data.nodes.iterator(); it.hasNext();)
-				cleanModifiedFlag(it);
+				cleanIterator(it, processedSet);
 			for (Iterator<LineSegment> it = data.lineSegments.iterator(); it.hasNext();)
-				cleanModifiedFlag(it);
+				cleanIterator(it, processedSet);
 			for (Iterator<Track> it = data.tracks.iterator(); it.hasNext();)
-				cleanModifiedFlag(it);
+				cleanIterator(it, processedSet);
 		}
-		
+
 		// update the modified flag
 		
-		if (fromDisk && uploaded && !dataAdded)
+		if (fromDisk && processed != null && !dataAdded)
 			return; // do nothing when uploading non-harmful changes.
 		
 		// modified if server changed the data (esp. the id).
-		uploadedModified = fromDisk && uploaded && dataAdded;
+		uploadedModified = fromDisk && processed != null && dataAdded;
 		setModified(uploadedModified);
 		//TODO: Replace with listener scheme
 		Main.main.undoAction.setEnabled(false);
 		Main.main.redoAction.setEnabled(false);
 	}
 
-	private void cleanModifiedFlag(Iterator<? extends OsmPrimitive> it) {
+	/**
+	 * Clean the modified flag for the given iterator over a collection if it is in the
+	 * list of processed entries.
+	 * 
+	 * @param it The iterator to change the modified and remove the items if deleted.
+	 * @param processed A list of all objects that have been successfully progressed.
+	 * 		If the object in the iterator is not in the list, nothing will be changed on it.
+	 */
+	private void cleanIterator(Iterator<? extends OsmPrimitive> it, Collection<OsmPrimitive> processed) {
 		OsmPrimitive osm = it.next();
+		if (!processed.remove(osm))
+			return;
 		osm.modified = false;
 		osm.modifiedProperties = false;
 		if (osm.isDeleted())

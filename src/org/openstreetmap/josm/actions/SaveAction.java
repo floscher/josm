@@ -72,7 +72,7 @@ public class SaveAction extends JosmAction {
 				return;
 			}
 			fileWriter.close();
-			Main.main.getMapFrame().mapView.editLayer().cleanData(false, false);
+			Main.main.getMapFrame().mapView.editLayer().cleanData(null, false);
 		} catch (IOException e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(Main.main, "An error occoured while saving.\n"+e.getMessage());
