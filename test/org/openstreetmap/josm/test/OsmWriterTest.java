@@ -13,6 +13,10 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.data.osm.LineSegment;
+import org.openstreetmap.josm.data.osm.Node;
+import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.data.osm.Track;
 import org.openstreetmap.josm.io.OsmWriter;
 import org.openstreetmap.josm.test.framework.Bug;
 import org.openstreetmap.josm.test.framework.DataSetTestCaseHelper;
@@ -23,6 +27,16 @@ import org.openstreetmap.josm.test.framework.DataSetTestCaseHelper;
  */
 public class OsmWriterTest extends TestCase {
 
+	private Node n1;
+	private Node n2;
+	private Node n3;
+	private Node n4;
+	private Node n5;
+	private LineSegment ls1;
+	private LineSegment ls2;
+	private LineSegment ls3;
+	private Track t;
+	
 	private DataSet ds;
 	private Element osm;
 	private List<Element> nodes;
@@ -78,14 +92,66 @@ public class OsmWriterTest extends TestCase {
 	}
 
 	
+	/**
+	 * Verify that action tag is set correctly.
+	 */
+	public void testActionTag() throws IOException, JDOMException {
+		int id = 1;
+		for (OsmPrimitive osm : ds.allPrimitives())
+			osm.id = id++; // make all objects "old".
+		n1.setDeleted(true);
+		ls1.modified = true;
+		ls1.modifiedProperties = true;
+		ls3.modified = true;
+		t.modifiedProperties = true;
+		reparse();
+		
+		boolean foundNode = false;
+		for (Element n : nodes) {
+			if (n.getAttributeValue("uid").equals(""+n1.id)) {
+				assertEquals("delete", n.getAttributeValue("action"));
+				foundNode = true;
+			}
+		}
+		assertTrue("Node found in output", foundNode);
+
+		boolean foundLs1 = false;
+		boolean foundLs3 = false;
+		for (Element lsElem : lineSegments) {
+			String idStr = lsElem.getAttributeValue("uid");
+			String action = lsElem.getAttributeValue("action");
+			if (idStr.equals(""+ls1.id)) {
+				assertEquals("Attribute action on modified data is ok", "modify", action);
+				foundLs1 = true;
+			} else if (idStr.equals(""+ls3.id)) {
+				assertEquals("Attribute action on modified/object data is ok", "modify/object", action);
+				foundLs3 = true;
+			}
+		}
+		assertTrue("LineSegments found in output", foundLs1 && foundLs3);
+		
+		assertEquals("Track found in output", 1, tracks.size());
+		assertEquals("Attribute action on modifiedProperty data is ok", "modify/property", tracks.get(0).getAttributeValue("action"));
+	}
 	
 	
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
+		
 		// create some data
-		ds = DataSetTestCaseHelper.createCommon();
+		ds = new DataSet();
+		n1 = DataSetTestCaseHelper.createNode(ds);
+		n2 = DataSetTestCaseHelper.createNode(ds);
+		n3 = DataSetTestCaseHelper.createNode(ds);
+		n4 = DataSetTestCaseHelper.createNode(ds);
+		n5 = DataSetTestCaseHelper.createNode(ds);
+		ls1 = DataSetTestCaseHelper.createLineSegment(ds, n1, n2);
+		ls2 = DataSetTestCaseHelper.createLineSegment(ds, n2, n3);
+		ls3 = DataSetTestCaseHelper.createLineSegment(ds, n4, n5);
+		t = DataSetTestCaseHelper.createTrack(ds, ls1, ls2);
+		
 		reparse();
 	}
 

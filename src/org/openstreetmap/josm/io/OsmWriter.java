@@ -68,23 +68,11 @@ public class OsmWriter implements Visitor {
 		Element root = new Element("osm");
 		List<Element> list = root.getChildren();
 		properties = new LinkedList<Element>();
-		for (OsmPrimitive osm : ds.allNonDeletedPrimitives()) {
+		for (OsmPrimitive osm : ds.allPrimitives()) {
 			osm.visit(this);
 			list.add(element);
 		}
 		list.addAll(properties);
-		properties = new LinkedList<Element>();
-		Element deleted = new Element("deleted");
-		Collection<Element> allDeleted = deleted.getChildren();
-		for (OsmPrimitive osm : ds.allPrimitives()) {
-			if (osm.isDeleted() && osm.id != 0) {
-				osm.visit(this);
-				allDeleted.add(element);
-			}
-		}
-		allDeleted.addAll(properties);
-		if (!allDeleted.isEmpty())
-			list.add(deleted);
 
 		Document d = new Document(root);
 		XMLOutputter xmlOut = new XMLOutputter(Format.getPrettyFormat());
@@ -116,6 +104,14 @@ public class OsmWriter implements Visitor {
 		if (osm.keys != null)
 			for (Entry<Key, String> entry : osm.keys.entrySet())
 				properties.add(parseProperty(osm, entry));
+		if (osm.isDeleted())
+			e.setAttribute("action", "delete");
+		else if (osm.modified && osm.modifiedProperties)
+			e.setAttribute("action", "modify");
+		else if (osm.modified && !osm.modifiedProperties)
+			e.setAttribute("action", "modify/object");
+		else if (!osm.modified && osm.modifiedProperties)
+			e.setAttribute("action", "modify/property");
 	}
 
 	/**
