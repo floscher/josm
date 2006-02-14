@@ -103,19 +103,9 @@ public class OsmReader {
 		AddVisitor visitor = new AddVisitor(data);
 		for (Object o : e.getChildren()) {
 			Element child = (Element)o;
-			if (child.getName().equals("deleted")) {
-				for (Object delObj : child.getChildren()) {
-					OsmPrimitive osm = parseObject((Element)delObj, data);
-					if (osm != null) {
-						osm.visit(visitor);
-						osm.setDeleted(true);
-					}
-				}
-			} else {
-				OsmPrimitive osm = parseObject(child, data);
-				if (osm != null)
-					osm.visit(visitor);
-			}
+			OsmPrimitive osm = parseObject(child, data);
+			if (osm != null)
+				osm.visit(visitor);
 		}
 		
 		// clear all negative ids (new to this file)
@@ -200,6 +190,16 @@ public class OsmReader {
 				}
 			}
 		}
+		
+		String action = e.getAttributeValue("action");
+		if ("delete".equals(action))
+			data.setDeleted(true);
+		else if ("modify".equals(action))
+			data.modified = data.modifiedProperties = true;
+		else if ("modify/property".equals(action))
+			data.modifiedProperties = true;
+		else if ("modify/object".equals(action))
+			data.modified = true;
 	}
 
 	/**
