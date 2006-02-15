@@ -82,10 +82,10 @@ public class OsmWriter implements Visitor {
 	/**
 	 * Create a properties element.
 	 */
-	private Element parseProperty(OsmPrimitive osm, Entry<Key, String> entry) {
+	private Element parseProperty(OsmPrimitive osm, long id, Entry<Key, String> entry) {
 		Element e = new Element("property");
 		Key key = entry.getKey();
-		e.setAttribute("uid", ""+osm.id);
+		e.setAttribute("uid", ""+id);
 		e.setAttribute("key", key.name);
 		e.setAttribute("value", entry.getValue());
 		return e;
@@ -103,7 +103,7 @@ public class OsmWriter implements Visitor {
 		e.setAttribute("uid", ""+id);
 		if (osm.keys != null)
 			for (Entry<Key, String> entry : osm.keys.entrySet())
-				properties.add(parseProperty(osm, entry));
+				properties.add(parseProperty(osm, id, entry));
 		if (osm.isDeleted())
 			e.setAttribute("action", "delete");
 		else if (osm.modified && osm.modifiedProperties)

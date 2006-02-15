@@ -41,13 +41,17 @@ public class SaveAction extends JosmAction {
 		if (isDataSetEmpty() && JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(Main.main, "The document contains no data. Save anyway?", "Empty document", JOptionPane.YES_NO_OPTION))
 			return;
 
-		JFileChooser fc = new JFileChooser("data");
+		JFileChooser fc = new JFileChooser(Main.main.currentDirectory);
 		for (int i = 0; i < ExtensionFileFilter.filters.length; ++i)
 			fc.addChoosableFileFilter(ExtensionFileFilter.filters[i]);
 		fc.setAcceptAllFileFilterUsed(true);
 		fc.showSaveDialog(Main.main);
 		File file = fc.getSelectedFile();
 		if (file == null)
+			return;
+		Main.main.currentDirectory = fc.getCurrentDirectory();
+		if (file.exists() && JOptionPane.YES_OPTION != 
+				JOptionPane.showConfirmDialog(Main.main, "File exists. Overwrite?", "Overwrite", JOptionPane.YES_NO_OPTION))
 			return;
 
 		try {

@@ -8,6 +8,7 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -72,6 +73,12 @@ public class Main extends JFrame {
 
 	public final UndoAction undoAction;
 	public final RedoAction redoAction;
+
+	/**
+	 * This directory is used for all disc IO access as starting directory. Should
+	 * be set accordingly after the IO action.
+	 */
+	public File currentDirectory = new File(".");
 	
 	/**
 	 * Construct an main frame, ready sized and operating. Does not 
