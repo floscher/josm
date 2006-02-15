@@ -42,13 +42,15 @@ public class OpenAction extends JosmAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		JFileChooser fc = new JFileChooser("data");
+		JFileChooser fc = new JFileChooser(Main.main.currentDirectory);
 		for (int i = 0; i < ExtensionFileFilter.filters.length; ++i)
 			fc.addChoosableFileFilter(ExtensionFileFilter.filters[i]);
 		fc.setAcceptAllFileFilterUsed(true);
 
 		if (fc.showOpenDialog(Main.main) != JFileChooser.APPROVE_OPTION)
 			return;
+		
+		Main.main.currentDirectory = fc.getCurrentDirectory();
 
 		File filename = fc.getSelectedFile();
 		if (filename == null)

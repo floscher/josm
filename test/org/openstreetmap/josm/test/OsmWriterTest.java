@@ -3,6 +3,7 @@ package org.openstreetmap.josm.test;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,6 +14,7 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -134,8 +136,20 @@ public class OsmWriterTest extends TestCase {
 		assertEquals("Attribute action on modifiedProperty data is ok", "modify/property", tracks.get(0).getAttributeValue("action"));
 	}
 	
-	
-	
+	/**
+	 * Property of new objects always reference to the correct object.
+	 */
+	@Bug(53)
+	public void testPropertyOfNewObjectIsCorrect() throws IOException, JDOMException {
+		n1.keys = new HashMap<Key, String>();
+		n1.keys.put(Key.get("foo"), "bar");
+		reparse();
+		
+		assertEquals(1, osm.getChildren("property").size());
+		assertEquals(-1, Long.parseLong(getAttr(osm, "property", 0, "uid")));
+	}
+
+
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
