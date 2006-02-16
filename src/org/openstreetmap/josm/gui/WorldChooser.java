@@ -143,10 +143,7 @@ public class WorldChooser extends NavigatableComponent {
 	 * Update edit fields and react upon changes.
 	 * @param field Must have exactly 4 entries (min lat to max lon)
 	 */
-	public void addLatLonInputField(final JTextField[] field) {
-		if (field.length != 4)
-			throw new IllegalArgumentException();
-
+	public void addInputFields(final JTextField[] field, JTextField osmUrl, final KeyListener osmUrlRefresher) {
 		// listener that invokes updateMarkerFromTextField after all
 		// messages are dispatched and so text fields are updated.
 		KeyListener listener = new KeyAdapter(){
@@ -162,6 +159,7 @@ public class WorldChooser extends NavigatableComponent {
 
 		for (JTextField f : field)
 			f.addKeyListener(listener);
+		osmUrl.addKeyListener(listener);
 
 		SelectionEnded selListener = new SelectionEnded(){
 			public void selectionEnded(Rectangle r, boolean alt, boolean shift, boolean ctrl) {
@@ -174,6 +172,7 @@ public class WorldChooser extends NavigatableComponent {
 				field[3].setText(""+max.lon);
 				for (JTextField f : field)
 					f.setCaretPosition(0);
+				osmUrlRefresher.keyTyped(null);
 				repaint();
 			}
 			public void addPropertyChangeListener(PropertyChangeListener listener) {}
