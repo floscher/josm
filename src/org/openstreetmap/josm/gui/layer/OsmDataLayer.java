@@ -135,6 +135,7 @@ public class OsmDataLayer extends Layer {
 		MergeVisitor visitor = new MergeVisitor(data);
 		for (OsmPrimitive osm : ((OsmDataLayer)from).data.allPrimitives())
 			osm.visit(visitor);
+		visitor.fixReferences();
 	}
 
 	@Override

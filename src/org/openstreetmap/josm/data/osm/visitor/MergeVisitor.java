@@ -1,6 +1,9 @@
 package org.openstreetmap.josm.data.osm.visitor;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
 
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.Key;
@@ -18,6 +21,19 @@ import org.openstreetmap.josm.data.osm.Track;
 public class MergeVisitor implements Visitor {
 
 	private final DataSet ds;
+	
+	/**
+	 * A list of all nodes that got replaced with other nodes.
+	 * Key is the node in the other's dataset and the value is the one that is now
+	 * in ds.nodes instead.
+	 */
+	private final Map<Node, Node> mergedNodes = new HashMap<Node, Node>();
+	/**
+	 * A list of all line segments that got replaced with others.
+	 * Key is the segment in the other's dataset and the value is the one that is now
+	 * in ds.lineSegments.
+	 */
+	private final Map<LineSegment, LineSegment> mergedLineSegments = new HashMap<LineSegment, LineSegment>();
 	
 	public MergeVisitor(DataSet ds) {
 		this.ds = ds;
@@ -38,6 +54,7 @@ public class MergeVisitor implements Visitor {
 		if (myNode == null)
 			ds.nodes.add(otherNode);
 		else {
+			mergedNodes.put(otherNode, myNode);
 			mergeCommon(myNode, otherNode);
 			if (myNode.modified && !otherNode.modified)
 				return;
@@ -63,6 +80,7 @@ public class MergeVisitor implements Visitor {
 		if (myLs == null)
 			ds.lineSegments.add(otherLs);
 		else {
+			mergedLineSegments.put(otherLs, myLs);
 			mergeCommon(myLs, otherLs);
 			if (myLs.modified && !otherLs.modified)
 				return;
@@ -98,9 +116,8 @@ public class MergeVisitor implements Visitor {
 			boolean same = true;
 			Iterator<LineSegment> it = otherTrack.segments.iterator();
 			for (LineSegment ls : myTrack.segments) {
-				if (!match(ls, it.next())) {
+				if (!match(ls, it.next()))
 					same = false;
-				}
 			}
 			if (!same) {
 				myTrack.segments.clear();
@@ -112,6 +129,39 @@ public class MergeVisitor implements Visitor {
 
 	public void visit(Key k) {
 		//TODO: Key doesn't really fit the OsmPrimitive concept!
+	}
+	
+	/**
+	 * Postprocess the dataset and fix all merged references to point to the actual
+	 * data.
+	 */
+	public void fixReferences() {
+		for (LineSegment ls : ds.lineSegments) {
+			if (mergedNodes.containsKey(ls.start))
+				ls.start = mergedNodes.get(ls.start);
+			if (mergedNodes.containsKey(ls.end))
+				ls.end = mergedNodes.get(ls.end);
+		}
+		for (Track t : ds.tracks) {
+			boolean replacedSomething = false;
+			LinkedList<LineSegment> newSegments = new LinkedList<LineSegment>();
+			for (LineSegment ls : t.segments) {
+				LineSegment otherLs = mergedLineSegments.get(ls);
+				newSegments.add(otherLs == null ? ls : otherLs);
+				if (otherLs != null)
+					replacedSomething = true;
+			}
+			if (replacedSomething) {
+				t.segments.clear();
+				t.segments.addAll(newSegments);
+			}
+			for (LineSegment ls : t.segments) {
+				if (mergedNodes.containsKey(ls.start))
+					ls.start = mergedNodes.get(ls.start);
+				if (mergedNodes.containsKey(ls.end))
+					ls.end = mergedNodes.get(ls.end);
+			}
+		}
 	}
 	
 	/**
