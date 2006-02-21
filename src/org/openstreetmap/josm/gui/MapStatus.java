@@ -45,7 +45,7 @@ import org.openstreetmap.josm.data.osm.visitor.SelectionComponentVisitor;
  * @author imi
  */
 public class MapStatus extends JPanel {
-
+	
 	/**
 	 * The MapView this status belongs. 
 	 */
@@ -58,7 +58,7 @@ public class MapStatus extends JPanel {
 	 * The field holding the name of the object under the mouse.
 	 */
 	JTextField nameText = new JTextField(30);
-
+	
 	/**
 	 * The collector class that waits for notification and then update
 	 * the display objects.
@@ -82,7 +82,7 @@ public class MapStatus extends JPanel {
 		 * Signals the collector to shut down on next event.
 		 */
 		boolean exitCollector = false;
-
+		
 		/**
 		 * Execution function for the Collector.
 		 */
@@ -98,85 +98,86 @@ public class MapStatus extends JPanel {
 					return;
 				if ((ms.modifiers & MouseEvent.CTRL_DOWN_MASK) != 0 || ms.mousePos == null)
 					continue; // freeze display when holding down ctrl
-				Collection<OsmPrimitive> osms = mv.getAllNearest(ms.mousePos);
-				
-				if (osms == null && osmStatus == null && ms.modifiers == oldModifiers)
-					continue;
-				if (osms != null && osms.equals(osmStatus) && ms.modifiers == oldModifiers)
-					continue;
-
-				osmStatus = osms;
-				oldModifiers = ms.modifiers;
 
 				// This try/catch is a hack to stop the flooding bug reports about this.
 				// The exception needed to handle with in the first place, means that this
 				// access to the data need to be restarted, if the main thread modifies 
 				// the data.
-				OsmPrimitive osmNearest = null;
 				try {
+					Collection<OsmPrimitive> osms = mv.getAllNearest(ms.mousePos);
+					
+					if (osms == null && osmStatus == null && ms.modifiers == oldModifiers)
+						continue;
+					if (osms != null && osms.equals(osmStatus) && ms.modifiers == oldModifiers)
+						continue;
+					
+					osmStatus = osms;
+					oldModifiers = ms.modifiers;
+					
+					OsmPrimitive osmNearest = null;
 					// Set the text label in the bottom status bar
 					osmNearest = mv.getNearest(ms.mousePos, (ms.modifiers & MouseEvent.ALT_DOWN_MASK) != 0);
-				} catch (ConcurrentModificationException x) {
-				}
-				if (osmNearest != null) {
-					SelectionComponentVisitor visitor = new SelectionComponentVisitor();
-					osmNearest.visit(visitor);
-					nameText.setText(visitor.name);
-				} else
-					nameText.setText("");
-				
-				// Popup Information
-				if ((ms.modifiers & MouseEvent.BUTTON2_DOWN_MASK) != 0 && osms != null) {
-					if (popup != null)
-						popup.hide();
-					
-					JPanel c = new JPanel(new GridBagLayout());
-					for (final OsmPrimitive osm : osms) {
+					if (osmNearest != null) {
 						SelectionComponentVisitor visitor = new SelectionComponentVisitor();
-						osm.visit(visitor);
-						final StringBuilder text = new StringBuilder();
-						if (osm.id == 0 || osm.modified || osm.modifiedProperties)
-							visitor.name = "<i><b>"+visitor.name+"*</b></i>";
-						text.append(visitor.name);
-						if (osm.id != 0)
-							text.append("<br>id="+osm.id);
-						if (osm.keys != null)
-							for (Entry<Key, String> e : osm.keys.entrySet())
-								text.append("<br>"+e.getKey().name+"="+e.getValue());
-						final JLabel l = new JLabel("<html>"+text.toString()+"</html>", visitor.icon, JLabel.HORIZONTAL);
-						l.setFont(l.getFont().deriveFont(Font.PLAIN));
-						l.setVerticalTextPosition(JLabel.TOP);
-						l.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-						l.addMouseListener(new MouseAdapter(){
-							@Override
-							public void mouseEntered(MouseEvent e) {
-								l.setText("<html><u color='blue'>"+text.toString()+"</u></html>");
-							}
-							@Override
-							public void mouseExited(MouseEvent e) {
-								l.setText("<html>"+text.toString()+"</html>");
-							}
-							@Override
-							public void mouseClicked(MouseEvent e) {
-								Main.main.ds.clearSelection();
-								osm.setSelected(true);
-								mv.repaint();
-							}
-						});
-						c.add(l, GBC.eol());
-					}
+						osmNearest.visit(visitor);
+						nameText.setText(visitor.name);
+					} else
+						nameText.setText("");
 					
-					Point p = mv.getLocationOnScreen();
-					popup = PopupFactory.getSharedInstance().getPopup(mv, c, p.x+ms.mousePos.x+16, p.y+ms.mousePos.y+16);
-					popup.show();
-				} else if (popup != null) {
-					popup.hide();
-					popup = null;
+					// Popup Information
+					if ((ms.modifiers & MouseEvent.BUTTON2_DOWN_MASK) != 0 && osms != null) {
+						if (popup != null)
+							popup.hide();
+						
+						JPanel c = new JPanel(new GridBagLayout());
+						for (final OsmPrimitive osm : osms) {
+							SelectionComponentVisitor visitor = new SelectionComponentVisitor();
+							osm.visit(visitor);
+							final StringBuilder text = new StringBuilder();
+							if (osm.id == 0 || osm.modified || osm.modifiedProperties)
+								visitor.name = "<i><b>"+visitor.name+"*</b></i>";
+							text.append(visitor.name);
+							if (osm.id != 0)
+								text.append("<br>id="+osm.id);
+							if (osm.keys != null)
+								for (Entry<Key, String> e : osm.keys.entrySet())
+									text.append("<br>"+e.getKey().name+"="+e.getValue());
+							final JLabel l = new JLabel("<html>"+text.toString()+"</html>", visitor.icon, JLabel.HORIZONTAL);
+							l.setFont(l.getFont().deriveFont(Font.PLAIN));
+							l.setVerticalTextPosition(JLabel.TOP);
+							l.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+							l.addMouseListener(new MouseAdapter(){
+								@Override
+								public void mouseEntered(MouseEvent e) {
+									l.setText("<html><u color='blue'>"+text.toString()+"</u></html>");
+								}
+								@Override
+								public void mouseExited(MouseEvent e) {
+									l.setText("<html>"+text.toString()+"</html>");
+								}
+								@Override
+								public void mouseClicked(MouseEvent e) {
+									Main.main.ds.clearSelection();
+									osm.setSelected(true);
+									mv.repaint();
+								}
+							});
+							c.add(l, GBC.eol());
+						}
+						
+						Point p = mv.getLocationOnScreen();
+						popup = PopupFactory.getSharedInstance().getPopup(mv, c, p.x+ms.mousePos.x+16, p.y+ms.mousePos.y+16);
+						popup.show();
+					} else if (popup != null) {
+						popup.hide();
+						popup = null;
+					}
+				} catch (ConcurrentModificationException x) {
 				}
 			}
 		}
 	}
-
+	
 	/**
 	 * Everything, the collector is interested of. Access must be synchronized.
 	 * @author imi
@@ -219,11 +220,11 @@ public class MapStatus extends JPanel {
 		add(positionText);
 		add(new JLabel(" Object "));
 		add(nameText);
-
+		
 		// The background thread
 		final Collector collector = new Collector();
 		new Thread(collector).start();
-
+		
 		// Listen to keyboard/mouse events for pressing/releasing alt key and
 		// inform the collector.
 		Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener(){
