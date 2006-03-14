@@ -16,8 +16,8 @@ import javax.swing.KeyStroke;
 
 import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.data.Preferences.PreferencesException;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.Track;
 import org.openstreetmap.josm.gui.GBC;
 import org.openstreetmap.josm.gui.OsmPrimitivRenderer;
 import org.openstreetmap.josm.io.OsmServerWriter;
@@ -38,30 +38,39 @@ public class UploadAction extends JosmAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
+		
+		//TODO: Remove this in later versions (temporary only)
+		if (Main.pref.osmDataServer.endsWith("/0.2") || Main.pref.osmDataServer.endsWith("/0.2/")) {
+			int answer = JOptionPane.showConfirmDialog(Main.main, 
+					"You seem to have an outdated server entry in your preferences.\n" +
+					"\n" +
+					"As of JOSM Release 1.2, you must no longer specify the API version in\n" +
+					"the osm url. For the OSM standard server, use http://www.openstreetmap.org/api" +
+					"\n" +
+					"Fix settings and continue?", "Outdated server url detected.", JOptionPane.YES_NO_OPTION);
+			if (answer != JOptionPane.YES_OPTION)
+				return;
+			int cutPos = Main.pref.osmDataServer.endsWith("/0.2") ? 4 : 5;
+			Main.pref.osmDataServer = Main.pref.osmDataServer.substring(0, Main.pref.osmDataServer.length()-cutPos);
+			try {
+				Main.pref.save();
+			} catch (PreferencesException x) {
+				x.printStackTrace();
+				JOptionPane.showMessageDialog(Main.main, "Could not save the preferences chane:\n" +
+						x.getMessage());
+			}
+		}
+
 		final Collection<OsmPrimitive> add = new LinkedList<OsmPrimitive>();
 		final Collection<OsmPrimitive> update = new LinkedList<OsmPrimitive>();
 		final Collection<OsmPrimitive> delete = new LinkedList<OsmPrimitive>();
-		boolean acceptedTracks = false;
 		for (OsmPrimitive osm : Main.main.ds.allPrimitives()) {
-			boolean doSomething = true;
 			if (osm.id == 0 && !osm.isDeleted())
 				add.add(osm);
 			else if ((osm.modified || osm.modifiedProperties) && !osm.isDeleted())
 				update.add(osm);
 			else if (osm.isDeleted() && osm.id != 0)
 				delete.add(osm);
-			else
-				doSomething = false;
-
-			if (osm instanceof Track && doSomething && !acceptedTracks) {
-				int answer = JOptionPane.showConfirmDialog(Main.main, 
-						"The server currently does not understand the concept of Tracks.\n" +
-						"All tracks will be ignored on upload. Continue anyway?",
-						"No Track support", JOptionPane.YES_NO_OPTION);
-				if (answer != JOptionPane.YES_OPTION)
-					return;
-				acceptedTracks = true;
-			}
 		}
 
 		if (!displayUploadScreen(add, update, delete))
@@ -87,7 +96,7 @@ public class UploadAction extends JosmAction {
 			}
 		}).start();
 	}
-	
+
 	/**
 	 * Displays a screen where the actions that would be taken are displayed and
 	 * give the user the possibility to cancel the upload.

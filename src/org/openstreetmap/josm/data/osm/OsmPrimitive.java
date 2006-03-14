@@ -1,5 +1,6 @@
 package org.openstreetmap.josm.data.osm;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.openstreetmap.josm.Main;
@@ -9,11 +10,15 @@ import org.openstreetmap.josm.data.osm.visitor.Visitor;
 /**
  * An OSM primitive can be associated with a key/value pair. It can be created, deleted
  * and updated within the OSM-Server.
- * 
+ *
+ * Although OsmPrimitive is designed as a base class, it is not to be meant to subclass
+ * it by any other than from the package org.openstreetmap.josm.data.osm (thus the
+ * visibility of the constructor). The available primitives are a fixed set that are given
+ * by the server environment and not an extendible data stuff. 
+ *
  * @author imi
  */
 abstract public class OsmPrimitive {
-
 
 	/**
 	 * The key/value list for this primitive.
@@ -127,5 +132,16 @@ abstract public class OsmPrimitive {
 	@Override
 	public int hashCode() {
 		return id == 0 ? super.hashCode() : (int)id;
+	}
+
+	/**
+	 * Set the given value to the given key
+	 * @param key The key, for which the value is to be set.
+	 * @param value The value for the key.
+	 */
+	public void put(Key key, String value) {
+		if (keys == null)
+			keys = new HashMap<Key, String>();
+		keys.put(key, value);
 	}
 }

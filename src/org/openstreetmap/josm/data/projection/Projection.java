@@ -12,7 +12,7 @@ public interface Projection {
 
 	public static double MAX_LAT = 85;
 	public static double MAX_LON = 180;
-	public static final double MAX_SERVER_PRECISION = 1e13;
+	public static final double MAX_SERVER_PRECISION = 1e12;
 	
 	/**
 	 * Convert from lat/lon to northing/easting. 

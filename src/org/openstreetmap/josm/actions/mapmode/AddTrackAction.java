@@ -45,7 +45,7 @@ public class AddTrackAction extends MapMode implements SelectionEnded {
 	 * @param mapFrame The MapFrame this action belongs to.
 	 */
 	public AddTrackAction(MapFrame mapFrame) {
-		super("Add Track", "addtrack", "Combine line segments to a new track.", KeyEvent.VK_T, mapFrame);
+		super("Add Way", "addtrack", "Combine line segments to a new way.", KeyEvent.VK_W, mapFrame);
 		this.selectionManager = new SelectionManager(this, false, mv);
 	}
 

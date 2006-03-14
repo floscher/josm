@@ -67,7 +67,7 @@ public class SaveAction extends JosmAction {
 			if (ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn))
 				new GpxWriter(fileWriter = new FileWriter(file), Main.main.ds).output();
 			else if (ExtensionFileFilter.filters[ExtensionFileFilter.OSM].acceptName(fn))
-				new OsmWriter(fileWriter = new FileWriter(file), Main.main.ds).output();
+				OsmWriter.output(fileWriter = new FileWriter(file), Main.main.ds, false);
 			else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
 				JOptionPane.showMessageDialog(Main.main, "CSV output not supported yet.");
 				return;

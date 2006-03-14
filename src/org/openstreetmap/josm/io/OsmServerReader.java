@@ -12,6 +12,7 @@ import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.DataSet;
+import org.xml.sax.SAXException;
 
 /**
  * This DataReader read directly from the REST API of the osm server.
@@ -46,7 +47,7 @@ public class OsmServerReader extends OsmConnection {
 	 * 		tracks.
 	 */
 	public Collection<Collection<GeoPoint>> parseRawGps() throws IOException, JDOMException {
-		String url = Main.pref.osmDataServer+"/trackpoints?bbox="+lon1+","+lat1+","+lon2+","+lat2+"&page=";
+		String url = Main.pref.osmDataServer+"/0.3/trackpoints?bbox="+lon1+","+lat1+","+lon2+","+lat2+"&page=";
 		Collection<Collection<GeoPoint>> data = new LinkedList<Collection<GeoPoint>>();
 		Collection<GeoPoint> list = new LinkedList<GeoPoint>();
 		
@@ -77,11 +78,11 @@ public class OsmServerReader extends OsmConnection {
 	 * Read the data from the osm server address.
 	 * @return A data set containing all data retrieved from that url
 	 */
-	public DataSet parseOsm() throws JDOMException, IOException {
-		Reader r = getReader(Main.pref.osmDataServer+"/map?bbox="+lon1+","+lat1+","+lon2+","+lat2);
+	public DataSet parseOsm() throws SAXException, IOException {
+		Reader r = getReader(Main.pref.osmDataServer+"/0.3/map?bbox="+lon1+","+lat1+","+lon2+","+lat2);
 		if (r == null)
 			return null;
-		DataSet data = new OsmReader(r).parse();
+		DataSet data = OsmReader.parseDataSet(r);
 		r.close();
 		return data;
 	}
@@ -94,6 +95,7 @@ public class OsmServerReader extends OsmConnection {
 	 * @return An reader reading the input stream (servers answer) or <code>null</code>.
 	 */
 	private Reader getReader(String urlStr) throws IOException {
+		System.out.println("download: "+urlStr);
 		initAuthentication();
 		URL url = new URL(urlStr);
 		HttpURLConnection con = (HttpURLConnection)url.openConnection();

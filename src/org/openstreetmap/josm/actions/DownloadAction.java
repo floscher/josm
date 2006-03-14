@@ -42,6 +42,7 @@ import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.RawGpsDataLayer;
 import org.openstreetmap.josm.io.OsmServerReader;
+import org.xml.sax.SAXException;
 
 /**
  * Action that opens a connection to the osm server and download map data.
@@ -253,6 +254,10 @@ public class DownloadAction extends JosmAction {
 						Main.main.setMapFrame(new MapFrame(layer));
 					else
 						Main.main.getMapFrame().mapView.addLayer(layer);
+				} catch (SAXException x) {
+					closeDialog();
+					x.printStackTrace();
+					JOptionPane.showMessageDialog(Main.main, x.getMessage());
 				} catch (JDOMException x) {
 					closeDialog();
 					x.printStackTrace();

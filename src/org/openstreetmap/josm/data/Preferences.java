@@ -53,7 +53,7 @@ public class Preferences {
 	/**
 	 * Base URL to the osm data server
 	 */
-	public String osmDataServer = "http://www.openstreetmap.org/api/0.2";
+	public String osmDataServer = "http://www.openstreetmap.org/api";
 	/**
 	 * The username to the osm server
 	 */
