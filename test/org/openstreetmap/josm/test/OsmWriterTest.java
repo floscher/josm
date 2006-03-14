@@ -3,7 +3,6 @@ package org.openstreetmap.josm.test;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,14 +36,37 @@ public class OsmWriterTest extends TestCase {
 	private LineSegment ls1;
 	private LineSegment ls2;
 	private LineSegment ls3;
-	private Track t;
+	private Track w;
 	
 	private DataSet ds;
 	private Element osm;
 	private List<Element> nodes;
 	private List<Element> lineSegments;
-	private List<Element> tracks;
-	private List<Element> deleted;
+	private List<Element> ways;
+	private StringWriter out;
+	
+
+	public void testNode() throws Exception {
+		ds = new DataSet();
+		Node n = DataSetTestCaseHelper.createNode(ds);
+		n.id = 42;
+		reparse();
+		assertEquals(42, Long.parseLong(getAttr(osm, "node", 0, "id")));
+		assertEquals(n.coor.lat, Double.parseDouble(getAttr(osm, "node", 0, "lat")));
+		assertEquals(n.coor.lon, Double.parseDouble(getAttr(osm, "node", 0, "lon")));
+	}
+
+	
+	public void testLineSegment() throws Exception {
+		ds = new DataSet();
+		LineSegment ls = DataSetTestCaseHelper.createLineSegment(ds, DataSetTestCaseHelper.createNode(ds), DataSetTestCaseHelper.createNode(ds));
+		ls.put(Key.get("foo"), "bar");
+		reparse();
+		assertEquals(1, lineSegments.size());
+		assertEquals("foo", getAttr(osm.getChild("segment"), "tag", 0, "k"));
+		assertEquals("bar", getAttr(osm.getChild("segment"), "tag", 0, "v"));
+	}
+	
 	
 	/**
 	 * Test that the id generation creates unique ids and all are negative
@@ -53,31 +75,31 @@ public class OsmWriterTest extends TestCase {
 	public void testIDGenerationUniqueNegative() {
 		Set<Long> ids = new HashSet<Long>();
 		for (Element e : (List<Element>)osm.getChildren()) {
-			long id = Long.parseLong(e.getAttributeValue("uid"));
+			long id = Long.parseLong(e.getAttributeValue("id"));
 			assertTrue("id "+id+" is negative", id < 0);
 			ids.add(id);
 		}
-		assertEquals(nodes.size()+lineSegments.size()+tracks.size(), ids.size());
+		assertEquals(nodes.size()+lineSegments.size()+ways.size(), ids.size());
 	}
 
 	/**
 	 * Verify that generated ids of higher level primitives point to the 
-	 * generated lower level ids (tracks point to segments which point to nodes).
+	 * generated lower level ids (ways point to segments which point to nodes).
 	 */
 	@Bug(47)
 	public void testIDGenerationReferences() {
-		long id1 = Long.parseLong(getAttr(osm, "node", 0, "uid"));
-		long id2 = Long.parseLong(getAttr(osm, "node", 1, "uid"));
+		long id1 = Long.parseLong(getAttr(osm, "node", 0, "id"));
+		long id2 = Long.parseLong(getAttr(osm, "node", 1, "id"));
 		long lsFrom = Long.parseLong(getAttr(osm, "segment", 0, "from"));
 		long lsTo = Long.parseLong(getAttr(osm, "segment", 0, "to"));
 		assertEquals(id1, lsFrom);
 		assertEquals(id2, lsTo);
 		assertEquals(id2, lsTo);
 
-		long ls1 = Long.parseLong(getAttr(osm, "segment", 0, "uid"));
-		long ls2 = Long.parseLong(getAttr(osm, "segment", 1, "uid"));
-		long t1 = Long.parseLong(getAttr(osm.getChild("track"), "segment", 0, "uid"));
-		long t2 = Long.parseLong(getAttr(osm.getChild("track"), "segment", 1, "uid"));
+		long ls1 = Long.parseLong(getAttr(osm, "segment", 0, "id"));
+		long ls2 = Long.parseLong(getAttr(osm, "segment", 1, "id"));
+		long t1 = Long.parseLong(getAttr(osm.getChild("way"), "seg", 0, "id"));
+		long t2 = Long.parseLong(getAttr(osm.getChild("way"), "seg", 1, "id"));
 		assertEquals(ls1, t1);
 		assertEquals(ls2, t2);
 	}
@@ -90,7 +112,7 @@ public class OsmWriterTest extends TestCase {
 	public void testDeleteNewDoesReallyRemove() throws IOException, JDOMException {
 		ds.tracks.iterator().next().setDeleted(true);
 		reparse();
-		assertEquals(0, deleted.size());
+		//assertEquals(0, deleted.size());
 	}
 
 	
@@ -105,12 +127,12 @@ public class OsmWriterTest extends TestCase {
 		ls1.modified = true;
 		ls1.modifiedProperties = true;
 		ls3.modified = true;
-		t.modifiedProperties = true;
+		w.modifiedProperties = true;
 		reparse();
 		
 		boolean foundNode = false;
 		for (Element n : nodes) {
-			if (n.getAttributeValue("uid").equals(""+n1.id)) {
+			if (n.getAttributeValue("id").equals(""+n1.id)) {
 				assertEquals("delete", n.getAttributeValue("action"));
 				foundNode = true;
 			}
@@ -120,7 +142,7 @@ public class OsmWriterTest extends TestCase {
 		boolean foundLs1 = false;
 		boolean foundLs3 = false;
 		for (Element lsElem : lineSegments) {
-			String idStr = lsElem.getAttributeValue("uid");
+			String idStr = lsElem.getAttributeValue("id");
 			String action = lsElem.getAttributeValue("action");
 			if (idStr.equals(""+ls1.id)) {
 				assertEquals("Attribute action on modified data is ok", "modify", action);
@@ -132,23 +154,9 @@ public class OsmWriterTest extends TestCase {
 		}
 		assertTrue("LineSegments found in output", foundLs1 && foundLs3);
 		
-		assertEquals("Track found in output", 1, tracks.size());
-		assertEquals("Attribute action on modifiedProperty data is ok", "modify/property", tracks.get(0).getAttributeValue("action"));
+		assertEquals("Way found in output", 1, ways.size());
+		assertEquals("Attribute action on modifiedProperty data is ok", "modify/property", ways.get(0).getAttributeValue("action"));
 	}
-	
-	/**
-	 * Property of new objects always reference to the correct object.
-	 */
-	@Bug(53)
-	public void testPropertyOfNewObjectIsCorrect() throws IOException, JDOMException {
-		n1.keys = new HashMap<Key, String>();
-		n1.keys.put(Key.get("foo"), "bar");
-		reparse();
-		
-		assertEquals(1, osm.getChildren("property").size());
-		assertEquals(-1, Long.parseLong(getAttr(osm, "property", 0, "uid")));
-	}
-
 
 	@Override
 	protected void setUp() throws Exception {
@@ -164,7 +172,7 @@ public class OsmWriterTest extends TestCase {
 		ls1 = DataSetTestCaseHelper.createLineSegment(ds, n1, n2);
 		ls2 = DataSetTestCaseHelper.createLineSegment(ds, n2, n3);
 		ls3 = DataSetTestCaseHelper.createLineSegment(ds, n4, n5);
-		t = DataSetTestCaseHelper.createTrack(ds, ls1, ls2);
+		w = DataSetTestCaseHelper.createWay(ds, ls1, ls2);
 		
 		reparse();
 	}
@@ -182,16 +190,13 @@ public class OsmWriterTest extends TestCase {
 	 */
 	@SuppressWarnings("unchecked")
 	private void reparse() throws IOException, JDOMException {
-		StringWriter out = new StringWriter();
-
-		OsmWriter osmWriter = new OsmWriter(out, ds);
-		osmWriter.output();
+		out = new StringWriter();
+		OsmWriter.output(out, ds, false);
 		
 		// reparse
 		osm = new SAXBuilder().build(new StringReader(out.toString())).getRootElement();
 		nodes = osm.getChildren("node");
 		lineSegments = osm.getChildren("segment");
-		tracks = osm.getChildren("track");
-		deleted = osm.getChildren("deleted");
+		ways = osm.getChildren("way");
 	}
 }

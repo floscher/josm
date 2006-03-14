@@ -4,7 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -12,18 +13,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import org.jdom.Document;
-import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Track;
-import org.openstreetmap.josm.data.osm.visitor.OsmXmlVisitor;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
 
 /**
@@ -71,11 +67,11 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 	public void visit(Node n) {
 		if (n.id == 0 && !n.isDeleted()) {
 			setCredits(n);
-			sendRequest("PUT", "newnode", n, true);
+			sendRequest("PUT", "node", n, true);
 		} else if (n.isDeleted()) {
-			sendRequest("DELETE", "node/" + n.id, n, false);
+			sendRequest("DELETE", "node", n, false);
 		} else {
-			sendRequest("PUT", "node/" + n.id, n, true);
+			sendRequest("PUT", "node", n, true);
 		}
 		processed.add(n);
 	}
@@ -86,13 +82,28 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 	public void visit(LineSegment ls) {
 		if (ls.id == 0 && !ls.isDeleted()) {
 			setCredits(ls);
-			sendRequest("PUT", "newsegment", ls, true);
+			sendRequest("PUT", "segment", ls, true);
 		} else if (ls.isDeleted()) {
-			sendRequest("DELETE", "segment/" + ls.id, ls, false);
+			sendRequest("DELETE", "segment", ls, false);
 		} else {
-			sendRequest("PUT", "segment/" + ls.id, ls, true);
+			sendRequest("PUT", "segment", ls, true);
 		}
 		processed.add(ls);
+	}
+
+	/**
+	 * Upload a whole way with the complete line segment id list.
+	 */
+	public void visit(Track w) {
+		if (w.id == 0 && !w.isDeleted()) {
+			setCredits(w);
+			sendRequest("PUT", "way", w, true);
+		} else if (w.isDeleted()) {
+			sendRequest("DELETE", "way", w, false);
+		} else {
+			sendRequest("PUT", "way", w, true);
+		}
+		processed.add(w);
 	}
 
 	/**
@@ -106,9 +117,6 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 		osm.keys.put(Key.get("created_by"), "JOSM");
 	}
 
-	public void visit(Track t) {
-		// not implemented in server
-	}
 
 	public void visit(Key k) {
 		// not implemented in server
@@ -144,7 +152,8 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 	private void sendRequest(String requestMethod, String urlSuffix,
 			OsmPrimitive osm, boolean addBody) {
 		try {
-			URL url = new URL(Main.pref.osmDataServer + "/" + urlSuffix);
+			URL url = new URL(Main.pref.osmDataServer + "/0.3/" + urlSuffix + "/" + osm.id);
+			System.out.println("upload to: "+url);
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 			con.setConnectTimeout(20000);
 			con.setRequestMethod(requestMethod);
@@ -153,25 +162,21 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 			con.connect();
 
 			if (addBody) {
-				OsmXmlVisitor visitor = new OsmXmlVisitor(false);
-				osm.visit(visitor);
-				Element root = new Element("osm");
-				root.setAttribute("version", "0.2");
-				root.getChildren().add(visitor.element);
-				XMLOutputter xmlOut = new XMLOutputter(Format.getPrettyFormat());
-				OutputStream out = con.getOutputStream();
-				Document doc = new Document(root);
-				xmlOut.output(doc, out);
+				Writer out = new OutputStreamWriter(con.getOutputStream());
+				OsmWriter.outputSingle(out, osm, true);
 				out.close();
 			}
 
 			int retCode = con.getResponseCode();
 			if (retCode == 200 && osm.id == 0)
 				osm.id = readId(con.getInputStream());
+			System.out.println("got return: "+retCode+" with id "+osm.id);
 			con.disconnect();
 		} catch (UnknownHostException e) {
 			throw new RuntimeException("Unknown host: "+e.getMessage(), e);
 		} catch (Exception e) {
+			if (e instanceof RuntimeException)
+				throw (RuntimeException)e;
 			throw new RuntimeException(e.getMessage(), e);
 		}
 	}

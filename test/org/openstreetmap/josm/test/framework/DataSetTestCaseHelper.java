@@ -34,11 +34,11 @@ public class DataSetTestCaseHelper {
 		LineSegment ls1 = createLineSegment(ds, n1, n2);
 		LineSegment ls2 = createLineSegment(ds, n2, n3);
 		createLineSegment(ds, n4, n5);
-		createTrack(ds, ls1, ls2);
+		createWay(ds, ls1, ls2);
 		return ds;
 	}
 
-	public static Track createTrack(DataSet ds, LineSegment... lineSegments) {
+	public static Track createWay(DataSet ds, LineSegment... lineSegments) {
 		Track t = new Track();
 		t.segments.addAll(Arrays.asList(lineSegments));
 		ds.tracks.add(t);

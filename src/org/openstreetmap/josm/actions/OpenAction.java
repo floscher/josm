@@ -23,8 +23,10 @@ import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.RawGpsDataLayer;
 import org.openstreetmap.josm.io.GpxReader;
 import org.openstreetmap.josm.io.OsmReader;
+import org.openstreetmap.josm.io.OsmReaderOld;
 import org.openstreetmap.josm.io.RawCsvReader;
 import org.openstreetmap.josm.io.RawGpsReader;
+import org.xml.sax.SAXException;
 
 /**
  * Open a file chooser dialog and select an file to import. Than call the gpx-import
@@ -74,9 +76,26 @@ public class OpenAction extends JosmAction {
 				DataSet dataSet;
 				if (ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn))
 					dataSet = new GpxReader(new FileReader(filename)).parse();
-				else if (ExtensionFileFilter.filters[ExtensionFileFilter.OSM].acceptName(fn))
-					dataSet = new OsmReader(new FileReader(filename)).parse();
-				else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
+				else if (ExtensionFileFilter.filters[ExtensionFileFilter.OSM].acceptName(fn)) {
+					try {
+						// temporary allow loading of old xml format.
+						dataSet = OsmReader.parseDataSet(new FileReader(filename));
+					} catch (SAXException x) {
+						if (x.getMessage().equals("Unknown version: null")) {
+							int answer = JOptionPane.showConfirmDialog(Main.main, 
+									"This seems to be an old 0.2 API XML file.\n" +
+									"JOSM can try to open it with the old parser. This option\n" +
+									"will not be available in future JOSM version. You should\n" +
+									"immediatly save the file, if successfull imported.",
+									"Load as 0.2 API file?",
+									JOptionPane.YES_NO_OPTION);
+							if (answer != JOptionPane.YES_OPTION)
+								return;
+							dataSet = new OsmReaderOld(new FileReader(filename)).parse();
+						} else 
+							throw x;
+					}					
+				} else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
 					JOptionPane.showMessageDialog(Main.main, "CSV Data import for non-GPS data is not implemented yet.");
 					return;
 				} else {
@@ -91,6 +110,9 @@ public class OpenAction extends JosmAction {
 			else
 				Main.main.getMapFrame().mapView.addLayer(layer);
 
+		} catch (SAXException x) {
+			x.printStackTrace();
+			JOptionPane.showMessageDialog(Main.main, x.getMessage());
 		} catch (JDOMException x) {
 			x.printStackTrace();
 			JOptionPane.showMessageDialog(Main.main, x.getMessage());

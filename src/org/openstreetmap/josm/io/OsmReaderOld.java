@@ -19,11 +19,11 @@ import org.openstreetmap.josm.data.osm.Track;
 import org.openstreetmap.josm.data.osm.visitor.AddVisitor;
 
 /**
- * Reads an osm xml stream and construct a DataSet out of it. 
+ * Reads the old osm 0.2 format. 
  * 
  * @author imi
  */
-public class OsmReader {
+public class OsmReaderOld {
 
 	/**
 	 * The data source from this reader.
@@ -34,10 +34,10 @@ public class OsmReader {
 	 * Construct a parser from a specific data source.
 	 * @param source The data source, as example a FileReader to read from a file.
 	 */
-	public OsmReader(Reader source) {
+	public OsmReaderOld(Reader source) {
 		this.source = source;
 	}
-	static int i;
+
 	/**
 	 * Read the input stream and return a DataSet from the stream.
 	 */
