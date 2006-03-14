@@ -79,17 +79,18 @@ public class OsmReader extends MinML2 {
 				Node n = new Node();
 				n.coor = new GeoPoint(getDouble(atts, "lat"), getDouble(atts, "lon"));
 				current = n;
+				readCommon(atts);
 				current.id = getLong(atts, "id");
 				nodes.put(n.id, n);
 			} else if (qName.equals("segment")) {
 				current = new LineSegment(
 						nodes.get(getLong(atts, "from")), 
 						nodes.get(getLong(atts, "to")));
-				current.id = getLong(atts, "id");
+				readCommon(atts);
 				lineSegments.put(current.id, (LineSegment)current);
 			} else if (qName.equals("way")) {
 				current = new Track();
-				current.id = getLong(atts, "id");
+				readCommon(atts);
 			} else if (qName.equals("seg")) {
 				if (current instanceof Track)
 					((Track)current).segments.add(lineSegments.get(getLong(atts, "id")));
@@ -101,6 +102,23 @@ public class OsmReader extends MinML2 {
 		} catch (NullPointerException x) {
 			throw new SAXException("NullPointerException. Possible some missing tags.", x);
 		}
+	}
+
+	/**
+	 * Read out the common attributes from atts and put them into this.current.
+	 */
+	private void readCommon(Attributes atts) {
+		current.id = getLong(atts, "id");
+		String action = atts.getValue("action");
+		if ("delete".equals(action))
+			current.setDeleted(true);
+		else if ("modify".equals(action)) {
+			current.modified = true;
+			current.modifiedProperties = true;
+		} else if ("modify/object".equals(action))
+			current.modified = true;
+		else if ("modify/property".equals(action))
+			current.modifiedProperties = true;
 	}
 
 	@Override
