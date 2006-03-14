@@ -187,6 +187,8 @@ public class MergeVisitor implements Visitor {
 	 */
 	private boolean match(Track t1, Track t2) {
 		if (t1.id == 0 || t2.id == 0) {
+			if (t1.segments.size() != t2.segments.size())
+				return false;
 			Iterator<LineSegment> it = t1.segments.iterator();
 			for (LineSegment ls : t2.segments)
 				if (!match(ls, it.next()))
