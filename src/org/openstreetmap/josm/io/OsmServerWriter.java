@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -165,13 +166,20 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 				Writer out = new OutputStreamWriter(con.getOutputStream());
 				OsmWriter.outputSingle(out, osm, true);
 				out.close();
+				
+				StringWriter o = new StringWriter();
+				OsmWriter.outputSingle(o, osm, true);
+				System.out.println(o.getBuffer().toString());
 			}
 
 			int retCode = con.getResponseCode();
 			if (retCode == 200 && osm.id == 0)
 				osm.id = readId(con.getInputStream());
 			System.out.println("got return: "+retCode+" with id "+osm.id);
+			String retMsg = con.getResponseMessage();
 			con.disconnect();
+			if (retCode != 200)
+				throw new RuntimeException(retCode+" "+retMsg);
 		} catch (UnknownHostException e) {
 			throw new RuntimeException("Unknown host: "+e.getMessage(), e);
 		} catch (Exception e) {

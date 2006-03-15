@@ -15,6 +15,7 @@ import org.openstreetmap.josm.data.osm.Track;
 import org.openstreetmap.josm.data.osm.visitor.AddVisitor;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import uk.co.wilson.xml.MinML2;
 
@@ -92,8 +93,12 @@ public class OsmReader extends MinML2 {
 				current = new Track();
 				readCommon(atts);
 			} else if (qName.equals("seg")) {
-				if (current instanceof Track)
-					((Track)current).segments.add(lineSegments.get(getLong(atts, "id")));
+				if (current instanceof Track) {
+					LineSegment ls = lineSegments.get(getLong(atts, "id"));
+					if (ls == null)
+						fatalError(new SAXParseException("Line segment "+getLong(atts, "id")+"has not been transfered before.", null));
+					((Track)current).segments.add(ls);
+				}
 			} else if (qName.equals("tag")) {
 				current.put(Key.get(atts.getValue("k")), atts.getValue("v"));
 			}
@@ -101,6 +106,14 @@ public class OsmReader extends MinML2 {
 			throw new SAXException(x.getMessage(), x);
 		} catch (NullPointerException x) {
 			throw new SAXException("NullPointerException. Possible some missing tags.", x);
+		}
+	}
+
+	
+	@Override
+	public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
+		if (qName.equals("node") || qName.equals("segment") || qName.equals("way") || qName.equals("area")) {
+			current.visit(adder);
 		}
 	}
 
@@ -119,13 +132,6 @@ public class OsmReader extends MinML2 {
 			current.modified = true;
 		else if ("modify/property".equals(action))
 			current.modifiedProperties = true;
-	}
-
-	@Override
-	public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
-		if (qName.equals("node") || qName.equals("segment") || qName.equals("way") || qName.equals("area")) {
-			current.visit(adder);
-		}
 	}
 
 	private double getDouble(Attributes atts, String value) {

@@ -144,4 +144,8 @@ abstract public class OsmPrimitive {
 			keys = new HashMap<Key, String>();
 		keys.put(key, value);
 	}
+	
+	public String get(Key key) {
+		return (keys == null) ? null : keys.get(key);
+	}
 }

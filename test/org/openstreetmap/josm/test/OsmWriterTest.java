@@ -9,6 +9,7 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
+import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
@@ -56,6 +57,20 @@ public class OsmWriterTest extends TestCase {
 		assertEquals(n.coor.lon, Double.parseDouble(getAttr(osm, "node", 0, "lon")));
 	}
 
+	@Bug(59)
+	public void testSpecialChars() throws Exception {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 32; i < 0xd800; ++i)
+			sb.append((char)i);
+		String s = sb.toString();
+		n1.put(Key.get(s), s);
+		reparse();
+		assertEquals(1, nodes.get(0).getChildren().size());
+		Attribute key = ((Element)nodes.get(0).getChildren().get(0)).getAttribute("k");
+		assertEquals(s, key.getValue());
+		Attribute value = ((Element)nodes.get(0).getChildren().get(0)).getAttribute("v");
+		assertEquals(s, value.getValue());
+	}
 	
 	public void testLineSegment() throws Exception {
 		ds = new DataSet();
@@ -109,7 +124,7 @@ public class OsmWriterTest extends TestCase {
 	 * in xml save output at all.
 	 */
 	@Bug(47)
-	public void testDeleteNewDoesReallyRemove() throws IOException, JDOMException {
+	public void testDeleteNewDoesReallyRemove() throws Exception {
 		ds.tracks.iterator().next().setDeleted(true);
 		reparse();
 		//assertEquals(0, deleted.size());
@@ -119,7 +134,7 @@ public class OsmWriterTest extends TestCase {
 	/**
 	 * Verify that action tag is set correctly.
 	 */
-	public void testActionTag() throws IOException, JDOMException {
+	public void testActionTag() throws Exception {
 		int id = 1;
 		for (OsmPrimitive osm : ds.allPrimitives())
 			osm.id = id++; // make all objects "old".
