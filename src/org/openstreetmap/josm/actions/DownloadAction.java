@@ -31,6 +31,7 @@ import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.Preferences.PreferencesException;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.gui.BookmarkList;
 import org.openstreetmap.josm.gui.GBC;
@@ -54,6 +55,8 @@ import org.xml.sax.SAXException;
  */
 public class DownloadAction extends JosmAction {
 
+    private enum DownloadStatus {FINISHED, REDISPLAY}
+
 	JTextField[] latlon = new JTextField[]{
 			new JTextField(9),
 			new JTextField(9),
@@ -67,6 +70,29 @@ public class DownloadAction extends JosmAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
+		
+		//TODO: Remove this in later versions (temporary only)
+		if (Main.pref.osmDataServer.endsWith("/0.2") || Main.pref.osmDataServer.endsWith("/0.2/")) {
+			int answer = JOptionPane.showConfirmDialog(Main.main, 
+					"You seem to have an outdated server entry in your preferences.\n" +
+					"\n" +
+					"As of JOSM Release 1.2, you must no longer specify the API version in\n" +
+					"the osm url. For the OSM standard server, use http://www.openstreetmap.org/api" +
+					"\n" +
+					"Fix settings and continue?", "Outdated server url detected.", JOptionPane.YES_NO_OPTION);
+			if (answer != JOptionPane.YES_OPTION)
+				return;
+			int cutPos = Main.pref.osmDataServer.endsWith("/0.2") ? 4 : 5;
+			Main.pref.osmDataServer = Main.pref.osmDataServer.substring(0, Main.pref.osmDataServer.length()-cutPos);
+			try {
+				Main.pref.save();
+			} catch (PreferencesException x) {
+				x.printStackTrace();
+				JOptionPane.showMessageDialog(Main.main, "Could not save the preferences chane:\n" +
+						x.getMessage());
+			}
+		}
+
 		JPanel dlg = new JPanel(new GridBagLayout());
 
 		// World image
@@ -207,24 +233,26 @@ public class DownloadAction extends JosmAction {
 		wc.addInputFields(latlon, osmUrl, osmUrlRefresher);
 		
 		// Finally: the dialog
-		int r = JOptionPane.showConfirmDialog(Main.main, dlg, "Choose an area", 
-				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-		if (r != JOptionPane.OK_OPTION)
-			return;
-
-		startDownload();
+		while(true) {
+			int r = JOptionPane.showConfirmDialog(Main.main, dlg, "Choose an area", 
+					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+			if (r != JOptionPane.OK_OPTION)
+				return;
+			if (startDownload() == DownloadStatus.FINISHED) 
+				break;
+		}
 	}
 
 	/**
 	 * Read the values from the edit fields and start the download.
 	 */
-	private void startDownload() {
+	private DownloadStatus startDownload() {
 		Bookmark b = readBookmark();
 		if (b == null) {
 			JOptionPane.showMessageDialog(Main.main, "Please enter the desired coordinates or click on a bookmark.");
-			return;
+			return DownloadStatus.REDISPLAY;
 		}
-		
+
 		final OsmServerReader osmReader = new OsmServerReader(b.latlon[0], b.latlon[1], b.latlon[2], b.latlon[3]);
 		new Thread(new PleaseWaitRunnable("Downloading data"){
 			@Override
@@ -274,6 +302,7 @@ public class DownloadAction extends JosmAction {
 				}
 			}
 		}).start();
+		return DownloadStatus.FINISHED;
 	}
 	
 	/**

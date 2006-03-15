@@ -1,11 +1,12 @@
 package org.openstreetmap.josm.actions.mapmode;
 
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
+
+import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.AddCommand;
@@ -13,8 +14,6 @@ import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Track;
 import org.openstreetmap.josm.gui.MapFrame;
-import org.openstreetmap.josm.gui.SelectionManager;
-import org.openstreetmap.josm.gui.SelectionManager.SelectionEnded;
 
 /**
  * Add a new track from all selected line segments.
@@ -33,71 +32,25 @@ import org.openstreetmap.josm.gui.SelectionManager.SelectionEnded;
  * @author imi
  *
  */
-public class AddTrackAction extends MapMode implements SelectionEnded {
+public class AddWayAction extends MapMode {
 
-	/**
-	 * The selection manager for this action, keeping track of all selections.
-	 */
-	SelectionManager selectionManager;
+	private MapMode followMode;
 	
 	/**
-	 * Create a new AddTrackAction.
+	 * Create a new AddWayAction.
 	 * @param mapFrame The MapFrame this action belongs to.
+	 * @param followMode The mode to go into when finished creating a way.
 	 */
-	public AddTrackAction(MapFrame mapFrame) {
-		super("Add Way", "addtrack", "Combine line segments to a new way.", KeyEvent.VK_W, mapFrame);
-		this.selectionManager = new SelectionManager(this, false, mv);
+	public AddWayAction(MapFrame mapFrame, MapMode followMode) {
+		super("Add Way", "addway", "Combine line segments to a new way.", KeyEvent.VK_W, mapFrame);
+		this.followMode = followMode;
 	}
 
-	@Override
-	public void registerListener() {
-		super.registerListener();
-		selectionManager.register(mv);
-	}
-
-	@Override
-	public void unregisterListener() {
-		super.unregisterListener();
-		selectionManager.unregister(mv);
-	}
-
-	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		makeTrack();
 		super.actionPerformed(e);
-	}
-
-	/**
-	 * If Shift is pressed, only add the selected line segments to the selection.
-	 * If Ctrl is pressed, only remove the selected line segments from the selection.
-	 * If both, Shift and Ctrl is pressed, do nothing.
-	 * 
-	 * Else, form a new track out of all line segments in the selection and
-	 * clear the selection afterwards.
-	 * 
-	 * If Alt is pressed, consider all linesegments of all tracks a selected
-	 * line segment is part of. Also consider all line segments that cross the
-	 * selecting rectangle, instead only those that are fully within.
-	 * 
-	 */
-	public void selectionEnded(Rectangle r, boolean alt, boolean shift, boolean ctrl) {
-		if (shift && ctrl)
-			return; // not allowed together
-
-		if (!ctrl && !shift)
-			Main.main.ds.clearSelection(); // new selection will replace the old.
-
-		Collection<OsmPrimitive> selectionList = selectionManager.getObjectsInRectangle(r,alt);
-		for (OsmPrimitive osm : selectionList)
-			osm.setSelected(!ctrl);
-
-		mv.repaint(); // from now on, the map has to be repainted.
-
-		if (ctrl || shift)
-			return; // no new track yet.
-		
-		makeTrack();
+		mapFrame.selectMapMode(followMode);
 	}
 
 	/**
@@ -110,11 +63,25 @@ public class AddTrackAction extends MapMode implements SelectionEnded {
 
 		// form a new track
 		LinkedList<LineSegment> lineSegments = new LinkedList<LineSegment>();
+		int numberOfSelectedWays = 0;
 		for (OsmPrimitive osm : selection) {
 			if (osm instanceof Track)
-				lineSegments.addAll(((Track)osm).segments);
+				numberOfSelectedWays++;
 			else if (osm instanceof LineSegment)
 				lineSegments.add((LineSegment)osm);
+		}
+		
+		if (numberOfSelectedWays > 0) {
+			String ways = "way" + (numberOfSelectedWays==1?"":"s");
+			int answer = JOptionPane.showConfirmDialog(Main.main, numberOfSelectedWays+" "+ways+" have been selected.\n" +
+					"Do you wish to select all segments belonging to the "+ways+" instead?");
+			if (answer == JOptionPane.CANCEL_OPTION)
+				return;
+			if (answer == JOptionPane.YES_OPTION) {
+				for (OsmPrimitive osm : selection)
+					if (osm instanceof Track)
+						lineSegments.addAll(((Track)osm).segments);
+			}
 		}
 		
 		// sort the line segments in best possible order. This is done by:

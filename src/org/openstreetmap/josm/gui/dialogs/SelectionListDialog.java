@@ -2,21 +2,26 @@ package org.openstreetmap.josm.gui.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
+import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.SelectionChangedListener;
+import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.MapFrame;
@@ -60,6 +65,8 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 
 		add(new JScrollPane(displaylist), BorderLayout.CENTER);
 
+		JPanel buttonPanel = new JPanel(new GridLayout(1,2));
+		
 		JButton button = new JButton("Select", ImageProvider.get("mapmode", "selection"));
 		button.setToolTipText("Set the selected elements on the map to the selected items in the list above.");
 		button.addActionListener(new ActionListener(){
@@ -67,8 +74,33 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 				updateMap();
 			}
 		});
-		add(button, BorderLayout.SOUTH);
+		buttonPanel.add(button);
 
+		button = new JButton("Search", ImageProvider.get("dialogs", "search"));
+		button.setToolTipText("Search for objects.");
+		button.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				String search = JOptionPane.showInputDialog(Main.main, "Please enter a search string", "Search", JOptionPane.INFORMATION_MESSAGE);
+				if (search == null)
+					return;
+				Main.main.ds.clearSelection();
+				for (OsmPrimitive osm : Main.main.ds.allNonDeletedPrimitives()) {
+					if (osm.keys != null) {
+						for (Entry<Key, String> ent : osm.keys.entrySet()) {
+							if (search.indexOf(ent.getKey().name) != -1 || search.indexOf(ent.getValue()) != -1) {
+								osm.setSelected(true);
+								break;
+							}
+						}
+					}
+				}
+				selectionChanged(Main.main.ds.getSelected());
+				Main.main.getMapFrame().repaint();
+			}
+		});
+		buttonPanel.add(button);
+		
+		add(buttonPanel, BorderLayout.SOUTH);
 		selectionChanged(Main.main.ds.getSelected());
 	}
 

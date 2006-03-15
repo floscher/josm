@@ -12,6 +12,7 @@ import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Track;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
+import org.xml.sax.SAXException;
 
 /**
  * Save the dataset into a stream as osm intern xml format. This is not using any
@@ -19,6 +20,14 @@ import org.openstreetmap.josm.data.osm.visitor.Visitor;
  * @author imi
  */
 public class OsmWriter implements Visitor {
+
+	private class RuntimeEncodingException extends RuntimeException {
+		public RuntimeEncodingException(Throwable t) {
+			super(t);
+		}
+		public RuntimeEncodingException() {
+		}
+	}
 
 	/**
 	 * The output writer to save the values to.
@@ -37,6 +46,18 @@ public class OsmWriter implements Visitor {
 
 	private final boolean osmConform;
 
+	private final static HashMap<Character, String> encoding = new HashMap<Character, String>();
+	static {
+		encoding.put('<', "&lt;");
+		encoding.put('>', "&gt;");
+		encoding.put('"', "&quot;");
+		encoding.put('\'', "&apos;");
+		encoding.put('&', "&amp;");
+		encoding.put('\n', "&#xA;");
+		encoding.put('\r', "&#xD;");
+		encoding.put('\t', "&#x9;");
+	}
+	
 	/**
 	 * Output the data to the stream
 	 * @param osmConform <code>true</code>, if the xml should be 100% osm conform. In this
@@ -45,6 +66,7 @@ public class OsmWriter implements Visitor {
 	 */
 	public static void output(Writer out, DataSet ds, boolean osmConform) {
 		OsmWriter writer = new OsmWriter(out, osmConform);
+		writer.out.println("<?xml version='1.0' encoding='UTF-8'?>");
 		writer.out.println("<osm version='0.3' generator='JOSM'>");
 		for (Node n : ds.nodes)
 			writer.visit(n);
@@ -55,13 +77,18 @@ public class OsmWriter implements Visitor {
 		writer.out.println("</osm>");
 	}
 
-	public static void outputSingle(Writer out, OsmPrimitive osm, boolean osmConform) {
-		OsmWriter writer = new OsmWriter(out, osmConform);
-		writer.out.println("<osm version='0.3' generator='JOSM'>");
-		osm.visit(writer);
-		writer.out.println("</osm>");
+	public static void outputSingle(Writer out, OsmPrimitive osm, boolean osmConform) throws SAXException {
+		try {
+			OsmWriter writer = new OsmWriter(out, osmConform);
+			writer.out.println("<?xml version='1.0' encoding='UTF-8'?>");
+			writer.out.println("<osm version='0.3' generator='JOSM'>");
+			osm.visit(writer);
+			writer.out.println("</osm>");
+		} catch (RuntimeEncodingException e) {
+			throw new SAXException("Your Java installation does not support the required UTF-8 encoding", (Exception)e.getCause());
+		}		
 	}
-	
+
 	private OsmWriter(Writer out, boolean osmConform) {
 		if (out instanceof PrintWriter)
 			this.out = (PrintWriter)out;
@@ -69,7 +96,7 @@ public class OsmWriter implements Visitor {
 			this.out = new PrintWriter(out);
 		this.osmConform = osmConform;
 	}
-	
+
 	public void visit(Node n) {
 		addCommon(n, "node");
 		out.print(" lat='"+n.coor.lat+"' lon='"+n.coor.lon+"'");
@@ -111,13 +138,33 @@ public class OsmWriter implements Visitor {
 			if (tagOpen)
 				out.println(">");
 			for (Entry<Key, String> e : osm.keys.entrySet())
-				out.println("    <tag k='"+e.getKey().name+"' v='"+e.getValue()+"' />");
-			out.println("  </"+tagname+">");
+				out.println("    <tag k='"+ encode(e.getKey().name) +
+						"' v='"+encode(e.getValue())+ "' />");
+			out.println("  </" + tagname + ">");
 		} else if (tagOpen)
 			out.println(" />");
 		else
-			out.println("  </"+tagname+">");
+			out.println("  </" + tagname + ">");
 	}
+
+	/**
+	 * Encode the given string in XML1.0 format.
+	 * Optimized to fast pass strings that don't need encoding (normal case).
+	 */
+	public String encode(String unencoded) {
+		StringBuilder buffer = null;
+		for (int i = 0; i < unencoded.length(); ++i) {
+			String encS = encoding.get(unencoded.charAt(i));
+			if (encS != null) {
+				if (buffer == null)
+					buffer = new StringBuilder(unencoded.substring(0,i));
+				buffer.append(encS);
+			} else if (buffer != null)
+				buffer.append(unencoded.charAt(i));
+		}
+		return (buffer == null) ? unencoded : buffer.toString();
+	}
+
 
 	/**
 	 * Add the common part as the start of the tag as well as the id or the action tag.
@@ -139,4 +186,3 @@ public class OsmWriter implements Visitor {
 		}
 	}
 }
-
