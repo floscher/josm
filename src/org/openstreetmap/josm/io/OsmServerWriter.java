@@ -166,10 +166,6 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 				Writer out = new OutputStreamWriter(con.getOutputStream());
 				OsmWriter.outputSingle(out, osm, true);
 				out.close();
-				
-				StringWriter o = new StringWriter();
-				OsmWriter.outputSingle(o, osm, true);
-				System.out.println(o.getBuffer().toString());
 			}
 
 			int retCode = con.getResponseCode();
@@ -178,8 +174,14 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 			System.out.println("got return: "+retCode+" with id "+osm.id);
 			String retMsg = con.getResponseMessage();
 			con.disconnect();
-			if (retCode != 200)
+			if (retCode == 410 && requestMethod.equals("DELETE"))
+				return; // everything fine.. was already deleted.
+			if (retCode != 200) {
+				StringWriter o = new StringWriter();
+				OsmWriter.outputSingle(o, osm, true);
+				System.out.println(o.getBuffer().toString());
 				throw new RuntimeException(retCode+" "+retMsg);
+			}
 		} catch (UnknownHostException e) {
 			throw new RuntimeException("Unknown host: "+e.getMessage(), e);
 		} catch (Exception e) {
