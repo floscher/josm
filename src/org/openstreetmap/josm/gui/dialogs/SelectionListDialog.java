@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -79,15 +80,22 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 		button = new JButton("Search", ImageProvider.get("dialogs", "search"));
 		button.setToolTipText("Search for objects.");
 		button.addActionListener(new ActionListener(){
+			private String lastSearch = "";
 			public void actionPerformed(ActionEvent e) {
-				String search = JOptionPane.showInputDialog(Main.main, "Please enter a search string", "Search", JOptionPane.INFORMATION_MESSAGE);
-				if (search == null)
+				JLabel l = new JLabel("Please enter a search string.");
+				l.setToolTipText("<html>Fulltext search.<ul>" +
+						"<li>Baker Street  - search for everything with 'Baker Street' in any key or name.</li>" +
+						"<li>name:Bak  - search for every object with key=name and 'Bak' anywhere in the value.</li>" +
+						"<li>foot:  - search for everything with the key=foot set to any value." +
+						"</ul></html>");
+				lastSearch = (String)JOptionPane.showInputDialog(Main.main,l,"Search",JOptionPane.INFORMATION_MESSAGE,null,null,lastSearch);
+				if (lastSearch == null)
 					return;
 				Main.main.ds.clearSelection();
 				for (OsmPrimitive osm : Main.main.ds.allNonDeletedPrimitives()) {
 					if (osm.keys != null) {
 						for (Entry<Key, String> ent : osm.keys.entrySet()) {
-							if (search.indexOf(ent.getKey().name) != -1 || search.indexOf(ent.getValue()) != -1) {
+							if (match(lastSearch, ent.getKey(), ent.getValue())) {
 								osm.setSelected(true);
 								break;
 							}
@@ -96,6 +104,12 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 				}
 				selectionChanged(Main.main.ds.getSelected());
 				Main.main.getMapFrame().repaint();
+			}
+			private boolean match(String search, Key key, String value) {
+				int colon = search.indexOf(':');
+				if (colon == -1)
+					return key.name.indexOf(search) != -1 || value.indexOf(search) != -1;
+				return key.name.equals(search.substring(0, colon)) && value.indexOf(search.substring(colon+1)) != -1;
 			}
 		});
 		buttonPanel.add(button);

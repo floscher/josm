@@ -272,7 +272,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		b.setActionCommand(name);
 		b.addActionListener(actionListener);
 		b.setToolTipText(tooltip);
-		b.setMnemonic(mnemonic);
+		//b.setMnemonic(mnemonic); TODO disabled until mapmodes have no Alt in their hotkey.
 		return b;
 	}
 
