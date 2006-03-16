@@ -27,7 +27,6 @@ import javax.swing.PopupFactory;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.GeoPoint;
-import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.visitor.SelectionComponentVisitor;
 
@@ -140,8 +139,8 @@ public class MapStatus extends JPanel {
 							if (osm.id != 0)
 								text.append("<br>id="+osm.id);
 							if (osm.keys != null)
-								for (Entry<Key, String> e : osm.keys.entrySet())
-									text.append("<br>"+e.getKey().name+"="+e.getValue());
+								for (Entry<String, String> e : osm.keys.entrySet())
+									text.append("<br>"+e.getKey()+"="+e.getValue());
 							final JLabel l = new JLabel("<html>"+text.toString()+"</html>", visitor.icon, JLabel.HORIZONTAL);
 							l.setFont(l.getFont().deriveFont(Font.PLAIN));
 							l.setVerticalTextPosition(JLabel.TOP);

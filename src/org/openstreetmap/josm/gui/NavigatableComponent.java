@@ -11,7 +11,7 @@ import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.projection.Projection;
 
 /**
@@ -117,8 +117,8 @@ public class NavigatableComponent extends JComponent {
 	 * 
 	 * If no such line segment is found, and a non-pending line segment is 
 	 * within 10 pixel to p, this segment is returned, except when 
-	 * <code>wholeTrack</code> is <code>true</code>, in which case the 
-	 * corresponding Track is returned.
+	 * <code>wholeWay</code> is <code>true</code>, in which case the 
+	 * corresponding Way is returned.
 	 * 
 	 * If no line segment is found and the point is within an area, return that
 	 * area.
@@ -126,11 +126,11 @@ public class NavigatableComponent extends JComponent {
 	 * If no area is found, return <code>null</code>.
 	 * 
 	 * @param p				 The point on screen.
-	 * @param lsInsteadTrack Whether the line segment (true) or only the whole
-	 * 					 	 track should be returned.
+	 * @param lsInsteadWay Whether the line segment (true) or only the whole
+	 * 					 	 way should be returned.
 	 * @return	The primitive, that is nearest to the point p.
 	 */
-	public OsmPrimitive getNearest(Point p, boolean lsInsteadTrack) {
+	public OsmPrimitive getNearest(Point p, boolean lsInsteadWay) {
 		double minDistanceSq = Double.MAX_VALUE;
 		OsmPrimitive minPrimitive = null;
 	
@@ -148,10 +148,10 @@ public class NavigatableComponent extends JComponent {
 		if (minPrimitive != null)
 			return minPrimitive;
 		
-		// for whole tracks, try the tracks first
+		// for whole waies, try the waies first
 		minDistanceSq = Double.MAX_VALUE;
-		if (!lsInsteadTrack) {
-			for (Track t : Main.main.ds.tracks) {
+		if (!lsInsteadWay) {
+			for (Way t : Main.main.ds.waies) {
 				if (t.isDeleted())
 					continue;
 				for (LineSegment ls : t.segments) {
@@ -200,12 +200,12 @@ public class NavigatableComponent extends JComponent {
 	 * 
 	 * If its a node, return all line segments and
 	 * streets the node is part of, as well as all nodes
-	 * (with their line segments and tracks) with the same
+	 * (with their line segments and waies) with the same
 	 * location.
 	 * 
-	 * If its a line segment, return all tracks this segment 
+	 * If its a line segment, return all waies this segment 
 	 * belongs to as well as all line segments that are between
-	 * the same nodes (in both direction) with all their tracks.
+	 * the same nodes (in both direction) with all their waies.
 	 * 
 	 * @return A collection of all items or <code>null</code>
 	 * 		if no item under or near the point. The returned
@@ -234,7 +234,7 @@ public class NavigatableComponent extends JComponent {
 					c.add(ls);
 		}
 		if (osm instanceof Node || osm instanceof LineSegment) {
-			for (Track t : Main.main.ds.tracks) {
+			for (Way t : Main.main.ds.waies) {
 				if (t.isDeleted())
 					continue;
 				for (LineSegment ls : t.segments) {

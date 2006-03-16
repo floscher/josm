@@ -41,13 +41,13 @@ public class OsmServerReader extends OsmConnection {
 
 
 	/**
-	 * Retrieve raw gps trackpoints from the server API.
+	 * Retrieve raw gps waypoints from the server API.
 	 * @return A list of all primitives retrieved. Currently, the list of lists
 	 * 		contain only one list, since the server cannot distinguish between
-	 * 		tracks.
+	 * 		waies.
 	 */
 	public Collection<Collection<GeoPoint>> parseRawGps() throws IOException, JDOMException {
-		String url = Main.pref.osmDataServer+"/0.3/trackpoints?bbox="+lon1+","+lat1+","+lon2+","+lat2+"&page=";
+		String url = Main.pref.osmDataServer+"/0.3/waypoints?bbox="+lon1+","+lat1+","+lon2+","+lat2+"&page=";
 		Collection<Collection<GeoPoint>> data = new LinkedList<Collection<GeoPoint>>();
 		Collection<GeoPoint> list = new LinkedList<GeoPoint>();
 		
@@ -56,9 +56,9 @@ public class OsmServerReader extends OsmConnection {
 			if (r == null)
 				break;
 			RawGpsReader gpsReader = new RawGpsReader(r);
-			Collection<Collection<GeoPoint>> allTracks = gpsReader.parse();
+			Collection<Collection<GeoPoint>> allWays = gpsReader.parse();
 			boolean foundSomething = false;
-			for (Collection<GeoPoint> t : allTracks) {
+			for (Collection<GeoPoint> t : allWays) {
 				if (!t.isEmpty()) {
 					foundSomething = true;
 					list.addAll(t);

@@ -30,9 +30,9 @@ public class GpxWriterTest extends TestCase {
 	 */
 	@Bug(47)
 	public void testDeleteNewDoesReallyRemove() throws JDOMException, IOException {
-		ds.tracks.iterator().next().setDeleted(true);
+		ds.waies.iterator().next().setDeleted(true);
 		root = reparse();
-		assertEquals("track has vanished and 3 trk (segments) left", 3, root.getChildren("trk", GPX).size());
+		assertEquals("way has vanished and 3 trk (segments) left", 3, root.getChildren("trk", GPX).size());
 	}
 
 	
@@ -43,24 +43,24 @@ public class GpxWriterTest extends TestCase {
 	@Bug(47)
 	public void testNewCreateAddIdWhenMoreThanOnce() {
 		// the trk with the two trkseg's only occoure once -> no extension id
-		Element realTrack = null;
+		Element realWay = null;
 		for (Object o : root.getChildren("trk", GPX)) {
 			Element e = (Element)o;
 			if (e.getChildren("trkseg", GPX).size() != 2)
 				continue;
 			Element ext = e.getChild("extensions", GPX);
 			if (ext != null)
-				assertEquals("no id for track (used only once)", 0, ext.getChildren("uid", JOSM).size());
-			realTrack = e;
+				assertEquals("no id for way (used only once)", 0, ext.getChildren("uid", JOSM).size());
+			realWay = e;
 		}
-		assertNotNull("track not found in GPX file", realTrack);
+		assertNotNull("way not found in GPX file", realWay);
 		
-		// the second point of the first segment of the tracks has an id
-		Element trkseg = (Element)realTrack.getChildren("trkseg", GPX).get(0);
+		// the second point of the first segment of the waies has an id
+		Element trkseg = (Element)realWay.getChildren("trkseg", GPX).get(0);
 		Element trkpt = (Element)trkseg.getChildren("trkpt", GPX).get(1);
-		assertEquals("trackpoint used twice but has no extensions at all", 1, trkpt.getChildren("extensions", GPX).size());
+		assertEquals("waypoint used twice but has no extensions at all", 1, trkpt.getChildren("extensions", GPX).size());
 		Element ext = trkpt.getChild("extensions", GPX);
-		assertEquals("trackpoint used twice but has no id", 1, ext.getChildren("uid", JOSM).size());
+		assertEquals("waypoint used twice but has no id", 1, ext.getChildren("uid", JOSM).size());
 	}
 
 

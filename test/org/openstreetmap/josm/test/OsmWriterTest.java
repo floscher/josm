@@ -14,11 +14,10 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.io.OsmWriter;
 import org.openstreetmap.josm.test.framework.Bug;
 import org.openstreetmap.josm.test.framework.DataSetTestCaseHelper;
@@ -37,7 +36,7 @@ public class OsmWriterTest extends TestCase {
 	private LineSegment ls1;
 	private LineSegment ls2;
 	private LineSegment ls3;
-	private Track w;
+	private Way w;
 	
 	private DataSet ds;
 	private Element osm;
@@ -63,7 +62,7 @@ public class OsmWriterTest extends TestCase {
 		for (int i = 32; i < 0xd800; ++i)
 			sb.append((char)i);
 		String s = sb.toString();
-		n1.put(Key.get(s), s);
+		n1.put(s, s);
 		reparse();
 		assertEquals(1, nodes.get(0).getChildren().size());
 		Attribute key = ((Element)nodes.get(0).getChildren().get(0)).getAttribute("k");
@@ -75,7 +74,7 @@ public class OsmWriterTest extends TestCase {
 	public void testLineSegment() throws Exception {
 		ds = new DataSet();
 		LineSegment ls = DataSetTestCaseHelper.createLineSegment(ds, DataSetTestCaseHelper.createNode(ds), DataSetTestCaseHelper.createNode(ds));
-		ls.put(Key.get("foo"), "bar");
+		ls.put("foo", "bar");
 		reparse();
 		assertEquals(1, lineSegments.size());
 		assertEquals("foo", getAttr(osm.getChild("segment"), "tag", 0, "k"));
@@ -125,7 +124,7 @@ public class OsmWriterTest extends TestCase {
 	 */
 	@Bug(47)
 	public void testDeleteNewDoesReallyRemove() throws Exception {
-		ds.tracks.iterator().next().setDeleted(true);
+		ds.waies.iterator().next().setDeleted(true);
 		reparse();
 		//assertEquals(0, deleted.size());
 	}

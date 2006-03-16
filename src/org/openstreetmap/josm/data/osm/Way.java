@@ -6,20 +6,20 @@ import java.util.List;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
 
 /**
- * One full track, consisting of several track segments chained together.
+ * One full way, consisting of several way segments chained together.
  *
  * @author imi
  */
-public class Track extends OsmPrimitive {
+public class Way extends OsmPrimitive {
 
 	/**
-	 * All track segments in this track
+	 * All way segments in this way
 	 */
 	public final List<LineSegment> segments = new ArrayList<LineSegment>();
 
 	
 	/**
-	 * Return the last node in the track. This is the node, which no line segment
+	 * Return the last node in the way. This is the node, which no line segment
 	 * has as start, but at least one has it as end. If there are not exact one
 	 * such nodes found, <code>null</code> is returned.
 	 *
@@ -44,7 +44,7 @@ public class Track extends OsmPrimitive {
 	}
 
 	/**
-	 * Return the first node in the track. This is the node, which no line segment
+	 * Return the first node in the way. This is the node, which no line segment
 	 * has as end, but at least one as starting node. If there are not exact one
 	 * such nodes found, <code>null</code> is returned.
 	 * 

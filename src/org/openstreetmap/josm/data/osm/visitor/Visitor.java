@@ -1,9 +1,8 @@
 package org.openstreetmap.josm.data.osm.visitor;
 
-import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
-import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.data.osm.Way;
 
 /**
  * Implementation of the visitor scheme. Every OsmPrimitive can be visited by
@@ -14,6 +13,5 @@ import org.openstreetmap.josm.data.osm.Track;
 public interface Visitor {
 	void visit(Node n);
 	void visit(LineSegment ls);
-	void visit(Track t);
-	void visit(Key k);
+	void visit(Way t);
 }

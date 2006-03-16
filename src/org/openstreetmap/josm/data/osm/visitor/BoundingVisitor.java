@@ -1,10 +1,9 @@
 package org.openstreetmap.josm.data.osm.visitor;
 
 import org.openstreetmap.josm.data.Bounds;
-import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
-import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.data.osm.Way;
 
 /**
  * Calculates the total bounding rectangle of a serie of OsmPrimitives.
@@ -52,13 +51,9 @@ public class BoundingVisitor implements Visitor {
 		visit(ls.end);
 	}
 
-	public void visit(Track t) {
+	public void visit(Way t) {
 		for (LineSegment ls : t.segments)
 			visit(ls);
-	}
-
-	public void visit(Key k) {
-		// do nothing
 	}
 }
 

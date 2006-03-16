@@ -176,7 +176,7 @@ public class PreferenceDialog extends JDialog {
 				"<b>ignore</b>: Skip this field<br>" +
 				"An example: \"ignore ignore lat lon\" will use ' ' as delimiter, skip the first two values and read then lat/lon.<br>" +
 				"Other example: \"lat,lon\" will just read lat/lon values comma seperated.</html>");
-		drawRawGpsLines.setToolTipText("If your gps device draw to few lines, select this to draw lines along your track.");
+		drawRawGpsLines.setToolTipText("If your gps device draw to few lines, select this to draw lines along your way.");
 		drawRawGpsLines.setSelected(Main.pref.isDrawRawGpsLines());
 		forceRawGpsLines.setToolTipText("Force drawing of lines if the imported data contain no line information.");
 		forceRawGpsLines.setSelected(Main.pref.isForceRawGpsLines());

@@ -18,7 +18,7 @@ import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.data.osm.Way;
 
 /**
  * Manages the selection of a rectangle. Listening to left and right mouse button
@@ -256,7 +256,7 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 	 * modifier.
 	 * @param alt Whether the alt key was pressed, which means select all objects
 	 * 		that are touched, instead those which are completly covered. Also 
-	 * 		select whole tracks instead of line segments.
+	 * 		select whole waies instead of line segments.
 	 */
 	public Collection<OsmPrimitive> getObjectsInRectangle(Rectangle r, boolean alt) {
 		Collection<OsmPrimitive> selection = new LinkedList<OsmPrimitive>();
@@ -281,15 +281,15 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 				if (rectangleContainLineSegment(r, alt, ls))
 					selection.add(ls);
 
-			// tracks
-			for (Track t : Main.main.ds.tracks) {
-				boolean wholeTrackSelected = !t.segments.isEmpty();
+			// waies
+			for (Way t : Main.main.ds.waies) {
+				boolean wholeWaySelected = !t.segments.isEmpty();
 				for (LineSegment ls : t.segments)
 					if (rectangleContainLineSegment(r, alt, ls))
 						selection.add(ls);
 					else
-						wholeTrackSelected = false;
-				if (wholeTrackSelected)
+						wholeWaySelected = false;
+				if (wholeWaySelected)
 					selection.add(t);
 			}
 			

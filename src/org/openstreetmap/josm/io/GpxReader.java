@@ -13,11 +13,10 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.data.osm.Way;
 
 /**
  * Reads an gpx stream and construct a DataSet out of it. 
@@ -98,15 +97,15 @@ public class GpxReader {
 	 */
 	private DataSet parseDataSet(Element e) {
 		DataSet data = new DataSet();
-		// read waypoints not contained in tracks or areas
+		// read waypoints not contained in waies or areas
 		for (Object o : e.getChildren("wpt", GPX)) {
 			Node node = parseWaypoint((Element)o);
 			addNode(data, node);
 		}
 	
-		// read tracks (and line segments)
-		for (Object trackElement : e.getChildren("trk", GPX))
-			parseTrack((Element)trackElement, data);
+		// read waies (and line segments)
+		for (Object wayElement : e.getChildren("trk", GPX))
+			parseWay((Element)wayElement, data);
 
 		// reset new created ids to zero
 		for (OsmPrimitive osm : data.allPrimitives())
@@ -117,15 +116,15 @@ public class GpxReader {
 	}
 
 	/**
-	 * Parse and read a track from the element. Store it in the dataSet, as well
+	 * Parse and read a way from the element. Store it in the dataSet, as well
 	 * as all nodes in it.
 	 *
-	 * @param e		The element that contain the track.
+	 * @param e		The element that contain the way.
 	 * @param ds	The DataSet to store the data in.
 	 */
-	private void parseTrack(Element e, DataSet ds) {
-		Track track = new Track();
-		boolean realLineSegment = false; // is this track just a fake?
+	private void parseWay(Element e, DataSet ds) {
+		Way way = new Way();
+		boolean realLineSegment = false; // is this way just a fake?
 
 		for (Object o : e.getChildren()) {
 			Element child = (Element)o;
@@ -140,23 +139,23 @@ public class GpxReader {
 						LineSegment lineSegment = new LineSegment(start, node);
 						parseKeyValueExtensions(lineSegment, child.getChild("extensions", GPX));
 						lineSegment = (LineSegment)getNewIfSeenBefore(lineSegment);
-						track.segments.add(lineSegment);
+						way.segments.add(lineSegment);
 						start = node;
 					}
 				}
 			} else if (child.getName().equals("extensions")) {
-				parseKeyValueExtensions(track, child);
+				parseKeyValueExtensions(way, child);
 				if (child.getChild("segment", JOSM) != null)
 					realLineSegment = true;
 			} else if (child.getName().equals("link"))
-				parseKeyValueLink(track, child);
+				parseKeyValueLink(way, child);
 			else
-				parseKeyValueTag(track, child);
+				parseKeyValueTag(way, child);
 		}
-		track = (Track)getNewIfSeenBefore(track);
-		ds.lineSegments.addAll(track.segments);
+		way = (Way)getNewIfSeenBefore(way);
+		ds.lineSegments.addAll(way.segments);
 		if (!realLineSegment)
-			ds.tracks.add(track);
+			ds.waies.add(way);
 	}
 
 	/**
@@ -201,15 +200,14 @@ public class GpxReader {
 		if (e != null) {
 			for (Object o : e.getChildren("property", OSM)) {
 				if (osm.keys == null)
-					osm.keys = new HashMap<Key, String>();
+					osm.keys = new HashMap<String, String>();
 				Element child = (Element)o;
 				String keyname = child.getAttributeValue("key");
 				if (keyname != null) {
-					Key key = Key.get(keyname);
 					String value = child.getAttributeValue("value");
 					if (value == null)
 						value = "";
-					osm.keys.put(key, value);
+					osm.keys.put(keyname, value);
 				}
 			}
 			Element idElement = e.getChild("uid", JOSM);
@@ -234,11 +232,8 @@ public class GpxReader {
 	 * @param e		  The element to look for data.
 	 */
 	private void parseKeyValueTag(OsmPrimitive osm, Element e) {
-		if (e != null) {
-			if (osm.keys == null)
-				osm.keys = new HashMap<Key, String>();
-			osm.keys.put(Key.get(e.getName()), e.getValue());
-		}
+		if (e != null)
+			osm.put(e.getName(), e.getValue());
 	}
 
 	/**
@@ -256,9 +251,9 @@ public class GpxReader {
 	private void parseKeyValueLink(OsmPrimitive osm, Element e) {
 		if (e != null) {
 			if (osm.keys == null)
-				osm.keys = new HashMap<Key, String>();
+				osm.keys = new HashMap<String, String>();
 			String link = e.getChildText("type") + ";" + e.getChildText("text");
-			osm.keys.put(Key.get("link"), link);
+			osm.keys.put("link", link);
 		}
 	}
 }

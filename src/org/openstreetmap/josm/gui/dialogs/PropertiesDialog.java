@@ -13,7 +13,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -36,7 +35,6 @@ import javax.swing.table.DefaultTableModel;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.ChangeKeyValueCommand;
 import org.openstreetmap.josm.data.SelectionChangedListener;
-import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.MapFrame;
@@ -124,7 +122,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 			return;
 		if (value.equals(""))
 			value = null; // delete the key
-		mv.editLayer().add(new ChangeKeyValueCommand(sel, Key.get(key), value));
+		mv.editLayer().add(new ChangeKeyValueCommand(sel, key, value));
 
 		if (value == null)
 			selectionChanged(sel); // update whole table
@@ -142,7 +140,10 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		JPanel p = new JPanel(new BorderLayout());
 		p.add(new JLabel("<html>This will change "+sel.size()+" object"+(sel.size()==1?"":"s")+".<br><br>"+
 		"Please select a key"), BorderLayout.NORTH);
-		Vector<String> allKeys = new Vector<String>(Key.allKeys.keySet());
+		Vector<String> allKeys = new Vector<String>();
+		for (OsmPrimitive osm : Main.main.ds.allNonDeletedPrimitives())
+			if (osm.keys != null)
+				allKeys.addAll(osm.keys.keySet());
 		for (Iterator<String> it = allKeys.iterator(); it.hasNext();) {
 			String s = it.next();
 			for (int i = 0; i < data.getRowCount(); ++i) {
@@ -169,7 +170,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		String value = values.getText();
 		if (value.equals(""))
 			return;
-		mv.editLayer().add(new ChangeKeyValueCommand(sel, Key.get(key), value));
+		mv.editLayer().add(new ChangeKeyValueCommand(sel, key, value));
 		selectionChanged(sel); // update table
 	}
 
@@ -180,7 +181,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	private void delete(int row) {
 		String key = data.getValueAt(row, 0).toString();
 		Collection<OsmPrimitive> sel = Main.main.ds.getSelected();
-		mv.editLayer().add(new ChangeKeyValueCommand(sel, Key.get(key), null));
+		mv.editLayer().add(new ChangeKeyValueCommand(sel, key, null));
 		selectionChanged(sel); // update table
 	}
 	
@@ -292,30 +293,22 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 			propertyTable.getCellEditor().cancelCellEditing();
 		data.setRowCount(0);
 		TreeMap<String, Collection<String>> props = new TreeMap<String, Collection<String>>();
-		HashMap<String, Integer> valueCounts = new HashMap<String, Integer>();
 		for (OsmPrimitive osm : newSelection) {
 			if (osm.keys != null) {
-				for (Entry<Key, String> e : osm.keys.entrySet()) {
-					Collection<String> value = props.get(e.getKey().name);
+				for (Entry<String, String> e : osm.keys.entrySet()) {
+					Collection<String> value = props.get(e.getKey());
 					if (value == null) {
 						value = new TreeSet<String>();
-						props.put(e.getKey().name, value);
+						props.put(e.getKey(), value);
 					}
 					value.add(e.getValue());
-					
-					Integer count = valueCounts.get(e.getValue());
-					if (count == null)
-						count = 0;
-					valueCounts.put(e.getValue(), count+1);
 				}
 			}
 		}
-		int selCount = newSelection.size();
 		for (Entry<String, Collection<String>> e : props.entrySet()) {
 			JComboBox value = new JComboBox(e.getValue().toArray());
 			value.setEditable(true);
-			if (e.getValue().size() > 1 || valueCounts.get(e.getValue().iterator().next()) != selCount)
-				value.getEditor().setItem("<different>");
+			value.getEditor().setItem(e.getValue().size() > 1 ? "<different>" : e.getValue().iterator().next());
 			data.addRow(new Object[]{e.getKey(), value});
 		}
 	}

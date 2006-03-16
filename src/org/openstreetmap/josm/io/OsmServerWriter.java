@@ -16,11 +16,10 @@ import java.util.LinkedList;
 
 import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
 
 /**
@@ -95,7 +94,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 	/**
 	 * Upload a whole way with the complete line segment id list.
 	 */
-	public void visit(Track w) {
+	public void visit(Way w) {
 		if (w.id == 0 && !w.isDeleted()) {
 			setCredits(w);
 			sendRequest("PUT", "way", w, true);
@@ -114,14 +113,10 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 	 */
 	private void setCredits(OsmPrimitive osm) {
 		if (osm.keys == null)
-			osm.keys = new HashMap<Key, String>();
-		osm.keys.put(Key.get("created_by"), "JOSM");
+			osm.keys = new HashMap<String, String>();
+		osm.keys.put("created_by", "JOSM");
 	}
 
-
-	public void visit(Key k) {
-		// not implemented in server
-	}
 
 	/**
 	 * Read a long from the input stream and return it.

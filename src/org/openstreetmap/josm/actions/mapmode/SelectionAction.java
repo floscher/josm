@@ -26,7 +26,7 @@ import org.openstreetmap.josm.gui.SelectionManager.SelectionEnded;
  *
  * If Alt key was hold, select all objects that are touched by the 
  * selection rectangle. If the Alt key was not hold, select only those objects 
- * completly within (e.g. for tracks mean: only if all nodes of the track are 
+ * completly within (e.g. for waies mean: only if all nodes of the way are 
  * within).  
  *
  * If Shift key was hold, the objects are added to the current selection. If
