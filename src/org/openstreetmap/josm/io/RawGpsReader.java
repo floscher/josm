@@ -13,7 +13,7 @@ import org.jdom.input.SAXBuilder;
 import org.openstreetmap.josm.data.GeoPoint;
 
 /**
- * Read raw gps data from a gpx file. Only track points with their tracks segments
+ * Read raw gps data from a gpx file. Only way points with their waies segments
  * and waypoints are imported.
  * @author imi
  */
@@ -95,7 +95,7 @@ public class RawGpsReader {
 	}
 
 	/**
-	 * Parse the list of trackpoint - elements and return a collection with the
+	 * Parse the list of waypoint - elements and return a collection with the
 	 * points read.
 	 */
 	private Collection<GeoPoint> parseLine(List<Element> wpt) throws JDOMException {

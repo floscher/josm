@@ -4,11 +4,10 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Map.Entry;
 
-import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.data.osm.Way;
 
 /**
  * Outputs the visited primitive as comma seperated value.
@@ -37,16 +36,12 @@ public class CsvVisitor implements Visitor {
 		visit(ls.end);
 	}
 
-	public void visit(Track t) {
+	public void visit(Way t) {
 		out.print("t,"+common(t)+","+t.segments.size());
 		for (LineSegment ls : t.segments) {
 			out.print(',');
 			visit(ls);
 		}
-	}
-
-	public void visit(Key k) {
-		//TODO
 	}
 
 	/**
@@ -59,8 +54,8 @@ public class CsvVisitor implements Visitor {
 		b.append(osm.id);
 		if (osm.keys != null) {
 			b.append(","+osm.keys.size());
-			for (Entry<Key, String> e : osm.keys.entrySet())
-				b.append(e.getKey().name+","+encode(e.getValue()));
+			for (Entry<String, String> e : osm.keys.entrySet())
+				b.append(e.getKey()+","+encode(e.getValue()));
 		} else
 			b.append(",0");
 		return b.toString();

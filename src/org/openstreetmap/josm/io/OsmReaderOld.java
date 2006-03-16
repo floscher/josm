@@ -11,11 +11,10 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.AddVisitor;
 
 /**
@@ -83,8 +82,8 @@ public class OsmReaderOld {
 			return parseNode(e);
 		else if (e.getName().equals("segment"))
 			return parseLineSegment(e, data);
-		else if (e.getName().equals("track"))
-			return parseTrack(e, data);
+		else if (e.getName().equals("way"))
+			return parseWay(e, data);
 		else if (e.getName().equals("property")) {
 			parseProperty(e, data);
 			return null;
@@ -143,23 +142,23 @@ public class OsmReaderOld {
 	}
 
 	/**
-	 * Parse and read a track from the element.
+	 * Parse and read a way from the element.
 	 *
-	 * @param e		The element that contain the track.
+	 * @param e		The element that contain the way.
 	 * @param data	The DataSet to get segment information from.
-	 * @return 		The parsed track.
+	 * @return 		The parsed way.
 	 * @throws JDOMException In case of a parsing error.
 	 */
-	private Track parseTrack(Element e, DataSet data) throws JDOMException {
-		Track track = new Track();
-		parseCommon(track, e);
+	private Way parseWay(Element e, DataSet data) throws JDOMException {
+		Way way = new Way();
+		parseCommon(way, e);
 		for (Object o : e.getChildren("segment")) {
 			Element child = (Element)o;
 			long id = Long.parseLong(child.getAttributeValue("uid"));
 			LineSegment ls = findLineSegment(data.lineSegments, id);
-			track.segments.add(ls);
+			way.segments.add(ls);
 		}
-		return track;
+		return way;
 	}
 	
 	/**
@@ -175,7 +174,7 @@ public class OsmReaderOld {
 		
 		String propStr = e.getAttributeValue("tags");
 		if (propStr != null && !propStr.equals("")) {
-			data.keys = new HashMap<Key, String>();
+			data.keys = new HashMap<String, String>();
 			StringTokenizer st = new StringTokenizer(propStr, ";");
 			while (st.hasMoreTokens()) {
 				String next = st.nextToken();
@@ -183,10 +182,10 @@ public class OsmReaderOld {
 					continue;
 				int equalPos = next.indexOf('=');
 				if (equalPos == -1)
-					data.keys.put(Key.get(next), "");
+					data.keys.put(next, "");
 				else {
 					String keyStr = next.substring(0, equalPos);
-					data.keys.put(Key.get(keyStr), next.substring(equalPos+1));
+					data.keys.put(keyStr, next.substring(equalPos+1));
 				}
 			}
 		}
@@ -208,11 +207,11 @@ public class OsmReaderOld {
 	private void parseProperty(Element e, DataSet data) throws JDOMException {
 		long id = Long.parseLong(e.getAttributeValue("uid"));
 		OsmPrimitive osm = findObject(data, id);
-		Key key = Key.get(e.getAttributeValue("key"));
+		String key = e.getAttributeValue("key");
 		String value = e.getAttributeValue("value");
 		if (value != null) {
 			if (osm.keys == null)
-				osm.keys = new HashMap<Key, String>();
+				osm.keys = new HashMap<String, String>();
 			osm.keys.put(key, value);
 		}
 	}
@@ -227,7 +226,7 @@ public class OsmReaderOld {
 		for (OsmPrimitive osm : data.lineSegments)
 			if (osm.id == id)
 				return osm;
-		for (OsmPrimitive osm : data.tracks)
+		for (OsmPrimitive osm : data.waies)
 			if (osm.id == id)
 				return osm;
 		throw new JDOMException("Unknown object reference: "+id);

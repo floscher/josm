@@ -7,11 +7,10 @@ import java.util.Map;
 
 import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.AddVisitor;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -90,17 +89,17 @@ public class OsmReader extends MinML2 {
 				readCommon(atts);
 				lineSegments.put(current.id, (LineSegment)current);
 			} else if (qName.equals("way")) {
-				current = new Track();
+				current = new Way();
 				readCommon(atts);
 			} else if (qName.equals("seg")) {
-				if (current instanceof Track) {
+				if (current instanceof Way) {
 					LineSegment ls = lineSegments.get(getLong(atts, "id"));
 					if (ls == null)
 						fatalError(new SAXParseException("Line segment "+getLong(atts, "id")+"has not been transfered before.", null));
-					((Track)current).segments.add(ls);
+					((Way)current).segments.add(ls);
 				}
 			} else if (qName.equals("tag")) {
-				current.put(Key.get(atts.getValue("k")), atts.getValue("v"));
+				current.put(atts.getValue("k"), atts.getValue("v"));
 			}
 		} catch (NumberFormatException x) {
 			throw new SAXException(x.getMessage(), x);

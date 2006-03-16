@@ -20,25 +20,25 @@ import org.openstreetmap.josm.data.SelectionTracker;
 public class DataSet extends SelectionTracker {
 
 	/**
-	 * All nodes goes here, even when included in other data (tracks etc).
+	 * All nodes goes here, even when included in other data (waies etc).
 	 * This enables the instant conversion of the whole DataSet by iterating over
 	 * this data structure.
 	 */
 	public Collection<Node> nodes = new LinkedList<Node>();
 
 	/**
-	 * All line segments goes here, even when they are in a track.
+	 * All line segments goes here, even when they are in a way.
 	 */
 	public Collection<LineSegment> lineSegments = new LinkedList<LineSegment>();
 
 	/**
-	 * All tracks (Streets etc.) in the DataSet. 
+	 * All waies (Streets etc.) in the DataSet. 
 	 * 
-	 * The nodes of the track segments of this track must be objects from 
-	 * the nodes list, however the track segments are stored only in the 
-	 * track list.
+	 * The nodes of the way segments of this way must be objects from 
+	 * the nodes list, however the way segments are stored only in the 
+	 * way list.
 	 */
-	public Collection<Track> tracks = new LinkedList<Track>();
+	public Collection<Way> waies = new LinkedList<Way>();
 
 	/**
 	 * @return A collection containing all primitives (except keys) of the
@@ -48,7 +48,7 @@ public class DataSet extends SelectionTracker {
 		Collection<OsmPrimitive> o = new LinkedList<OsmPrimitive>();
 		o.addAll(nodes);
 		o.addAll(lineSegments);
-		o.addAll(tracks);
+		o.addAll(waies);
 		return o;
 	}
 
@@ -132,7 +132,7 @@ public class DataSet extends SelectionTracker {
 	public void clearSelection() {
 		clearSelection(nodes);
 		clearSelection(lineSegments);
-		clearSelection(tracks);
+		clearSelection(waies);
 	}
 
 	/**
@@ -143,7 +143,7 @@ public class DataSet extends SelectionTracker {
 	public Collection<OsmPrimitive> getSelected() {
 		Collection<OsmPrimitive> sel = getSelected(nodes);
 		sel.addAll(getSelected(lineSegments));
-		sel.addAll(getSelected(tracks));
+		sel.addAll(getSelected(waies));
 		return sel;
 	}
 
@@ -154,11 +154,8 @@ public class DataSet extends SelectionTracker {
 	private void clearSelection(Collection<? extends OsmPrimitive> list) {
 		if (list == null)
 			return;
-		for (OsmPrimitive osm : list) {
+		for (OsmPrimitive osm : list)
 			osm.setSelected(false);
-			if (osm.keys != null)
-				clearSelection(osm.keys.keySet());
-		}
 	}
 
 	/**
@@ -169,12 +166,9 @@ public class DataSet extends SelectionTracker {
 		Collection<OsmPrimitive> sel = new HashSet<OsmPrimitive>();
 		if (list == null)
 			return sel;
-		for (OsmPrimitive osm : list) {
+		for (OsmPrimitive osm : list)
 			if (osm.isSelected() && !osm.isDeleted())
 				sel.add(osm);
-			if (osm.keys != null)
-				sel.addAll(getSelected(osm.keys.keySet()));
-		}
 		return sel;
 	}
 }

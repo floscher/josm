@@ -23,7 +23,7 @@ abstract public class OsmPrimitive {
 	/**
 	 * The key/value list for this primitive.
 	 */
-	public Map<Key, String> keys;
+	public Map<String, String> keys;
 
 	/**
 	 * Unique identifier in OSM. This is used to reidentify objects in the server.
@@ -77,10 +77,10 @@ abstract public class OsmPrimitive {
 			return false;
 
 		if (keys != null) {
-			for (Key k : keys.keySet())
+			for (String k : keys.keySet())
 				if (other.keys.containsKey(k) && !keys.get(k).equals(other.keys.get(k)))
 					return false;
-			for (Key k : other.keys.keySet())
+			for (String k : other.keys.keySet())
 				if (keys.containsKey(k) && !other.keys.get(k).equals(keys.get(k)))
 					return false;
 		}
@@ -139,13 +139,13 @@ abstract public class OsmPrimitive {
 	 * @param key The key, for which the value is to be set.
 	 * @param value The value for the key.
 	 */
-	public void put(Key key, String value) {
+	public void put(String key, String value) {
 		if (keys == null)
-			keys = new HashMap<Key, String>();
+			keys = new HashMap<String, String>();
 		keys.put(key, value);
 	}
 	
-	public String get(Key key) {
+	public String get(String key) {
 		return (keys == null) ? null : keys.get(key);
 	}
 }

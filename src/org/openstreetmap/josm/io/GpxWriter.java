@@ -15,18 +15,17 @@ import org.jdom.Namespace;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.data.osm.Way;
 
 /**
  * Exports a dataset to GPX data. All information available are tried to store in
  * the gpx. If no corresponding tag is available in GPX, use 
  * <code>&lt;extensions&gt;</code> instead.
  * 
- * GPX-Track segments are stored as 2-node-pairs, so no &lt;trkseg&gt; with more
+ * GPX-Way segments are stored as 2-node-pairs, so no &lt;trkseg&gt; with more
  * or less than 2 &lt;trkpt&gt; are exported.
  * 
  * @author imi
@@ -106,14 +105,14 @@ public class GpxWriter {
 		// for getting all unreferenced line segments
 		LinkedList<LineSegment> unrefLs = new LinkedList<LineSegment>(ds.lineSegments);
 
-		// tracks
-		for (Track t : ds.tracks) {
+		// waies
+		for (Way t : ds.waies) {
 			if (t.isDeleted() && t.id == 0)
 				continue;
 			Element tElem = new Element("trk", GPX);
-			HashMap<Key, String> keys = null;
+			HashMap<String, String> keys = null;
 			if (t.keys != null) {
-				keys = new HashMap<Key, String>(t.keys);
+				keys = new HashMap<String, String>(t.keys);
 				addAndRemovePropertyTag("name", tElem, keys);
 				addAndRemovePropertyTag("cmt", tElem, keys);
 				addAndRemovePropertyTag("desc", tElem, keys);
@@ -135,7 +134,7 @@ public class GpxWriter {
 			e.getChildren().add(tElem);
 		}
 		
-		// encode pending line segments as tracks
+		// encode pending line segments as waies
 		for (LineSegment ls : unrefLs) {
 			if (ls.isDeleted() && ls.id == 0)
 				continue;
@@ -197,9 +196,9 @@ public class GpxWriter {
 		Element e = new Element(name, GPX);
 		e.setAttribute("lat", Double.toString(n.coor.lat));
 		e.setAttribute("lon", Double.toString(n.coor.lon));
-		HashMap<Key, String> keys = null;
+		HashMap<String, String> keys = null;
 		if (n.keys != null) {
-			keys = new HashMap<Key, String>(n.keys);
+			keys = new HashMap<String, String>(n.keys);
 			addAndRemovePropertyTag("ele", e, keys);
 			addAndRemovePropertyTag("time", e, keys);
 			addAndRemovePropertyTag("magvar", e, keys);
@@ -233,9 +232,8 @@ public class GpxWriter {
 	 * @param keys	The map containing the link property.
 	 */
 	@SuppressWarnings("unchecked")
-	private void addAndRemovePropertyLinkTag(Element e, Map<Key, String> keys) {
-		Key key = Key.get("link");
-		String value = keys.get(key);
+	private void addAndRemovePropertyLinkTag(Element e, Map<String, String> keys) {
+		String value = keys.get("link");
 		if (value != null) {
 			StringTokenizer st = new StringTokenizer(value, ";");
 			if (st.countTokens() != 2)
@@ -244,7 +242,7 @@ public class GpxWriter {
 			link.getChildren().add(new Element("type", GPX).setText(st.nextToken()));
 			link.getChildren().add(0,new Element("text", GPX).setText(st.nextToken()));
 			e.getChildren().add(link);
-			keys.remove(key);
+			keys.remove("link");
 		}
 	}
 
@@ -262,12 +260,11 @@ public class GpxWriter {
 	 * @param osm The data to get the property from.
 	 */
 	@SuppressWarnings("unchecked")
-	private void addAndRemovePropertyTag(String name, Element e, Map<Key, String> keys) {
-		Key key = Key.get(name);
-		String value = keys.get(key);
+	private void addAndRemovePropertyTag(String name, Element e, Map<String, String> keys) {
+		String value = keys.get(name);
 		if (value != null) {
 			e.getChildren().add(new Element(name, GPX).setText(value));
-			keys.remove(key);
+			keys.remove(name);
 		}
 	}
 	
@@ -277,12 +274,12 @@ public class GpxWriter {
 	 * @param prop	The property to add.
 	 */
 	@SuppressWarnings("unchecked")
-	private void addPropertyExtensions(Element e, Map<Key, String> keys, OsmPrimitive osm) {
+	private void addPropertyExtensions(Element e, Map<String, String> keys, OsmPrimitive osm) {
 		LinkedList<Element> extensions = new LinkedList<Element>();
 		if (keys != null && !keys.isEmpty()) {
-			for (Entry<Key, String> prop : keys.entrySet()) {
+			for (Entry<String, String> prop : keys.entrySet()) {
 				Element propElement = new Element("property", OSM);
-				propElement.setAttribute("key", prop.getKey().name);
+				propElement.setAttribute("key", prop.getKey());
 				propElement.setAttribute("value", prop.getValue());
 				extensions.add(propElement);
 			}

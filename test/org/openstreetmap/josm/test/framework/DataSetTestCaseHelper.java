@@ -6,7 +6,7 @@ import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
-import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.data.osm.Way;
 
 
 /**
@@ -22,7 +22,7 @@ public class DataSetTestCaseHelper {
 	 * - ls between node 0 and 1
 	 * - ls between node 1 and 2
 	 * - ls between node 3 and 4
-	 * - a track with ls 0 and 1
+	 * - a way with ls 0 and 1
 	 */
 	public static DataSet createCommon() {
 		DataSet ds = new DataSet();
@@ -38,10 +38,10 @@ public class DataSetTestCaseHelper {
 		return ds;
 	}
 
-	public static Track createWay(DataSet ds, LineSegment... lineSegments) {
-		Track t = new Track();
+	public static Way createWay(DataSet ds, LineSegment... lineSegments) {
+		Way t = new Way();
 		t.segments.addAll(Arrays.asList(lineSegments));
-		ds.tracks.add(t);
+		ds.waies.add(t);
 		return t;
 	}
 	

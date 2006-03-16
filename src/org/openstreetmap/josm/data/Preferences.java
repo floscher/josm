@@ -41,7 +41,7 @@ public class Preferences {
 
 
 	/**
-	 * Whether lines should be drawn between track points of raw gps data.
+	 * Whether lines should be drawn between way points of raw gps data.
 	 */
 	private boolean drawRawGpsLines = false;
 	/**

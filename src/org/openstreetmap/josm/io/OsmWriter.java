@@ -6,11 +6,10 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
 import org.xml.sax.SAXException;
 
@@ -72,7 +71,7 @@ public class OsmWriter implements Visitor {
 			writer.visit(n);
 		for (LineSegment ls : ds.lineSegments)
 			writer.visit(ls);
-		for (Track w : ds.tracks)
+		for (Way w : ds.waies)
 			writer.visit(w);
 		writer.out.println("</osm>");
 	}
@@ -109,15 +108,12 @@ public class OsmWriter implements Visitor {
 		addTags(ls, "segment", true);
 	}
 
-	public void visit(Track w) {
+	public void visit(Way w) {
 		addCommon(w, "way");
 		out.println(">");
 		for (LineSegment ls : w.segments)
 			out.println("    <seg id='"+getUsedId(ls)+"' />");
 		addTags(w, "way", false);
-	}
-
-	public void visit(Key k) {
 	}
 
 	/**
@@ -137,8 +133,8 @@ public class OsmWriter implements Visitor {
 		if (osm.keys != null) {
 			if (tagOpen)
 				out.println(">");
-			for (Entry<Key, String> e : osm.keys.entrySet())
-				out.println("    <tag k='"+ encode(e.getKey().name) +
+			for (Entry<String, String> e : osm.keys.entrySet())
+				out.println("    <tag k='"+ encode(e.getKey()) +
 						"' v='"+encode(e.getValue())+ "' />");
 			out.println("  </" + tagname + ">");
 		} else if (tagOpen)

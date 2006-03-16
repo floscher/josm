@@ -19,7 +19,7 @@ import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.BoundingVisitor;
 import org.openstreetmap.josm.data.osm.visitor.MergeVisitor;
 import org.openstreetmap.josm.data.osm.visitor.SimplePaintVisitor;
@@ -112,7 +112,7 @@ public class OsmDataLayer extends Layer {
 		for (OsmPrimitive osm : data.lineSegments)
 			if (!osm.isDeleted())
 				osm.visit(visitor);
-		for (OsmPrimitive osm : data.tracks)
+		for (OsmPrimitive osm : data.waies)
 			if (!osm.isDeleted())
 				osm.visit(visitor);
 		for (OsmPrimitive osm : data.nodes)
@@ -127,7 +127,7 @@ public class OsmDataLayer extends Layer {
 	public String getToolTipText() {
 		return undeletedSize(data.nodes)+" nodes, "+
 			undeletedSize(data.lineSegments)+" segments, "+
-			undeletedSize(data.tracks)+" streets.";
+			undeletedSize(data.waies)+" streets.";
 	}
 
 	@Override
@@ -237,7 +237,7 @@ public class OsmDataLayer extends Layer {
 				cleanIterator(it, processedSet);
 			for (Iterator<LineSegment> it = data.lineSegments.iterator(); it.hasNext();)
 				cleanIterator(it, processedSet);
-			for (Iterator<Track> it = data.tracks.iterator(); it.hasNext();)
+			for (Iterator<Way> it = data.waies.iterator(); it.hasNext();)
 				cleanIterator(it, processedSet);
 		}
 

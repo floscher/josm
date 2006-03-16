@@ -22,7 +22,6 @@ import javax.swing.ListSelectionModel;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.SelectionChangedListener;
-import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.MapFrame;
@@ -94,7 +93,7 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 				Main.main.ds.clearSelection();
 				for (OsmPrimitive osm : Main.main.ds.allNonDeletedPrimitives()) {
 					if (osm.keys != null) {
-						for (Entry<Key, String> ent : osm.keys.entrySet()) {
+						for (Entry<String, String> ent : osm.keys.entrySet()) {
 							if (match(lastSearch, ent.getKey(), ent.getValue())) {
 								osm.setSelected(true);
 								break;
@@ -105,11 +104,11 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 				selectionChanged(Main.main.ds.getSelected());
 				Main.main.getMapFrame().repaint();
 			}
-			private boolean match(String search, Key key, String value) {
+			private boolean match(String search, String key, String value) {
 				int colon = search.indexOf(':');
 				if (colon == -1)
-					return key.name.indexOf(search) != -1 || value.indexOf(search) != -1;
-				return key.name.equals(search.substring(0, colon)) && value.indexOf(search.substring(colon+1)) != -1;
+					return key.indexOf(search) != -1 || value.indexOf(search) != -1;
+				return key.equals(search.substring(0, colon)) && value.indexOf(search.substring(colon+1)) != -1;
 			}
 		});
 		buttonPanel.add(button);

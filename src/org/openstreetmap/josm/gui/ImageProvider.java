@@ -42,6 +42,8 @@ public class ImageProvider {
 		if (subdir != "")
 			subdir += "/";
 		URL path = Main.class.getResource("/images/"+subdir+name+".png");
+		if (path == null)
+			throw new NullPointerException("/images/"+subdir+name+".png not found");
 		ImageIcon icon = cache.get(path);
 		if (icon == null) {
 			icon = new ImageIcon(path);

@@ -25,7 +25,7 @@ import org.openstreetmap.josm.gui.MapFrame;
  * deleted. The exact definition of "all its references" are in 
  * @see #deleteWithReferences(OsmPrimitive)
  *
- * Pressing Alt will select the track instead of a line segment, as usual.
+ * Pressing Alt will select the way instead of a line segment, as usual.
  * 
  * If the user did not press Ctrl and the object has any references, the user
  * is informed and nothing is deleted.
@@ -93,13 +93,13 @@ public class DeleteAction extends MapMode {
 	/**
 	 * Delete the primitives and everything they references.
 	 * 
-	 * If a node is deleted, the node and all line segments, tracks and areas
+	 * If a node is deleted, the node and all line segments, waies and areas
 	 * the node is part of are deleted as well.
 	 * 
-	 * If a line segment is deleted, all tracks the line segment is part of 
+	 * If a line segment is deleted, all waies the line segment is part of 
 	 * are deleted as well. No nodes are deleted.
 	 * 
-	 * If a track is deleted, only the track and no line segments or nodes are 
+	 * If a way is deleted, only the way and no line segments or nodes are 
 	 * deleted.
 	 * 
 	 * If an area is deleted, only the area gets deleted.

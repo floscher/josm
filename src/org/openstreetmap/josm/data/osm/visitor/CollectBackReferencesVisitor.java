@@ -4,14 +4,13 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.data.osm.Way;
 
 /**
- * Helper that collect all line segments a node is part of, all tracks
+ * Helper that collect all line segments a node is part of, all waies
  * a node or line segment is part of and all areas a node is part of. 
  * 
  * Deleted objects are not collected.
@@ -37,7 +36,7 @@ public class CollectBackReferencesVisitor implements Visitor {
 	}
 	
 	public void visit(Node n) {
-		for (Track t : ds.tracks) {
+		for (Way t : ds.waies) {
 			if (t.isDeleted())
 				continue;
 			for (LineSegment ls : t.segments) {
@@ -55,13 +54,12 @@ public class CollectBackReferencesVisitor implements Visitor {
 		}
 	}
 	public void visit(LineSegment ls) {
-		for (Track t : ds.tracks) {
+		for (Way t : ds.waies) {
 			if (t.isDeleted())
 				continue;
 			if (t.segments.contains(ls))
 				data.add(t);
 		}
 	}
-	public void visit(Track t) {}
-	public void visit(Key k) {}
+	public void visit(Way t) {}
 }

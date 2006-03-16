@@ -3,10 +3,9 @@
 package org.openstreetmap.josm.data.osm.visitor;
 
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
-import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.data.osm.Way;
 
 /**
  * Visitor, that adds the visited object to the dataset given at constructor.
@@ -29,8 +28,7 @@ public class AddVisitor implements Visitor {
 	public void visit(LineSegment ls) {
 		ds.lineSegments.add(ls);
 	}
-	public void visit(Track t) {
-		ds.tracks.add(t);
+	public void visit(Way t) {
+		ds.waies.add(t);
 	}
-	public void visit(Key k) {}
 }

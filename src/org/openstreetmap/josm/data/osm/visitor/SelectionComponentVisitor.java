@@ -7,10 +7,9 @@ import java.util.Set;
 
 import javax.swing.Icon;
 
-import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
-import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.gui.ImageProvider;
 
 /**
@@ -30,14 +29,6 @@ public class SelectionComponentVisitor implements Visitor {
 	public Icon icon;
 	
 	
-	/**
-	 * A key icon and the name of the key.
-	 */
-	public void visit(Key k) {
-		name = k.name;
-		icon = ImageProvider.get("data", "key");
-	}
-
 	/**
 	 * If the line segment has a key named "name", its value is displayed. 
 	 * Otherwise, if it has "id", this is used. If none of these available, 
@@ -66,10 +57,10 @@ public class SelectionComponentVisitor implements Visitor {
 	}
 
 	/**
-	 * If the track has a name-key or id-key, this is displayed. If not, (x nodes)
-	 * is displayed with x beeing the number of nodes in the track.
+	 * If the way has a name-key or id-key, this is displayed. If not, (x nodes)
+	 * is displayed with x beeing the number of nodes in the way.
 	 */
-	public void visit(Track t) {
+	public void visit(Way t) {
 		String name = getName(t.keys);
 		if (name == null) {
 			Set<Node> nodes = new HashSet<Node>();
@@ -81,7 +72,7 @@ public class SelectionComponentVisitor implements Visitor {
 		}
 		
 		this.name = name;
-		icon = ImageProvider.get("data", "track");
+		icon = ImageProvider.get("data", "way");
 	}
 
 	
@@ -90,12 +81,12 @@ public class SelectionComponentVisitor implements Visitor {
 	 * @param keys The properties to search for a name. Can be <code>null</code>.
 	 * @return If a name could be found, return it here.
 	 */
-	public String getName(Map<Key, String> keys) {
+	public String getName(Map<String, String> keys) {
 		String name = null;
 		if (keys != null) {
-			name = keys.get(Key.get("name"));
+			name = keys.get("name");
 			if (name == null)
-				name = keys.get(Key.get("id"));
+				name = keys.get("id");
 		}
 		return name;
 	}

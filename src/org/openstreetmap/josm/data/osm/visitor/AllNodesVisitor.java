@@ -3,11 +3,10 @@ package org.openstreetmap.josm.data.osm.visitor;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.data.osm.Way;
 
 /**
  * Collect all nodes a specific osm primitive has.
@@ -37,19 +36,13 @@ public class AllNodesVisitor implements Visitor {
 	}
 
 	/**
-	 * Tracks have all nodes from their line segments.
+	 * Ways have all nodes from their line segments.
 	 */
-	public void visit(Track t) {
+	public void visit(Way t) {
 		for (LineSegment ls : t.segments) {
 			nodes.add(ls.start);
 			nodes.add(ls.end);
 		}
-	}
-
-	/**
-	 * Keys have no nodes.
-	 */
-	public void visit(Key k) {
 	}
 
 	/**

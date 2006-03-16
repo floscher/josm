@@ -6,11 +6,10 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.data.osm.Way;
 
 /**
  * A visitor that get a data set at construction time and merge every visited object
@@ -96,41 +95,37 @@ public class MergeVisitor implements Visitor {
 	}
 
 	/**
-	 * Merge the track if id matches or if all line segments matches and the
-	 * id is zero of either track.
+	 * Merge the way if id matches or if all line segments matches and the
+	 * id is zero of either way.
 	 */
-	public void visit(Track otherTrack) {
-		Track myTrack = null;
-		for (Track t : ds.tracks) {
-			if (match(otherTrack, t)) {
-				myTrack = t;
+	public void visit(Way otherWay) {
+		Way myWay = null;
+		for (Way t : ds.waies) {
+			if (match(otherWay, t)) {
+				myWay = t;
 				break;
 			}
 		}
-		if (myTrack == null)
-			ds.tracks.add(otherTrack);
+		if (myWay == null)
+			ds.waies.add(otherWay);
 		else {
-			mergeCommon(myTrack, otherTrack);
-			if (myTrack.modified && !otherTrack.modified)
+			mergeCommon(myWay, otherWay);
+			if (myWay.modified && !otherWay.modified)
 				return;
 			boolean same = true;
-			Iterator<LineSegment> it = otherTrack.segments.iterator();
-			for (LineSegment ls : myTrack.segments) {
+			Iterator<LineSegment> it = otherWay.segments.iterator();
+			for (LineSegment ls : myWay.segments) {
 				if (!match(ls, it.next()))
 					same = false;
 			}
 			if (!same) {
-				myTrack.segments.clear();
-				myTrack.segments.addAll(otherTrack.segments);
-				myTrack.modified = otherTrack.modified;
+				myWay.segments.clear();
+				myWay.segments.addAll(otherWay.segments);
+				myWay.modified = otherWay.modified;
 			}
 		}
 	}
 
-	public void visit(Key k) {
-		//TODO: Key doesn't really fit the OsmPrimitive concept!
-	}
-	
 	/**
 	 * Postprocess the dataset and fix all merged references to point to the actual
 	 * data.
@@ -142,7 +137,7 @@ public class MergeVisitor implements Visitor {
 			if (mergedNodes.containsKey(ls.end))
 				ls.end = mergedNodes.get(ls.end);
 		}
-		for (Track t : ds.tracks) {
+		for (Way t : ds.waies) {
 			boolean replacedSomething = false;
 			LinkedList<LineSegment> newSegments = new LinkedList<LineSegment>();
 			for (LineSegment ls : t.segments) {
@@ -183,9 +178,9 @@ public class MergeVisitor implements Visitor {
 	}
 
 	/**
-	 * @return Whether the tracks matches (in sense of "be mergable").
+	 * @return Whether the waies matches (in sense of "be mergable").
 	 */
-	private boolean match(Track t1, Track t2) {
+	private boolean match(Way t1, Way t2) {
 		if (t1.id == 0 || t2.id == 0) {
 			if (t1.segments.size() != t2.segments.size())
 				return false;

@@ -4,10 +4,9 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 
-import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
-import org.openstreetmap.josm.data.osm.Track;
+import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.gui.NavigatableComponent;
 
 /**
@@ -60,21 +59,15 @@ public class SimplePaintVisitor implements Visitor {
 
 	/**
 	 * Draw a darkblue line for all line segments.
-	 * @param t The track to draw.
+	 * @param t The way to draw.
 	 */
-	public void visit(Track t) {
+	public void visit(Way t) {
 		// only to overwrite with blue
 		for (LineSegment ls : t.segments)
 			if (!ls.isSelected()) // selected already in good color
 				drawLineSegment(ls, t.isSelected() ? Color.WHITE : darkblue);
 	}
 
-	/**
-	 * Do not draw a key.
-	 */
-	public void visit(Key k) {
-	}
-	
 	/**
 	 * Draw the node as small rectangle with the given color.
 	 *

@@ -27,7 +27,7 @@ public class RawGpsDataLayer extends Layer {
 	private static Icon icon;
 
 	/**
-	 * A list of tracks which containing a list of points.
+	 * A list of waies which containing a list of points.
 	 */
 	private final Collection<Collection<GeoPoint>> data;
 
@@ -77,7 +77,7 @@ public class RawGpsDataLayer extends Layer {
 
 	@Override
 	public String getToolTipText() {
-		return data.size()+" tracks.";
+		return data.size()+" waies.";
 	}
 
 	@Override

@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.openstreetmap.josm.data.osm.Key;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 
 /**
@@ -25,7 +24,7 @@ public class ChangeKeyValueCommand implements Command {
 	/**
 	 * The key that is subject to change.
 	 */
-	private final Key key;
+	private final String key;
 	/**
 	 * The key value. If it is <code>null</code>, delete all key references with the given
 	 * key. Else, change the properties of all objects to the given value or create keys of
@@ -36,14 +35,14 @@ public class ChangeKeyValueCommand implements Command {
 	/**
 	 * These are the old values of the objects to do a proper undo.
 	 */
-	private List<Map<Key, String>> oldProperties;
+	private List<Map<String, String>> oldProperties;
 	
 	/**
 	 * These are the old modified states of the data.
 	 */
 	private List<Boolean> oldModified = new LinkedList<Boolean>();
 
-	public ChangeKeyValueCommand(Collection<OsmPrimitive> objects, Key key, String value) {
+	public ChangeKeyValueCommand(Collection<OsmPrimitive> objects, String key, String value) {
 		this.objects = new LinkedList<OsmPrimitive>(objects);
 		this.key = key;
 		this.value = value;
@@ -51,9 +50,9 @@ public class ChangeKeyValueCommand implements Command {
 	
 	public void executeCommand() {
 		// save old
-		oldProperties = new LinkedList<Map<Key, String>>();
+		oldProperties = new LinkedList<Map<String, String>>();
 		for (OsmPrimitive osm : objects) {
-			oldProperties.add(osm.keys == null ? null : new HashMap<Key, String>(osm.keys));
+			oldProperties.add(osm.keys == null ? null : new HashMap<String, String>(osm.keys));
 			oldModified.add(osm.modifiedProperties);
 			osm.modifiedProperties = true;
 		}
@@ -69,14 +68,14 @@ public class ChangeKeyValueCommand implements Command {
 		} else {
 			for (OsmPrimitive osm : objects) {
 				if (osm.keys == null)
-					osm.keys = new HashMap<Key, String>();
+					osm.keys = new HashMap<String, String>();
 				osm.keys.put(key, value);
 			}
 		}
 	}
 
 	public void undoCommand() {
-		Iterator<Map<Key, String>> it = oldProperties.iterator();
+		Iterator<Map<String, String>> it = oldProperties.iterator();
 		Iterator<Boolean> itMod = oldModified.iterator();
 		for (OsmPrimitive osm : objects) {
 			osm.keys = it.next();

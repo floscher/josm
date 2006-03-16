@@ -5,7 +5,7 @@ import org.openstreetmap.josm.data.osm.visitor.Visitor;
 
 
 /**
- * One track line segment consisting of a pair of nodes (start/end) 
+ * One way line segment consisting of a pair of nodes (start/end) 
  *
  * @author imi
  */
