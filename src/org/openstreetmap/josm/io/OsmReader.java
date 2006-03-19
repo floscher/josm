@@ -95,7 +95,7 @@ public class OsmReader extends MinML2 {
 				if (current instanceof Way) {
 					LineSegment ls = lineSegments.get(getLong(atts, "id"));
 					if (ls == null)
-						fatalError(new SAXParseException("Line segment "+getLong(atts, "id")+"has not been transfered before.", null));
+						fatalError(new SAXParseException("Line segment "+getLong(atts, "id")+" has not been transfered before.", null));
 					((Way)current).segments.add(ls);
 				}
 			} else if (qName.equals("tag")) {

@@ -47,7 +47,7 @@ public class OsmServerReader extends OsmConnection {
 	 * 		waies.
 	 */
 	public Collection<Collection<GeoPoint>> parseRawGps() throws IOException, JDOMException {
-		String url = Main.pref.osmDataServer+"/0.3/waypoints?bbox="+lon1+","+lat1+","+lon2+","+lat2+"&page=";
+		String url = Main.pref.osmDataServer+"/0.3/trackpoints?bbox="+lon1+","+lat1+","+lon2+","+lat2+"&page=";
 		Collection<Collection<GeoPoint>> data = new LinkedList<Collection<GeoPoint>>();
 		Collection<GeoPoint> list = new LinkedList<GeoPoint>();
 		

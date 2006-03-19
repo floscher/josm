@@ -148,13 +148,13 @@ public class NavigatableComponent extends JComponent {
 		if (minPrimitive != null)
 			return minPrimitive;
 		
-		// for whole waies, try the waies first
+		// for whole ways, try the ways first
 		minDistanceSq = Double.MAX_VALUE;
 		if (!lsInsteadWay) {
-			for (Way t : Main.main.ds.waies) {
-				if (t.isDeleted())
+			for (Way w : Main.main.ds.waies) {
+				if (w.isDeleted())
 					continue;
-				for (LineSegment ls : t.segments) {
+				for (LineSegment ls : w.segments) {
 					if (ls.isDeleted())
 						continue;
 					Point A = getScreenPoint(ls.start.coor);
@@ -165,7 +165,7 @@ public class NavigatableComponent extends JComponent {
 					double perDist = a-(a-b+c)*(a-b+c)/4/c; // perpendicular distance squared
 					if (perDist < 100 && minDistanceSq > perDist && a < c+100 && b < c+100) {
 						minDistanceSq = perDist;
-						minPrimitive = t;
+						minPrimitive = w;
 					}
 				}			
 			}
