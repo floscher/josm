@@ -108,7 +108,13 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 	 */
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		double zoom = Math.max(0.1, 1 + e.getWheelRotation()/5.0);
-		nc.zoomTo(nc.getCenter(), nc.getScale()*zoom);
+		double zoomfactor = (zoom -1)/2+1;
+		int newHalfWidth = (int) (nc.getWidth()*zoomfactor - nc.getWidth()/2);
+		int centerx = e.getX() - (e.getX()-nc.getWidth()/2)*newHalfWidth*2/nc.getWidth();
+		int newHalfHeight = (int) (nc.getHeight()*zoomfactor - nc.getHeight()/2);
+		int centery = e.getY() - (e.getY()-nc.getHeight()/2)*newHalfHeight*2/nc.getHeight();
+		GeoPoint newCenter = nc.getPoint(centerx, centery, false); 
+		nc.zoomTo(newCenter, nc.getScale()*zoom);
 	}
 
 	/**
