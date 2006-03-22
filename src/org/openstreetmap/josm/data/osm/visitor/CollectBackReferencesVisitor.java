@@ -40,16 +40,18 @@ public class CollectBackReferencesVisitor implements Visitor {
 			if (t.isDeleted())
 				continue;
 			for (LineSegment ls : t.segments) {
-				if (ls.start == n || ls.end == n) {
+				if (ls.incomplete)
+					continue;
+				if (ls.from == n || ls.to == n) {
 					data.add(t);
 					break;
 				}
 			}
 		}
 		for (LineSegment ls : ds.lineSegments) {
-			if (ls.isDeleted())
+			if (ls.isDeleted() || ls.incomplete)
 				continue;
-			if (ls.start == n || ls.end == n)
+			if (ls.from == n || ls.to == n)
 				data.add(ls);
 		}
 	}

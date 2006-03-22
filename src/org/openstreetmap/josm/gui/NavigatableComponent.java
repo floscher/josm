@@ -155,10 +155,10 @@ public class NavigatableComponent extends JComponent {
 				if (w.isDeleted())
 					continue;
 				for (LineSegment ls : w.segments) {
-					if (ls.isDeleted())
+					if (ls.isDeleted() || ls.incomplete)
 						continue;
-					Point A = getScreenPoint(ls.start.coor);
-					Point B = getScreenPoint(ls.end.coor);
+					Point A = getScreenPoint(ls.from.coor);
+					Point B = getScreenPoint(ls.to.coor);
 					double c = A.distanceSq(B);
 					double a = p.distanceSq(B);
 					double b = p.distanceSq(A);
@@ -176,10 +176,10 @@ public class NavigatableComponent extends JComponent {
 		minDistanceSq = Double.MAX_VALUE;
 		// line segments
 		for (LineSegment ls : Main.main.ds.lineSegments) {
-			if (ls.isDeleted())
+			if (ls.isDeleted() || ls.incomplete)
 				continue;
-			Point A = getScreenPoint(ls.start.coor);
-			Point B = getScreenPoint(ls.end.coor);
+			Point A = getScreenPoint(ls.from.coor);
+			Point B = getScreenPoint(ls.to.coor);
 			double c = A.distanceSq(B);
 			double a = p.distanceSq(B);
 			double b = p.distanceSq(A);
@@ -224,7 +224,7 @@ public class NavigatableComponent extends JComponent {
 					c.add(n);
 			for (LineSegment ls : Main.main.ds.lineSegments)
 				// line segments never match nodes, so they are skipped by contains
-				if (!ls.isDeleted() && (c.contains(ls.start) || c.contains(ls.end)))
+				if (!ls.isDeleted() && !ls.incomplete && (c.contains(ls.from) || c.contains(ls.to)))
 					c.add(ls);
 		} 
 		if (osm instanceof LineSegment) {
@@ -238,7 +238,7 @@ public class NavigatableComponent extends JComponent {
 				if (t.isDeleted())
 					continue;
 				for (LineSegment ls : t.segments) {
-					if (!ls.isDeleted() && c.contains(ls)) {
+					if (!ls.isDeleted() && !ls.incomplete && c.contains(ls)) {
 						c.add(t);
 						break;
 					}

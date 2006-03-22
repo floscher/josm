@@ -3,7 +3,6 @@ package org.openstreetmap.josm.io;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.StringTokenizer;
 
 import org.jdom.Element;
@@ -62,10 +61,9 @@ public class OsmReaderOld {
 	 * @throws JDOMException In case of a parsing error.
 	 */
 	private Node parseNode(Element e) throws JDOMException {
-		Node data = new Node();
-		data.coor = new GeoPoint(
+		Node data = new Node(new GeoPoint(
 			Double.parseDouble(e.getAttributeValue("lat")),
-			Double.parseDouble(e.getAttributeValue("lon")));
+			Double.parseDouble(e.getAttributeValue("lon"))));
 		if (Double.isNaN(data.coor.lat) || 
 				data.coor.lat < -90 || data.coor.lat > 90 ||
 				data.coor.lon < -180 || data.coor.lon > 180)
@@ -174,7 +172,6 @@ public class OsmReaderOld {
 		
 		String propStr = e.getAttributeValue("tags");
 		if (propStr != null && !propStr.equals("")) {
-			data.keys = new HashMap<String, String>();
 			StringTokenizer st = new StringTokenizer(propStr, ";");
 			while (st.hasMoreTokens()) {
 				String next = st.nextToken();
@@ -182,10 +179,10 @@ public class OsmReaderOld {
 					continue;
 				int equalPos = next.indexOf('=');
 				if (equalPos == -1)
-					data.keys.put(next, "");
+					data.put(next, "");
 				else {
 					String keyStr = next.substring(0, equalPos);
-					data.keys.put(keyStr, next.substring(equalPos+1));
+					data.put(keyStr, next.substring(equalPos+1));
 				}
 			}
 		}
@@ -209,11 +206,8 @@ public class OsmReaderOld {
 		OsmPrimitive osm = findObject(data, id);
 		String key = e.getAttributeValue("key");
 		String value = e.getAttributeValue("value");
-		if (value != null) {
-			if (osm.keys == null)
-				osm.keys = new HashMap<String, String>();
-			osm.keys.put(key, value);
-		}
+		if (value != null)
+			osm.put(key, value);
 	}
 
 	/**

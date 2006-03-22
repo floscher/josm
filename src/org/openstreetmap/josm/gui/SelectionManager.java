@@ -134,7 +134,7 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 	}
 
 	/**
-	 * If the correct button, start the "drawing rectangle" mode
+	 * If the correct button, from the "drawing rectangle" mode
 	 */
 	public void mousePressed(MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON1)
@@ -308,14 +308,16 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 	 * @return <code>true</code>, if the LineSegment was added to the selection.
 	 */
 	private boolean rectangleContainLineSegment(Rectangle r, boolean alt, LineSegment ls) {
+		if (ls.incomplete)
+			return false;
 		if (alt) {
-			Point p1 = nc.getScreenPoint(ls.start.coor);
-			Point p2 = nc.getScreenPoint(ls.end.coor);
+			Point p1 = nc.getScreenPoint(ls.from.coor);
+			Point p2 = nc.getScreenPoint(ls.to.coor);
 			if (r.intersectsLine(p1.x, p1.y, p2.x, p2.y))
 				return true;
 		} else {
-			if (r.contains(nc.getScreenPoint(ls.start.coor))
-					&& r.contains(nc.getScreenPoint(ls.end.coor)))
+			if (r.contains(nc.getScreenPoint(ls.from.coor))
+					&& r.contains(nc.getScreenPoint(ls.to.coor)))
 				return true;
 		}
 		return false;

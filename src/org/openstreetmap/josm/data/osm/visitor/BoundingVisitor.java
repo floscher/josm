@@ -47,8 +47,10 @@ public class BoundingVisitor implements Visitor {
 	}
 
 	public void visit(LineSegment ls) {
-		visit(ls.start);
-		visit(ls.end);
+		if (!ls.incomplete) {
+			visit(ls.from);
+			visit(ls.to);
+		}
 	}
 
 	public void visit(Way t) {

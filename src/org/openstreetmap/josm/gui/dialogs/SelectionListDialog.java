@@ -92,12 +92,10 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 					return;
 				Main.main.ds.clearSelection();
 				for (OsmPrimitive osm : Main.main.ds.allNonDeletedPrimitives()) {
-					if (osm.keys != null) {
-						for (Entry<String, String> ent : osm.keys.entrySet()) {
-							if (match(lastSearch, ent.getKey(), ent.getValue())) {
-								osm.setSelected(true);
-								break;
-							}
+					for (Entry<String, String> ent : osm.entrySet()) {
+						if (match(lastSearch, ent.getKey(), ent.getValue())) {
+							osm.setSelected(true);
+							break;
 						}
 					}
 				}

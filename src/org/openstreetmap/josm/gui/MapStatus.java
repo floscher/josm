@@ -138,9 +138,8 @@ public class MapStatus extends JPanel {
 							text.append(visitor.name);
 							if (osm.id != 0)
 								text.append("<br>id="+osm.id);
-							if (osm.keys != null)
-								for (Entry<String, String> e : osm.keys.entrySet())
-									text.append("<br>"+e.getKey()+"="+e.getValue());
+							for (Entry<String, String> e : osm.entrySet())
+								text.append("<br>"+e.getKey()+"="+e.getValue());
 							final JLabel l = new JLabel("<html>"+text.toString()+"</html>", visitor.icon, JLabel.HORIZONTAL);
 							l.setFont(l.getFont().deriveFont(Font.PLAIN));
 							l.setVerticalTextPosition(JLabel.TOP);

@@ -17,6 +17,7 @@ import org.openstreetmap.josm.gui.NavigatableComponent;
  */
 public class SimplePaintVisitor implements Visitor {
 
+	private final static Color darkerblue = new Color(0,0,96);
 	private final static Color darkblue = new Color(0,0,128);
 	private final static Color darkgreen = new Color(0,128,0);
 
@@ -63,9 +64,16 @@ public class SimplePaintVisitor implements Visitor {
 	 */
 	public void visit(Way t) {
 		// only to overwrite with blue
+		Color wayColor = darkblue;
+		for (LineSegment ls : t.segments) {
+			if (ls.incomplete) {
+				wayColor = darkerblue;
+				break;
+			}
+		}
 		for (LineSegment ls : t.segments)
 			if (!ls.isSelected()) // selected already in good color
-				drawLineSegment(ls, t.isSelected() ? Color.WHITE : darkblue);
+				drawLineSegment(ls, t.isSelected() ? Color.WHITE : wayColor);
 	}
 
 	/**
@@ -84,11 +92,13 @@ public class SimplePaintVisitor implements Visitor {
 	 * Draw a line with the given color.
 	 */
 	private void drawLineSegment(LineSegment ls, Color col) {
+		if (ls.incomplete)
+			return;
 		if (ls.isSelected())
 			col = Color.WHITE;
 		g.setColor(col);
-		Point p1 = nc.getScreenPoint(ls.start.coor);
-		Point p2 = nc.getScreenPoint(ls.end.coor);
+		Point p1 = nc.getScreenPoint(ls.from.coor);
+		Point p2 = nc.getScreenPoint(ls.to.coor);
 		g.drawLine(p1.x, p1.y, p2.x, p2.y);
 	}
 }

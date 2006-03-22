@@ -5,7 +5,7 @@ import org.openstreetmap.josm.data.osm.visitor.Visitor;
 
 
 /**
- * One way line segment consisting of a pair of nodes (start/end) 
+ * One way line segment consisting of a pair of nodes (from/to) 
  *
  * @author imi
  */
@@ -14,21 +14,33 @@ public class LineSegment extends OsmPrimitive {
 	/**
 	 * The starting node of the line segment
 	 */
-	public Node start;
+	public Node from;
 	
 	/**
 	 * The ending node of the line segment
 	 */
-	public Node end;
+	public Node to;
+
+	/**
+	 * If set to true, this object is incomplete, which means only the id
+	 * and type is known (type is the objects instance class)
+	 */
+	public boolean incomplete;
 
 	/**
 	 * Create an line segment from the given starting and ending node
-	 * @param start	Starting node of the line segment.
-	 * @param end	Ending node of the line segment.
+	 * @param from	Starting node of the line segment.
+	 * @param to	Ending node of the line segment.
 	 */
-	public LineSegment(Node start, Node end) {
-		this.start = start;
-		this.end = end;
+	public LineSegment(Node from, Node to) {
+		this.from = from;
+		this.to = to;
+		incomplete = false;
+	}
+
+	public LineSegment(long id) {
+		this.id = id;
+		incomplete = true;
 	}
 
 	@Override
@@ -43,11 +55,30 @@ public class LineSegment extends OsmPrimitive {
 	public boolean equalPlace(LineSegment ls) {
 		if (equals(ls))
 			return true;
-		GeoPoint s1 = start.coor;
-		GeoPoint s2 = ls.start.coor;
-		GeoPoint e1 = end.coor;
-		GeoPoint e2 = ls.end.coor;
+		if (incomplete || ls.incomplete)
+			return false;
+		GeoPoint s1 = from.coor;
+		GeoPoint s2 = ls.from.coor;
+		GeoPoint e1 = to.coor;
+		GeoPoint e2 = ls.to.coor;
 		return ((s1.equalsLatLon(s2) && e1.equalsLatLon(e2)) ||
 				(s1.equalsLatLon(e2) && e1.equalsLatLon(s2)));
+	}
+
+	@Override
+	public String toString() {
+		String s = "{LineSegment id="+id;
+		if (incomplete)
+			return s+",incomplete}";
+		return s+",from="+from+",to="+to+"}";
+	}
+
+	@Override
+	public void cloneFrom(OsmPrimitive osm) {
+		super.cloneFrom(osm);
+		LineSegment ls = ((LineSegment)osm);
+		from = ls.from;
+		to = ls.to;
+		incomplete = ls.incomplete;
 	}
 }	

@@ -126,8 +126,8 @@ public class GpxWriter {
 			// line segments
 			for (LineSegment ls : t.segments) {
 				tElem.getChildren().add(parseLineSegment(ls));
-				unrefNodes.remove(ls.start);
-				unrefNodes.remove(ls.end);
+				unrefNodes.remove(ls.from);
+				unrefNodes.remove(ls.to);
 				unrefLs.remove(ls);
 			}
 
@@ -140,8 +140,8 @@ public class GpxWriter {
 				continue;
 			Element t = new Element("trk", GPX);
 			t.getChildren().add(parseLineSegment(ls));
-			unrefNodes.remove(ls.start);
-			unrefNodes.remove(ls.end);
+			unrefNodes.remove(ls.from);
+			unrefNodes.remove(ls.to);
 			Element ext = new Element("extensions", GPX);
 			ext.getChildren().add(new Element("segment", JOSM));
 			t.getChildren().add(ext);
@@ -179,8 +179,8 @@ public class GpxWriter {
 	private Element parseLineSegment(LineSegment ls) {
 		Element lsElem = new Element("trkseg", GPX);
 		addPropertyExtensions(lsElem, ls.keys, ls);
-		lsElem.getChildren().add(parseWaypoint(ls.start, "trkpt"));
-		lsElem.getChildren().add(parseWaypoint(ls.end, "trkpt"));
+		lsElem.getChildren().add(parseWaypoint(ls.from, "trkpt"));
+		lsElem.getChildren().add(parseWaypoint(ls.to, "trkpt"));
 		return lsElem;
 	}
 

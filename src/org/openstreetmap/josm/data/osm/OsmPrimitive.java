@@ -1,7 +1,10 @@
 package org.openstreetmap.josm.data.osm;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
@@ -63,7 +66,7 @@ abstract public class OsmPrimitive {
 	 * @param visitor The visitor from which the visit() function must be called.
 	 */
 	abstract public void visit(Visitor visitor);
-	
+
 	/**
 	 * Return <code>true</code>, if either <code>this.keys</code> and 
 	 * <code>other.keys</code> is <code>null</code> or if they do not share Keys
@@ -118,6 +121,8 @@ abstract public class OsmPrimitive {
 	/**
 	 * Equal, if the id (and class) is equal. If both ids are 0, use the super classes
 	 * equal instead.
+	 * 
+	 * An primitive is equal to its incomplete counter part.
 	 */
 	@Override
 	public boolean equals(Object obj) {
@@ -128,6 +133,8 @@ abstract public class OsmPrimitive {
 
 	/**
 	 * Return the id as hashcode or supers hashcode if 0.
+	 * 
+	 * An primitive has the same hashcode as its incomplete counter part.
 	 */
 	@Override
 	public int hashCode() {
@@ -144,8 +151,43 @@ abstract public class OsmPrimitive {
 			keys = new HashMap<String, String>();
 		keys.put(key, value);
 	}
-	
+	/**
+	 * Remove the given key from the list.
+	 */
+	public void remove(String key) {
+		if (keys != null) {
+			keys.remove(key);
+			if (keys.isEmpty())
+				keys = null;
+		}
+	}
+
 	public String get(String key) {
-		return (keys == null) ? null : keys.get(key);
+		return keys == null ? null : keys.get(key);
+	}
+	
+	public Collection<Entry<String, String>> entrySet() {
+		if (keys == null)
+			return Collections.emptyList();
+		return keys.entrySet();
+	}
+
+	public Collection<String> keySet() {
+		if (keys == null)
+			return Collections.emptyList();
+		return keys.keySet();
+	}
+
+	/**
+	 * Get and write all attributes from the parameter. Does not fire any listener, so
+	 * use this only in the data initializing phase
+	 */
+	public void cloneFrom(OsmPrimitive osm) {
+		keys = osm.keys;
+		id = osm.id;
+		modified = osm.modified;
+		modifiedProperties = osm.modifiedProperties;
+		deleted = osm.deleted;
+		selected = osm.selected;
 	}
 }

@@ -103,8 +103,10 @@ public class OsmWriter implements Visitor {
 	}
 
 	public void visit(LineSegment ls) {
+		if (ls.incomplete)
+			throw new IllegalArgumentException("Cannot write an incomplete LineSegment.");
 		addCommon(ls, "segment");
-		out.print(" from='"+getUsedId(ls.start)+"' to='"+getUsedId(ls.end)+"'");
+		out.print(" from='"+getUsedId(ls.from)+"' to='"+getUsedId(ls.to)+"'");
 		addTags(ls, "segment", true);
 	}
 
@@ -163,7 +165,7 @@ public class OsmWriter implements Visitor {
 
 
 	/**
-	 * Add the common part as the start of the tag as well as the id or the action tag.
+	 * Add the common part as the from of the tag as well as the id or the action tag.
 	 */
 	private void addCommon(OsmPrimitive osm, String tagname) {
 		out.print("  <"+tagname+" id='"+getUsedId(osm)+"'");
