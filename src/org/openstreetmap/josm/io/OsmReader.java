@@ -14,7 +14,6 @@ import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.AddVisitor;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 import uk.co.wilson.xml.MinML2;
 
@@ -76,8 +75,7 @@ public class OsmReader extends MinML2 {
 				if (!"0.3".equals(atts.getValue("version")))
 					throw new SAXException("Unknown version: "+atts.getValue("version"));
 			} else if (qName.equals("node")) {
-				Node n = new Node();
-				n.coor = new GeoPoint(getDouble(atts, "lat"), getDouble(atts, "lon"));
+				Node n = new Node(new GeoPoint(getDouble(atts, "lat"), getDouble(atts, "lon")));
 				current = n;
 				readCommon(atts);
 				current.id = getLong(atts, "id");
@@ -93,9 +91,13 @@ public class OsmReader extends MinML2 {
 				readCommon(atts);
 			} else if (qName.equals("seg")) {
 				if (current instanceof Way) {
-					LineSegment ls = lineSegments.get(getLong(atts, "id"));
-					if (ls == null)
-						fatalError(new SAXParseException("Line segment "+getLong(atts, "id")+" has not been transfered before.", null));
+					long id = getLong(atts, "id");
+					LineSegment ls = lineSegments.get(id);
+					if (ls == null) {
+						ls = new LineSegment(id); // incomplete line segment
+						lineSegments.put(id, ls);
+						adder.visit(ls);
+					}
 					((Way)current).segments.add(ls);
 				}
 			} else if (qName.equals("tag")) {

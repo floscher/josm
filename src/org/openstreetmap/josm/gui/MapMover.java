@@ -82,7 +82,7 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 	/**
 	 * Start movement by setting a new cursor and remember the current mouse
 	 * position.
-	 * @param e The mouse event that leat to the movement start.
+	 * @param e The mouse event that leat to the movement from.
 	 */
 	private void startMovement(MouseEvent e) {
 		mousePosMove = nc.getPoint(e.getX(), e.getY(), false);

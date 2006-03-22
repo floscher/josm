@@ -13,5 +13,5 @@ import org.openstreetmap.josm.data.osm.Way;
 public interface Visitor {
 	void visit(Node n);
 	void visit(LineSegment ls);
-	void visit(Way t);
+	void visit(Way w);
 }

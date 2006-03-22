@@ -49,8 +49,7 @@ public class AddNodeAction extends MapMode {
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON1) {
-			Node node = new Node();
-			node.coor = mv.getPoint(e.getX(), e.getY(), true);
+			Node node = new Node(mv.getPoint(e.getX(), e.getY(), true));
 			if (node.coor.isOutSideWorld()) {
 				JOptionPane.showMessageDialog(Main.main, "Can not add a node outside of the world.");
 				return;

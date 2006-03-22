@@ -87,7 +87,7 @@ public class AddWayAction extends MapMode {
 		// sort the line segments in best possible order. This is done by:
 		// 0  if no elements in list, quit
 		// 1  taking the first ls as pivot, remove it from list
-		// 2  searching for a connection at start or end of pivot
+		// 2  searching for a connection at from or to of pivot
 		// 3  if found, attach it, remove it from list, goto 2
 		// 4  if not found, save the pivot-string and goto 0
 		LinkedList<LineSegment> sortedLineSegments = new LinkedList<LineSegment>();
@@ -99,11 +99,13 @@ public class AddWayAction extends MapMode {
 				found = false;
 				for (Iterator<LineSegment> it = lineSegments.iterator(); it.hasNext();) {
 					LineSegment ls = it.next();
-					if (ls.start == pivotList.getLast().end) {
+					if (ls.incomplete)
+						continue; // incomplete segments are never added to a new way
+					if (ls.from == pivotList.getLast().to) {
 						pivotList.addLast(ls);
 						it.remove();
 						found = true;
-					} else if (ls.end == pivotList.getFirst().start) {
+					} else if (ls.to == pivotList.getFirst().from) {
 						pivotList.addFirst(ls);
 						it.remove();
 						found = true;
@@ -114,8 +116,7 @@ public class AddWayAction extends MapMode {
 		}
 		
 		Way t = new Way();
-		for (LineSegment ls : sortedLineSegments)
-			t.segments.add(ls);
+		t.segments.addAll(sortedLineSegments);
 		mv.editLayer().add(new AddCommand(Main.main.ds, t));
 		Main.main.ds.clearSelection();
 		mv.repaint();

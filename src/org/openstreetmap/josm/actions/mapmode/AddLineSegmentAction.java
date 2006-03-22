@@ -71,7 +71,7 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 	}
 
 	/**
-	 * If user clicked on a node, start the dragging with that node. 
+	 * If user clicked on a node, from the dragging with that node. 
 	 */
 	@Override
 	public void mousePressed(MouseEvent e) {
@@ -137,7 +137,7 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 		if (start != end) {
 			// try to find a line segment
 			for (LineSegment ls : Main.main.ds.lineSegments)
-				if ((start == ls.start && end == ls.end) || (end == ls.start && start == ls.end))
+				if ((start == ls.from && end == ls.to) || (end == ls.from && start == ls.to))
 					return; // already a line segment here - be happy, do nothing.
 
 			LineSegment ls = new LineSegment(start, end);

@@ -28,21 +28,21 @@ public class AllNodesVisitor implements Visitor {
 	}
 
 	/**
-	 * Line segments have exactly two nodes: start and end.
+	 * Line segments have exactly two nodes: from and to.
 	 */
 	public void visit(LineSegment ls) {
-		nodes.add(ls.start);
-		nodes.add(ls.end);
+		if (!ls.incomplete) {
+			visit(ls.from);
+			visit(ls.to);
+		}
 	}
 
 	/**
 	 * Ways have all nodes from their line segments.
 	 */
 	public void visit(Way t) {
-		for (LineSegment ls : t.segments) {
-			nodes.add(ls.start);
-			nodes.add(ls.end);
-		}
+		for (LineSegment ls : t.segments)
+			visit(ls);
 	}
 
 	/**

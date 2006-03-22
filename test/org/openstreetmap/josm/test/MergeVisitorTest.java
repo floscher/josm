@@ -24,8 +24,7 @@ public class MergeVisitorTest extends TestCase {
 		LineSegment ls1 = DataSetTestCaseHelper.createLineSegment(ds, n[0], n[1]);
 		ls1.id = 3;
 
-		Node newnode = new Node();
-		newnode.coor = new GeoPoint(n[1].coor.lat, n[1].coor.lon);
+		Node newnode = new Node(new GeoPoint(n[1].coor.lat, n[1].coor.lon));
 		LineSegment newls = new LineSegment(n[0], newnode);
 
 		MergeVisitor v = new MergeVisitor(ds);
@@ -56,7 +55,7 @@ public class MergeVisitorTest extends TestCase {
 			osm.visit(v);
 		v.fixReferences();
 		
-		assertSame(ls1.start, ls2.start);
+		assertSame(ls1.from, ls2.from);
 	}
 	
 	

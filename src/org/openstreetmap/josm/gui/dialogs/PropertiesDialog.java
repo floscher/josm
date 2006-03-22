@@ -13,7 +13,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -60,7 +62,7 @@ import org.openstreetmap.josm.gui.MapView;
 public class PropertiesDialog extends ToggleDialog implements SelectionChangedListener {
 
 	/**
-	 * Watches for double clicks and start editing or new property, depending on the
+	 * Watches for double clicks and from editing or new property, depending on the
 	 * location, the click was.
 	 * @author imi
 	 */
@@ -77,7 +79,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 			}
 		}
 	}
-	
+
 	/**
 	 * Edit the value in the table row
 	 * @param row 	The row of the table, from which the value is edited. 
@@ -142,8 +144,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		"Please select a key"), BorderLayout.NORTH);
 		Vector<String> allKeys = new Vector<String>();
 		for (OsmPrimitive osm : Main.main.ds.allNonDeletedPrimitives())
-			if (osm.keys != null)
-				allKeys.addAll(osm.keys.keySet());
+			allKeys.addAll(osm.keySet());
 		for (Iterator<String> it = allKeys.iterator(); it.hasNext();) {
 			String s = it.next();
 			for (int i = 0; i < data.getRowCount(); ++i) {
@@ -292,23 +293,24 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		if (propertyTable.getCellEditor() != null)
 			propertyTable.getCellEditor().cancelCellEditing();
 		data.setRowCount(0);
+		
+		Map<String, Integer> valueCount = new HashMap<String, Integer>();
 		TreeMap<String, Collection<String>> props = new TreeMap<String, Collection<String>>();
 		for (OsmPrimitive osm : newSelection) {
-			if (osm.keys != null) {
-				for (Entry<String, String> e : osm.keys.entrySet()) {
-					Collection<String> value = props.get(e.getKey());
-					if (value == null) {
-						value = new TreeSet<String>();
-						props.put(e.getKey(), value);
-					}
-					value.add(e.getValue());
+			for (Entry<String, String> e : osm.entrySet()) {
+				Collection<String> value = props.get(e.getKey());
+				if (value == null) {
+					value = new TreeSet<String>();
+					props.put(e.getKey(), value);
 				}
+				value.add(e.getValue());
+				valueCount.put(e.getKey(), valueCount.containsKey(e.getKey()) ? valueCount.get(e.getKey())+1 : 1);
 			}
 		}
 		for (Entry<String, Collection<String>> e : props.entrySet()) {
 			JComboBox value = new JComboBox(e.getValue().toArray());
 			value.setEditable(true);
-			value.getEditor().setItem(e.getValue().size() > 1 ? "<different>" : e.getValue().iterator().next());
+			value.getEditor().setItem(valueCount.get(e.getKey()) != newSelection.size() ? "<different>" : e.getValue().iterator().next());
 			data.addRow(new Object[]{e.getKey(), value});
 		}
 	}

@@ -72,10 +72,9 @@ public class GpxReader {
 	 * @return		The Waypoint read from the element
 	 */
 	private Node parseWaypoint(Element e) {
-		Node data = new Node();
-		data.coor = new GeoPoint(
+		Node data = new Node(new GeoPoint(
 			Double.parseDouble(e.getAttributeValue("lat")),
-			Double.parseDouble(e.getAttributeValue("lon")));
+			Double.parseDouble(e.getAttributeValue("lon"))));
 		
 		for (Object o : e.getChildren()) {
 			Element child = (Element)o;
@@ -199,15 +198,13 @@ public class GpxReader {
 	private void parseKeyValueExtensions(OsmPrimitive osm, Element e) {
 		if (e != null) {
 			for (Object o : e.getChildren("property", OSM)) {
-				if (osm.keys == null)
-					osm.keys = new HashMap<String, String>();
 				Element child = (Element)o;
 				String keyname = child.getAttributeValue("key");
 				if (keyname != null) {
 					String value = child.getAttributeValue("value");
 					if (value == null)
 						value = "";
-					osm.keys.put(keyname, value);
+					osm.put(keyname, value);
 				}
 			}
 			Element idElement = e.getChild("uid", JOSM);
@@ -250,10 +247,8 @@ public class GpxReader {
 	 */
 	private void parseKeyValueLink(OsmPrimitive osm, Element e) {
 		if (e != null) {
-			if (osm.keys == null)
-				osm.keys = new HashMap<String, String>();
 			String link = e.getChildText("type") + ";" + e.getChildText("text");
-			osm.keys.put("link", link);
+			osm.put("link", link);
 		}
 	}
 }

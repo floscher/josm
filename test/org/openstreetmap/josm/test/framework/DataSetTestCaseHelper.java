@@ -58,8 +58,7 @@ public class DataSetTestCaseHelper {
 	 * Add a random node.
 	 */
 	public static Node createNode(DataSet ds) {
-		Node node = new Node();
-		node.coor = new GeoPoint(Math.random(), Math.random());
+		Node node = new Node(new GeoPoint(Math.random(), Math.random()));
 		ds.nodes.add(node);
 		return node;
 	}

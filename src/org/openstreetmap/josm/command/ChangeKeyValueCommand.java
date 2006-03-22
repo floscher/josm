@@ -58,19 +58,11 @@ public class ChangeKeyValueCommand implements Command {
 		}
 
 		if (value == null) {
-			for (OsmPrimitive osm : objects) {
-				if (osm.keys != null) {
-					osm.keys.remove(key);
-					if (osm.keys.isEmpty())
-						osm.keys = null;
-				}
-			}
+			for (OsmPrimitive osm : objects)
+				osm.remove(key);
 		} else {
-			for (OsmPrimitive osm : objects) {
-				if (osm.keys == null)
-					osm.keys = new HashMap<String, String>();
-				osm.keys.put(key, value);
-			}
+			for (OsmPrimitive osm : objects)
+				osm.put(key, value);
 		}
 	}
 

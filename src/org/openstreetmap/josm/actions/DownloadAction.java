@@ -206,7 +206,7 @@ public class DownloadAction extends JosmAction {
 					return;
 				}
 				b.name = JOptionPane.showInputDialog(Main.main, "Please enter a name for the location.");
-				if (!b.name.equals("")) {
+				if (b.name != null && !b.name.equals("")) {
 					((DefaultListModel)bookmarks.getModel()).addElement(b);
 					bookmarks.save();
 				}
@@ -244,7 +244,7 @@ public class DownloadAction extends JosmAction {
 	}
 
 	/**
-	 * Read the values from the edit fields and start the download.
+	 * Read the values from the edit fields and from the download.
 	 */
 	private DownloadStatus startDownload() {
 		Bookmark b = readBookmark();

@@ -78,17 +78,20 @@ public class MergeVisitor implements Visitor {
 		}
 		if (myLs == null)
 			ds.lineSegments.add(otherLs);
-		else {
+		else if (myLs.incomplete && !otherLs.incomplete) {
+			mergedLineSegments.put(otherLs, myLs);
+			myLs.cloneFrom(otherLs);
+		} else if (!otherLs.incomplete) {
 			mergedLineSegments.put(otherLs, myLs);
 			mergeCommon(myLs, otherLs);
 			if (myLs.modified && !otherLs.modified)
 				return;
-			if (!match(myLs.start, otherLs.start)) {
-				myLs.start = otherLs.start;
+			if (!match(myLs.from, otherLs.from)) {
+				myLs.from = otherLs.from;
 				myLs.modified = otherLs.modified;
 			}
-			if (!match(myLs.end, otherLs.end)) {
-				myLs.end = otherLs.end;
+			if (!match(myLs.to, otherLs.to)) {
+				myLs.to = otherLs.to;
 				myLs.modified = otherLs.modified;
 			}
 		}
@@ -132,10 +135,10 @@ public class MergeVisitor implements Visitor {
 	 */
 	public void fixReferences() {
 		for (LineSegment ls : ds.lineSegments) {
-			if (mergedNodes.containsKey(ls.start))
-				ls.start = mergedNodes.get(ls.start);
-			if (mergedNodes.containsKey(ls.end))
-				ls.end = mergedNodes.get(ls.end);
+			if (mergedNodes.containsKey(ls.from))
+				ls.from = mergedNodes.get(ls.from);
+			if (mergedNodes.containsKey(ls.to))
+				ls.to = mergedNodes.get(ls.to);
 		}
 		for (Way t : ds.waies) {
 			boolean replacedSomething = false;
@@ -151,10 +154,10 @@ public class MergeVisitor implements Visitor {
 				t.segments.addAll(newSegments);
 			}
 			for (LineSegment ls : t.segments) {
-				if (mergedNodes.containsKey(ls.start))
-					ls.start = mergedNodes.get(ls.start);
-				if (mergedNodes.containsKey(ls.end))
-					ls.end = mergedNodes.get(ls.end);
+				if (mergedNodes.containsKey(ls.from))
+					ls.from = mergedNodes.get(ls.from);
+				if (mergedNodes.containsKey(ls.to))
+					ls.to = mergedNodes.get(ls.to);
 			}
 		}
 	}
@@ -172,9 +175,11 @@ public class MergeVisitor implements Visitor {
 	 * @return Whether the line segments matches (in sense of "be mergable").
 	 */
 	private boolean match(LineSegment ls1, LineSegment ls2) {
-		if (ls1.id == 0 || ls2.id == 0)
-			return match(ls1.start, ls2.start) && match(ls1.end, ls2.end);
-		return ls1.id == ls2.id;
+		if (ls1.id == ls2.id)
+			return true;
+		if (ls1.incomplete || ls2.incomplete)
+			return false;
+		return match(ls1.from, ls2.from) && match(ls1.to, ls2.to);
 	}
 
 	/**
