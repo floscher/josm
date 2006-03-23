@@ -13,6 +13,7 @@ import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.io.GpxWriter;
 import org.openstreetmap.josm.io.OsmWriter;
@@ -64,9 +65,15 @@ public class SaveAction extends JosmAction {
 				}
 			}
 			FileWriter fileWriter;
-			if (ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn))
+			if (ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn)) {
+				for (LineSegment ls : Main.main.ds.lineSegments) {
+					if (ls.incomplete) {
+						JOptionPane.showMessageDialog(Main.main, "Export of data containing incomplete ways to GPX is not implemented.\nBe aware, that in future versions of JOSM, GPX support will be kept at a minimum.\nPlease use .osm or .xml as extension for the better OSM support.");
+						return;
+					}
+				}
 				new GpxWriter(fileWriter = new FileWriter(file), Main.main.ds).output();
-			else if (ExtensionFileFilter.filters[ExtensionFileFilter.OSM].acceptName(fn))
+			} else if (ExtensionFileFilter.filters[ExtensionFileFilter.OSM].acceptName(fn))
 				OsmWriter.output(fileWriter = new FileWriter(file), Main.main.ds, false);
 			else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
 				JOptionPane.showMessageDialog(Main.main, "CSV output not supported yet.");
