@@ -42,7 +42,7 @@ public class AddWayAction extends MapMode {
 	 * @param followMode The mode to go into when finished creating a way.
 	 */
 	public AddWayAction(MapFrame mapFrame, MapMode followMode) {
-		super("Add Way", "addway", "Combine selected segments to a new way.", KeyEvent.VK_W, mapFrame);
+		super("Add Way", "addway", "Combine selected segments to a new way.", "W", KeyEvent.VK_W, mapFrame);
 		this.followMode = followMode;
 	}
 

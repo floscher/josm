@@ -46,7 +46,7 @@ public class MoveAction extends MapMode {
 	 * @param mapFrame The MapFrame, this action belongs to.
 	 */
 	public MoveAction(MapFrame mapFrame) {
-		super("Move", "move", "Move selected objects around", KeyEvent.VK_M, mapFrame);
+		super("Move", "move", "Move selected objects around.", "M", KeyEvent.VK_M, mapFrame);
 	}
 
 	@Override

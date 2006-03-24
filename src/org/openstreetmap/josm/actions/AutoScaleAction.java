@@ -3,6 +3,8 @@ package org.openstreetmap.josm.actions;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
+import javax.swing.KeyStroke;
+
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 
@@ -17,8 +19,7 @@ public class AutoScaleAction extends JosmAction {
 	private final MapView mapView;
 	
 	public AutoScaleAction(MapFrame mapFrame) {
-		super("Auto Scale", "autoscale", "Zoom the view to show the whole layer. Disabled if the view is moved.",
-				KeyEvent.VK_A, null);
+		super("Auto Scale", "autoscale", "Zoom the view to show the whole layer. Disabled if the view is moved.", "Alt-A", KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.ALT_MASK));
 		mapView = mapFrame.mapView;
 	}
 

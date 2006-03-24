@@ -2,16 +2,15 @@ package org.openstreetmap.josm.gui.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractButton;
-import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 
-import org.openstreetmap.josm.gui.ImageProvider;
+import org.openstreetmap.josm.actions.JosmAction;
 
 /**
  * This class is a toggle dialog that can be turned on and off. It is attached
@@ -19,41 +18,30 @@ import org.openstreetmap.josm.gui.ImageProvider;
  * 
  * @author imi
  */
-public class ToggleDialog extends JPanel implements Action {
+public class ToggleDialog extends JPanel {
 
+	/**
+	 * The action to toggle this dialog.
+	 */
+	public JosmAction action;
+	
 	/**
 	 * Create a new ToggleDialog.
 	 * @param title The title of the dialog.
 	 */
-	public ToggleDialog(String title, String name, String iconName, int mnemonic, String tooltip) {
-		putValue(SMALL_ICON, ImageProvider.get("dialogs", iconName));
-		putValue(NAME, name);
-		putValue(MNEMONIC_KEY, mnemonic);
-		putValue(SHORT_DESCRIPTION, tooltip);
+	public ToggleDialog(String title, String name, String iconName, String tooltip, String shortCutName, int shortCut) {
+		action = new JosmAction(name, "dialogs/"+iconName, tooltip, "Alt-"+shortCutName, KeyStroke.getKeyStroke(shortCut, KeyEvent.ALT_MASK)){
+			public void actionPerformed(ActionEvent e) {
+				boolean show = !isVisible();
+				if (e.getSource() instanceof AbstractButton)
+					show = ((AbstractButton)e.getSource()).isSelected();
+				setVisible(show);
+			}
+		};
 		
 		setLayout(new BorderLayout());
 		add(new JLabel(title), BorderLayout.NORTH);
 		setVisible(false);
 		setBorder(BorderFactory.createEtchedBorder());
-	}
-
-	/**
-	 * Show this if not shown. Else request the focus.
-	 */
-	public void actionPerformed(ActionEvent e) {
-		boolean show = !isVisible();
-		if (e.getSource() instanceof AbstractButton)
-			show = ((AbstractButton)e.getSource()).isSelected();
-		setVisible(show);
-	}
-
-	// to satisfy Action interface
-
-	private Map<String, Object> properties = new HashMap<String, Object>();
-	public Object getValue(String key) {
-		return properties.get(key);
-	}
-	public void putValue(String key, Object value) {
-		properties.put(key, value);
 	}
 }

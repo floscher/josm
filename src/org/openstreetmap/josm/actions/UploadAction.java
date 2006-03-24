@@ -33,8 +33,8 @@ import org.openstreetmap.josm.io.OsmServerWriter;
 public class UploadAction extends JosmAction {
 
 	public UploadAction() {
-		super("Upload to OSM", "upload", "Upload all changes to the OSM server.", KeyEvent.VK_U, 
-				KeyStroke.getAWTKeyStroke(KeyEvent.VK_U, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
+		super("Upload to OSM", "upload", "Upload all changes to the OSM server.", "Ctrl-Shift-U", 
+				KeyStroke.getKeyStroke(KeyEvent.VK_U, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
 	}
 
 	public void actionPerformed(ActionEvent e) {

@@ -25,6 +25,7 @@ import org.openstreetmap.josm.actions.mapmode.ZoomAction;
 import org.openstreetmap.josm.gui.dialogs.LayerList;
 import org.openstreetmap.josm.gui.dialogs.PropertiesDialog;
 import org.openstreetmap.josm.gui.dialogs.SelectionListDialog;
+import org.openstreetmap.josm.gui.dialogs.ToggleDialog;
 import org.openstreetmap.josm.gui.layer.Layer;
 
 /**
@@ -51,19 +52,6 @@ public class MapFrame extends JPanel {
 	 * The status line below the map
 	 */
 	public MapStatus statusLine;
-	/**
-	 * The action to open the layer list
-	 */
-	private LayerList layerList;
-	/**
-	 * Action to open the properties panel for the selected objects
-	 */
-	private PropertiesDialog propertiesDialog;
-	/**
-	 * Action to open a list of all selected objects
-	 */
-	private SelectionListDialog selectionListDialog;
-
 	/**
 	 * Construct a map with a given DataSet. The set cannot be replaced after 
 	 * construction (but of course, the data can be altered using the map's
@@ -112,16 +100,18 @@ public class MapFrame extends JPanel {
 		add(toggleDialogs, BorderLayout.EAST);
 
 		toggleDialogs.setLayout(new BoxLayout(toggleDialogs, BoxLayout.Y_AXIS));
-		toolBarActions.add(new IconToggleButton(this, layerList = new LayerList(this)));
-		toggleDialogs.add(layerList);
-		toolBarActions.add(new IconToggleButton(this, propertiesDialog = new PropertiesDialog(this)));
-		toggleDialogs.add(propertiesDialog);
-		toolBarActions.add(new IconToggleButton(this, selectionListDialog = new SelectionListDialog(this)));
-		toggleDialogs.add(selectionListDialog);
-		
+		addIconToggle(toggleDialogs, new LayerList(this));
+		addIconToggle(toggleDialogs, new PropertiesDialog(this));
+		addIconToggle(toggleDialogs, new SelectionListDialog(this));
 
 		// status line below the map
 		statusLine = new MapStatus(this);
+	}
+
+
+	private void addIconToggle(JPanel toggleDialogs, ToggleDialog dlg) {
+		toolBarActions.add(new IconToggleButton(this, dlg.action));
+		toggleDialogs.add(dlg);
 	}
 
 	

@@ -20,7 +20,7 @@ public class UndoAction extends JosmAction {
 	 * Construct the action with "Undo" as label.
 	 */
 	public UndoAction() {
-		super("Undo", "undo", "Undo the last action.", null, KeyStroke.getAWTKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
+		super("Undo", "undo", "Undo the last action.", "Ctrl-Z", KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
 		setEnabled(false);
 	}
 

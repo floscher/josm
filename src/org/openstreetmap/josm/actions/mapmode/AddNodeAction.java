@@ -27,7 +27,7 @@ public class AddNodeAction extends MapMode {
 	 * @param mapFrame
 	 */
 	public AddNodeAction(MapFrame mapFrame) {
-		super("Add nodes", "addnode", "Add nodes to the map.", KeyEvent.VK_N, mapFrame);
+		super("Add nodes", "addnode", "Add nodes to the map.", "N", KeyEvent.VK_N, mapFrame);
 	}
 
 	@Override

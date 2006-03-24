@@ -2,7 +2,6 @@
 package org.openstreetmap.josm;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -10,7 +9,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.StringTokenizer;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -65,7 +66,7 @@ public class Main extends JFrame {
 	/**
 	 * The main panel.
 	 */
-	private Container panel;
+	public JPanel panel;
 	/**
 	 * The mapFrame currently loaded.
 	 */
@@ -79,6 +80,10 @@ public class Main extends JFrame {
 	 * be set accordingly after the IO action.
 	 */
 	public File currentDirectory = new File(".");
+
+	private OpenAction openAction;
+
+	private DownloadAction downloadAction;
 	
 	/**
 	 * Construct an main frame, ready sized and operating. Does not 
@@ -86,16 +91,16 @@ public class Main extends JFrame {
 	 */
 	public Main() {
 		super("Java Open Street Map - Editor");
+		Main.main = this;
 		setLayout(new BorderLayout());
 		panel = new JPanel(new BorderLayout());
 		getContentPane().add(panel, BorderLayout.CENTER);
 		setSize(1000,740); // some strange default size
 		setVisible(true);
 		
-		// creating actions
-		DownloadAction downloadAction = new DownloadAction();
+		downloadAction = new DownloadAction();
 		UploadAction uploadAction = new UploadAction();
-		OpenAction openAction = new OpenAction();
+		openAction = new OpenAction();
 		SaveAction saveAction = new SaveAction();
 		ExitAction exitAction = new ExitAction();
 		undoAction = new UndoAction();
@@ -187,10 +192,31 @@ public class Main extends JFrame {
 		setupExceptionHandler();
 		setupUiDefaults();
 
+		LinkedList<String> arguments = new LinkedList<String>(Arrays.asList(args));
+
+		if (arguments.contains("--help")) {
+			System.out.println("Java OpenStreetMap Editor");
+			System.out.println();
+			System.out.println("usage:");
+			System.out.println("\tjava -jar josm.jar <options>");
+			System.out.println();
+			System.out.println("options:");
+			System.out.println("\t--help                                  Show this help");
+			System.out.println("\t--download=minlat,minlon,maxlat,maxlon  Download the bounding box");
+			System.out.println("\t--open=file(.osm|.xml|.gpx|.txt|.csv)   Open the specific file");
+			System.out.println("\t--no-fullscreen                         Don't launch in fullscreen mode");
+			System.out.println("\t--reset-preferences                     Reset the preferences to default");
+			System.exit(0);
+		}
+
+		
 		// load preferences
 		String errMsg = null;
 		try {
-			pref.load();
+			if (arguments.remove("--reset-preferences"))
+				pref.save();
+			else
+				pref.load();
 		} catch (PreferencesException e1) {
 			e1.printStackTrace();
 			errMsg = "Preferences could not be loaded. Write default preference file to '"+Preferences.getPreferencesDir()+"preferences'.";
@@ -210,19 +236,18 @@ public class Main extends JFrame {
 			e.printStackTrace();
 		}
 		
-		main = new Main();
+		new Main();
 		main.setVisible(true);
 
-		Collection<String> arguments = Arrays.asList(args);
 
-		if (arguments.contains("--show-modifiers")) {
+		if (arguments.remove("--show-modifiers")) {
 			Point p = main.getLocationOnScreen();
 			Dimension s = main.getSize();
 			new ShowModifiers(p.x + s.width - 3, p.y + s.height - 32);
 			main.setVisible(true);
 		}
 		
-		if (!arguments.contains("--no-fullscreen")) {
+		if (!arguments.remove("--no-fullscreen")) {
 			if (Toolkit.getDefaultToolkit().isFrameStateSupported(MAXIMIZED_BOTH))
 				main.setExtendedState(MAXIMIZED_BOTH); // some platform are able to maximize
 			else {
@@ -230,8 +255,43 @@ public class Main extends JFrame {
 				main.setSize(d);
 			}
 		}
+
+		for (Iterator<String> it = arguments.iterator(); it.hasNext();) {
+			String s = it.next();
+			if (s.startsWith("--open=")) {
+				main.openAction.openFile(new File(s.substring(7)));
+				it.remove();
+			} else if (s.startsWith("--download=")) {
+				downloadFromParamString(false, s.substring(11));
+				it.remove();
+			} else if (s.startsWith("--downloadgps=")) {
+				downloadFromParamString(true, s.substring(14));
+				it.remove();
+			}
+		}
+		
+		if (!arguments.isEmpty()) {
+			String s = "Unknown Parameter:\n";
+			for (String arg : arguments)
+				s += arg+"\n";
+			JOptionPane.showMessageDialog(main, s);
+		}
 	}
 
+
+	private static void downloadFromParamString(boolean rawGps, String s) {
+		StringTokenizer st = new StringTokenizer(s, ",");
+		if (st.countTokens() != 4) {
+			JOptionPane.showMessageDialog(main, "Download option does not take "+st.countTokens()+" bounding parameter.");
+			return;
+		}
+
+		try {
+			main.downloadAction.download(rawGps, Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()));
+		} catch (NumberFormatException e) {
+			JOptionPane.showMessageDialog(main, "Could not parse the Coordinates.");
+		}
+	}
 
 	/**
 	 * Set the main's mapframe. If a changed old mapFrame is already set, 
