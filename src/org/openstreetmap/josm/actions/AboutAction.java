@@ -37,7 +37,7 @@ import org.openstreetmap.josm.gui.ImageProvider;
 public class AboutAction extends JosmAction {
 	
 	public AboutAction() {
-		super("About", "about", "Display the about screen.", KeyEvent.VK_A, null);
+		super("About", "about", "Display the about screen.", KeyEvent.VK_A);
 	}
 	
 	public void actionPerformed(ActionEvent e) {

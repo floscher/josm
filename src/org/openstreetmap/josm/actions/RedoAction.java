@@ -20,7 +20,7 @@ public class RedoAction extends JosmAction {
 	 * Construct the action with "Undo" as label.
 	 */
 	public RedoAction() {
-		super("Redo", "redo", "Redo the last undone action.", null, KeyStroke.getAWTKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
+		super("Redo", "redo", "Redo the last undone action.", "Ctrl-Shift-Z", KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
 		setEnabled(false);
 	}
 

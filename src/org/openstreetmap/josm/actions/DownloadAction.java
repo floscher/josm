@@ -65,8 +65,8 @@ public class DownloadAction extends JosmAction {
 	JCheckBox rawGps = new JCheckBox("Open as raw gps data", false);
 
 	public DownloadAction() {
-		super("Download from OSM", "download", "Download map data from the OSM server.", KeyEvent.VK_D, 
-				KeyStroke.getAWTKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
+		super("Download from OSM", "download", "Download map data from the OSM server.", "Ctrl-Shift-D", 
+				KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -253,55 +253,11 @@ public class DownloadAction extends JosmAction {
 			return DownloadStatus.REDISPLAY;
 		}
 
-		final OsmServerReader osmReader = new OsmServerReader(b.latlon[0], b.latlon[1], b.latlon[2], b.latlon[3]);
-		new Thread(new PleaseWaitRunnable("Downloading data"){
-			@Override
-			public void realRun() {
-				try {
-					String name = latlon[0].getText() + " "
-							+ latlon[1].getText() + " x " + latlon[2].getText()
-							+ " " + latlon[3].getText();
-
-					Layer layer = null;
-					if (rawGps.isSelected()) {
-						layer = new RawGpsDataLayer(osmReader.parseRawGps(), name);
-					} else {
-						DataSet dataSet = osmReader.parseOsm();
-						if (dataSet == null)
-							return; // user cancelled download
-						if (dataSet.nodes.isEmpty()) {
-							closeDialog();
-							JOptionPane.showMessageDialog(Main.main,
-									"No data imported.");
-						}
-
-						layer = new OsmDataLayer(dataSet, "Data Layer", false);
-					}
-
-					if (Main.main.getMapFrame() == null)
-						Main.main.setMapFrame(new MapFrame(layer));
-					else
-						Main.main.getMapFrame().mapView.addLayer(layer);
-				} catch (SAXException x) {
-					closeDialog();
-					x.printStackTrace();
-					JOptionPane.showMessageDialog(Main.main, x.getMessage());
-				} catch (JDOMException x) {
-					closeDialog();
-					x.printStackTrace();
-					JOptionPane.showMessageDialog(Main.main, x.getMessage());
-				} catch (FileNotFoundException x) {
-					closeDialog();
-					x.printStackTrace();
-					JOptionPane.showMessageDialog(Main.main,
-							"URL nicht gefunden: " + x.getMessage());
-				} catch (IOException x) {
-					closeDialog();
-					x.printStackTrace();
-					JOptionPane.showMessageDialog(Main.main, x.getMessage());
-				}
-			}
-		}).start();
+		double minlon = b.latlon[0];
+		double minlat = b.latlon[1];
+		double maxlon = b.latlon[2];
+		double maxlat = b.latlon[3];
+		download(rawGps.isSelected(), minlon, minlat, maxlon, maxlat);
 		return DownloadStatus.FINISHED;
 	}
 	
@@ -365,5 +321,58 @@ public class DownloadAction extends JosmAction {
 		latlon[3].setText(""+topRight.lon);
 		for (JTextField f : latlon)
 			f.setCaretPosition(0);
+	}
+
+	/**
+	 * Do the download for the given area.
+	 */
+	public void download(final boolean rawGps, double minlat, double minlon, double maxlat, double maxlon) {
+		final OsmServerReader osmReader = new OsmServerReader(minlat, minlon, maxlat, maxlon);
+		new Thread(new PleaseWaitRunnable("Downloading data"){
+			@Override
+			public void realRun() {
+				try {
+					String name = latlon[0].getText() + " " + latlon[1].getText() + " x " + latlon[2].getText() + " " + latlon[3].getText();
+
+					Layer layer = null;
+					if (rawGps) {
+						layer = new RawGpsDataLayer(osmReader.parseRawGps(), name);
+					} else {
+						DataSet dataSet = osmReader.parseOsm();
+						if (dataSet == null)
+							return; // user cancelled download
+						if (dataSet.nodes.isEmpty()) {
+							closeDialog();
+							JOptionPane.showMessageDialog(Main.main,
+							"No data imported.");
+						}
+
+						layer = new OsmDataLayer(dataSet, "Data Layer", false);
+					}
+
+					if (Main.main.getMapFrame() == null)
+						Main.main.setMapFrame(new MapFrame(layer));
+					else
+						Main.main.getMapFrame().mapView.addLayer(layer);
+				} catch (SAXException x) {
+					closeDialog();
+					x.printStackTrace();
+					JOptionPane.showMessageDialog(Main.main, x.getMessage());
+				} catch (JDOMException x) {
+					closeDialog();
+					x.printStackTrace();
+					JOptionPane.showMessageDialog(Main.main, x.getMessage());
+				} catch (FileNotFoundException x) {
+					closeDialog();
+					x.printStackTrace();
+					JOptionPane.showMessageDialog(Main.main,
+							"URL nicht gefunden: " + x.getMessage());
+				} catch (IOException x) {
+					closeDialog();
+					x.printStackTrace();
+					JOptionPane.showMessageDialog(Main.main, x.getMessage());
+				}
+			}
+		}).start();
 	}
 }

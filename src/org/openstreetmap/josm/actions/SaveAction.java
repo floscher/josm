@@ -31,7 +31,7 @@ public class SaveAction extends JosmAction {
 	 * Construct the action with "Save" as label.
 	 */
 	public SaveAction() {
-		super("Save", "save", "Save the current data.", null, KeyStroke.getAWTKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
+		super("Save", "save", "Save the current data.", "Ctrl-S", KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
 	}
 	
 	public void actionPerformed(ActionEvent event) {

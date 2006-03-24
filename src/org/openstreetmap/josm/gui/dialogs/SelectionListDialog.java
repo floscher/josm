@@ -50,7 +50,7 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 	 * @param mapView The mapView to get the dataset from.
 	 */
 	public SelectionListDialog(MapFrame mapFrame) {
-		super("Current Selection", "Selection List", "selectionlist", KeyEvent.VK_E, "Open a selection list window.");
+		super("Current Selection", "Selection List", "selectionlist", "Open a selection list window.", "E", KeyEvent.VK_E);
 		setPreferredSize(new Dimension(320,150));
 		displaylist.setCellRenderer(new OsmPrimitivRenderer());
 		displaylist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -106,7 +106,11 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 				int colon = search.indexOf(':');
 				if (colon == -1)
 					return key.indexOf(search) != -1 || value.indexOf(search) != -1;
-				return key.equals(search.substring(0, colon)) && value.indexOf(search.substring(colon+1)) != -1;
+				String searchKey = search.substring(0, colon);
+				String searchValue = search.substring(colon+1);
+				if (searchKey.equals("type") && (searchValue.equals("segment")||searchValue.equals("way")||searchValue.equals("node")))
+					return true;
+				return key.equals(searchKey) && value.indexOf(searchValue) != -1;
 			}
 		});
 		buttonPanel.add(button);

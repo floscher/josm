@@ -126,7 +126,7 @@ abstract public class OsmPrimitive {
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (getClass() != obj.getClass() || id == 0 || obj == null || ((OsmPrimitive)obj).id == 0)
+		if (obj == null || getClass() != obj.getClass() || id == 0 || ((OsmPrimitive)obj).id == 0)
 			return super.equals(obj);
 		return id == ((OsmPrimitive)obj).id;
 	}

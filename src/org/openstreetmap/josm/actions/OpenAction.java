@@ -40,7 +40,7 @@ public class OpenAction extends JosmAction {
 	 * Create an open action. The name is "Open a file".
 	 */
 	public OpenAction() {
-		super("Open", "open", "Open a file.", null, KeyStroke.getAWTKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
+		super("Open", "open", "Open a file.", "Ctrl-O", KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -57,8 +57,15 @@ public class OpenAction extends JosmAction {
 		File filename = fc.getSelectedFile();
 		if (filename == null)
 			return;
-		String fn = filename.getName();
 
+		openFile(filename);
+	}
+
+	/**
+	 * Open the given file.
+	 */
+	public void openFile(File filename) {
+		String fn = filename.getName();
 		try {
 			Layer layer;
 

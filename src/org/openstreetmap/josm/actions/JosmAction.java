@@ -1,11 +1,11 @@
 package org.openstreetmap.josm.actions;
 
-import java.awt.AWTKeyStroke;
-
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import org.openstreetmap.josm.Main;
@@ -63,20 +63,24 @@ abstract public class JosmAction extends AbstractAction {
 	}
 	
 	/**
-	 * Construct the action.
+	 * Construct the action as menu action entry.
 	 * 
 	 * @param name		Name of the action (entry name in menu)
 	 * @param iconName	Name of the icon (without extension)
-	 * @param desc		Short tooltip description
-	 * @param mnemonic	If non-<code>null</code>, the Mnemonic in menu
-	 * @param shortCut	If non-<code>null</code>, the shortcut keystroke
+	 * @param tooltip	Short tooltip description
+	 * @param mnemonic	Mnemonic in the menu
 	 */
-	public JosmAction(String name, String iconName, String desc, Integer mnemonic, AWTKeyStroke shortCut) {
+	public JosmAction(String name, String iconName, String tooltip, int mnemonic) {
 		super(name, ImageProvider.get(iconName));
-		putValue(SHORT_DESCRIPTION, desc);
-		if (mnemonic != null)
-			putValue(MNEMONIC_KEY, mnemonic);
-		if (shortCut != null)
-			putValue(ACCELERATOR_KEY, shortCut);
+		putValue(SHORT_DESCRIPTION, tooltip);
+		putValue(MNEMONIC_KEY, mnemonic);
+	}
+
+
+	public JosmAction(String name, String iconName, String tooltip, String shortCutName, KeyStroke shortCut) {
+		super(name, ImageProvider.get(iconName));
+		putValue(SHORT_DESCRIPTION, "<html>"+tooltip+" <font size='-2'>"+shortCutName+"</font>&nbsp;</html>");
+		Main.main.panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(shortCut, name);
+		Main.main.panel.getActionMap().put(name, this);
 	}
 }

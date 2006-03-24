@@ -42,7 +42,7 @@ public class DeleteAction extends MapMode {
 	 * @param mapFrame The frame this action belongs to.
 	 */
 	public DeleteAction(MapFrame mapFrame) {
-		super("Delete", "delete", "Delete nodes, streets or segments.", KeyEvent.VK_D, mapFrame);
+		super("Delete", "delete", "Delete nodes, streets or segments.", "Delete", KeyEvent.VK_DELETE, mapFrame);
 	}
 
 	@Override

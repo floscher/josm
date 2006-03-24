@@ -62,7 +62,7 @@ public class SelectionAction extends MapMode implements SelectionEnded {
 	 * @param mapFrame The frame this action belongs to
 	 */
 	public SelectionAction(MapFrame mapFrame) {
-		super("Selection", "selection", "Select objects by dragging or clicking", KeyEvent.VK_S, mapFrame);
+		super("Selection", "selection", "Select objects by dragging or clicking.", "S", KeyEvent.VK_S, mapFrame);
 		this.selectionManager = new SelectionManager(this, false, mv);
 	}
 

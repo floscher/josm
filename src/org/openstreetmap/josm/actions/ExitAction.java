@@ -14,7 +14,7 @@ public class ExitAction extends JosmAction {
 	 * Construct the action with "Exit" as label
 	 */
 	public ExitAction() {
-		super("Exit", "exit", "Exit the application.", KeyEvent.VK_X, null);
+		super("Exit", "exit", "Exit the application.", KeyEvent.VK_X);
 	}
 	
 	public void actionPerformed(ActionEvent e) {
