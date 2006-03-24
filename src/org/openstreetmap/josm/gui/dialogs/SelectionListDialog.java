@@ -9,7 +9,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
-import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -26,6 +25,7 @@ import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.OsmPrimitivRenderer;
+import org.openstreetmap.josm.tools.SearchCompiler;
 
 /**
  * A small tool dialog for displaying the current selection. The selection manager
@@ -83,34 +83,20 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 			public void actionPerformed(ActionEvent e) {
 				JLabel l = new JLabel("Please enter a search string.");
 				l.setToolTipText("<html>Fulltext search.<ul>" +
-						"<li>Baker Street  - search for everything with 'Baker Street' in any key or name.</li>" +
-						"<li>name:Bak  - search for every object with key=name and 'Bak' anywhere in the value.</li>" +
-						"<li>foot:  - search for everything with the key=foot set to any value." +
+						"<li><code>Baker Street</code>  - 'Baker' and 'Street' in any key or name.</li>" +
+						"<li><code>\"Baker Street\"</code>  - 'Baker Street' in any key or name.</li>" +
+						"<li><code>name:Bak</code>  - 'Bak' anywhere in the name.</li>" +
+						"<li><code>-name:Bak</code>  - not 'Bak' in the name.</li>" +
+						"<li><code>foot:</code>  - key=foot set to any value." +
 						"</ul></html>");
 				lastSearch = (String)JOptionPane.showInputDialog(Main.main,l,"Search",JOptionPane.INFORMATION_MESSAGE,null,null,lastSearch);
 				if (lastSearch == null)
 					return;
-				Main.main.ds.clearSelection();
-				for (OsmPrimitive osm : Main.main.ds.allNonDeletedPrimitives()) {
-					for (Entry<String, String> ent : osm.entrySet()) {
-						if (match(lastSearch, ent.getKey(), ent.getValue())) {
-							osm.setSelected(true);
-							break;
-						}
-					}
-				}
+				SearchCompiler.Match matcher = SearchCompiler.compile(lastSearch);
+				for (OsmPrimitive osm : Main.main.ds.allNonDeletedPrimitives())
+					osm.setSelected(matcher.match(osm));
 				selectionChanged(Main.main.ds.getSelected());
 				Main.main.getMapFrame().repaint();
-			}
-			private boolean match(String search, String key, String value) {
-				int colon = search.indexOf(':');
-				if (colon == -1)
-					return key.indexOf(search) != -1 || value.indexOf(search) != -1;
-				String searchKey = search.substring(0, colon);
-				String searchValue = search.substring(colon+1);
-				if (searchKey.equals("type") && (searchValue.equals("segment")||searchValue.equals("way")||searchValue.equals("node")))
-					return true;
-				return key.equals(searchKey) && value.indexOf(searchValue) != -1;
 			}
 		});
 		buttonPanel.add(button);
