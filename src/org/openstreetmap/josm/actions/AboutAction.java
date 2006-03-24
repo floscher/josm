@@ -12,19 +12,17 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.gui.GBC;
 import org.openstreetmap.josm.gui.ImageProvider;
+import org.openstreetmap.josm.tools.UrlLabel;
 
 /**
  * Nice about screen. I guess every application need one these days.. *sigh*
@@ -58,20 +56,7 @@ public class AboutAction extends JosmAction {
 		info.add(new JLabel("Java OpenStreetMap Editor Version "+version), GBC.eop());
 		info.add(new JLabel("last change at "+time), GBC.eop());
 		info.add(new JLabel("Homepage"), GBC.std().insets(0,0,10,0));
-		JEditorPane homepage = new JEditorPane();
-		homepage.setContentType("text/html");
-		homepage.setText("<html><a href=\"http://wiki.eigenheimstrasse.de/wiki/JOSM\">" +
-				"http://wiki.eigenheimstrasse.de/wiki/JOSM</a></html>");
-		homepage.setEditable(false);
-		homepage.setOpaque(false);
-		homepage.addHyperlinkListener(new HyperlinkListener(){
-			public void hyperlinkUpdate(HyperlinkEvent e) {
-				if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-					//TODO: Open browser
-				}
-			}
-		});
-		info.add(homepage, GBC.eol());
+		info.add(new UrlLabel("http://wiki.eigenheimstrasse.de/wiki/JOSM"), GBC.eol());
 		
 		
 		
