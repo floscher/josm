@@ -136,13 +136,14 @@ public class SearchCompiler {
 			case '-':
 				return "-";
 			case '"':
-				s = new StringBuilder("\"");
+				s = new StringBuilder(" ");
 				for (int nc = search.read(); nc != -1 && nc != '"'; nc = search.read())
 					s.append((char)nc);
 				int nc = search.read();
-				if ((char)nc == ':')
+				if (nc != -1 && (char)nc == ':')
 					return ":"+s.toString();
-				search.unread(nc);
+				if (nc != -1)
+					search.unread(nc);
 				return s.toString();
 			default:
 				s = new StringBuilder();
