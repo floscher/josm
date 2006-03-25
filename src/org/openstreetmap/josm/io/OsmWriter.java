@@ -71,7 +71,7 @@ public class OsmWriter implements Visitor {
 			writer.visit(n);
 		for (LineSegment ls : ds.lineSegments)
 			writer.visit(ls);
-		for (Way w : ds.waies)
+		for (Way w : ds.ways)
 			writer.visit(w);
 		writer.out.println("</osm>");
 	}
@@ -98,7 +98,7 @@ public class OsmWriter implements Visitor {
 
 	public void visit(Node n) {
 		addCommon(n, "node");
-		out.print(" lat='"+n.coor.lat+"' lon='"+n.coor.lon+"'");
+		out.print(" lat='"+n.coor.lat()+"' lon='"+n.coor.lon()+"'");
 		addTags(n, "node", true);
 	}
 

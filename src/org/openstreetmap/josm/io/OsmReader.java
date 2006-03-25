@@ -5,7 +5,7 @@ import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
@@ -75,7 +75,7 @@ public class OsmReader extends MinML2 {
 				if (!"0.3".equals(atts.getValue("version")))
 					throw new SAXException("Unknown version: "+atts.getValue("version"));
 			} else if (qName.equals("node")) {
-				Node n = new Node(new GeoPoint(getDouble(atts, "lat"), getDouble(atts, "lon")));
+				Node n = new Node(new LatLon(getDouble(atts, "lat"), getDouble(atts, "lon")));
 				current = n;
 				readCommon(atts);
 				current.id = getLong(atts, "id");

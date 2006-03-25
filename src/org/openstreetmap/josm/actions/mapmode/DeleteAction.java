@@ -93,10 +93,10 @@ public class DeleteAction extends MapMode {
 	/**
 	 * Delete the primitives and everything they references.
 	 * 
-	 * If a node is deleted, the node and all line segments, waies and areas
+	 * If a node is deleted, the node and all line segments, ways and areas
 	 * the node is part of are deleted as well.
 	 * 
-	 * If a line segment is deleted, all waies the line segment is part of 
+	 * If a line segment is deleted, all ways the line segment is part of 
 	 * are deleted as well. No nodes are deleted.
 	 * 
 	 * If a way is deleted, only the way and no line segments or nodes are 

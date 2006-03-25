@@ -26,9 +26,10 @@ import javax.swing.Popup;
 import javax.swing.PopupFactory;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.visitor.SelectionComponentVisitor;
+import org.openstreetmap.josm.tools.GBC;
 
 /**
  * A component that manages some status information display about the map.
@@ -204,8 +205,8 @@ public class MapStatus extends JPanel {
 			public void mouseMoved(MouseEvent e) {
 				// Do not update the view, if ctrl is pressed.
 				if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == 0) {
-					GeoPoint p = mv.getPoint(e.getX(),e.getY(),true);
-					positionText.setText(p.lat+" "+p.lon);
+					LatLon p = mv.getLatLon(e.getX(),e.getY());
+					positionText.setText(p.lat()+" "+p.lon());
 				}
 			}
 		});

@@ -10,7 +10,7 @@ import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Way;
 
 /**
- * Helper that collect all line segments a node is part of, all waies
+ * Helper that collect all line segments a node is part of, all ways
  * a node or line segment is part of and all areas a node is part of. 
  * 
  * Deleted objects are not collected.
@@ -36,7 +36,7 @@ public class CollectBackReferencesVisitor implements Visitor {
 	}
 	
 	public void visit(Node n) {
-		for (Way t : ds.waies) {
+		for (Way t : ds.ways) {
 			if (t.isDeleted())
 				continue;
 			for (LineSegment ls : t.segments) {
@@ -56,7 +56,7 @@ public class CollectBackReferencesVisitor implements Visitor {
 		}
 	}
 	public void visit(LineSegment ls) {
-		for (Way t : ds.waies) {
+		for (Way t : ds.ways) {
 			if (t.isDeleted())
 				continue;
 			if (t.segments.contains(ls))

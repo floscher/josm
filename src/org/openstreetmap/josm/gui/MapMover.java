@@ -7,7 +7,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
-import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.coor.EastNorth;
 
 /**
  * Enables moving of the map by holding down the right mouse button and drag
@@ -21,7 +21,7 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 	 * The point in the map that was the under the mouse point
 	 * when moving around started.
 	 */
-	private GeoPoint mousePosMove;
+	private EastNorth mousePosMove;
 	/**
 	 * The map to move around.
 	 */
@@ -50,11 +50,11 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 		if ((e.getModifiersEx() & (MouseEvent.BUTTON3_DOWN_MASK | offMask)) == MouseEvent.BUTTON3_DOWN_MASK) {
 			if (mousePosMove == null)
 				startMovement(e);
-			GeoPoint center = nc.getCenter();
-			GeoPoint mouseCenter = nc.getPoint(e.getX(), e.getY(), false);
-			GeoPoint p = new GeoPoint();
-			p.x = mousePosMove.x + center.x - mouseCenter.x;  
-			p.y = mousePosMove.y + center.y - mouseCenter.y;
+			EastNorth center = nc.getCenter();
+			EastNorth mouseCenter = nc.getEastNorth(e.getX(), e.getY());
+			EastNorth p = new EastNorth(
+					mousePosMove.east() + center.east() - mouseCenter.east(),
+					mousePosMove.north() + center.north() - mouseCenter.north());
 			nc.zoomTo(p, nc.getScale());
 		} else
 			endMovement();
@@ -85,7 +85,7 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 	 * @param e The mouse event that leat to the movement from.
 	 */
 	private void startMovement(MouseEvent e) {
-		mousePosMove = nc.getPoint(e.getX(), e.getY(), false);
+		mousePosMove = nc.getEastNorth(e.getX(), e.getY());
 		oldCursor = nc.getCursor();
 		nc.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
 	}
@@ -107,13 +107,18 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 	 * @param e The wheel event.
 	 */
 	public void mouseWheelMoved(MouseWheelEvent e) {
+		int w = nc.getWidth();
+		int h = nc.getHeight();
+
 		double zoom = Math.max(0.1, 1 + e.getWheelRotation()/5.0);
-		double zoomfactor = (zoom -1)/2+1;
-		int newHalfWidth = (int) (nc.getWidth()*zoomfactor - nc.getWidth()/2);
-		int centerx = e.getX() - (e.getX()-nc.getWidth()/2)*newHalfWidth*2/nc.getWidth();
-		int newHalfHeight = (int) (nc.getHeight()*zoomfactor - nc.getHeight()/2);
-		int centery = e.getY() - (e.getY()-nc.getHeight()/2)*newHalfHeight*2/nc.getHeight();
-		GeoPoint newCenter = nc.getPoint(centerx, centery, false); 
+		double zoomfactor = (zoom-1)/2+1;
+
+		double newHalfWidth = w*zoomfactor - w/2;
+		double newHalfHeight = h*zoomfactor - h/2;
+		double centerx = e.getX() - (e.getX()-w/2)*newHalfWidth*2/w;
+		double centery = e.getY() - (e.getY()-h/2)*newHalfHeight*2/h;
+		EastNorth newCenter = nc.getEastNorth((int)centerx, (int)centery); 
+		
 		nc.zoomTo(newCenter, nc.getScale()*zoom);
 	}
 

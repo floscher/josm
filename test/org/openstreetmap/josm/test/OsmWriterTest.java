@@ -52,8 +52,8 @@ public class OsmWriterTest extends TestCase {
 		n.id = 42;
 		reparse();
 		assertEquals(42, Long.parseLong(getAttr(osm, "node", 0, "id")));
-		assertEquals(n.coor.lat, Double.parseDouble(getAttr(osm, "node", 0, "lat")));
-		assertEquals(n.coor.lon, Double.parseDouble(getAttr(osm, "node", 0, "lon")));
+		assertEquals(n.coor.lat(), Double.parseDouble(getAttr(osm, "node", 0, "lat")));
+		assertEquals(n.coor.lon(), Double.parseDouble(getAttr(osm, "node", 0, "lon")));
 	}
 
 	@Bug(59)
@@ -124,7 +124,7 @@ public class OsmWriterTest extends TestCase {
 	 */
 	@Bug(47)
 	public void testDeleteNewDoesReallyRemove() throws Exception {
-		ds.waies.iterator().next().setDeleted(true);
+		ds.ways.iterator().next().setDeleted(true);
 		reparse();
 		//assertEquals(0, deleted.size());
 	}

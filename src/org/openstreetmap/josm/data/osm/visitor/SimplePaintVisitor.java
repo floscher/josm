@@ -83,7 +83,7 @@ public class SimplePaintVisitor implements Visitor {
 	 * @param color The color of the node.
 	 */
 	private void drawNode(Node n, Color color) {
-		Point p = nc.getScreenPoint(n.coor);
+		Point p = nc.getPoint(n.eastNorth);
 		g.setColor(color);
 		g.drawRect(p.x-1, p.y-1, 2, 2);
 	}
@@ -97,8 +97,8 @@ public class SimplePaintVisitor implements Visitor {
 		if (ls.isSelected())
 			col = Color.WHITE;
 		g.setColor(col);
-		Point p1 = nc.getScreenPoint(ls.from.coor);
-		Point p2 = nc.getScreenPoint(ls.to.coor);
+		Point p1 = nc.getPoint(ls.from.eastNorth);
+		Point p2 = nc.getPoint(ls.to.eastNorth);
 		g.drawLine(p1.x, p1.y, p2.x, p2.y);
 	}
 }

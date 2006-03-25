@@ -1,6 +1,7 @@
 package org.openstreetmap.josm.data.projection;
 
-import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.coor.LatLon;
+import org.openstreetmap.josm.data.coor.EastNorth;
 
 /**
  * Directly use latitude / longitude values as x/y.
@@ -9,14 +10,12 @@ import org.openstreetmap.josm.data.GeoPoint;
  */
 public class Epsg4263 implements Projection {
 
-	public void latlon2xy(GeoPoint p) {
-		p.x = p.lon;
-		p.y = p.lat;
+	public EastNorth latlon2eastNorth(LatLon p) {
+		return new EastNorth(p.lon(), p.lat());
 	}
 
-	public void xy2latlon(GeoPoint p) {
-		p.lat = p.y;
-		p.lon = p.x;
+	public LatLon eastNorth2latlon(EastNorth p) {
+		return new LatLon(p.north(), p.east());
 	}
 
 	@Override

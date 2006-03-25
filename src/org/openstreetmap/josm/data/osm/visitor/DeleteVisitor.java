@@ -29,6 +29,6 @@ public class DeleteVisitor implements Visitor {
 		ds.lineSegments.remove(ls);
 	}
 	public void visit(Way t) {
-		ds.waies.remove(t);
+		ds.ways.remove(t);
 	}
 }

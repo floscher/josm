@@ -10,7 +10,7 @@ import java.util.LinkedList;
 
 import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.xml.sax.SAXException;
 
@@ -44,21 +44,21 @@ public class OsmServerReader extends OsmConnection {
 	 * Retrieve raw gps waypoints from the server API.
 	 * @return A list of all primitives retrieved. Currently, the list of lists
 	 * 		contain only one list, since the server cannot distinguish between
-	 * 		waies.
+	 * 		ways.
 	 */
-	public Collection<Collection<GeoPoint>> parseRawGps() throws IOException, JDOMException {
+	public Collection<Collection<LatLon>> parseRawGps() throws IOException, JDOMException {
 		String url = Main.pref.osmDataServer+"/0.3/trackpoints?bbox="+lon1+","+lat1+","+lon2+","+lat2+"&page=";
-		Collection<Collection<GeoPoint>> data = new LinkedList<Collection<GeoPoint>>();
-		Collection<GeoPoint> list = new LinkedList<GeoPoint>();
+		Collection<Collection<LatLon>> data = new LinkedList<Collection<LatLon>>();
+		Collection<LatLon> list = new LinkedList<LatLon>();
 		
 		for (int i = 0;;++i) {
 			Reader r = getReader(url+i);
 			if (r == null)
 				break;
 			RawGpsReader gpsReader = new RawGpsReader(r);
-			Collection<Collection<GeoPoint>> allWays = gpsReader.parse();
+			Collection<Collection<LatLon>> allWays = gpsReader.parse();
 			boolean foundSomething = false;
-			for (Collection<GeoPoint> t : allWays) {
+			for (Collection<LatLon> t : allWays) {
 				if (!t.isEmpty()) {
 					foundSomething = true;
 					list.addAll(t);
@@ -100,6 +100,7 @@ public class OsmServerReader extends OsmConnection {
 		URL url = new URL(urlStr);
 		HttpURLConnection con = (HttpURLConnection)url.openConnection();
 		con.setConnectTimeout(20000);
+		System.out.println("response: "+con.getResponseCode());
 		if (con.getResponseCode() == 401 && isCancelled())
 			return null;
 		return new InputStreamReader(con.getInputStream());

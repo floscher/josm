@@ -57,7 +57,7 @@ public class MergeVisitor implements Visitor {
 			mergeCommon(myNode, otherNode);
 			if (myNode.modified && !otherNode.modified)
 				return;
-			if (!myNode.coor.equalsLatLonEpsilon(otherNode.coor)) {
+			if (!myNode.coor.equalsEpsilon(otherNode.coor)) {
 				myNode.coor = otherNode.coor;
 				myNode.modified = otherNode.modified;
 			}
@@ -103,14 +103,14 @@ public class MergeVisitor implements Visitor {
 	 */
 	public void visit(Way otherWay) {
 		Way myWay = null;
-		for (Way t : ds.waies) {
+		for (Way t : ds.ways) {
 			if (match(otherWay, t)) {
 				myWay = t;
 				break;
 			}
 		}
 		if (myWay == null)
-			ds.waies.add(otherWay);
+			ds.ways.add(otherWay);
 		else {
 			mergeCommon(myWay, otherWay);
 			if (myWay.modified && !otherWay.modified)
@@ -140,7 +140,7 @@ public class MergeVisitor implements Visitor {
 			if (mergedNodes.containsKey(ls.to))
 				ls.to = mergedNodes.get(ls.to);
 		}
-		for (Way t : ds.waies) {
+		for (Way t : ds.ways) {
 			boolean replacedSomething = false;
 			LinkedList<LineSegment> newSegments = new LinkedList<LineSegment>();
 			for (LineSegment ls : t.segments) {
@@ -167,7 +167,7 @@ public class MergeVisitor implements Visitor {
 	 */
 	private boolean match(Node n1, Node n2) {
 		if (n1.id == 0 || n2.id == 0)
-			return n1.coor.equalsLatLonEpsilon(n2.coor);
+			return n1.coor.equalsEpsilon(n2.coor);
 		return n1.id == n2.id;
 	}
 	
@@ -183,7 +183,7 @@ public class MergeVisitor implements Visitor {
 	}
 
 	/**
-	 * @return Whether the waies matches (in sense of "be mergable").
+	 * @return Whether the ways matches (in sense of "be mergable").
 	 */
 	private boolean match(Way t1, Way t2) {
 		if (t1.id == 0 || t2.id == 0) {

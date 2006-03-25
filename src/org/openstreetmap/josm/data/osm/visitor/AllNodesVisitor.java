@@ -48,9 +48,10 @@ public class AllNodesVisitor implements Visitor {
 	/**
 	 * @return All nodes the given primitive has.
 	 */
-	public static Collection<Node> getAllNodes(OsmPrimitive osm) {
+	public static Collection<Node> getAllNodes(Collection<? extends OsmPrimitive> osms) {
 		AllNodesVisitor v = new AllNodesVisitor();
-		osm.visit(v);
+		for (OsmPrimitive osm : osms)
+			osm.visit(v);
 		return v.nodes;
 	}
 }

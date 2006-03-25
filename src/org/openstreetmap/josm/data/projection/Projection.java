@@ -1,6 +1,7 @@
 package org.openstreetmap.josm.data.projection;
 
-import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.coor.LatLon;
+import org.openstreetmap.josm.data.coor.EastNorth;
 
 /**
  * Classes subclass this are able to convert lat/lon values to 
@@ -19,14 +20,14 @@ public interface Projection {
 	 * 
 	 * @param p		The geo point to convert. x/y members of the point are filled.
 	 */
-	void latlon2xy(GeoPoint p);
+	EastNorth latlon2eastNorth(LatLon p);
 	
 	/**
 	 * Convert from norting/easting to lat/lon.
 	 * 
 	 * @param p		The geo point to convert. lat/lon members of the point are filled.
 	 */
-	void xy2latlon(GeoPoint p);
+	LatLon eastNorth2latlon(EastNorth p);
 
 	/**
 	 * Describe the projection converter in one or two words.

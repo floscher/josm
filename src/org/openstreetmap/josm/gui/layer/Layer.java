@@ -4,7 +4,7 @@ import java.awt.Graphics;
 
 import javax.swing.Icon;
 
-import org.openstreetmap.josm.data.Bounds;
+import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.MapView;
 
@@ -74,17 +74,10 @@ abstract public class Layer {
 	
 	/**
 	 * @return The bounding rectangle this layer occupies on screen when looking
-	 * 		at lat/lon values or <code>null</code>, if infinite area or unknown
-	 * 		area is occupied.
-	 */
-	abstract public Bounds getBoundsLatLon();
-	
-	/**
-	 * @return The bounding rectangle this layer occupies on screen when looking
 	 * 		at x/y values or <code>null</code>, if infinite area or unknown
 	 * 		area is occupied.
 	 */
-	abstract public Bounds getBoundsXY();
+	abstract public void visitBoundingBox(BoundingXYVisitor v);
 
 	/**
 	 * Initialize the internal dataset with the given projection.

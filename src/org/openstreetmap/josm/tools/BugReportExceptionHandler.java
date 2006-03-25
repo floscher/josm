@@ -1,4 +1,4 @@
-package org.openstreetmap.josm.gui;
+package org.openstreetmap.josm.tools;
 
 import java.awt.GridBagLayout;
 import java.io.BufferedReader;

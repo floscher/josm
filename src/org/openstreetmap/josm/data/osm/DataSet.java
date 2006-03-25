@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.SelectionTracker;
 
 /**
@@ -20,7 +19,7 @@ import org.openstreetmap.josm.data.SelectionTracker;
 public class DataSet extends SelectionTracker {
 
 	/**
-	 * All nodes goes here, even when included in other data (waies etc).
+	 * All nodes goes here, even when included in other data (ways etc).
 	 * This enables the instant conversion of the whole DataSet by iterating over
 	 * this data structure.
 	 */
@@ -32,13 +31,13 @@ public class DataSet extends SelectionTracker {
 	public Collection<LineSegment> lineSegments = new LinkedList<LineSegment>();
 
 	/**
-	 * All waies (Streets etc.) in the DataSet. 
+	 * All ways (Streets etc.) in the DataSet. 
 	 * 
 	 * The nodes of the way segments of this way must be objects from 
 	 * the nodes list, however the way segments are stored only in the 
 	 * way list.
 	 */
-	public Collection<Way> waies = new LinkedList<Way>();
+	public Collection<Way> ways = new LinkedList<Way>();
 
 	/**
 	 * @return A collection containing all primitives (except keys) of the
@@ -48,7 +47,7 @@ public class DataSet extends SelectionTracker {
 		Collection<OsmPrimitive> o = new LinkedList<OsmPrimitive>();
 		o.addAll(nodes);
 		o.addAll(lineSegments);
-		o.addAll(waies);
+		o.addAll(ways);
 		return o;
 	}
 
@@ -62,69 +61,6 @@ public class DataSet extends SelectionTracker {
 				o.add(osm);
 		return o;
 	}
-	
-	/**
-	 * Return the bounds of this DataSet, depending on X/Y values.
-	 * The min of the return value is the upper left GeoPoint, the max the lower
-	 * down GeoPoint, regarding to the X/Y values.
-	 * 
-	 * Return null, if any point not converted yet or if there are no points at all.
-	 * 
-	 * @return Bounding coordinate structure.
-	 */
-	public Bounds getBoundsXY() {
-		if (nodes.isEmpty())
-			return null;
-
-		Node first = nodes.iterator().next();
-		Bounds b = new Bounds(first.coor.clone(), first.coor.clone());
-		for (Node w : nodes)
-		{
-			if (Double.isNaN(w.coor.x) || Double.isNaN(w.coor.y))
-				return null;
-			if (w.coor.x < b.min.x)
-				b.min.x = w.coor.x;
-			if (w.coor.y < b.min.y)
-				b.min.y = w.coor.y;
-			if (w.coor.x > b.max.x)
-				b.max.x = w.coor.x;
-			if (w.coor.y > b.max.y)
-				b.max.y = w.coor.y;
-		}
-		return b;
-	}
-
-	/**
-	 * Return the bounds of this DataSet, depending on lat/lon values.
-	 * The min of the return value is the upper left GeoPoint, the max the lower
-	 * down GeoPoint.
-	 * 
-	 * Return null, if any point does not have lat/lon or if there are no 
-	 * points at all.
-	 * 
-	 * @return Bounding coordinate structure.
-	 */
-	public Bounds getBoundsLatLon() {
-		if (nodes.isEmpty())
-			return null;
-
-		Node first = nodes.iterator().next();
-		Bounds b = new Bounds(first.coor.clone(), first.coor.clone());
-		for (Node w : nodes)
-		{
-			if (Double.isNaN(w.coor.lat) || Double.isNaN(w.coor.lon))
-				return null;
-			if (w.coor.lat < b.min.lat)
-				b.min.lat = w.coor.lat;
-			if (w.coor.lon < b.min.lon)
-				b.min.lon = w.coor.lon;
-			if (w.coor.lat > b.max.lat)
-				b.max.lat = w.coor.lat;
-			if (w.coor.lon > b.max.lon)
-				b.max.lon = w.coor.lon;
-		}
-		return b;
-	}
 
 	/**
 	 * Remove the selection of the whole dataset.
@@ -132,7 +68,7 @@ public class DataSet extends SelectionTracker {
 	public void clearSelection() {
 		clearSelection(nodes);
 		clearSelection(lineSegments);
-		clearSelection(waies);
+		clearSelection(ways);
 	}
 
 	/**
@@ -143,7 +79,7 @@ public class DataSet extends SelectionTracker {
 	public Collection<OsmPrimitive> getSelected() {
 		Collection<OsmPrimitive> sel = getSelected(nodes);
 		sel.addAll(getSelected(lineSegments));
-		sel.addAll(getSelected(waies));
+		sel.addAll(getSelected(ways));
 		return sel;
 	}
 

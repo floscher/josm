@@ -17,8 +17,9 @@ import javax.swing.event.ChangeListener;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.Bounds;
-import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
@@ -175,8 +176,8 @@ public class MapView extends NavigatableComponent implements ChangeListener, Pro
 		// draw world borders
 		g.setColor(Color.WHITE);
 		Bounds b = new Bounds();
-		Point min = getScreenPoint(b.min);
-		Point max = getScreenPoint(b.max);
+		Point min = getPoint(getProjection().latlon2eastNorth(b.min));
+		Point max = getPoint(getProjection().latlon2eastNorth(b.max));
 		int x1 = Math.min(min.x, max.x);
 		int y1 = Math.min(min.y, max.y);
 		int x2 = Math.max(min.x, max.x);
@@ -216,35 +217,27 @@ public class MapView extends NavigatableComponent implements ChangeListener, Pro
 			if (h < 20)
 				h = 20;
 
-			Bounds bounds = null;
-			for (Layer l : layers) {
-				if (bounds == null)
-					bounds = l.getBoundsXY();
-				else {
-					Bounds lb = l.getBoundsXY();
-					if (lb != null)
-						bounds = bounds.mergeXY(lb);
-				}
-			}
+			BoundingXYVisitor v = new BoundingXYVisitor();
+			for (Layer l : layers)
+				l.visitBoundingBox(v);
 
 			boolean oldAutoScale = autoScale;
-			GeoPoint oldCenter = center;
+			EastNorth oldCenter = center;
 			double oldScale = this.scale;
 			
-			if (bounds == null) {
+			if (v.min == null || v.max == null) {
 				// no bounds means standard scale and center 
-				center = new GeoPoint(51.526447, -0.14746371);
-				getProjection().latlon2xy(center);
+				center = new EastNorth(51.526447, -0.14746371);
 				scale = 10;
 			} else {
-				center = bounds.centerXY();
-				getProjection().xy2latlon(center);
-				double scaleX = (bounds.max.x-bounds.min.x)/w;
-				double scaleY = (bounds.max.y-bounds.min.y)/h;
+				center = new EastNorth(v.min.east()/2+v.max.east()/2, v.min.north()/2+v.max.north()/2);
+				double scaleX = (v.max.east()-v.min.east())/w;
+				double scaleY = (v.max.north()-v.min.north())/h;
 				scale = Math.max(scaleX, scaleY); // minimum scale to see all of the screen
 			}
 	
-			firePropertyChange("center", oldCenter, center);
+			if (!center.equals(oldCenter))
+				firePropertyChange("center", oldCenter, center);
 			if (oldAutoScale != autoScale)
 				firePropertyChange("autoScale", oldAutoScale, autoScale);
 			if (oldScale != scale)
@@ -317,9 +310,9 @@ public class MapView extends NavigatableComponent implements ChangeListener, Pro
 	 * feature.
 	 */
 	@Override
-	public void zoomTo(GeoPoint newCenter, double scale) {
+	public void zoomTo(EastNorth newCenter, double scale) {
 		boolean oldAutoScale = autoScale;
-		GeoPoint oldCenter = center;
+		EastNorth oldCenter = center;
 		double oldScale = this.scale;
 		autoScale = false;
 
@@ -327,7 +320,8 @@ public class MapView extends NavigatableComponent implements ChangeListener, Pro
 		
 		recalculateCenterScale();
 		
-		firePropertyChange("center", oldCenter, center);
+		if (!oldCenter.equals(center))
+			firePropertyChange("center", oldCenter, center);
 		if (oldAutoScale != autoScale)
 			firePropertyChange("autoScale", oldAutoScale, autoScale);
 		if (oldScale != scale)

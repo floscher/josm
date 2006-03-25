@@ -1,0 +1,23 @@
+package org.openstreetmap.josm.data.coor;
+
+/**
+ * Northern, Easting of the projected coordinates.
+ * 
+ * This class is immutable.
+ * 
+ * @author Imi
+ */
+public class EastNorth extends Coordinate {
+
+	public EastNorth(double east, double north) {
+		super(east,north);
+	}
+	
+	public double east() {
+		return x;
+	}
+
+	public double north() {
+		return y;
+	}
+}

@@ -30,7 +30,7 @@ public class GpxWriterTest extends TestCase {
 	 */
 	@Bug(47)
 	public void testDeleteNewDoesReallyRemove() throws JDOMException, IOException {
-		ds.waies.iterator().next().setDeleted(true);
+		ds.ways.iterator().next().setDeleted(true);
 		root = reparse();
 		assertEquals("way has vanished and 3 trk (segments) left", 3, root.getChildren("trk", GPX).size());
 	}
@@ -55,7 +55,7 @@ public class GpxWriterTest extends TestCase {
 		}
 		assertNotNull("way not found in GPX file", realWay);
 		
-		// the second point of the first segment of the waies has an id
+		// the second point of the first segment of the ways has an id
 		Element trkseg = (Element)realWay.getChildren("trkseg", GPX).get(0);
 		Element trkpt = (Element)trkseg.getChildren("trkpt", GPX).get(1);
 		assertEquals("waypoint used twice but has no extensions at all", 1, trkpt.getChildren("extensions", GPX).size());

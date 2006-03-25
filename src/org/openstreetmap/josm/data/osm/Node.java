@@ -1,6 +1,8 @@
 package org.openstreetmap.josm.data.osm;
 
-import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.data.coor.LatLon;
+import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
 
 
@@ -11,13 +13,12 @@ import org.openstreetmap.josm.data.osm.visitor.Visitor;
  */
 public class Node extends OsmPrimitive {
 	
-	/**
-	 * The coordinates of this node.
-	 */
-	public GeoPoint coor;
+	public LatLon coor;
+	public EastNorth eastNorth;
 
-	public Node(GeoPoint coor) {
-		this.coor = coor;
+	public Node(LatLon latlon) {
+		this.coor = latlon;
+		eastNorth = Main.pref.getProjection().latlon2eastNorth(latlon);
 	}
 
 	@Override
@@ -27,13 +28,13 @@ public class Node extends OsmPrimitive {
 	
 	@Override
 	public String toString() {
-		return "{Node id="+id+",lat="+coor.lat+",lon="+coor.lon+"}";
+		return "{Node id="+id+",lat="+coor.lat()+",lon="+coor.lon()+"}";
 	}
 
 	@Override
 	public void cloneFrom(OsmPrimitive osm) {
 		super.cloneFrom(osm);
-		GeoPoint g = ((Node)osm).coor;
-		coor = new GeoPoint(g.lat, g.lon, g.x, g.y); //TODO: Make GeoPoint immutable!
+		coor = ((Node)osm).coor;
+		eastNorth = ((Node)osm).eastNorth;
 	}
 }

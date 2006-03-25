@@ -7,7 +7,8 @@ import java.util.HashSet;
 import javax.swing.JComponent;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.coor.LatLon;
+import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -31,7 +32,7 @@ public class NavigatableComponent extends JComponent {
 	/**
 	 * Center n/e coordinate of the desired screen center.
 	 */
-	protected GeoPoint center;
+	protected EastNorth center;
 
 	/**
 	 * Return the current scale value.
@@ -45,52 +46,46 @@ public class NavigatableComponent extends JComponent {
 	 * @return Returns the center point. A copy is returned, so users cannot
 	 * 		change the center by accessing the return value. Use zoomTo instead.
 	 */
-	public GeoPoint getCenter() {
-		return center.clone();
+	public EastNorth getCenter() {
+		return center;
 	}
 
 	/**
-	 * Get geographic coordinates from a specific pixel coordination
-	 * on the screen.
-	 * 
-	 * If you don't need it, provide false at third parameter to speed
-	 * up the calculation.
-	 *  
 	 * @param x X-Pixelposition to get coordinate from
 	 * @param y Y-Pixelposition to get coordinate from
-	 * @param latlon If set, the return value will also have the 
-	 * 				 latitude/longitude filled.
 	 * 
-	 * @return The geographic coordinate, filled with x/y (northing/easting)
-	 * 		settings and, if requested with latitude/longitude.
+	 * @return Geographic coordinates from a specific pixel coordination
+	 * 		on the screen.
 	 */
-	public GeoPoint getPoint(int x, int y, boolean latlon) {
-		GeoPoint p = new GeoPoint();
-		p.x = center.x + (x - getWidth()/2.0)*scale;
-		p.y = center.y - (y - getHeight()/2.0)*scale;
-		if (latlon)
-			getProjection().xy2latlon(p);
-		return p;
+	public EastNorth getEastNorth(int x, int y) {
+		return new EastNorth(
+				center.east() + (x - getWidth()/2.0)*scale,
+				center.north() - (y - getHeight()/2.0)*scale);
 	}
 
 	/**
-	 * Return the point on the screen where this GeoPoint would be.
+	 * @param x X-Pixelposition to get coordinate from
+	 * @param y Y-Pixelposition to get coordinate from
+	 * 
+	 * @return Geographic unprojected coordinates from a specific pixel coordination
+	 * 		on the screen.
+	 */
+	public LatLon getLatLon(int x, int y) {
+		EastNorth eastNorth = new EastNorth(
+				center.east() + (x - getWidth()/2.0)*scale,
+				center.north() - (y - getHeight()/2.0)*scale);
+		return Main.pref.getProjection().eastNorth2latlon(eastNorth);
+	}
+
+	/**
+	 * Return the point on the screen where this Coordinate would be.
 	 * @param point The point, where this geopoint would be drawn.
 	 * @return The point on screen where "point" would be drawn, relative
 	 * 		to the own top/left.
 	 */
-	public Point getScreenPoint(GeoPoint point) {
-		GeoPoint p;
-		if (!Double.isNaN(point.x) && !Double.isNaN(point.y))
-			p = point;
-		else {
-			if (Double.isNaN(point.lat) || Double.isNaN(point.lon))
-				throw new IllegalArgumentException("point: Either lat/lon or x/y must be set.");
-			p = point.clone();
-			getProjection().latlon2xy(p);
-		}
-		double x = (p.x-center.x)/scale + getWidth()/2;
-		double y = (center.y-p.y)/scale + getHeight()/2;
+	public Point getPoint(EastNorth p) {
+		double x = (p.east()-center.east())/scale + getWidth()/2;
+		double y = (center.north()-p.north())/scale + getHeight()/2;
 		return new Point((int)x,(int)y);
 	}
 
@@ -100,9 +95,9 @@ public class NavigatableComponent extends JComponent {
 	 * @param centerY The center y-value (northing) to zoom to.
 	 * @param scale The scale to use.
 	 */
-	public void zoomTo(GeoPoint newCenter, double scale) {
-		center = newCenter.clone();
-		getProjection().xy2latlon(center);
+	public void zoomTo(EastNorth newCenter, double scale) {
+		center = newCenter;
+		getProjection().eastNorth2latlon(center);
 		this.scale = scale;
 		repaint();
 	}
@@ -126,11 +121,11 @@ public class NavigatableComponent extends JComponent {
 	 * If no area is found, return <code>null</code>.
 	 * 
 	 * @param p				 The point on screen.
-	 * @param lsInsteadWay Whether the line segment (true) or only the whole
+	 * @param segmentInsteadWay Whether the line segment (true) or only the whole
 	 * 					 	 way should be returned.
 	 * @return	The primitive, that is nearest to the point p.
 	 */
-	public OsmPrimitive getNearest(Point p, boolean lsInsteadWay) {
+	public OsmPrimitive getNearest(Point p, boolean segmentInsteadWay) {
 		double minDistanceSq = Double.MAX_VALUE;
 		OsmPrimitive minPrimitive = null;
 	
@@ -138,7 +133,7 @@ public class NavigatableComponent extends JComponent {
 		for (Node n : Main.main.ds.nodes) {
 			if (n.isDeleted())
 				continue;
-			Point sp = getScreenPoint(n.coor);
+			Point sp = getPoint(n.eastNorth);
 			double dist = p.distanceSq(sp);
 			if (minDistanceSq > dist && dist < 100) {
 				minDistanceSq = p.distanceSq(sp);
@@ -150,15 +145,15 @@ public class NavigatableComponent extends JComponent {
 		
 		// for whole ways, try the ways first
 		minDistanceSq = Double.MAX_VALUE;
-		if (!lsInsteadWay) {
-			for (Way w : Main.main.ds.waies) {
+		if (!segmentInsteadWay) {
+			for (Way w : Main.main.ds.ways) {
 				if (w.isDeleted())
 					continue;
 				for (LineSegment ls : w.segments) {
 					if (ls.isDeleted() || ls.incomplete)
 						continue;
-					Point A = getScreenPoint(ls.from.coor);
-					Point B = getScreenPoint(ls.to.coor);
+					Point A = getPoint(ls.from.eastNorth);
+					Point B = getPoint(ls.to.eastNorth);
 					double c = A.distanceSq(B);
 					double a = p.distanceSq(B);
 					double b = p.distanceSq(A);
@@ -178,8 +173,8 @@ public class NavigatableComponent extends JComponent {
 		for (LineSegment ls : Main.main.ds.lineSegments) {
 			if (ls.isDeleted() || ls.incomplete)
 				continue;
-			Point A = getScreenPoint(ls.from.coor);
-			Point B = getScreenPoint(ls.to.coor);
+			Point A = getPoint(ls.from.eastNorth);
+			Point B = getPoint(ls.to.eastNorth);
 			double c = A.distanceSq(B);
 			double a = p.distanceSq(B);
 			double b = p.distanceSq(A);
@@ -200,12 +195,12 @@ public class NavigatableComponent extends JComponent {
 	 * 
 	 * If its a node, return all line segments and
 	 * streets the node is part of, as well as all nodes
-	 * (with their line segments and waies) with the same
+	 * (with their line segments and ways) with the same
 	 * location.
 	 * 
-	 * If its a line segment, return all waies this segment 
+	 * If its a line segment, return all ways this segment 
 	 * belongs to as well as all line segments that are between
-	 * the same nodes (in both direction) with all their waies.
+	 * the same nodes (in both direction) with all their ways.
 	 * 
 	 * @return A collection of all items or <code>null</code>
 	 * 		if no item under or near the point. The returned
@@ -220,7 +215,7 @@ public class NavigatableComponent extends JComponent {
 		if (osm instanceof Node) {
 			Node node = (Node)osm;
 			for (Node n : Main.main.ds.nodes)
-				if (!n.isDeleted() && n.coor.equalsLatLon(node.coor))
+				if (!n.isDeleted() && n.coor.equals(node.coor))
 					c.add(n);
 			for (LineSegment ls : Main.main.ds.lineSegments)
 				// line segments never match nodes, so they are skipped by contains
@@ -234,7 +229,7 @@ public class NavigatableComponent extends JComponent {
 					c.add(ls);
 		}
 		if (osm instanceof Node || osm instanceof LineSegment) {
-			for (Way t : Main.main.ds.waies) {
+			for (Way t : Main.main.ds.ways) {
 				if (t.isDeleted())
 					continue;
 				for (LineSegment ls : t.segments) {

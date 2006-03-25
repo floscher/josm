@@ -3,7 +3,7 @@ package org.openstreetmap.josm.actions.mapmode;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 
-import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.SelectionManager;
@@ -51,7 +51,7 @@ public class ZoomAction extends MapMode implements SelectionEnded {
 	public void selectionEnded(Rectangle r, boolean alt, boolean shift, boolean ctrl) {
 		if (r.width >= 3 && r.height >= 3) {
 			double scale = mv.getScale() * r.getWidth()/mv.getWidth();
-			GeoPoint newCenter = mv.getPoint(r.x+r.width/2, r.y+r.height/2, false);
+			EastNorth newCenter = mv.getEastNorth(r.x+r.width/2, r.y+r.height/2);
 			mv.zoomTo(newCenter, scale);
 		}
 	}

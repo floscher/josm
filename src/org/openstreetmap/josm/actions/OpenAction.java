@@ -15,7 +15,7 @@ import javax.swing.KeyStroke;
 
 import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.layer.Layer;
@@ -70,11 +70,11 @@ public class OpenAction extends JosmAction {
 			Layer layer;
 
 			if (asRawData(fn)) {
-				Collection<Collection<GeoPoint>> data;
+				Collection<Collection<LatLon>> data;
 				if (ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn)) {
 					data = new RawGpsReader(new FileReader(filename)).parse();
 				} else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
-					data = new LinkedList<Collection<GeoPoint>>();
+					data = new LinkedList<Collection<LatLon>>();
 					data.add(new RawCsvReader(new FileReader(filename)).parse());
 				} else
 					throw new IllegalStateException();

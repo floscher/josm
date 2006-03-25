@@ -2,7 +2,7 @@ package org.openstreetmap.josm.test.framework;
 
 import java.util.Arrays;
 
-import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
@@ -41,7 +41,7 @@ public class DataSetTestCaseHelper {
 	public static Way createWay(DataSet ds, LineSegment... lineSegments) {
 		Way t = new Way();
 		t.segments.addAll(Arrays.asList(lineSegments));
-		ds.waies.add(t);
+		ds.ways.add(t);
 		return t;
 	}
 	
@@ -58,7 +58,7 @@ public class DataSetTestCaseHelper {
 	 * Add a random node.
 	 */
 	public static Node createNode(DataSet ds) {
-		Node node = new Node(new GeoPoint(Math.random(), Math.random()));
+		Node node = new Node(new LatLon(Math.random(), Math.random()));
 		ds.nodes.add(node);
 		return node;
 	}

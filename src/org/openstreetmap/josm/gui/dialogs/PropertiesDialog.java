@@ -38,9 +38,9 @@ import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.ChangeKeyValueCommand;
 import org.openstreetmap.josm.data.SelectionChangedListener;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
+import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * This dialog displays the properties of the current selected primitives.
@@ -274,7 +274,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		b.setActionCommand(name);
 		b.addActionListener(actionListener);
 		b.setToolTipText(tooltip);
-		//b.setMnemonic(mnemonic); TODO disabled until mapmodes have no Alt in their hotkey.
+		b.setMnemonic(mnemonic);
 		return b;
 	}
 
