@@ -10,7 +10,7 @@ import java.util.StringTokenizer;
 
 import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.coor.LatLon;
 
 /**
  * Read raw information from a csv style file (as defined in the preferences).
@@ -27,8 +27,8 @@ public class RawCsvReader {
 		this.in = new BufferedReader(in);
 	}
 	
-	public Collection<GeoPoint> parse() throws JDOMException, IOException {
-		Collection<GeoPoint> data = new LinkedList<GeoPoint>();
+	public Collection<LatLon> parse() throws JDOMException, IOException {
+		Collection<LatLon> data = new LinkedList<LatLon>();
 		String formatStr = Main.pref.csvImportString;
 		if (formatStr == null)
 			formatStr = in.readLine();
@@ -61,18 +61,18 @@ public class RawCsvReader {
 			for (String line = in.readLine(); line != null; line = in.readLine()) {
 				lineNo++;
 				StringTokenizer st = new StringTokenizer(line, delim);
-				GeoPoint p = new GeoPoint();
+				double lat = 0, lon = 0;
 				for (String token : format) {
 					if (token.equals("lat"))
-						p.lat = Double.parseDouble(st.nextToken());
+						lat = Double.parseDouble(st.nextToken());
 					else if (token.equals("lon"))
-						p.lon = Double.parseDouble(st.nextToken());
+						lon = Double.parseDouble(st.nextToken());
 					else if (token.equals("ignore"))
 						st.nextToken();
 					else
 						throw new JDOMException("Unknown data type: '"+token+"'."+(Main.pref.csvImportString == null ? " Maybe add an format string in preferences." : ""));
 				}
-				data.add(p);
+				data.add(new LatLon(lat, lon));
 			}
 		} catch (RuntimeException e) {
 			throw new JDOMException("Parsing error in line "+lineNo, e);

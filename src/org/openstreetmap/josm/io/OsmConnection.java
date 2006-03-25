@@ -13,7 +13,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.gui.GBC;
+import org.openstreetmap.josm.tools.GBC;
 
 /**
  * Base class that handles common things like authentication for the reader and writer

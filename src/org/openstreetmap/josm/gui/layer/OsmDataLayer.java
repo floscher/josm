@@ -14,18 +14,17 @@ import javax.swing.Icon;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.Command;
-import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Way;
-import org.openstreetmap.josm.data.osm.visitor.BoundingVisitor;
+import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.data.osm.visitor.MergeVisitor;
 import org.openstreetmap.josm.data.osm.visitor.SimplePaintVisitor;
 import org.openstreetmap.josm.data.projection.Projection;
-import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.MapView;
+import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * A layer holding data from a specific dataset.
@@ -85,7 +84,7 @@ public class OsmDataLayer extends Layer {
 			public void propertyChange(PropertyChangeEvent evt) {
 				if (evt.getPropertyName().equals("projection"))
 					for (Node n : OsmDataLayer.this.data.nodes)
-						((Projection)evt.getNewValue()).latlon2xy(n.coor);
+						((Projection)evt.getNewValue()).latlon2eastNorth(n.coor);
 			}
 		});
 	}
@@ -112,7 +111,7 @@ public class OsmDataLayer extends Layer {
 		for (OsmPrimitive osm : data.lineSegments)
 			if (!osm.isDeleted())
 				osm.visit(visitor);
-		for (OsmPrimitive osm : data.waies)
+		for (OsmPrimitive osm : data.ways)
 			if (!osm.isDeleted())
 				osm.visit(visitor);
 		for (OsmPrimitive osm : data.nodes)
@@ -127,7 +126,7 @@ public class OsmDataLayer extends Layer {
 	public String getToolTipText() {
 		return undeletedSize(data.nodes)+" nodes, "+
 			undeletedSize(data.lineSegments)+" segments, "+
-			undeletedSize(data.waies)+" streets.";
+			undeletedSize(data.ways)+" streets.";
 	}
 
 	@Override
@@ -144,25 +143,15 @@ public class OsmDataLayer extends Layer {
 	}
 
 	@Override
-	public Bounds getBoundsLatLon() {
-		BoundingVisitor b = new BoundingVisitor(BoundingVisitor.Type.LATLON);
+	public void visitBoundingBox(BoundingXYVisitor v) {
 		for (Node n : data.nodes)
-			b.visit(n);
-		return b.bounds != null ? b.bounds : new Bounds();
-	}
-
-	@Override
-	public Bounds getBoundsXY() {
-		BoundingVisitor b = new BoundingVisitor(BoundingVisitor.Type.XY);
-		for (Node n : data.nodes)
-			b.visit(n);
-		return b.bounds != null ? b.bounds : new Bounds();
+			v.visit(n);
 	}
 
 	@Override
 	public void init(Projection projection) {
 		for (Node n : data.nodes)
-			projection.latlon2xy(n.coor);
+			projection.latlon2eastNorth(n.coor);
 	}
 
 	/**
@@ -237,7 +226,7 @@ public class OsmDataLayer extends Layer {
 				cleanIterator(it, processedSet);
 			for (Iterator<LineSegment> it = data.lineSegments.iterator(); it.hasNext();)
 				cleanIterator(it, processedSet);
-			for (Iterator<Way> it = data.waies.iterator(); it.hasNext();)
+			for (Iterator<Way> it = data.ways.iterator(); it.hasNext();)
 				cleanIterator(it, processedSet);
 		}
 

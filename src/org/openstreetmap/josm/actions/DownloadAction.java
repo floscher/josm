@@ -30,11 +30,10 @@ import javax.swing.event.ListSelectionListener;
 import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.Bounds;
-import org.openstreetmap.josm.data.GeoPoint;
 import org.openstreetmap.josm.data.Preferences.PreferencesException;
+import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.gui.BookmarkList;
-import org.openstreetmap.josm.gui.GBC;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.WorldChooser;
@@ -43,6 +42,7 @@ import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.RawGpsDataLayer;
 import org.openstreetmap.josm.io.OsmServerReader;
+import org.openstreetmap.josm.tools.GBC;
 import org.xml.sax.SAXException;
 
 /**
@@ -113,8 +113,8 @@ public class DownloadAction extends JosmAction {
 		if (Main.main.getMapFrame() != null) {
 			MapView mv = Main.main.getMapFrame().mapView;
 			setEditBounds(new Bounds(
-					mv.getPoint(0, mv.getHeight(), true),
-					mv.getPoint(mv.getWidth(), 0, true)));
+					mv.getLatLon(0, mv.getHeight()),
+					mv.getLatLon(mv.getWidth(), 0)));
 			rawGps.setSelected(mv.getActiveLayer() instanceof RawGpsDataLayer);
 		}
 		dlg.add(rawGps, GBC.eop());
@@ -167,8 +167,8 @@ public class DownloadAction extends JosmAction {
 						try {
 							double size = 180.0 / Math.pow(2, map.get("zoom"));
 							Bounds b = new Bounds(
-									new GeoPoint(map.get("lat") - size/2, map.get("lon") - size), 
-									new GeoPoint(map.get("lat") + size/2, map.get("lon") + size));
+									new LatLon(map.get("lat") - size/2, map.get("lon") - size),
+									new LatLon(map.get("lat") + size/2, map.get("lon") + size));
 							setEditBounds(b);
 						} catch (Exception x) { // NPE or IAE
 							for (JTextField f : latlon)
@@ -309,16 +309,16 @@ public class DownloadAction extends JosmAction {
 	 * Set the four edit fields to the given bounds coordinates.
 	 */
 	private void setEditBounds(Bounds b) {
-		GeoPoint bottomLeft = b.min;
-		GeoPoint topRight = b.max;
+		LatLon bottomLeft = b.min;
+		LatLon topRight = b.max;
 		if (bottomLeft.isOutSideWorld())
-			bottomLeft = new GeoPoint(-89.999, -179.999); // do not use the Projection constants, since this looks better.
+			bottomLeft = new LatLon(-89.999, -179.999); // do not use the Projection constants, since this looks better.
 		if (topRight.isOutSideWorld())
-			topRight = new GeoPoint(89.999, 179.999);
-		latlon[0].setText(""+bottomLeft.lat);
-		latlon[1].setText(""+bottomLeft.lon);
-		latlon[2].setText(""+topRight.lat);
-		latlon[3].setText(""+topRight.lon);
+			topRight = new LatLon(89.999, 179.999);
+		latlon[0].setText(""+bottomLeft.lat());
+		latlon[1].setText(""+bottomLeft.lon());
+		latlon[2].setText(""+topRight.lat());
+		latlon[3].setText(""+topRight.lon());
 		for (JTextField f : latlon)
 			f.setCaretPosition(0);
 	}

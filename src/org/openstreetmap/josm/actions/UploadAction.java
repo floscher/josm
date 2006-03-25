@@ -18,9 +18,9 @@ import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.Preferences.PreferencesException;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.gui.GBC;
 import org.openstreetmap.josm.gui.OsmPrimitivRenderer;
 import org.openstreetmap.josm.io.OsmServerWriter;
+import org.openstreetmap.josm.tools.GBC;
 
 /**
  * Action that opens a connection to the osm server and upload all changes.

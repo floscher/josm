@@ -6,15 +6,17 @@ import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
+import java.util.LinkedList;
 
 import javax.swing.Icon;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.Bounds;
-import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.coor.LatLon;
+import org.openstreetmap.josm.data.coor.EastNorth;
+import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.data.projection.Projection;
-import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.MapView;
+import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * A layer holding data from a gps source.
@@ -27,13 +29,15 @@ public class RawGpsDataLayer extends Layer {
 	private static Icon icon;
 
 	/**
-	 * A list of waies which containing a list of points.
+	 * A list of ways which containing a list of points.
 	 */
-	private final Collection<Collection<GeoPoint>> data;
+	private final Collection<Collection<LatLon>> data;
+	private Collection<Collection<EastNorth>> eastNorth;
 
-	public RawGpsDataLayer(Collection<Collection<GeoPoint>> data, String name) {
+	public RawGpsDataLayer(Collection<Collection<LatLon>> data, String name) {
 		super(name);
 		this.data = data;
+		
 		Main.pref.addPropertyChangeListener(new PropertyChangeListener(){
 			public void propertyChange(PropertyChangeEvent evt) {
 				if (Main.main.getMapFrame() == null) {
@@ -61,11 +65,11 @@ public class RawGpsDataLayer extends Layer {
 	public void paint(Graphics g, MapView mv) {
 		g.setColor(Color.GRAY);
 		Point old = null;
-		for (Collection<GeoPoint> c : data) {
+		for (Collection<EastNorth> c : eastNorth) {
 			if (!Main.pref.isForceRawGpsLines())
 				old = null;
-			for (GeoPoint p : c) {
-				Point screen = mv.getScreenPoint(p);
+			for (EastNorth eastNorth : c) {
+				Point screen = mv.getPoint(eastNorth);
 				if (Main.pref.isDrawRawGpsLines() && old != null)
 					g.drawLine(old.x, old.y, screen.x, screen.y);
 				else
@@ -77,7 +81,10 @@ public class RawGpsDataLayer extends Layer {
 
 	@Override
 	public String getToolTipText() {
-		return data.size()+" waies.";
+		int points = 0;
+		for (Collection<LatLon> c : data)
+			points += c.size();
+		return data.size()+" ways, "+points+" points.";
 	}
 
 	@Override
@@ -92,53 +99,20 @@ public class RawGpsDataLayer extends Layer {
 	}
 
 	@Override
-	public Bounds getBoundsLatLon() {
-		GeoPoint min = null;
-		GeoPoint max = null;
-		for (Collection<GeoPoint> c : data) {
-			for (GeoPoint p : c) {
-				if (min == null) {
-					min = p.clone();
-					max = p.clone();
-				} else {
-					min.lat = Math.min(min.lat, p.lat);
-					min.lon = Math.min(min.lon, p.lon);
-					max.lat = Math.max(max.lat, p.lat);
-					max.lon = Math.max(max.lon, p.lon);
-				}
-			}
-		}
-		if (min == null)
-			return null;
-		return new Bounds(min, max);
-	}
-
-	@Override
-	public Bounds getBoundsXY() {
-		GeoPoint min = null;
-		GeoPoint max = null;
-		for (Collection<GeoPoint> c : data) {
-			for (GeoPoint p : c) {
-				if (min == null) {
-					min = p.clone();
-					max = p.clone();
-				} else {
-					min.x = Math.min(min.x, p.x);
-					min.y = Math.min(min.y, p.y);
-					max.x = Math.max(max.x, p.x);
-					max.y = Math.max(max.y, p.y);
-				}
-			}
-		}
-		if (min == null)
-			return null;
-		return new Bounds(min, max);
+	public void visitBoundingBox(BoundingXYVisitor v) {
+		for (Collection<EastNorth> c : eastNorth)
+			for (EastNorth eastNorth : c)
+				v.visit(eastNorth);
 	}
 
 	@Override
 	public void init(Projection projection) {
-		for (Collection<GeoPoint> c : data)
-			for (GeoPoint p : c)
-				projection.latlon2xy(p);
+		eastNorth = new LinkedList<Collection<EastNorth>>();
+		for (Collection<LatLon> c : data) {
+			Collection<EastNorth> eastNorthList = new LinkedList<EastNorth>();
+			for (LatLon ll : c)
+				eastNorthList.add(Main.pref.getProjection().latlon2eastNorth(ll));
+			this.eastNorth.add(eastNorthList);
+		}
 	}
 }

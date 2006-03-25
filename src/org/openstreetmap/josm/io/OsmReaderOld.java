@@ -8,7 +8,7 @@ import java.util.StringTokenizer;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
@@ -61,13 +61,13 @@ public class OsmReaderOld {
 	 * @throws JDOMException In case of a parsing error.
 	 */
 	private Node parseNode(Element e) throws JDOMException {
-		Node data = new Node(new GeoPoint(
+		Node data = new Node(new LatLon(
 			Double.parseDouble(e.getAttributeValue("lat")),
 			Double.parseDouble(e.getAttributeValue("lon"))));
-		if (Double.isNaN(data.coor.lat) || 
-				data.coor.lat < -90 || data.coor.lat > 90 ||
-				data.coor.lon < -180 || data.coor.lon > 180)
-			throw new JDOMException("Illegal lat or lon value: "+data.coor.lat+"/"+data.coor.lon);
+		if (Double.isNaN(data.coor.lat()) || 
+				data.coor.lat() < -90 || data.coor.lat() > 90 ||
+				data.coor.lon() < -180 || data.coor.lon() > 180)
+			throw new JDOMException("Illegal lat or lon value: "+data.coor.lat()+"/"+data.coor.lon());
 		parseCommon(data, e);
 		return data;
 	}
@@ -220,7 +220,7 @@ public class OsmReaderOld {
 		for (OsmPrimitive osm : data.lineSegments)
 			if (osm.id == id)
 				return osm;
-		for (OsmPrimitive osm : data.waies)
+		for (OsmPrimitive osm : data.ways)
 			if (osm.id == id)
 				return osm;
 		throw new JDOMException("Unknown object reference: "+id);

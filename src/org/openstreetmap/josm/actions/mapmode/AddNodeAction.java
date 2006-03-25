@@ -22,10 +22,6 @@ import org.openstreetmap.josm.gui.MapFrame;
  */
 public class AddNodeAction extends MapMode {
 
-	/**
-	 * Create an AddNodeAction. Mnemonic is 'a'
-	 * @param mapFrame
-	 */
 	public AddNodeAction(MapFrame mapFrame) {
 		super("Add nodes", "addnode", "Add nodes to the map.", "N", KeyEvent.VK_N, mapFrame);
 	}
@@ -49,7 +45,7 @@ public class AddNodeAction extends MapMode {
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON1) {
-			Node node = new Node(mv.getPoint(e.getX(), e.getY(), true));
+			Node node = new Node(mv.getLatLon(e.getX(), e.getY()));
 			if (node.coor.isOutSideWorld()) {
 				JOptionPane.showMessageDialog(Main.main, "Can not add a node outside of the world.");
 				return;

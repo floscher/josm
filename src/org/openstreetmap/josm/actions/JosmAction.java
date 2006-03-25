@@ -9,7 +9,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.gui.ImageProvider;
+import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * Base class helper for all Actions in JOSM. Just to make the life easier.

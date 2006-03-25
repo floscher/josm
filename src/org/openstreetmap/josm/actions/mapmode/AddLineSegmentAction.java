@@ -161,8 +161,8 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 		Graphics g = mv.getGraphics();
 		g.setColor(Color.BLACK);
 		g.setXORMode(Color.WHITE);
-		Point firstDrawn = mv.getScreenPoint(first.coor);
-		Point secondDrawn = mv.getScreenPoint(second.coor);
+		Point firstDrawn = mv.getPoint(first.eastNorth);
+		Point secondDrawn = mv.getPoint(second.eastNorth);
 		g.drawLine(firstDrawn.x, firstDrawn.y, secondDrawn.x, secondDrawn.y);
 		hintDrawn = !hintDrawn;
 	}

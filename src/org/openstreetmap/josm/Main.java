@@ -34,12 +34,12 @@ import org.openstreetmap.josm.actions.UploadAction;
 import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.Preferences.PreferencesException;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.gui.BugReportExceptionHandler;
-import org.openstreetmap.josm.gui.ImageProvider;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.ShowModifiers;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
+import org.openstreetmap.josm.tools.BugReportExceptionHandler;
+import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * Main window class application.
@@ -293,13 +293,8 @@ public class Main extends JFrame {
 		}
 	}
 
-	/**
-	 * Set the main's mapframe. If a changed old mapFrame is already set, 
-	 * ask the user whether he want to save, discard or abort. If the user
-	 * aborts, nothing happens. 
-	 */
+	//TODO: should be solved better.
 	public void setMapFrame(MapFrame mapFrame) {
-		//TODO: Check for changes and ask user
 		if (this.mapFrame != null)
 			this.mapFrame.setVisible(false);
 		this.mapFrame = mapFrame;

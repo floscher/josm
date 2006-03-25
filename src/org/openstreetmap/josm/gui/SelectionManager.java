@@ -256,7 +256,7 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 	 * modifier.
 	 * @param alt Whether the alt key was pressed, which means select all objects
 	 * 		that are touched, instead those which are completly covered. Also 
-	 * 		select whole waies instead of line segments.
+	 * 		select whole ways instead of line segments.
 	 */
 	public Collection<OsmPrimitive> getObjectsInRectangle(Rectangle r, boolean alt) {
 		Collection<OsmPrimitive> selection = new LinkedList<OsmPrimitive>();
@@ -272,7 +272,7 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 		} else {
 			// nodes
 			for (Node n : Main.main.ds.nodes) {
-				if (r.contains(nc.getScreenPoint(n.coor)))
+				if (r.contains(nc.getPoint(n.eastNorth)))
 					selection.add(n);
 			}
 			
@@ -281,8 +281,8 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 				if (rectangleContainLineSegment(r, alt, ls))
 					selection.add(ls);
 
-			// waies
-			for (Way t : Main.main.ds.waies) {
+			// ways
+			for (Way t : Main.main.ds.ways) {
 				boolean wholeWaySelected = !t.segments.isEmpty();
 				for (LineSegment ls : t.segments)
 					if (rectangleContainLineSegment(r, alt, ls))
@@ -311,13 +311,13 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 		if (ls.incomplete)
 			return false;
 		if (alt) {
-			Point p1 = nc.getScreenPoint(ls.from.coor);
-			Point p2 = nc.getScreenPoint(ls.to.coor);
+			Point p1 = nc.getPoint(ls.from.eastNorth);
+			Point p2 = nc.getPoint(ls.to.eastNorth);
 			if (r.intersectsLine(p1.x, p1.y, p2.x, p2.y))
 				return true;
 		} else {
-			if (r.contains(nc.getScreenPoint(ls.from.coor))
-					&& r.contains(nc.getScreenPoint(ls.to.coor)))
+			if (r.contains(nc.getPoint(ls.from.eastNorth))
+					&& r.contains(nc.getPoint(ls.to.eastNorth)))
 				return true;
 		}
 		return false;

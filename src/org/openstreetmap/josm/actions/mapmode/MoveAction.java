@@ -11,9 +11,10 @@ import javax.swing.JOptionPane;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.MoveCommand;
-import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.data.osm.visitor.AllNodesVisitor;
 import org.openstreetmap.josm.gui.MapFrame;
 
 /**
@@ -78,15 +79,15 @@ public class MoveAction extends MapMode {
 			singleOsmPrimitive = null;
 		}
 
-		GeoPoint mouseGeo = mv.getPoint(e.getX(), e.getY(), false);
-		GeoPoint mouseStartGeo = mv.getPoint(mousePos.x, mousePos.y, false);
-		double dx = mouseGeo.x - mouseStartGeo.x;
-		double dy = mouseGeo.y - mouseStartGeo.y;
+		EastNorth mouseGeo = mv.getEastNorth(e.getX(), e.getY());
+		EastNorth mouseStartGeo = mv.getEastNorth(mousePos.x, mousePos.y);
+		double dx = mouseGeo.east() - mouseStartGeo.east();
+		double dy = mouseGeo.north() - mouseStartGeo.north();
 		if (dx == 0 && dy == 0)
 			return;
 
 		Collection<OsmPrimitive> selection = Main.main.ds.getSelected();
-		Collection<Node> affectedNodes = MoveCommand.getAffectedNodes(selection);
+		Collection<Node> affectedNodes = AllNodesVisitor.getAllNodes(selection);
 		
 		// check if any coordinate would be outside the world
 		for (OsmPrimitive osm : affectedNodes) {

@@ -18,8 +18,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.Bounds;
-import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.coor.LatLon;
+import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.BookmarkList.Bookmark;
 import org.openstreetmap.josm.gui.SelectionManager.SelectionEnded;
@@ -47,7 +47,7 @@ public class WorldChooser extends NavigatableComponent {
 	/**
 	 * Mark this rectangle (lat/lon values) when painting.
 	 */
-	protected Bounds marker;
+	private EastNorth markerMin, markerMax;
 
 	private Projection projection;
 	
@@ -57,17 +57,19 @@ public class WorldChooser extends NavigatableComponent {
 	public WorldChooser() {
 		URL path = Main.class.getResource("/images/world.jpg");
 		world = new ImageIcon(path);
-		center = new GeoPoint(0,0,world.getIconWidth()/2, world.getIconHeight()/2);
+		center = new EastNorth(world.getIconWidth()/2, world.getIconHeight()/2);
 		setPreferredSize(new Dimension(200, 100));
 		new MapMover(this);
-		projection = new Projection(){
-			public void latlon2xy(GeoPoint p) {
-				p.x = (p.lon+180) / 360 * world.getIconWidth();
-				p.y = (p.lat+90) / 180 * world.getIconHeight();
+		projection = new Projection() {
+			public EastNorth latlon2eastNorth(LatLon p) {
+				return new EastNorth(
+						(p.lon()+180) / 360 * world.getIconWidth(),
+						(p.lat()+90) / 180 * world.getIconHeight());
 			}
-			public void xy2latlon(GeoPoint p) {
-				p.lon = p.x*360/world.getIconWidth() - 180;
-				p.lat = p.y*180/world.getIconHeight() - 90;
+			public LatLon eastNorth2latlon(EastNorth p) {
+				return new LatLon(
+						p.east()*360/world.getIconWidth() - 180,
+						p.north()*180/world.getIconHeight() - 90);
 			}
 			@Override
 			public String toString() {
@@ -93,14 +95,14 @@ public class WorldChooser extends NavigatableComponent {
 	 */
 	@Override
 	public void paint(Graphics g) {
-		GeoPoint tl = getPoint(0,0,false);
-		GeoPoint br = getPoint(getWidth(),getHeight(),false);
-		g.drawImage(world.getImage(),0,0,getWidth(),getHeight(),(int)tl.x,(int)tl.y,(int)br.x,(int)br.y, null);
+		EastNorth tl = getEastNorth(0,0);
+		EastNorth br = getEastNorth(getWidth(),getHeight());
+		g.drawImage(world.getImage(),0,0,getWidth(),getHeight(),(int)tl.east(),(int)tl.north(),(int)br.east(),(int)br.north(), null);
 
 		// draw marker rect
-		if (marker != null) {
-			Point p1 = getScreenPoint(marker.min);
-			Point p2 = getScreenPoint(marker.max);
+		if (markerMin != null && markerMax != null) {
+			Point p1 = getPoint(markerMin);
+			Point p2 = getPoint(markerMax);
 			double x = Math.min(p1.x, p2.x);
 			double y = Math.min(p1.y, p2.y);
 			double w = Math.max(p1.x, p2.x) - x;
@@ -116,7 +118,7 @@ public class WorldChooser extends NavigatableComponent {
 
 
 	@Override
-	public void zoomTo(GeoPoint newCenter, double scale) {
+	public void zoomTo(EastNorth newCenter, double scale) {
 		if (getWidth() != 0 && scale > scaleMax)
 			scale = scaleMax;
 		super.zoomTo(newCenter, scale);
@@ -130,10 +132,12 @@ public class WorldChooser extends NavigatableComponent {
 			public void valueChanged(ListSelectionEvent e) {
 				Bookmark b = (Bookmark)list.getSelectedValue();
 				if (b != null) {
-					marker = new Bounds(new GeoPoint(b.latlon[0],b.latlon[1]),
-							new GeoPoint(b.latlon[2],b.latlon[3]));
-				} else
-					marker = null;
+					markerMin = getProjection().latlon2eastNorth(new LatLon(b.latlon[0],b.latlon[1]));
+					markerMax = getProjection().latlon2eastNorth(new LatLon(b.latlon[2],b.latlon[3]));
+				} else {
+					markerMin = null;
+					markerMax = null;
+				}
 				repaint();
 			}
 		});
@@ -163,13 +167,14 @@ public class WorldChooser extends NavigatableComponent {
 
 		SelectionEnded selListener = new SelectionEnded(){
 			public void selectionEnded(Rectangle r, boolean alt, boolean shift, boolean ctrl) {
-				GeoPoint min = getPoint(r.x, r.y+r.height, true);
-				GeoPoint max = getPoint(r.x+r.width, r.y, true);
-				marker = new Bounds(min, max);
-				field[0].setText(""+min.lat);
-				field[1].setText(""+min.lon);
-				field[2].setText(""+max.lat);
-				field[3].setText(""+max.lon);
+				markerMin = getEastNorth(r.x, r.y+r.height);
+				markerMax = getEastNorth(r.x+r.width, r.y);
+				LatLon min = getProjection().eastNorth2latlon(markerMin);
+				LatLon max = getProjection().eastNorth2latlon(markerMax);
+				field[0].setText(""+min.lat());
+				field[1].setText(""+min.lon());
+				field[2].setText(""+max.lat());
+				field[3].setText(""+max.lon());
 				for (JTextField f : field)
 					f.setCaretPosition(0);
 				osmUrlRefresher.keyTyped(null);
@@ -196,8 +201,8 @@ public class WorldChooser extends NavigatableComponent {
 				return;
 			}
 		}
-
-		marker = new Bounds(new GeoPoint(v[0], v[1]), new GeoPoint(v[2], v[3]));
+		markerMin = new EastNorth(v[0], v[1]);
+		markerMax = new EastNorth(v[2], v[3]);
 		repaint();
 	}
 

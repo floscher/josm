@@ -20,8 +20,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.gui.GBC;
-import org.openstreetmap.josm.gui.ImageProvider;
+import org.openstreetmap.josm.tools.GBC;
+import org.openstreetmap.josm.tools.ImageProvider;
 import org.openstreetmap.josm.tools.UrlLabel;
 
 /**

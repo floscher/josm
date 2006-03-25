@@ -9,7 +9,7 @@ import javax.swing.Icon;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Way;
-import org.openstreetmap.josm.gui.ImageProvider;
+import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * Able to create a name and an icon for each data element.
@@ -35,10 +35,12 @@ public class SelectionComponentVisitor implements Visitor {
 	 */
 	public void visit(LineSegment ls) {
 		name = ls.get("name");
-		if (name == null && ls.incomplete)
-			name = ""+ls.id;
-		if (name == null)
-			name = "("+ls.from.coor.lat+","+ls.from.coor.lon+") -> ("+ls.to.coor.lat+","+ls.to.coor.lon+")";
+		if (name == null) {
+			if (ls.incomplete)
+				name = ""+ls.id;
+			else
+				name = ls.id+" ("+ls.from.coor.lat()+","+ls.from.coor.lon()+") -> ("+ls.to.coor.lat()+","+ls.to.coor.lon()+")";
+		}
 		icon = ImageProvider.get("data", "linesegment");
 	}
 
@@ -49,7 +51,7 @@ public class SelectionComponentVisitor implements Visitor {
 	public void visit(Node n) {
 		name = n.get("name");
 		if (name == null)
-			name = "("+n.coor.lat+","+n.coor.lon+")";
+			name = n.id+" ("+n.coor.lat()+","+n.coor.lon()+")";
 		icon = ImageProvider.get("data", "node");
 	}
 
@@ -60,6 +62,7 @@ public class SelectionComponentVisitor implements Visitor {
 	public void visit(Way w) {
 		name = w.get("name");
 		if (name == null) {
+			AllNodesVisitor.getAllNodes(w.segments);
 			Set<Node> nodes = new HashSet<Node>();
 			for (LineSegment ls : w.segments) {
 				if (!ls.incomplete) {

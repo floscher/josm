@@ -11,7 +11,7 @@ import java.util.HashMap;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import org.openstreetmap.josm.data.GeoPoint;
+import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
@@ -72,7 +72,7 @@ public class GpxReader {
 	 * @return		The Waypoint read from the element
 	 */
 	private Node parseWaypoint(Element e) {
-		Node data = new Node(new GeoPoint(
+		Node data = new Node(new LatLon(
 			Double.parseDouble(e.getAttributeValue("lat")),
 			Double.parseDouble(e.getAttributeValue("lon"))));
 		
@@ -96,13 +96,13 @@ public class GpxReader {
 	 */
 	private DataSet parseDataSet(Element e) {
 		DataSet data = new DataSet();
-		// read waypoints not contained in waies or areas
+		// read waypoints not contained in ways or areas
 		for (Object o : e.getChildren("wpt", GPX)) {
 			Node node = parseWaypoint((Element)o);
 			addNode(data, node);
 		}
 	
-		// read waies (and line segments)
+		// read ways (and line segments)
 		for (Object wayElement : e.getChildren("trk", GPX))
 			parseWay((Element)wayElement, data);
 
@@ -154,7 +154,7 @@ public class GpxReader {
 		way = (Way)getNewIfSeenBefore(way);
 		ds.lineSegments.addAll(way.segments);
 		if (!realLineSegment)
-			ds.waies.add(way);
+			ds.ways.add(way);
 	}
 
 	/**
@@ -169,7 +169,7 @@ public class GpxReader {
 	private Node addNode(DataSet data, Node node) {
 		if (mergeNodes)
 			for (Node n : data.nodes)
-				if (node.coor.equalsLatLon(n.coor))
+				if (node.coor.equals(n.coor))
 					return n;
 		data.nodes.add(node);
 		return node;

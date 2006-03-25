@@ -105,8 +105,8 @@ public class GpxWriter {
 		// for getting all unreferenced line segments
 		LinkedList<LineSegment> unrefLs = new LinkedList<LineSegment>(ds.lineSegments);
 
-		// waies
-		for (Way t : ds.waies) {
+		// ways
+		for (Way t : ds.ways) {
 			if (t.isDeleted() && t.id == 0)
 				continue;
 			Element tElem = new Element("trk", GPX);
@@ -134,7 +134,7 @@ public class GpxWriter {
 			e.getChildren().add(tElem);
 		}
 		
-		// encode pending line segments as waies
+		// encode pending line segments as ways
 		for (LineSegment ls : unrefLs) {
 			if (ls.isDeleted() && ls.id == 0)
 				continue;
@@ -194,8 +194,8 @@ public class GpxWriter {
 	 */
 	private Element parseWaypoint(Node n, String name) {
 		Element e = new Element(name, GPX);
-		e.setAttribute("lat", Double.toString(n.coor.lat));
-		e.setAttribute("lon", Double.toString(n.coor.lon));
+		e.setAttribute("lat", Double.toString(n.coor.lat()));
+		e.setAttribute("lon", Double.toString(n.coor.lon()));
 		HashMap<String, String> keys = null;
 		if (n.keys != null) {
 			keys = new HashMap<String, String>(n.keys);

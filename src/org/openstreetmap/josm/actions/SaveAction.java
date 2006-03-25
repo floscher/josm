@@ -21,8 +21,6 @@ import org.openstreetmap.josm.io.OsmWriter;
 /**
  * Export the data  as OSM intern xml file.
  * 
- * TODO: This is very redundant with SaveGpxAction. Merge both actions into one!
- *  
  * @author imi
  */
 public class SaveAction extends JosmAction {

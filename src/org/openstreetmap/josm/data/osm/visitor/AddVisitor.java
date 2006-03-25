@@ -29,6 +29,6 @@ public class AddVisitor implements Visitor {
 		ds.lineSegments.add(ls);
 	}
 	public void visit(Way t) {
-		ds.waies.add(t);
+		ds.ways.add(t);
 	}
 }
