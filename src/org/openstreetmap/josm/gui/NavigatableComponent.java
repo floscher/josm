@@ -74,7 +74,7 @@ public class NavigatableComponent extends JComponent {
 		EastNorth eastNorth = new EastNorth(
 				center.east() + (x - getWidth()/2.0)*scale,
 				center.north() - (y - getHeight()/2.0)*scale);
-		return Main.pref.getProjection().eastNorth2latlon(eastNorth);
+		return getProjection().eastNorth2latlon(eastNorth);
 	}
 
 	/**

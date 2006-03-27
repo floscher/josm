@@ -112,7 +112,7 @@ public class OsmReader extends MinML2 {
 
 	
 	@Override
-	public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
+	public void endElement(String namespaceURI, String localName, String qName) {
 		if (qName.equals("node") || qName.equals("segment") || qName.equals("way") || qName.equals("area")) {
 			current.visit(adder);
 		}
