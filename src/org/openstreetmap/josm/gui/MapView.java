@@ -5,8 +5,6 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,7 +37,7 @@ import org.openstreetmap.josm.gui.layer.OsmDataLayer.ModifiedChangedListener;
  *
  * @author imi
  */
-public class MapView extends NavigatableComponent implements ChangeListener, PropertyChangeListener  {
+public class MapView extends NavigatableComponent implements ChangeListener {
 
 	/**
 	 * Interface to notify listeners of the change of the active layer.
@@ -84,13 +82,8 @@ public class MapView extends NavigatableComponent implements ChangeListener, Pro
 				recalculateCenterScale();
 			}
 		});
-
-		// initialize the movement listener
 		new MapMover(this);
-
-		// initialize the projection
 		addLayer(layer);
-		Main.pref.addPropertyChangeListener(this);
 	}
 
 	/**
@@ -338,16 +331,5 @@ public class MapView extends NavigatableComponent implements ChangeListener, Pro
 		for (Layer l : layers)
 			l.init(p);
 		recalculateCenterScale();
-	}
-
-	/**
-	 * Change to the new projection. Recalculate the dataset and zoom, if autoZoom
-	 * is active.
-	 * @param oldProjection The old projection. Unregister from this.
-	 * @param newProjection	The new projection. Register as state change listener.
-	 */
-	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt.getPropertyName().equals("projection"))
-			stateChanged(new ChangeEvent(this));
 	}
 }

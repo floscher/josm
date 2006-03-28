@@ -1,8 +1,6 @@
 package org.openstreetmap.josm.gui.layer;
 
 import java.awt.Graphics;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -80,13 +78,6 @@ public class OsmDataLayer extends Layer {
 		super(name);
 		this.data = data;
 		this.fromDisk = fromDisk;
-		Main.pref.addPropertyChangeListener(new PropertyChangeListener() {
-			public void propertyChange(PropertyChangeEvent evt) {
-				if (evt.getPropertyName().equals("projection"))
-					for (Node n : OsmDataLayer.this.data.nodes)
-						((Projection)evt.getNewValue()).latlon2eastNorth(n.coor);
-			}
-		});
 	}
 
 	/**

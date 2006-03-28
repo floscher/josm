@@ -30,7 +30,7 @@ public class XmlWriter {
 	/**
 	 * @return The standard XML1.0 header. Encoding is utf-8
 	 */
-	public static Object header() {
+	public static String header() {
 		return "<?xml version='1.0' encoding='UTF-8'?>";
 	}
 

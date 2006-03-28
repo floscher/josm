@@ -8,6 +8,7 @@ import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -32,7 +33,6 @@ import org.openstreetmap.josm.actions.SaveAction;
 import org.openstreetmap.josm.actions.UndoAction;
 import org.openstreetmap.josm.actions.UploadAction;
 import org.openstreetmap.josm.data.Preferences;
-import org.openstreetmap.josm.data.Preferences.PreferencesException;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.MapFrame;
@@ -185,8 +185,6 @@ public class Main extends JFrame {
 			}
 		});
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-		
-		proj = pref.getProjection();
 	}
 
 	/**
@@ -218,25 +216,53 @@ public class Main extends JFrame {
 		// load preferences
 		String errMsg = null;
 		try {
-			if (arguments.remove("--reset-preferences"))
+			if (arguments.remove("--reset-preferences")) {
+				pref.resetToDefault();
 				pref.save();
-			else
+			} else
 				pref.load();
-		} catch (PreferencesException e1) {
+		} catch (RuntimeException x) {
+			//TODO: Temporary code to update user preferences.
+			if (x.getMessage().equals("old version")) {
+				int answer = JOptionPane.showConfirmDialog(
+						null, 
+						"The preferences - file format has changed.\nThe settings will be reset to default.",
+						"Information",
+						JOptionPane.OK_CANCEL_OPTION);
+				if (answer == JOptionPane.CANCEL_OPTION)
+					System.exit(0);
+				pref.resetToDefault();
+				try {
+					pref.save();
+				} catch (IOException e) {
+					e.printStackTrace();
+					errMsg = "Preferences could not be loaded. Reverting to default.";
+				}
+			}
+		} catch (IOException e1) {
 			e1.printStackTrace();
 			errMsg = "Preferences could not be loaded. Write default preference file to '"+Preferences.getPreferencesDir()+"preferences'.";
+			pref.resetToDefault();
 			try {
 				pref.save();
-			} catch (PreferencesException e) {
+			} catch (IOException e) {
 				e.printStackTrace();
 				errMsg = "Preferences could not be loaded. Reverting to default.";
 			}
 		}
 		if (errMsg != null)
 			JOptionPane.showMessageDialog(null, errMsg);
+
+		try {
+			proj = (Projection)Class.forName(pref.get("projection")).newInstance();
+		} catch (Exception e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "The projection could not be initialized. Aborting.");
+			System.exit(1);
+		}
 		
 		try {
-			UIManager.setLookAndFeel(pref.laf.getClassName());
+			UIManager.setLookAndFeel(pref.get("laf"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -27,8 +28,6 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.Preferences;
-import org.openstreetmap.josm.data.Preferences.PreferencesException;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.ImageProvider;
@@ -50,19 +49,20 @@ public class PreferenceDialog extends JDialog {
 			putValue(MNEMONIC_KEY, new Integer((String)UIManager.get("OptionPane.okButtonMnemonic")));
 		}
 		public void actionPerformed(ActionEvent e) {
-			Main.pref.laf = (LookAndFeelInfo)lafCombo.getSelectedItem();
-			Main.pref.setProjection((Projection)projectionCombo.getSelectedItem());
-			Main.pref.osmDataServer = osmDataServer.getText();
-			Main.pref.osmDataUsername = osmDataUsername.getText();
-			Main.pref.osmDataPassword = String.valueOf(osmDataPassword.getPassword());
-			if (Main.pref.osmDataPassword == "")
-				Main.pref.osmDataPassword = null;
-			Main.pref.csvImportString = csvImportString.getText();
-			Main.pref.setDrawRawGpsLines(drawRawGpsLines.isSelected());
-			Main.pref.setForceRawGpsLines(forceRawGpsLines.isSelected());
+			Main.pref.put("laf", ((LookAndFeelInfo)lafCombo.getSelectedItem()).getClassName());
+			Main.pref.put("projection", projectionCombo.getSelectedItem().getClass().getName());
+			Main.pref.put("osmDataServer", osmDataServer.getText());
+			Main.pref.put("osmDataUsername", osmDataUsername.getText());
+			String pwd = String.valueOf(osmDataPassword.getPassword());
+			if (pwd.equals(""))
+				pwd = null;
+			Main.pref.put("osmDataPassword", pwd);
+			Main.pref.put("csvImportString", csvImportString.getText());
+			Main.pref.put("drawRawGpsLines", drawRawGpsLines.isSelected());
+			Main.pref.put("forceRawGpsLines", forceRawGpsLines.isSelected());
 			try {
 				Main.pref.save();
-			} catch (PreferencesException x) {
+			} catch (IOException x) {
 				x.printStackTrace();
 				JOptionPane.showMessageDialog(PreferenceDialog.this, "Could not save preferences:\n"+x.getMessage());
 			}
@@ -97,7 +97,7 @@ public class PreferenceDialog extends JDialog {
 	/**
 	 * Combobox with all projections available
 	 */
-	JComboBox projectionCombo = new JComboBox(Preferences.allProjections);
+	JComboBox projectionCombo = new JComboBox(Projection.allProjections);
 	/**
 	 * The main tab panel.
 	 */
@@ -139,21 +139,22 @@ public class PreferenceDialog extends JDialog {
 		super(Main.main, "Preferences");
 
 		// look and feel combo box
+		lafCombo.setSelectedItem(Main.pref.get("laf"));
 		final ListCellRenderer oldRenderer = lafCombo.getRenderer();
 		lafCombo.setRenderer(new DefaultListCellRenderer(){
-			@Override
-			public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+			@Override public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 				return oldRenderer.getListCellRendererComponent(list, ((LookAndFeelInfo)value).getName(), index, isSelected, cellHasFocus);
-			}});
-		lafCombo.setSelectedItem(Main.pref.laf);
+			}
+		});
 		lafCombo.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				requiresRestart = true;
-			}});
+			}
+		});
 
 		// projection combo box
 		for (int i = 0; i < projectionCombo.getItemCount(); ++i) {
-			if (projectionCombo.getItemAt(i).getClass().equals(Main.pref.getProjection().getClass())) {
+			if (projectionCombo.getItemAt(i).toString().equals(Main.pref.get("projection"))) {
 				projectionCombo.setSelectedIndex(i);
 				break;
 			}
@@ -184,15 +185,15 @@ public class PreferenceDialog extends JDialog {
 				"An example: \"ignore ignore lat lon\" will use ' ' as delimiter, skip the first two values and read then lat/lon.<br>" +
 				"Other example: \"lat,lon\" will just read lat/lon values comma seperated.</html>");
 		drawRawGpsLines.setToolTipText("If your gps device draw to few lines, select this to draw lines along your way.");
-		drawRawGpsLines.setSelected(Main.pref.isDrawRawGpsLines());
+		drawRawGpsLines.setSelected(Main.pref.getBoolean("drawRawGpsLines"));
 		forceRawGpsLines.setToolTipText("Force drawing of lines if the imported data contain no line information.");
-		forceRawGpsLines.setSelected(Main.pref.isForceRawGpsLines());
+		forceRawGpsLines.setSelected(Main.pref.getBoolean("forceRawGpsLines"));
 		forceRawGpsLines.setEnabled(drawRawGpsLines.isSelected());
 
-		osmDataServer.setText(Main.pref.osmDataServer);
-		osmDataUsername.setText(Main.pref.osmDataUsername);
-		osmDataPassword.setText(Main.pref.osmDataPassword);
-		csvImportString.setText(Main.pref.csvImportString);
+		osmDataServer.setText(Main.pref.get("osmDataServer"));
+		osmDataUsername.setText(Main.pref.get("osmDataUsername"));
+		osmDataPassword.setText(Main.pref.get("osmDataPassword"));
+		csvImportString.setText(Main.pref.get("csvImportString"));
 
 		// Display tab
 		JPanel display = createPreferenceTab("display", "Display Settings", "Various settings that influence the visual representation of the whole program.");

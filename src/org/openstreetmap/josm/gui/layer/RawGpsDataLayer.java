@@ -3,16 +3,15 @@ package org.openstreetmap.josm.gui.layer;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.LinkedList;
 
 import javax.swing.Icon;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.coor.LatLon;
+import org.openstreetmap.josm.data.Preferences.PreferenceChangedListener;
 import org.openstreetmap.josm.data.coor.EastNorth;
+import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.MapView;
@@ -38,14 +37,13 @@ public class RawGpsDataLayer extends Layer {
 		super(name);
 		this.data = data;
 		
-		Main.pref.addPropertyChangeListener(new PropertyChangeListener(){
-			public void propertyChange(PropertyChangeEvent evt) {
+		Main.pref.addPreferenceChangedListener(new PreferenceChangedListener(){
+			public void preferenceChanged(String key, String newValue) {
 				if (Main.main.getMapFrame() == null) {
-					Main.pref.removePropertyChangeListener(this);
+					Main.pref.removePreferenceChangedListener(this);
 					return;
 				}
-				if (evt.getPropertyName().equals("drawRawGpsLines") ||
-						evt.getPropertyName().equals("forceRawGpsLines"))
+				if (key.equals("drawRawGpsLines") || key.equals("forceRawGpsLines"))
 					Main.main.getMapFrame().repaint();
 			}
 		});
@@ -66,11 +64,11 @@ public class RawGpsDataLayer extends Layer {
 		g.setColor(Color.GRAY);
 		Point old = null;
 		for (Collection<EastNorth> c : eastNorth) {
-			if (!Main.pref.isForceRawGpsLines())
+			if (!Main.pref.getBoolean("forceRawGpsLines"))
 				old = null;
 			for (EastNorth eastNorth : c) {
 				Point screen = mv.getPoint(eastNorth);
-				if (Main.pref.isDrawRawGpsLines() && old != null)
+				if (Main.pref.getBoolean("drawRawGpsLines") && old != null)
 					g.drawLine(old.x, old.y, screen.x, screen.y);
 				else
 					g.drawRect(screen.x, screen.y, 0, 0);
