@@ -6,6 +6,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/jdom.jar"/>
 	<classpathentry sourcepath="JUNIT_SRC_HOME/junitsrc.zip" kind="var" path="JUNIT_HOME/junit.jar"/>
-	<classpathentry sourcepath="C:/projects/MinML2.release" kind="lib" path="lib/MinML2.jar"/>
+	<classpathentry kind="lib" path="lib/MinML2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

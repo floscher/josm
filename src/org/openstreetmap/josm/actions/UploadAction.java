@@ -4,6 +4,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -16,7 +17,6 @@ import javax.swing.KeyStroke;
 
 import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.Preferences.PreferencesException;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.OsmPrimitivRenderer;
 import org.openstreetmap.josm.io.OsmServerWriter;
@@ -39,8 +39,9 @@ public class UploadAction extends JosmAction {
 
 	public void actionPerformed(ActionEvent e) {
 		
+		String osmDataServer = Main.pref.get("osmDataServer");
 		//TODO: Remove this in later versions (temporary only)
-		if (Main.pref.osmDataServer.endsWith("/0.2") || Main.pref.osmDataServer.endsWith("/0.2/")) {
+		if (osmDataServer.endsWith("/0.2") || osmDataServer.endsWith("/0.2/")) {
 			int answer = JOptionPane.showConfirmDialog(Main.main, 
 					"You seem to have an outdated server entry in your preferences.\n" +
 					"\n" +
@@ -50,14 +51,13 @@ public class UploadAction extends JosmAction {
 					"Fix settings and continue?", "Outdated server url detected.", JOptionPane.YES_NO_OPTION);
 			if (answer != JOptionPane.YES_OPTION)
 				return;
-			int cutPos = Main.pref.osmDataServer.endsWith("/0.2") ? 4 : 5;
-			Main.pref.osmDataServer = Main.pref.osmDataServer.substring(0, Main.pref.osmDataServer.length()-cutPos);
+			int cutPos = osmDataServer.endsWith("/0.2") ? 4 : 5;
+			Main.pref.put("osmDataServer", osmDataServer.substring(0, osmDataServer.length()-cutPos));
 			try {
 				Main.pref.save();
-			} catch (PreferencesException x) {
+			} catch (IOException x) {
 				x.printStackTrace();
-				JOptionPane.showMessageDialog(Main.main, "Could not save the preferences chane:\n" +
-						x.getMessage());
+				JOptionPane.showMessageDialog(Main.main, "Could not save the preferences change:\n" + x.getMessage());
 			}
 		}
 

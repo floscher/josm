@@ -1,254 +1,122 @@
 package org.openstreetmap.josm.data;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 
-import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
+import org.openstreetmap.josm.tools.XmlWriter;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
 
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
-import org.openstreetmap.josm.data.projection.Epsg4263;
-import org.openstreetmap.josm.data.projection.Mercator;
-import org.openstreetmap.josm.data.projection.Projection;
+import uk.co.wilson.xml.MinML2;
 
 
 /**
  * This class holds all preferences for JOSM.
  * 
+ * Other classes can register their beloved properties here. All properties will be
+ * saved upon set-access.
+ * 
  * @author imi
  */
 public class Preferences {
 
+	public static interface PreferenceChangedListener {
+		void preferenceChanged(String key, String newValue);
+	}
+	
+	ArrayList<PreferenceChangedListener> listener = new ArrayList<PreferenceChangedListener>();
+	
 	/**
-	 * The look and feel. Classname of the look and feel class to use.
+	 * Map the property name to the property object.
 	 */
-	public LookAndFeelInfo laf = UIManager.getInstalledLookAndFeels()[0];
-
-	/**
-	 * The convertor used to translate lat/lon points to screen points.
-	 */
-	private Projection projection = new Epsg4263();
-
-
-	/**
-	 * Whether lines should be drawn between way points of raw gps data.
-	 */
-	private boolean drawRawGpsLines = false;
-	/**
-	 * Force the drawing of lines between raw gps points if there are no
-	 * lines in the imported document.
-	 */
-	private boolean forceRawGpsLines = false;
-
-	/**
-	 * Base URL to the osm data server
-	 */
-	public String osmDataServer = "http://www.openstreetmap.org/api";
-	/**
-	 * The username to the osm server
-	 */
-	public String osmDataUsername = "";
-	/**
-	 * The stored password or <code>null</code>, if the password should not be
-	 * stored.
-	 */
-	public String osmDataPassword = null;
-	/**
-	 * The csv input style string or <code>null</code> for auto. The style is a
-	 * comma seperated list of identifiers as specified in the tooltip help text
-	 * of csvImportString in PreferenceDialog.
-	 * 
-	 * @see org.openstreetmap.josm.gui.PreferenceDialog#csvImportString
-	 */
-	public String csvImportString = null;
-
-	/**
-	 * List of all available Projections.
-	 */
-	public static final Projection[] allProjections = new Projection[]{
-		new Epsg4263(),
-		new Mercator()
-	};
-
+	private SortedMap<String, String> properties = new TreeMap<String, String>();
+	
 	/**
 	 * Return the location of the preferences file
 	 */
 	public static String getPreferencesDir() {
 		return System.getProperty("user.home")+"/.josm/";
 	}
-	
-	/**
-	 * Exception thrown in case of any loading/saving error (including parse errors).
-	 * @author imi
-	 */
-	public static class PreferencesException extends Exception {
-		public PreferencesException(String message, Throwable cause) {
-			super(message, cause);
-		}
-		public PreferencesException(String message) {
-			super(message);
-		}
+
+
+	public void addPreferenceChangedListener(PreferenceChangedListener listener) {
+		this.listener.add(listener);
 	}
-	/**
-	 * Load from disk.
-	 * @throws PreferencesException Any loading error (parse errors as well)
-	 */
-	public void load() throws PreferencesException {
-		File file = new File(getPreferencesDir()+"/preferences");
-		Element root;
-		try {
-			root = new SAXBuilder().build(new FileReader(file)).getRootElement();
-
-			// laf
-			String lafClassName = root.getChildText("laf");
-			for (LookAndFeelInfo lafInfo : UIManager.getInstalledLookAndFeels())
-				if (lafInfo.getClassName().equals(lafClassName)) {
-					laf = lafInfo;
-					break;
-				}
-			if (laf == null)
-				throw new PreferencesException("Look and Feel not found.", null);
-			
-			// projection
-			Class<?> projectionClass = Class.forName(root.getChildText("projection"));
-			projection = allProjections[0];
-			for (Projection p : allProjections) {
-				if (p.getClass() == projectionClass) {
-					projection = p;
-					break;
-				}
-			}
-
-			Element osmServer = root.getChild("osm-server");
-			if (osmServer != null) {
-				osmDataServer = osmServer.getChildText("url");
-				osmDataUsername = osmServer.getChildText("username");
-				osmDataPassword = osmServer.getChildText("password");
-				csvImportString = osmServer.getChildText("csvImportString");
-			}
-			drawRawGpsLines = root.getChild("drawRawGpsLines") != null;
-			forceRawGpsLines = root.getChild("forceRawGpsLines") != null;
-		} catch (Exception e) {
-			if (e instanceof PreferencesException)
-				throw (PreferencesException)e;
-			throw new PreferencesException("Could not load preferences", e);
-		}
-		
-	}
-	/**
-	 * Save to disk.
-	 * @throws PreferencesException Any saving error (exceeding disk space, etc..)
-	 */
-	@SuppressWarnings("unchecked")
-	public void save() throws PreferencesException {
-		Element root = new Element("josm-settings");
-		
-		List children = root.getChildren();
-		children.add(new Element("laf").setText(laf.getClassName()));
-		children.add(new Element("projection").setText(getProjection().getClass().getName()));
-		if (drawRawGpsLines)
-			children.add(new Element("drawRawGpsLines"));
-		if (forceRawGpsLines)
-			children.add(new Element("forceRawGpsLines"));
-		Element osmServer = new Element("osm-server");
-		osmServer.getChildren().add(new Element("url").setText(osmDataServer));
-		osmServer.getChildren().add(new Element("username").setText(osmDataUsername));
-		osmServer.getChildren().add(new Element("password").setText(osmDataPassword));
-		osmServer.getChildren().add(new Element("csvImportString").setText(csvImportString));
-		children.add(osmServer);
-
-		try {
-			File prefDir = new File(getPreferencesDir());
-			if (prefDir.exists() && !prefDir.isDirectory())
-				throw new PreferencesException("Preferences directory "+getPreferencesDir()+" is not a directory.");
-			if (!prefDir.exists())
-				prefDir.mkdirs();
-
-			FileWriter file = new FileWriter(getPreferencesDir()+"/preferences");
-			new XMLOutputter(Format.getPrettyFormat()).output(root, file);
-			file.close();
-		} catch (IOException e) {
-			throw new PreferencesException("Could not write preferences", e);
-		}
-	}
-
-	// projection change listener stuff
-	
-	/**
-	 * The list of all listeners to projection changes.
-	 */
-	private Collection<PropertyChangeListener> listener = new LinkedList<PropertyChangeListener>();
-
-	/**
-	 * Add a listener of projection changes to the list of listeners.
-	 * @param listener The listerner to add.
-	 */
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		if (listener != null)
-			this.listener.add(listener);
-	}
-	/**
-	 * Remove the listener from the list.
-	 */
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
+	public void removePreferenceChangedListener(PreferenceChangedListener listener) {
 		this.listener.remove(listener);
 	}
-	/**
-	 * Fires a PropertyChangeEvent if the old value differs from the new value.
-	 */
-	private <T> void firePropertyChanged(String name, T oldValue, T newValue) {
-		if (oldValue == newValue)
-			return;
-		PropertyChangeEvent evt = null;
-		for (PropertyChangeListener l : listener) {
-			if (evt == null)
-				evt = new PropertyChangeEvent(this, name, oldValue, newValue);
-			l.propertyChange(evt);
+
+
+	synchronized public String get(String key) {
+		if (!properties.containsKey(key))
+			return "";
+		return properties.get(key);
+	}
+	synchronized public boolean getBoolean(String key) {
+		return properties.containsKey(key) ? Boolean.parseBoolean(properties.get(key)) : false;
+	}
+	
+	
+	synchronized public void put(String key, String value) {
+		if (value == null)
+			value = "";
+		properties.put(key, value);
+		firePreferenceChanged(key, value);
+	}
+	synchronized public void put(String key, boolean value) {
+		properties.put(key, Boolean.toString(value));
+		firePreferenceChanged(key, Boolean.toString(value));
+	}
+
+	private void firePreferenceChanged(String key, String value) {
+		for (PreferenceChangedListener l : listener)
+			l.preferenceChanged(key, value);
+	}
+
+
+	public void save() throws IOException {
+		PrintWriter out = new PrintWriter(new FileWriter(getPreferencesDir()+"preferences"));
+		out.println(XmlWriter.header());
+		out.println("<josm>");
+		for (Entry<String, String> e : properties.entrySet()) {
+			out.print("  <"+e.getKey());
+			if (!e.getValue().equals(""))
+				out.print(" value='"+XmlWriter.encode(e.getValue())+"'");
+			out.println(" />");
+		}
+		out.println("</josm>");
+		out.close();
+	}
+
+
+	public void load() throws IOException {
+		MinML2 reader = new MinML2(){
+			@Override public void startElement(String ns, String name, String qName, Attributes attr) {
+				if (name.equals("josm-settings"))
+					throw new RuntimeException("old version");
+				String v = attr.getValue("value");
+				if (!name.equals("josm"))
+					properties.put(name, v == null ? "" : v);
+			}
+		};
+		try {
+			reader.parse(new FileReader(getPreferencesDir()+"preferences"));
+		} catch (SAXException e) {
+			e.printStackTrace();
+			throw new IOException("Error in preferences file");
 		}
 	}
 
-	// getter / setter
-	
-	/**
-	 * Set the projection and fire an event to all ProjectionChangeListener
-	 * @param projection The new Projection.
-	 */
-	public void setProjection(Projection projection) {
-		Projection old = this.projection;
-		this.projection = projection;
-		firePropertyChanged("projection", old, projection);
-	}
-	/**
-	 * Get the current projection.
-	 * @return The current projection set.
-	 */
-	public Projection getProjection() {
-		return projection;
-	}
-	public void setDrawRawGpsLines(boolean drawRawGpsLines) {
-		boolean old = this.drawRawGpsLines;
-		this.drawRawGpsLines = drawRawGpsLines;
-		firePropertyChanged("drawRawGpsLines", old, drawRawGpsLines);
-	}
-	public boolean isDrawRawGpsLines() {
-		return drawRawGpsLines;
-	}
-	public void setForceRawGpsLines(boolean forceRawGpsLines) {
-		boolean old = this.forceRawGpsLines;
-		this.forceRawGpsLines = forceRawGpsLines;
-		firePropertyChanged("forceRawGpsLines", old, forceRawGpsLines);
-	}
-	public boolean isForceRawGpsLines() {
-		return forceRawGpsLines;
+	public void resetToDefault() {
+		properties.clear();
+		properties.put("laf", "javax.swing.plaf.metal.MetalLookAndFeel");
+		properties.put("projection", "org.openstreetmap.josm.data.projection.Epsg4263");
+		properties.put("osmDataServer", "http://www.openstreetmap.org/api");
 	}
 }

@@ -38,15 +38,15 @@ public class OsmConnection {
 
 		@Override
 		protected PasswordAuthentication getPasswordAuthentication() {
-			String username = Main.pref.osmDataUsername;
-			String password = Main.pref.osmDataPassword;
-			if (passwordtried || "".equals(username) || password == null || "".equals(password)) {
+			String username = Main.pref.get("osmDataUsername");
+			String password = Main.pref.get("osmDataPassword");
+			if (passwordtried || username.equals("") || password.equals("")) {
 				JPanel p = new JPanel(new GridBagLayout());
 				p.add(new JLabel("Username"), GBC.std().insets(0,0,10,0));
-				JTextField usernameField = new JTextField("".equals(username) ? "" : username, 20);
+				JTextField usernameField = new JTextField(username, 20);
 				p.add(usernameField, GBC.eol());
 				p.add(new JLabel("Password"), GBC.std().insets(0,0,10,0));
-				JPasswordField passwordField = new JPasswordField(password == null ? "" : password, 20);
+				JPasswordField passwordField = new JPasswordField(password, 20);
 				p.add(passwordField, GBC.eol());
 				JLabel warning = new JLabel("Warning: The password is transferred unencrypted.");
 				warning.setFont(warning.getFont().deriveFont(Font.ITALIC));
@@ -58,7 +58,7 @@ public class OsmConnection {
 				}
 				username = usernameField.getText();
 				password = String.valueOf(passwordField.getPassword());
-				if ("".equals(username))
+				if (username.equals(""))
 					return null;
 			}
 			passwordtried = true;

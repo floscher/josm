@@ -29,7 +29,7 @@ public class RawCsvReader {
 	
 	public Collection<LatLon> parse() throws JDOMException, IOException {
 		Collection<LatLon> data = new LinkedList<LatLon>();
-		String formatStr = Main.pref.csvImportString;
+		String formatStr = Main.pref.get("csvImportString");
 		if (formatStr == null)
 			formatStr = in.readLine();
 		if (formatStr == null)
@@ -51,9 +51,9 @@ public class RawCsvReader {
 
 		// test for completness
 		if (!format.contains("lat") || !format.contains("lon")) {
-			if (Main.pref.csvImportString != null)
-				throw new JDOMException("Format string is incomplete. Need at least 'lat' and 'lon' specification");
-			throw new JDOMException("Format string in data is incomplete or not found. Try setting an manual format string in Preferences.");
+			if (Main.pref.get("csvImportString").equals(""))
+				throw new JDOMException("Format string in data is incomplete or not found. Try setting an manual format string in Preferences.");
+			throw new JDOMException("Format string is incomplete. Need at least 'lat' and 'lon' specification");
 		}
 		
 		int lineNo = 0;
@@ -70,7 +70,7 @@ public class RawCsvReader {
 					else if (token.equals("ignore"))
 						st.nextToken();
 					else
-						throw new JDOMException("Unknown data type: '"+token+"'."+(Main.pref.csvImportString == null ? " Maybe add an format string in preferences." : ""));
+						throw new JDOMException("Unknown data type: '"+token+"'."+(Main.pref.get("csvImportString").equals("") ? " Maybe add an format string in preferences." : ""));
 				}
 				data.add(new LatLon(lat, lon));
 			}
