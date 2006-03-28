@@ -247,6 +247,6 @@ public class NavigatableComponent extends JComponent {
 	 * @return The projection to be used in calculating stuff.
 	 */
 	protected Projection getProjection() {
-		return Main.pref.getProjection();
+		return Main.proj;
 	}
 }

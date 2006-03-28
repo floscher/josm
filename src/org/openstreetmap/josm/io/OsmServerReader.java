@@ -100,7 +100,6 @@ public class OsmServerReader extends OsmConnection {
 		URL url = new URL(urlStr);
 		HttpURLConnection con = (HttpURLConnection)url.openConnection();
 		con.setConnectTimeout(20000);
-		System.out.println("response: "+con.getResponseCode());
 		if (con.getResponseCode() == 401 && isCancelled())
 			return null;
 		return new InputStreamReader(con.getInputStream());

@@ -22,8 +22,8 @@ public class Mercator implements Projection {
 
 	public LatLon eastNorth2latlon(EastNorth p) {
 		return new LatLon(
-			p.east()*180/Math.PI,
-			Math.atan(Math.sinh(p.north()))*180/Math.PI);
+			Math.atan(Math.sinh(p.north()))*180/Math.PI,
+			p.east()*180/Math.PI);
 	}
 
 	@Override

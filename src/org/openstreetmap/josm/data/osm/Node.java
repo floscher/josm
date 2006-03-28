@@ -18,7 +18,7 @@ public class Node extends OsmPrimitive {
 
 	public Node(LatLon latlon) {
 		this.coor = latlon;
-		eastNorth = Main.pref.getProjection().latlon2eastNorth(latlon);
+		eastNorth = Main.proj.latlon2eastNorth(latlon);
 	}
 
 	@Override

@@ -111,7 +111,7 @@ public class RawGpsDataLayer extends Layer {
 		for (Collection<LatLon> c : data) {
 			Collection<EastNorth> eastNorthList = new LinkedList<EastNorth>();
 			for (LatLon ll : c)
-				eastNorthList.add(Main.pref.getProjection().latlon2eastNorth(ll));
+				eastNorthList.add(Main.proj.latlon2eastNorth(ll));
 			this.eastNorth.add(eastNorthList);
 		}
 	}

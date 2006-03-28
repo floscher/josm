@@ -57,6 +57,9 @@ public class DownloadAction extends JosmAction {
 
     private enum DownloadStatus {FINISHED, REDISPLAY}
 
+    /**
+     * minlat, minlon, maxlat, maxlon
+     */
 	JTextField[] latlon = new JTextField[]{
 			new JTextField(9),
 			new JTextField(9),
@@ -67,6 +70,9 @@ public class DownloadAction extends JosmAction {
 	public DownloadAction() {
 		super("Download from OSM", "download", "Download map data from the OSM server.", "Ctrl-Shift-D", 
 				KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
+		// TODO remove when bug in Java6 is fixed
+		for (JTextField f : latlon)
+			f.setMinimumSize(new Dimension(100,new JTextField().getMinimumSize().height));
 	}
 
 	public void actionPerformed(ActionEvent e) {

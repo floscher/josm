@@ -77,7 +77,7 @@ public class MoveCommand implements Command {
 	public void moveAgain(double x, double y) {
 		for (Node n : objects) {
 			n.eastNorth = new EastNorth(n.eastNorth.east()+x, n.eastNorth.north()+y);
-			n.coor = Main.pref.getProjection().eastNorth2latlon(n.eastNorth);
+			n.coor = Main.proj.eastNorth2latlon(n.eastNorth);
 		}
 		this.x += x;
 		this.y += y;
@@ -86,7 +86,7 @@ public class MoveCommand implements Command {
 	public void executeCommand() {
 		for (Node n : objects) {
 			n.eastNorth = new EastNorth(n.eastNorth.east()+x, n.eastNorth.north()+y);
-			n.coor = Main.pref.getProjection().eastNorth2latlon(n.eastNorth);
+			n.coor = Main.proj.eastNorth2latlon(n.eastNorth);
 			n.modified = true;
 		}
 	}

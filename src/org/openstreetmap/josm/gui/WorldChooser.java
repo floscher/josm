@@ -68,14 +68,15 @@ public class WorldChooser extends NavigatableComponent {
 			}
 			public LatLon eastNorth2latlon(EastNorth p) {
 				return new LatLon(
-						p.east()*360/world.getIconWidth() - 180,
-						p.north()*180/world.getIconHeight() - 90);
+						p.north()*180/world.getIconHeight() - 90,
+						p.east()*360/world.getIconWidth() - 180);
 			}
 			@Override
 			public String toString() {
 				return "WorldChooser";
 			}
 		};
+		setMinimumSize(new Dimension(350, 350/2));
 	}
 
 
@@ -119,8 +120,10 @@ public class WorldChooser extends NavigatableComponent {
 
 	@Override
 	public void zoomTo(EastNorth newCenter, double scale) {
-		if (getWidth() != 0 && scale > scaleMax)
+		if (getWidth() != 0 && scale > scaleMax) {
 			scale = scaleMax;
+			newCenter = center;
+		}
 		super.zoomTo(newCenter, scale);
 	}
 
@@ -201,8 +204,8 @@ public class WorldChooser extends NavigatableComponent {
 				return;
 			}
 		}
-		markerMin = new EastNorth(v[0], v[1]);
-		markerMax = new EastNorth(v[2], v[3]);
+		markerMin = getProjection().latlon2eastNorth(new LatLon(v[0], v[1]));
+		markerMax = getProjection().latlon2eastNorth(new LatLon(v[2], v[3]));
 		repaint();
 	}
 
