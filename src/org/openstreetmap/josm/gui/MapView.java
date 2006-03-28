@@ -18,6 +18,7 @@ import javax.swing.event.ChangeListener;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.coor.EastNorth;
+import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.data.projection.Projection;
@@ -227,7 +228,7 @@ public class MapView extends NavigatableComponent implements ChangeListener, Pro
 			
 			if (v.min == null || v.max == null) {
 				// no bounds means standard scale and center 
-				center = new EastNorth(51.526447, -0.14746371);
+				center = Main.proj.latlon2eastNorth(new LatLon(51.526447, -0.14746371));
 				scale = 10;
 			} else {
 				center = new EastNorth(v.min.east()/2+v.max.east()/2, v.min.north()/2+v.max.north()/2);

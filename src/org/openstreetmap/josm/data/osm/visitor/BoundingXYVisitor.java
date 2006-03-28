@@ -52,6 +52,6 @@ public class BoundingXYVisitor implements Visitor {
 	public Bounds getBounds() {
 		if (min == null || max == null)
 			return null;
-		return new Bounds(Main.pref.getProjection().eastNorth2latlon(min), Main.pref.getProjection().eastNorth2latlon(max));
+		return new Bounds(Main.proj.eastNorth2latlon(min), Main.proj.eastNorth2latlon(max));
 	}
 }

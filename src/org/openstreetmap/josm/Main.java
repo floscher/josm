@@ -34,6 +34,7 @@ import org.openstreetmap.josm.actions.UploadAction;
 import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.Preferences.PreferencesException;
 import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.ShowModifiers;
 import org.openstreetmap.josm.gui.layer.Layer;
@@ -52,6 +53,8 @@ public class Main extends JFrame {
 	 * Global application window. Use this as JOPtionPane-parent to center on application.
 	 */
 	public static Main main;
+
+	public static Projection proj;
 
 	/**
 	 * Global application preferences
@@ -182,6 +185,8 @@ public class Main extends JFrame {
 			}
 		});
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		
+		proj = pref.getProjection();
 	}
 
 	/**

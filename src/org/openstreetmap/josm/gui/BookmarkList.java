@@ -31,7 +31,7 @@ public class BookmarkList extends JList {
 	 */
 	public static class Bookmark {
 		public String name;
-		public double[] latlon = new double[4];
+		public double[] latlon = new double[4]; // minlat, minlon, maxlat, maxlon
 		public boolean rawgps;
 		@Override public String toString() {
 			return name;

@@ -89,7 +89,7 @@ public class PreferenceDialog extends JDialog {
 	/**
 	 * Indicate, that the application has to be restarted for the settings to take effect.
 	 */
-	boolean requiresRestart = false;
+	private boolean requiresRestart = false;
 	/**
 	 * ComboBox with all look and feels.
 	 */
@@ -148,7 +148,7 @@ public class PreferenceDialog extends JDialog {
 		lafCombo.setSelectedItem(Main.pref.laf);
 		lafCombo.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
-				setRequiresRestart();
+				requiresRestart = true;
 			}});
 
 		// projection combo box
@@ -158,6 +158,11 @@ public class PreferenceDialog extends JDialog {
 				break;
 			}
 		}
+		projectionCombo.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				requiresRestart = true;
+			}
+		});
 		
 		// drawRawGpsLines
 		drawRawGpsLines.addActionListener(new ActionListener(){
@@ -263,13 +268,5 @@ public class PreferenceDialog extends JDialog {
 		tabPane.addTab(null, ImageProvider.get("preferences", icon), p);
 		tabPane.setToolTipTextAt(tabPane.getTabCount()-1, desc);
 		return p;
-	}
-	
-	/**
-	 * Remember, that the settings made requires a restart of the application.
-	 * Called from various actionListener - classes
-	 */
-	protected void setRequiresRestart() {
-		requiresRestart = true;
 	}
 }
