@@ -24,7 +24,14 @@ public class ImageProvider {
 	 * Position of an overlay icon
 	 * @author imi
 	 */
-	public enum OverlayPosition {NORTHWEST, NORTHEAST, SOUTHWEST, SOUTHEAST}
+	public final static class OverlayPosition {
+		private OverlayPosition() {}
+		public static OverlayPosition NORTHWEST = new OverlayPosition();
+		public static OverlayPosition NORTHEAST = new OverlayPosition();
+		public static OverlayPosition SOUTHWEST = new OverlayPosition();
+		public static OverlayPosition SOUTHEAST = new OverlayPosition();
+	}
+	
 	
 	/**
 	 * The icon cache
@@ -77,11 +84,18 @@ public class ImageProvider {
 		Graphics g = img.createGraphics();
 		ground.paintIcon(null, g, 0, 0);
 		int x = 0, y = 0;
-		switch (pos) {
-		case NORTHWEST: x = 0;		y = 0;		break;
-		case NORTHEAST: x = w-wo;	y = 0;		break;
-		case SOUTHWEST: x = 0;		y = h-ho;	break;
-		case SOUTHEAST: x = w-wo;	y = h-ho;	break;
+		if (pos == OverlayPosition.NORTHWEST) {
+			x = 0;
+			y = 0;
+		} else if (pos == OverlayPosition.NORTHEAST) {
+			x = w-wo;
+			y = 0;
+		} else if (pos == OverlayPosition.SOUTHWEST) {
+			x = 0;
+			y = h-ho;
+		} else if (pos == OverlayPosition.SOUTHEAST) {
+			x = w-wo;
+			y = h-ho;
 		}
 		overlay.paintIcon(null, g, x, y);
 		return new ImageIcon(img);

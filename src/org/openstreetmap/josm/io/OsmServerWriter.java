@@ -135,7 +135,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 	private void sendRequest(String requestMethod, String urlSuffix,
 			OsmPrimitive osm, boolean addBody) {
 		try {
-			URL url = new URL(Main.pref.get("osmDataServer") + "/0.3/" + urlSuffix + "/" + osm.id);
+			URL url = new URL(Main.pref.get("osm-server.url") + "/0.3/" + urlSuffix + "/" + osm.id);
 			System.out.println("upload to: "+url);
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 			con.setConnectTimeout(20000);

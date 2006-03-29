@@ -34,6 +34,7 @@ import org.openstreetmap.josm.actions.UndoAction;
 import org.openstreetmap.josm.actions.UploadAction;
 import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.data.projection.Epsg4263;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.ShowModifiers;
@@ -221,24 +222,6 @@ public class Main extends JFrame {
 				pref.save();
 			} else
 				pref.load();
-		} catch (RuntimeException x) {
-			//TODO: Temporary code to update user preferences.
-			if (x.getMessage().equals("old version")) {
-				int answer = JOptionPane.showConfirmDialog(
-						null, 
-						"The preferences - file format has changed.\nThe settings will be reset to default.",
-						"Information",
-						JOptionPane.OK_CANCEL_OPTION);
-				if (answer == JOptionPane.CANCEL_OPTION)
-					System.exit(0);
-				pref.resetToDefault();
-				try {
-					pref.save();
-				} catch (IOException e) {
-					e.printStackTrace();
-					errMsg = "Preferences could not be loaded. Reverting to default.";
-				}
-			}
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			errMsg = "Preferences could not be loaded. Write default preference file to '"+Preferences.getPreferencesDir()+"preferences'.";
@@ -257,8 +240,8 @@ public class Main extends JFrame {
 			proj = (Projection)Class.forName(pref.get("projection")).newInstance();
 		} catch (Exception e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(null, "The projection could not be initialized. Aborting.");
-			System.exit(1);
+			JOptionPane.showMessageDialog(null, "The projection could not be read from preferences. Using EPSG:4263.");
+			proj = new Epsg4263();
 		}
 		
 		try {

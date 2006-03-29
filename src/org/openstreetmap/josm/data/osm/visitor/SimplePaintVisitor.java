@@ -4,10 +4,12 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.LineSegment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.gui.NavigatableComponent;
+import org.openstreetmap.josm.tools.ColorHelper;
 
 /**
  * A visitor that paint a simple scheme of every primitive it visits to a 
@@ -17,9 +19,9 @@ import org.openstreetmap.josm.gui.NavigatableComponent;
  */
 public class SimplePaintVisitor implements Visitor {
 
-	private final static Color darkerblue = new Color(0,0,96);
-	private final static Color darkblue = new Color(0,0,128);
-	private final static Color darkgreen = new Color(0,128,0);
+	public final static Color darkerblue = new Color(0,0,96);
+	public final static Color darkblue = new Color(0,0,128);
+	public final static Color darkgreen = new Color(0,128,0);
 
 	/**
 	 * The environment to paint to.
@@ -47,7 +49,8 @@ public class SimplePaintVisitor implements Visitor {
 	 * @param n The node to draw.
 	 */
 	public void visit(Node n) {
-		drawNode(n, n.isSelected() ? Color.WHITE : Color.RED);
+		drawNode(n, n.isSelected() ? getPreferencesColor("selected", Color.WHITE)
+				: getPreferencesColor("node", Color.RED));
 	}
 
 	/**
@@ -55,7 +58,7 @@ public class SimplePaintVisitor implements Visitor {
 	 * White if selected (as always) or green otherwise.
 	 */
 	public void visit(LineSegment ls) {
-		drawLineSegment(ls, darkgreen);
+		drawLineSegment(ls, getPreferencesColor("segment", darkgreen));
 	}
 
 	/**
@@ -64,16 +67,16 @@ public class SimplePaintVisitor implements Visitor {
 	 */
 	public void visit(Way t) {
 		// only to overwrite with blue
-		Color wayColor = darkblue;
+		Color wayColor = getPreferencesColor("way", darkblue);
 		for (LineSegment ls : t.segments) {
 			if (ls.incomplete) {
-				wayColor = darkerblue;
+				wayColor = getPreferencesColor("incomplete way", darkerblue);
 				break;
 			}
 		}
 		for (LineSegment ls : t.segments)
 			if (!ls.isSelected()) // selected already in good color
-				drawLineSegment(ls, t.isSelected() ? Color.WHITE : wayColor);
+				drawLineSegment(ls, t.isSelected() ? getPreferencesColor("selected", Color.WHITE) : wayColor);
 	}
 
 	/**
@@ -95,10 +98,17 @@ public class SimplePaintVisitor implements Visitor {
 		if (ls.incomplete)
 			return;
 		if (ls.isSelected())
-			col = Color.WHITE;
+			col = getPreferencesColor("selected", Color.WHITE);
 		g.setColor(col);
 		Point p1 = nc.getPoint(ls.from.eastNorth);
 		Point p2 = nc.getPoint(ls.to.eastNorth);
 		g.drawLine(p1.x, p1.y, p2.x, p2.y);
+	}
+	
+	private Color getPreferencesColor(String colName, Color def) {
+		String colStr = Main.pref.get("color."+colName);
+		if (colStr.equals(""))
+			return def;
+		return ColorHelper.html2color(colStr);
 	}
 }

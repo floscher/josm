@@ -38,8 +38,8 @@ public class OsmConnection {
 
 		@Override
 		protected PasswordAuthentication getPasswordAuthentication() {
-			String username = Main.pref.get("osmDataUsername");
-			String password = Main.pref.get("osmDataPassword");
+			String username = Main.pref.get("osm-server.username");
+			String password = Main.pref.get("osm-server.password");
 			if (passwordtried || username.equals("") || password.equals("")) {
 				JPanel p = new JPanel(new GridBagLayout());
 				p.add(new JLabel("Username"), GBC.std().insets(0,0,10,0));

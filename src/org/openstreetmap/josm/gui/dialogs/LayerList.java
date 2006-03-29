@@ -29,6 +29,7 @@ import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.tools.ImageProvider;
+import org.openstreetmap.josm.tools.ImageProvider.OverlayPosition;
 
 /**
  * A component that manages the list of all layers and react to selection changes
@@ -85,7 +86,7 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 						layer.name, index, isSelected, cellHasFocus);
 				Icon icon = layer.getIcon();
 				if (!layer.visible)
-					icon = ImageProvider.overlay(icon, invisible, ImageProvider.OverlayPosition.SOUTHEAST);
+					icon = ImageProvider.overlay(icon, invisible, OverlayPosition.SOUTHEAST);
 				label.setIcon(icon);
 				label.setToolTipText(layer.getToolTipText());
 				return label;
