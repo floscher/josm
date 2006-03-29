@@ -213,7 +213,14 @@ public class Main extends JFrame {
 			System.exit(0);
 		}
 
-		
+		File prefDir = new File(Preferences.getPreferencesDir());
+		if (prefDir.exists() && !prefDir.isDirectory()) {
+			JOptionPane.showMessageDialog(null, "Cannot open preferences directory: "+Preferences.getPreferencesDir());
+			return;
+		}
+		if (!prefDir.exists())
+			prefDir.mkdirs();
+
 		// load preferences
 		String errMsg = null;
 		try {
