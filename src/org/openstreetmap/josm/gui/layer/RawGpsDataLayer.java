@@ -15,6 +15,7 @@ import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.MapView;
+import org.openstreetmap.josm.tools.ColorHelper;
 import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
@@ -61,7 +62,11 @@ public class RawGpsDataLayer extends Layer {
 
 	@Override
 	public void paint(Graphics g, MapView mv) {
-		g.setColor(Color.GRAY);
+		String gpsCol = Main.pref.get("color.gps point");
+		if (gpsCol.equals(""))
+			g.setColor(Color.GRAY);
+		else
+			g.setColor(ColorHelper.html2color(gpsCol));
 		Point old = null;
 		for (Collection<EastNorth> c : eastNorth) {
 			if (!Main.pref.getBoolean("forceRawGpsLines"))

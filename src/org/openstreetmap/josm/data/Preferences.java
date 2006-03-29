@@ -1,19 +1,20 @@
 package org.openstreetmap.josm.data;
 
+import java.awt.Color;
+import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
-import org.openstreetmap.josm.tools.XmlWriter;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-
-import uk.co.wilson.xml.MinML2;
+import org.openstreetmap.josm.data.osm.visitor.SimplePaintVisitor;
+import org.openstreetmap.josm.tools.ColorHelper;
 
 
 /**
@@ -58,11 +59,24 @@ public class Preferences {
 			return "";
 		return properties.get(key);
 	}
+	synchronized public String get(String key, String def) {
+		String prop = properties.get(key);
+		if (prop == null || prop.equals(""))
+			return def;
+		return prop;
+	}
+	synchronized public Collection<Entry<String, String>> getAllPrefix(String prefix) {
+		LinkedList<Entry<String,String>> all = new LinkedList<Entry<String,String>>();
+		for (Entry<String,String> e : properties.entrySet())
+			if (e.getKey().startsWith(prefix))
+				all.add(e);
+		return all;
+	}
 	synchronized public boolean getBoolean(String key) {
 		return properties.containsKey(key) ? Boolean.parseBoolean(properties.get(key)) : false;
 	}
-	
-	
+
+
 	synchronized public void put(String key, String value) {
 		if (value == null)
 			value = "";
@@ -82,34 +96,22 @@ public class Preferences {
 
 	public void save() throws IOException {
 		PrintWriter out = new PrintWriter(new FileWriter(getPreferencesDir()+"preferences"));
-		out.println(XmlWriter.header());
-		out.println("<josm>");
-		for (Entry<String, String> e : properties.entrySet()) {
-			out.print("  <"+e.getKey());
+		for (Entry<String, String> e : properties.entrySet())
 			if (!e.getValue().equals(""))
-				out.print(" value='"+XmlWriter.encode(e.getValue())+"'");
-			out.println(" />");
-		}
-		out.println("</josm>");
+				out.println(e.getKey()+"="+e.getValue());
 		out.close();
 	}
 
 
 	public void load() throws IOException {
-		MinML2 reader = new MinML2(){
-			@Override public void startElement(String ns, String name, String qName, Attributes attr) {
-				if (name.equals("josm-settings"))
-					throw new RuntimeException("old version");
-				String v = attr.getValue("value");
-				if (!name.equals("josm"))
-					properties.put(name, v == null ? "" : v);
-			}
-		};
-		try {
-			reader.parse(new FileReader(getPreferencesDir()+"preferences"));
-		} catch (SAXException e) {
-			e.printStackTrace();
-			throw new IOException("Error in preferences file");
+		properties.clear();
+		BufferedReader in = new BufferedReader(new FileReader(getPreferencesDir()+"preferences"));
+		int lineNumber = 0;
+		for (String line = in.readLine(); line != null; line = in.readLine(), lineNumber++) {
+			int i = line.indexOf('=');
+			if (i == -1 || i == 0)
+				throw new IOException("Malformed config file at line "+lineNumber);
+			properties.put(line.substring(0,i), line.substring(i+1));
 		}
 	}
 
@@ -117,6 +119,12 @@ public class Preferences {
 		properties.clear();
 		properties.put("laf", "javax.swing.plaf.metal.MetalLookAndFeel");
 		properties.put("projection", "org.openstreetmap.josm.data.projection.Epsg4263");
-		properties.put("osmDataServer", "http://www.openstreetmap.org/api");
+		properties.put("osm-server.url", "http://www.openstreetmap.org/api");
+		properties.put("color.node", ColorHelper.color2html(Color.red));
+		properties.put("color.segment", ColorHelper.color2html(SimplePaintVisitor.darkgreen));
+		properties.put("color.way", ColorHelper.color2html(SimplePaintVisitor.darkblue));
+		properties.put("color.incomplete way", ColorHelper.color2html(SimplePaintVisitor.darkerblue));
+		properties.put("color.selected", ColorHelper.color2html(Color.white));
+		properties.put("color.gps point", ColorHelper.color2html(Color.gray));
 	}
 }

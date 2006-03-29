@@ -54,8 +54,6 @@ import org.xml.sax.SAXException;
  */
 public class DownloadAction extends JosmAction {
 
-    private enum DownloadStatus {FINISHED, REDISPLAY}
-
     /**
      * minlat, minlon, maxlat, maxlon
      */
@@ -76,7 +74,7 @@ public class DownloadAction extends JosmAction {
 
 	public void actionPerformed(ActionEvent e) {
 		
-		String osmDataServer = Main.pref.get("osmDataServer");
+		String osmDataServer = Main.pref.get("osm-server.url");
 		//TODO: Remove this in later versions (temporary only)
 		if (osmDataServer.endsWith("/0.2") || osmDataServer.endsWith("/0.2/")) {
 			int answer = JOptionPane.showConfirmDialog(Main.main, 
@@ -89,7 +87,7 @@ public class DownloadAction extends JosmAction {
 			if (answer != JOptionPane.YES_OPTION)
 				return;
 			int cutPos = osmDataServer.endsWith("/0.2") ? 4 : 5;
-			Main.pref.put("osmDataServer", osmDataServer.substring(0, osmDataServer.length()-cutPos));
+			Main.pref.put("osm-server.url", osmDataServer.substring(0, osmDataServer.length()-cutPos));
 			try {
 				Main.pref.save();
 			} catch (IOException x) {
@@ -243,19 +241,20 @@ public class DownloadAction extends JosmAction {
 					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 			if (r != JOptionPane.OK_OPTION)
 				return;
-			if (startDownload() == DownloadStatus.FINISHED) 
+			if (startDownload()) 
 				break;
 		}
 	}
 
 	/**
 	 * Read the values from the edit fields and from the download.
+	 * @return <code>true</code> for a success, <code>false</code> redisplay
 	 */
-	private DownloadStatus startDownload() {
+	private boolean startDownload() {
 		Bookmark b = readBookmark();
 		if (b == null) {
 			JOptionPane.showMessageDialog(Main.main, "Please enter the desired coordinates or click on a bookmark.");
-			return DownloadStatus.REDISPLAY;
+			return false;
 		}
 
 		double minlon = b.latlon[0];
@@ -263,7 +262,7 @@ public class DownloadAction extends JosmAction {
 		double maxlon = b.latlon[2];
 		double maxlat = b.latlon[3];
 		download(rawGps.isSelected(), minlon, minlat, maxlon, maxlat);
-		return DownloadStatus.FINISHED;
+		return true;
 	}
 	
 	/**

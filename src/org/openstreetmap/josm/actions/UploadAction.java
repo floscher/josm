@@ -39,7 +39,7 @@ public class UploadAction extends JosmAction {
 
 	public void actionPerformed(ActionEvent e) {
 		
-		String osmDataServer = Main.pref.get("osmDataServer");
+		String osmDataServer = Main.pref.get("osm-server.url");
 		//TODO: Remove this in later versions (temporary only)
 		if (osmDataServer.endsWith("/0.2") || osmDataServer.endsWith("/0.2/")) {
 			int answer = JOptionPane.showConfirmDialog(Main.main, 
@@ -52,7 +52,7 @@ public class UploadAction extends JosmAction {
 			if (answer != JOptionPane.YES_OPTION)
 				return;
 			int cutPos = osmDataServer.endsWith("/0.2") ? 4 : 5;
-			Main.pref.put("osmDataServer", osmDataServer.substring(0, osmDataServer.length()-cutPos));
+			Main.pref.put("osm-server.url", osmDataServer.substring(0, osmDataServer.length()-cutPos));
 			try {
 				Main.pref.save();
 			} catch (IOException x) {

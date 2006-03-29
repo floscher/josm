@@ -47,7 +47,7 @@ public class OsmServerReader extends OsmConnection {
 	 * 		ways.
 	 */
 	public Collection<Collection<LatLon>> parseRawGps() throws IOException, JDOMException {
-		String url = Main.pref.get("osmDataServer")+"/0.3/trackpoints?bbox="+lon1+","+lat1+","+lon2+","+lat2+"&page=";
+		String url = Main.pref.get("osm-server.url")+"/0.3/trackpoints?bbox="+lon1+","+lat1+","+lon2+","+lat2+"&page=";
 		Collection<Collection<LatLon>> data = new LinkedList<Collection<LatLon>>();
 		Collection<LatLon> list = new LinkedList<LatLon>();
 		
@@ -79,7 +79,7 @@ public class OsmServerReader extends OsmConnection {
 	 * @return A data set containing all data retrieved from that url
 	 */
 	public DataSet parseOsm() throws SAXException, IOException {
-		Reader r = getReader(Main.pref.get("osmDataServer")+"/0.3/map?bbox="+lon1+","+lat1+","+lon2+","+lat2);
+		Reader r = getReader(Main.pref.get("osm-server.url")+"/0.3/map?bbox="+lon1+","+lat1+","+lon2+","+lat2);
 		if (r == null)
 			return null;
 		DataSet data = OsmReader.parseDataSet(r);

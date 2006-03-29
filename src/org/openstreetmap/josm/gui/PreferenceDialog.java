@@ -1,5 +1,6 @@
 package org.openstreetmap.josm.gui;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -7,6 +8,9 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Vector;
+import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -14,6 +18,7 @@ import javax.swing.Box;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -21,14 +26,19 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
+import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.table.TableCellRenderer;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.projection.Projection;
+import org.openstreetmap.josm.tools.ColorHelper;
 import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.ImageProvider;
 
@@ -51,15 +61,22 @@ public class PreferenceDialog extends JDialog {
 		public void actionPerformed(ActionEvent e) {
 			Main.pref.put("laf", ((LookAndFeelInfo)lafCombo.getSelectedItem()).getClassName());
 			Main.pref.put("projection", projectionCombo.getSelectedItem().getClass().getName());
-			Main.pref.put("osmDataServer", osmDataServer.getText());
-			Main.pref.put("osmDataUsername", osmDataUsername.getText());
+			Main.pref.put("osm-server.url", osmDataServer.getText());
+			Main.pref.put("osm-server.username", osmDataUsername.getText());
 			String pwd = String.valueOf(osmDataPassword.getPassword());
 			if (pwd.equals(""))
 				pwd = null;
-			Main.pref.put("osmDataPassword", pwd);
+			Main.pref.put("osm-server.password", pwd);
 			Main.pref.put("csvImportString", csvImportString.getText());
 			Main.pref.put("drawRawGpsLines", drawRawGpsLines.isSelected());
 			Main.pref.put("forceRawGpsLines", forceRawGpsLines.isSelected());
+
+			for (int i = 0; i < colors.getRowCount(); ++i) {
+				String name = (String)colors.getValueAt(i, 0);
+				Color col = (Color)colors.getValueAt(i, 1);
+				Main.pref.put("color."+name, ColorHelper.color2html(col));
+			}
+
 			try {
 				Main.pref.save();
 			} catch (IOException x) {
@@ -68,6 +85,7 @@ public class PreferenceDialog extends JDialog {
 			}
 			if (requiresRestart)
 				JOptionPane.showMessageDialog(PreferenceDialog.this, "You have to restart JOSM for some settings to take effect.");
+			Main.main.repaint();
 			setVisible(false);
 		}
 	}
@@ -129,6 +147,9 @@ public class PreferenceDialog extends JDialog {
 	 */
 	JCheckBox forceRawGpsLines = new JCheckBox("Force lines if no line segments imported.");
 
+	JTable colors;
+	
+	
 	/**
 	 * Create a preference setting dialog from an preferences-file. If the file does not
 	 * exist, it will be created.
@@ -139,7 +160,13 @@ public class PreferenceDialog extends JDialog {
 		super(Main.main, "Preferences");
 
 		// look and feel combo box
-		lafCombo.setSelectedItem(Main.pref.get("laf"));
+		String laf = Main.pref.get("laf");
+		for (int i = 0; i < lafCombo.getItemCount(); ++i) {
+			if (((LookAndFeelInfo)lafCombo.getItemAt(i)).getClassName().equals(laf)) {
+				lafCombo.setSelectedIndex(i);
+				break;
+			}
+		}
 		final ListCellRenderer oldRenderer = lafCombo.getRenderer();
 		lafCombo.setRenderer(new DefaultListCellRenderer(){
 			@Override public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -174,7 +201,62 @@ public class PreferenceDialog extends JDialog {
 			}
 		});
 
+		osmDataServer.setText(Main.pref.get("osm-server.url"));
+		osmDataUsername.setText(Main.pref.get("osm-server.username"));
+		osmDataPassword.setText(Main.pref.get("osm-server.password"));
+		csvImportString.setText(Main.pref.get("csvImportString"));
+		drawRawGpsLines.setSelected(Main.pref.getBoolean("drawRawGpsLines"));
+		forceRawGpsLines.setToolTipText("Force drawing of lines if the imported data contain no line information.");
+		forceRawGpsLines.setSelected(Main.pref.getBoolean("forceRawGpsLines"));
+		forceRawGpsLines.setEnabled(drawRawGpsLines.isSelected());
+
 		
+		Collection<Entry<String,String>> c = Main.pref.getAllPrefix("color.");
+		Vector<Vector<Object>> rows = new Vector<Vector<Object>>();
+		for (Entry<String,String> e : c) {
+			Vector<Object> row = new Vector<Object>(2);
+			row.add(e.getKey().substring("color.".length()));
+			row.add(ColorHelper.html2color(e.getValue()));
+			rows.add(row);
+		}
+		Vector<Object> cols = new Vector<Object>(2);
+		cols.add("Color");
+		cols.add("Name");
+		colors = new JTable(rows, cols){
+			@Override public boolean isCellEditable(int row, int column) {
+				return false;
+			}
+		};
+		colors.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		JButton colorEdit = new JButton("Choose");
+		colorEdit.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				if (colors.getSelectedRowCount() == 0) {
+					JOptionPane.showMessageDialog(PreferenceDialog.this, "Please select a color.");
+					return;
+				}
+				int sel = colors.getSelectedRow();
+				JColorChooser chooser = new JColorChooser((Color)colors.getValueAt(sel, 1));
+				int answer = JOptionPane.showConfirmDialog(PreferenceDialog.this, chooser, "Choose a color for "+colors.getValueAt(sel, 0), JOptionPane.OK_CANCEL_OPTION);
+				if (answer == JOptionPane.OK_OPTION)
+					colors.setValueAt(chooser.getColor(), sel, 1);
+			}
+		});
+		final TableCellRenderer oldColorsRenderer = colors.getDefaultRenderer(Object.class);
+		colors.setDefaultRenderer(Object.class, new TableCellRenderer(){
+			public Component getTableCellRendererComponent(JTable t, Object o, boolean selected, boolean focus, int row, int column) {
+				if (column == 1) {
+					JLabel l = new JLabel(ColorHelper.color2html((Color)o));
+					l.setBackground((Color)o);
+					l.setOpaque(true);
+					return l;
+				}
+				return oldColorsRenderer.getTableCellRendererComponent(t,o,selected,focus,row,column);
+			}
+		});
+		colors.getColumnModel().getColumn(1).setWidth(100);
+
+		// setting tooltips
 		osmDataServer.setToolTipText("The base URL to the OSM server (REST API)");
 		osmDataUsername.setToolTipText("Login name (email) to the OSM account.");
 		osmDataPassword.setToolTipText("Login password to the OSM account. Leave blank to not store any password.");
@@ -185,24 +267,22 @@ public class PreferenceDialog extends JDialog {
 				"An example: \"ignore ignore lat lon\" will use ' ' as delimiter, skip the first two values and read then lat/lon.<br>" +
 				"Other example: \"lat,lon\" will just read lat/lon values comma seperated.</html>");
 		drawRawGpsLines.setToolTipText("If your gps device draw to few lines, select this to draw lines along your way.");
-		drawRawGpsLines.setSelected(Main.pref.getBoolean("drawRawGpsLines"));
-		forceRawGpsLines.setToolTipText("Force drawing of lines if the imported data contain no line information.");
-		forceRawGpsLines.setSelected(Main.pref.getBoolean("forceRawGpsLines"));
-		forceRawGpsLines.setEnabled(drawRawGpsLines.isSelected());
-
-		osmDataServer.setText(Main.pref.get("osmDataServer"));
-		osmDataUsername.setText(Main.pref.get("osmDataUsername"));
-		osmDataPassword.setText(Main.pref.get("osmDataPassword"));
-		csvImportString.setText(Main.pref.get("csvImportString"));
-
+		colors.setToolTipText("Colors used by different objects in JOSM.");
+		
+		// creating the gui
+		
 		// Display tab
 		JPanel display = createPreferenceTab("display", "Display Settings", "Various settings that influence the visual representation of the whole program.");
 		display.add(new JLabel("Look and Feel"), GBC.std());
 		display.add(GBC.glue(5,0), GBC.std().fill(GBC.HORIZONTAL));
 		display.add(lafCombo, GBC.eol().fill(GBC.HORIZONTAL));
 		display.add(drawRawGpsLines, GBC.eol().insets(20,0,0,0));
-		display.add(forceRawGpsLines, GBC.eol().insets(40,0,0,0));
-		display.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
+		display.add(forceRawGpsLines, GBC.eop().insets(40,0,0,0));
+		display.add(new JLabel("Colors"), GBC.eol());
+		colors.setPreferredScrollableViewportSize(new Dimension(100,112));
+		display.add(new JScrollPane(colors), GBC.eol().fill(GBC.BOTH));
+		display.add(colorEdit, GBC.eol().anchor(GBC.EAST));
+		//display.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
 
 		// Connection tab
 		JPanel con = createPreferenceTab("connection", "Connection Settings", "Connection Settings to the OSM server.");
@@ -220,6 +300,7 @@ public class PreferenceDialog extends JDialog {
 		con.add(warning, GBC.eop().fill(GBC.HORIZONTAL));
 		con.add(new JLabel("CSV import specification (empty: read from first line in data)"), GBC.eol());
 		con.add(csvImportString, GBC.eop().fill(GBC.HORIZONTAL));
+		con.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
 		
 		// Map tab
 		JPanel map = createPreferenceTab("map", "Map Settings", "Settings for the map projection and data interpretation.");
