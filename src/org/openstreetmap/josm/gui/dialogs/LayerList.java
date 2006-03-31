@@ -1,21 +1,28 @@
 package org.openstreetmap.josm.gui.dialogs;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Collection;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JColorChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
@@ -28,6 +35,8 @@ import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
 import org.openstreetmap.josm.gui.layer.Layer;
+import org.openstreetmap.josm.gui.layer.RawGpsDataLayer;
+import org.openstreetmap.josm.tools.ColorHelper;
 import org.openstreetmap.josm.tools.ImageProvider;
 import org.openstreetmap.josm.tools.ImageProvider.OverlayPosition;
 
@@ -110,6 +119,47 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 		});
 		mapView.addLayerChangeListener(this);
 
+		layers.addMouseListener(new MouseAdapter(){
+			private void openPopup(MouseEvent e) {
+				final int index = layers.locationToIndex(e.getPoint());
+				final Layer layer = (Layer)layers.getModel().getElementAt(index);
+				if (!(layer instanceof RawGpsDataLayer))
+					return; // currently only options for raw layers.
+				JPopupMenu menu = new JPopupMenu();
+				JMenuItem color = new JMenuItem("Customize Color");
+				color.addActionListener(new ActionListener(){
+					public void actionPerformed(ActionEvent e) {
+						String col = Main.pref.get("color.layer "+layer.name, Main.pref.get("color.gps point", ColorHelper.color2html(Color.gray)));
+						JColorChooser c = new JColorChooser(ColorHelper.html2color(col));
+						Object[] options = new Object[]{"OK", "Cancel", "Default"};
+						int answer = JOptionPane.showOptionDialog(Main.main, c, "Choose a color", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+						switch (answer) {
+						case 0:
+							Main.pref.put("color.layer "+layer.name, ColorHelper.color2html(c.getColor()));
+							break;
+						case 1:
+							return;
+						case 2:
+							Main.pref.put("color.layer "+layer.name, null);
+							break;
+						}
+						Main.main.repaint();
+					}
+				});
+				menu.add(color);
+				menu.show(LayerList.this, e.getX(), e.getY());
+			}
+			@Override public void mousePressed(MouseEvent e) {
+				if (e.isPopupTrigger())
+					openPopup(e);
+			}
+			@Override public void mouseReleased(MouseEvent e) {
+				if (e.isPopupTrigger())
+					openPopup(e);
+			}
+		});
+		
+		
 		// Buttons
 		JPanel buttonPanel = new JPanel(new GridLayout(1, 5));
 
@@ -221,4 +271,6 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 			layers.setSelectedValue(newLayer, true);
 		updateButtonEnabled();
 	}
+
+	public void layerMoved(Layer layer, int newPosition) {}
 }

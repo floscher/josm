@@ -226,19 +226,12 @@ public class Main extends JFrame {
 		try {
 			if (arguments.remove("--reset-preferences")) {
 				pref.resetToDefault();
-				pref.save();
 			} else
 				pref.load();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			errMsg = "Preferences could not be loaded. Write default preference file to '"+Preferences.getPreferencesDir()+"preferences'.";
 			pref.resetToDefault();
-			try {
-				pref.save();
-			} catch (IOException e) {
-				e.printStackTrace();
-				errMsg = "Preferences could not be loaded. Reverting to default.";
-			}
 		}
 		if (errMsg != null)
 			JOptionPane.showMessageDialog(null, errMsg);

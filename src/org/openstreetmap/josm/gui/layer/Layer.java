@@ -5,7 +5,6 @@ import java.awt.Graphics;
 import javax.swing.Icon;
 
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
-import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.MapView;
 
 /**
@@ -78,9 +77,4 @@ abstract public class Layer {
 	 * 		area is occupied.
 	 */
 	abstract public void visitBoundingBox(BoundingXYVisitor v);
-
-	/**
-	 * Initialize the internal dataset with the given projection.
-	 */
-	abstract public void init(Projection projection);
 }
