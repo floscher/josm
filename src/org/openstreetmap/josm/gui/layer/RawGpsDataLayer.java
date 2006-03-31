@@ -13,7 +13,6 @@ import org.openstreetmap.josm.data.Preferences.PreferenceChangedListener;
 import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
-import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.tools.ColorHelper;
 import org.openstreetmap.josm.tools.ImageProvider;
@@ -27,7 +26,7 @@ import org.openstreetmap.josm.tools.ImageProvider;
 public class RawGpsDataLayer extends Layer {
 
 	private static Icon icon;
-
+	
 	/**
 	 * A list of ways which containing a list of points.
 	 */
@@ -37,14 +36,18 @@ public class RawGpsDataLayer extends Layer {
 	public RawGpsDataLayer(Collection<Collection<LatLon>> data, String name) {
 		super(name);
 		this.data = data;
-		
+
+		eastNorth = new LinkedList<Collection<EastNorth>>();
+		for (Collection<LatLon> c : data) {
+			Collection<EastNorth> eastNorthList = new LinkedList<EastNorth>();
+			for (LatLon ll : c)
+				eastNorthList.add(Main.proj.latlon2eastNorth(ll));
+			this.eastNorth.add(eastNorthList);
+		}
+
 		Main.pref.addPreferenceChangedListener(new PreferenceChangedListener(){
 			public void preferenceChanged(String key, String newValue) {
-				if (Main.main.getMapFrame() == null) {
-					Main.pref.removePreferenceChangedListener(this);
-					return;
-				}
-				if (key.equals("drawRawGpsLines") || key.equals("forceRawGpsLines"))
+				if (Main.main.getMapFrame() != null && (key.equals("drawRawGpsLines") || key.equals("forceRawGpsLines")))
 					Main.main.getMapFrame().repaint();
 			}
 		});
@@ -63,10 +66,13 @@ public class RawGpsDataLayer extends Layer {
 	@Override
 	public void paint(Graphics g, MapView mv) {
 		String gpsCol = Main.pref.get("color.gps point");
-		if (gpsCol.equals(""))
-			g.setColor(Color.GRAY);
-		else
+		String gpsColSpecial = Main.pref.get("color.layer "+name);
+		if (!gpsColSpecial.equals(""))
+			g.setColor(ColorHelper.html2color(gpsColSpecial));
+		else if (!gpsCol.equals(""))
 			g.setColor(ColorHelper.html2color(gpsCol));
+		else
+			g.setColor(Color.GRAY);
 		Point old = null;
 		for (Collection<EastNorth> c : eastNorth) {
 			if (!Main.pref.getBoolean("forceRawGpsLines"))
@@ -106,16 +112,5 @@ public class RawGpsDataLayer extends Layer {
 		for (Collection<EastNorth> c : eastNorth)
 			for (EastNorth eastNorth : c)
 				v.visit(eastNorth);
-	}
-
-	@Override
-	public void init(Projection projection) {
-		eastNorth = new LinkedList<Collection<EastNorth>>();
-		for (Collection<LatLon> c : data) {
-			Collection<EastNorth> eastNorthList = new LinkedList<EastNorth>();
-			for (LatLon ll : c)
-				eastNorthList.add(Main.proj.latlon2eastNorth(ll));
-			this.eastNorth.add(eastNorthList);
-		}
 	}
 }

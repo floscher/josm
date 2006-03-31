@@ -88,12 +88,6 @@ public class DownloadAction extends JosmAction {
 				return;
 			int cutPos = osmDataServer.endsWith("/0.2") ? 4 : 5;
 			Main.pref.put("osm-server.url", osmDataServer.substring(0, osmDataServer.length()-cutPos));
-			try {
-				Main.pref.save();
-			} catch (IOException x) {
-				x.printStackTrace();
-				JOptionPane.showMessageDialog(Main.main, "Could not save the preferences change:\n" + x.getMessage());
-			}
 		}
 
 		JPanel dlg = new JPanel(new GridBagLayout());

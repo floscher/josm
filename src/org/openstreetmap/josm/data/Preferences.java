@@ -7,8 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.Map.Entry;
@@ -65,11 +64,11 @@ public class Preferences {
 			return def;
 		return prop;
 	}
-	synchronized public Collection<Entry<String, String>> getAllPrefix(String prefix) {
-		LinkedList<Entry<String,String>> all = new LinkedList<Entry<String,String>>();
+	synchronized public Map<String, String> getAllPrefix(String prefix) {
+		Map<String,String> all = new TreeMap<String,String>();
 		for (Entry<String,String> e : properties.entrySet())
 			if (e.getKey().startsWith(prefix))
-				all.add(e);
+				all.put(e.getKey(), e.getValue());
 		return all;
 	}
 	synchronized public boolean getBoolean(String key) {
@@ -79,12 +78,15 @@ public class Preferences {
 
 	synchronized public void put(String key, String value) {
 		if (value == null)
-			value = "";
-		properties.put(key, value);
+			properties.remove(key);
+		else
+			properties.put(key, value);
+		save();
 		firePreferenceChanged(key, value);
 	}
 	synchronized public void put(String key, boolean value) {
 		properties.put(key, Boolean.toString(value));
+		save();
 		firePreferenceChanged(key, Boolean.toString(value));
 	}
 
@@ -94,12 +96,23 @@ public class Preferences {
 	}
 
 
-	public void save() throws IOException {
-		PrintWriter out = new PrintWriter(new FileWriter(getPreferencesDir()+"preferences"));
-		for (Entry<String, String> e : properties.entrySet())
-			if (!e.getValue().equals(""))
-				out.println(e.getKey()+"="+e.getValue());
-		out.close();
+	/**
+	 * Called after every put. In case of a problem, do nothing but output the error
+	 * in log.
+	 */
+	private void save() {
+		try {
+			PrintWriter out = new PrintWriter(new FileWriter(
+					getPreferencesDir() + "preferences"));
+			for (Entry<String, String> e : properties.entrySet())
+				if (!e.getValue().equals(""))
+					out.println(e.getKey() + "=" + e.getValue());
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			// do not message anything, since this can be called from strange
+			// places.
+		}		
 	}
 
 
@@ -126,5 +139,6 @@ public class Preferences {
 		properties.put("color.incomplete way", ColorHelper.color2html(SimplePaintVisitor.darkerblue));
 		properties.put("color.selected", ColorHelper.color2html(Color.white));
 		properties.put("color.gps point", ColorHelper.color2html(Color.gray));
+		save();
 	}
 }

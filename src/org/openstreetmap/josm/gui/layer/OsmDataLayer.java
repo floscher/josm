@@ -20,7 +20,6 @@ import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.data.osm.visitor.MergeVisitor;
 import org.openstreetmap.josm.data.osm.visitor.SimplePaintVisitor;
-import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.tools.ImageProvider;
 
@@ -137,12 +136,6 @@ public class OsmDataLayer extends Layer {
 	public void visitBoundingBox(BoundingXYVisitor v) {
 		for (Node n : data.nodes)
 			v.visit(n);
-	}
-
-	@Override
-	public void init(Projection projection) {
-		for (Node n : data.nodes)
-			projection.latlon2eastNorth(n.coor);
 	}
 
 	/**

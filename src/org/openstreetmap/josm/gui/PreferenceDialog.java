@@ -7,8 +7,8 @@ import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.util.Collection;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.Vector;
 import java.util.Map.Entry;
 
@@ -77,12 +77,6 @@ public class PreferenceDialog extends JDialog {
 				Main.pref.put("color."+name, ColorHelper.color2html(col));
 			}
 
-			try {
-				Main.pref.save();
-			} catch (IOException x) {
-				x.printStackTrace();
-				JOptionPane.showMessageDialog(PreferenceDialog.this, "Could not save preferences:\n"+x.getMessage());
-			}
 			if (requiresRestart)
 				JOptionPane.showMessageDialog(PreferenceDialog.this, "You have to restart JOSM for some settings to take effect.");
 			Main.main.repaint();
@@ -211,9 +205,11 @@ public class PreferenceDialog extends JDialog {
 		forceRawGpsLines.setEnabled(drawRawGpsLines.isSelected());
 
 		
-		Collection<Entry<String,String>> c = Main.pref.getAllPrefix("color.");
+		
+		Map<String,String> allColors = new TreeMap<String, String>(Main.pref.getAllPrefix("color."));
+
 		Vector<Vector<Object>> rows = new Vector<Vector<Object>>();
-		for (Entry<String,String> e : c) {
+		for (Entry<String,String> e : allColors.entrySet()) {
 			Vector<Object> row = new Vector<Object>(2);
 			row.add(e.getKey().substring("color.".length()));
 			row.add(ColorHelper.html2color(e.getValue()));
@@ -228,6 +224,20 @@ public class PreferenceDialog extends JDialog {
 			}
 		};
 		colors.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		final TableCellRenderer oldColorsRenderer = colors.getDefaultRenderer(Object.class);
+		colors.setDefaultRenderer(Object.class, new TableCellRenderer(){
+			public Component getTableCellRendererComponent(JTable t, Object o, boolean selected, boolean focus, int row, int column) {
+				if (column == 1) {
+					JLabel l = new JLabel(ColorHelper.color2html((Color)o));
+					l.setBackground((Color)o);
+					l.setOpaque(true);
+					return l;
+				}
+				return oldColorsRenderer.getTableCellRendererComponent(t,o,selected,focus,row,column);
+			}
+		});
+		colors.getColumnModel().getColumn(1).setWidth(100);
+		
 		JButton colorEdit = new JButton("Choose");
 		colorEdit.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
@@ -242,19 +252,6 @@ public class PreferenceDialog extends JDialog {
 					colors.setValueAt(chooser.getColor(), sel, 1);
 			}
 		});
-		final TableCellRenderer oldColorsRenderer = colors.getDefaultRenderer(Object.class);
-		colors.setDefaultRenderer(Object.class, new TableCellRenderer(){
-			public Component getTableCellRendererComponent(JTable t, Object o, boolean selected, boolean focus, int row, int column) {
-				if (column == 1) {
-					JLabel l = new JLabel(ColorHelper.color2html((Color)o));
-					l.setBackground((Color)o);
-					l.setOpaque(true);
-					return l;
-				}
-				return oldColorsRenderer.getTableCellRendererComponent(t,o,selected,focus,row,column);
-			}
-		});
-		colors.getColumnModel().getColumn(1).setWidth(100);
 
 		// setting tooltips
 		osmDataServer.setToolTipText("The base URL to the OSM server (REST API)");

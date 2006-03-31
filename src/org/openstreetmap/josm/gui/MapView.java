@@ -10,16 +10,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
-import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer.ModifiedChangedListener;
@@ -37,7 +33,7 @@ import org.openstreetmap.josm.gui.layer.OsmDataLayer.ModifiedChangedListener;
  *
  * @author imi
  */
-public class MapView extends NavigatableComponent implements ChangeListener {
+public class MapView extends NavigatableComponent {
 
 	/**
 	 * Interface to notify listeners of the change of the active layer.
@@ -91,9 +87,6 @@ public class MapView extends NavigatableComponent implements ChangeListener {
 	 * position.
 	 */
 	public void addLayer(Layer layer) {
-		// reinitialize layer's data
-		layer.init(getProjection());
-
 		if (layer instanceof OsmDataLayer) {
 			final OsmDataLayer dataLayer = (OsmDataLayer)layer;
 			if (editLayer != null) {
@@ -320,16 +313,5 @@ public class MapView extends NavigatableComponent implements ChangeListener {
 			firePropertyChange("autoScale", oldAutoScale, autoScale);
 		if (oldScale != scale)
 			firePropertyChange("scale", oldScale, scale);
-	}
-
-	/**
-	 * Notify from the projection, that something has changed.
-	 */
-	public void stateChanged(ChangeEvent e) {
-		// reset all datasets.
-		Projection p = getProjection();
-		for (Layer l : layers)
-			l.init(p);
-		recalculateCenterScale();
 	}
 }
