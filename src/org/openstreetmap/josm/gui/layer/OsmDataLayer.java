@@ -1,6 +1,7 @@
 package org.openstreetmap.josm.gui.layer;
 
 import java.awt.Graphics;
+import java.awt.GridBagLayout;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -9,6 +10,8 @@ import java.util.Set;
 import java.util.Stack;
 
 import javax.swing.Icon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.Command;
@@ -20,7 +23,9 @@ import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.data.osm.visitor.MergeVisitor;
 import org.openstreetmap.josm.data.osm.visitor.SimplePaintVisitor;
+import org.openstreetmap.josm.data.osm.visitor.Visitor;
 import org.openstreetmap.josm.gui.MapView;
+import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
@@ -277,5 +282,40 @@ public class OsmDataLayer extends Layer {
 			if (!osm.isDeleted())
 				size++;
 		return size;
+	}
+
+	@Override
+	public Object getInfoComponent() {
+		final int[] normal = new int[3];		
+		final int[] deleted = new int[3];
+		final String[] names = {"node", "segment", "way"};
+		Visitor counter = new Visitor(){
+			private void inc(OsmPrimitive osm, int i) {
+				normal[i]++;
+				if (osm.isDeleted())
+					deleted[i]++;
+			}
+			public void visit(Node n) {
+				inc(n, 0);
+			}
+			public void visit(LineSegment ls) {
+				inc(ls, 1);
+			}
+			public void visit(Way w) {
+				inc(w, 2);
+			}
+		};
+		for (OsmPrimitive osm : data.allPrimitives())
+			osm.visit(counter);
+
+		JPanel p = new JPanel(new GridBagLayout());
+		p.add(new JLabel(name+" consists of:"), GBC.eol());
+		for (int i = 0; i < normal.length; ++i) {
+			String s = normal[i]+" "+names[i]+(normal[i] != 1 ?"s":"");
+			if (deleted[i] > 0)
+				s += " ("+deleted[i]+" deleted)";
+			p.add(new JLabel(s, ImageProvider.get("data", names[i]), JLabel.HORIZONTAL), GBC.eol().insets(15,0,0,0));
+		}
+		return p;
 	}
 }

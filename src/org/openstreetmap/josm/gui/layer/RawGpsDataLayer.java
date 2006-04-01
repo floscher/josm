@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.util.Collection;
-import java.util.LinkedList;
 
 import javax.swing.Icon;
 
@@ -27,24 +26,25 @@ public class RawGpsDataLayer extends Layer {
 
 	private static Icon icon;
 	
+	public static class GpsPoint {
+		public final LatLon latlon;
+		public final EastNorth eastNorth;
+		public final String time;
+		public GpsPoint(LatLon ll, String t) {
+			latlon = ll; 
+			eastNorth = Main.proj.latlon2eastNorth(ll); 
+			time = t;
+		}
+	}
+	
 	/**
 	 * A list of ways which containing a list of points.
 	 */
-	private final Collection<Collection<LatLon>> data;
-	private Collection<Collection<EastNorth>> eastNorth;
+	public final Collection<Collection<GpsPoint>> data;
 
-	public RawGpsDataLayer(Collection<Collection<LatLon>> data, String name) {
+	public RawGpsDataLayer(Collection<Collection<GpsPoint>> data, String name) {
 		super(name);
 		this.data = data;
-
-		eastNorth = new LinkedList<Collection<EastNorth>>();
-		for (Collection<LatLon> c : data) {
-			Collection<EastNorth> eastNorthList = new LinkedList<EastNorth>();
-			for (LatLon ll : c)
-				eastNorthList.add(Main.proj.latlon2eastNorth(ll));
-			this.eastNorth.add(eastNorthList);
-		}
-
 		Main.pref.addPreferenceChangedListener(new PreferenceChangedListener(){
 			public void preferenceChanged(String key, String newValue) {
 				if (Main.main.getMapFrame() != null && (key.equals("drawRawGpsLines") || key.equals("forceRawGpsLines")))
@@ -74,11 +74,11 @@ public class RawGpsDataLayer extends Layer {
 		else
 			g.setColor(Color.GRAY);
 		Point old = null;
-		for (Collection<EastNorth> c : eastNorth) {
+		for (Collection<GpsPoint> c : data) {
 			if (!Main.pref.getBoolean("forceRawGpsLines"))
 				old = null;
-			for (EastNorth eastNorth : c) {
-				Point screen = mv.getPoint(eastNorth);
+			for (GpsPoint p : c) {
+				Point screen = mv.getPoint(p.eastNorth);
 				if (Main.pref.getBoolean("drawRawGpsLines") && old != null)
 					g.drawLine(old.x, old.y, screen.x, screen.y);
 				else
@@ -91,9 +91,9 @@ public class RawGpsDataLayer extends Layer {
 	@Override
 	public String getToolTipText() {
 		int points = 0;
-		for (Collection<LatLon> c : data)
+		for (Collection<GpsPoint> c : data)
 			points += c.size();
-		return data.size()+" ways, "+points+" points.";
+		return data.size()+" tracks, "+points+" points.";
 	}
 
 	@Override
@@ -109,8 +109,20 @@ public class RawGpsDataLayer extends Layer {
 
 	@Override
 	public void visitBoundingBox(BoundingXYVisitor v) {
-		for (Collection<EastNorth> c : eastNorth)
-			for (EastNorth eastNorth : c)
-				v.visit(eastNorth);
+		for (Collection<GpsPoint> c : data)
+			for (GpsPoint p : c)
+				v.visit(p.eastNorth);
+	}
+
+	@Override
+	public Object getInfoComponent() {
+		StringBuilder b = new StringBuilder();
+		int points = 0;
+		for (Collection<GpsPoint> c : data) {
+			b.append("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a track with "+c.size()+" points<br>");
+			points += c.size();
+		}
+		b.append("</html>");
+		return "<html>"+name+" consists of "+data.size()+" tracks ("+points+" points)<br>"+b.toString();
 	}
 }

@@ -77,4 +77,6 @@ abstract public class Layer {
 	 * 		area is occupied.
 	 */
 	abstract public void visitBoundingBox(BoundingXYVisitor v);
+
+	abstract public Object getInfoComponent();
 }

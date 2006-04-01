@@ -175,7 +175,7 @@ public class PreferenceDialog extends JDialog {
 
 		// projection combo box
 		for (int i = 0; i < projectionCombo.getItemCount(); ++i) {
-			if (projectionCombo.getItemAt(i).toString().equals(Main.pref.get("projection"))) {
+			if (projectionCombo.getItemAt(i).getClass().getName().equals(Main.pref.get("projection"))) {
 				projectionCombo.setSelectedIndex(i);
 				break;
 			}
@@ -257,9 +257,10 @@ public class PreferenceDialog extends JDialog {
 		osmDataServer.setToolTipText("The base URL to the OSM server (REST API)");
 		osmDataUsername.setToolTipText("Login name (email) to the OSM account.");
 		osmDataPassword.setToolTipText("Login password to the OSM account. Leave blank to not store any password.");
-		csvImportString.setToolTipText("<html>Import string specification. Currently, only lat/lon pairs are imported.<br>" +
+		csvImportString.setToolTipText("<html>Import string specification. lat/lon and time are imported.<br>" +
 				"<b>lat</b>: The latitude coordinate<br>" +
 				"<b>lon</b>: The longitude coordinate<br>" +
+				"<b>time</b>: The measured time as string<br>" +
 				"<b>ignore</b>: Skip this field<br>" +
 				"An example: \"ignore ignore lat lon\" will use ' ' as delimiter, skip the first two values and read then lat/lon.<br>" +
 				"Other example: \"lat,lon\" will just read lat/lon values comma seperated.</html>");

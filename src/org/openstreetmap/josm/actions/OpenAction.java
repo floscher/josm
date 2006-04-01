@@ -15,12 +15,12 @@ import javax.swing.KeyStroke;
 
 import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.RawGpsDataLayer;
+import org.openstreetmap.josm.gui.layer.RawGpsDataLayer.GpsPoint;
 import org.openstreetmap.josm.io.GpxReader;
 import org.openstreetmap.josm.io.OsmReader;
 import org.openstreetmap.josm.io.OsmReaderOld;
@@ -34,7 +34,7 @@ import org.xml.sax.SAXException;
  * 
  * @author imi
  */
-public class OpenAction extends JosmAction {
+public class OpenAction extends DiskAccessAction {
 
 	/**
 	 * Create an open action. The name is "Open a file".
@@ -44,21 +44,12 @@ public class OpenAction extends JosmAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		JFileChooser fc = new JFileChooser(Main.main.currentDirectory);
-		for (int i = 0; i < ExtensionFileFilter.filters.length; ++i)
-			fc.addChoosableFileFilter(ExtensionFileFilter.filters[i]);
-		fc.setAcceptAllFileFilterUsed(true);
-
-		if (fc.showOpenDialog(Main.main) != JFileChooser.APPROVE_OPTION)
+		JFileChooser fc = createAndOpenFileChooser(true, true);
+		if (fc == null)
 			return;
-		
-		Main.main.currentDirectory = fc.getCurrentDirectory();
-
-		File filename = fc.getSelectedFile();
-		if (filename == null)
-			return;
-
-		openFile(filename);
+		File[] files = fc.getSelectedFiles();
+		for (int i = files.length; i > 0; --i)
+			openFile(files[i-1]);
 	}
 
 	/**
@@ -70,27 +61,28 @@ public class OpenAction extends JosmAction {
 			Layer layer;
 
 			if (asRawData(fn)) {
-				Collection<Collection<LatLon>> data;
+				Collection<Collection<GpsPoint>> data;
 				if (ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn)) {
 					data = new RawGpsReader(new FileReader(filename)).parse();
 				} else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
-					data = new LinkedList<Collection<LatLon>>();
+					data = new LinkedList<Collection<GpsPoint>>();
 					data.add(new RawCsvReader(new FileReader(filename)).parse());
 				} else
 					throw new IllegalStateException();
 				layer = new RawGpsDataLayer(data, filename.getName());
 			} else {
 				DataSet dataSet;
-				if (ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn))
+				if (ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn)) {
+					JOptionPane.showMessageDialog(Main.main, "Warning: Soon, it will be no longer possible to open GPX files as osm data. Please convert your files to .osm format.");
 					dataSet = new GpxReader(new FileReader(filename)).parse();
-				else if (ExtensionFileFilter.filters[ExtensionFileFilter.OSM].acceptName(fn)) {
+				} else if (ExtensionFileFilter.filters[ExtensionFileFilter.OSM].acceptName(fn)) {
 					try {
 						// temporary allow loading of old xml format.
 						dataSet = OsmReader.parseDataSet(new FileReader(filename));
 					} catch (SAXException x) {
 						if (x.getMessage().equals("Unknown version: null")) {
 							int answer = JOptionPane.showConfirmDialog(Main.main, 
-									"This seems to be an old 0.2 API XML file.\n" +
+									fn+" seems to be an old 0.2 API XML file.\n" +
 									"JOSM can try to open it with the old parser. This option\n" +
 									"will not be available in future JOSM version. You should\n" +
 									"immediatly save the file, if successfull imported.",
@@ -103,10 +95,10 @@ public class OpenAction extends JosmAction {
 							throw x;
 					}					
 				} else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
-					JOptionPane.showMessageDialog(Main.main, "CSV Data import for non-GPS data is not implemented yet.");
+					JOptionPane.showMessageDialog(Main.main, fn+": CSV Data import for non-GPS data is not implemented yet.");
 					return;
 				} else {
-					JOptionPane.showMessageDialog(Main.main, "Unknown file extension: "+fn.substring(filename.getName().lastIndexOf('.')+1));
+					JOptionPane.showMessageDialog(Main.main, fn+": Unknown file extension: "+fn.substring(filename.getName().lastIndexOf('.')+1));
 					return;
 				}
 				layer = new OsmDataLayer(dataSet, "Data Layer", true);
@@ -139,7 +131,7 @@ public class OpenAction extends JosmAction {
 		if (!ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn))
 			return false;
 		return JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
-				Main.main, "Do you want to open the file as raw gps data?",
+				Main.main, "Do you want to open "+fn+" as raw gps data?",
 				"Open as raw data?", JOptionPane.YES_NO_OPTION);
 	}
 }

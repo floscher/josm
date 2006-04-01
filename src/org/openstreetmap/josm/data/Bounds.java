@@ -38,4 +38,14 @@ public class Bounds {
 	public String toString() {
 		return "Bounds["+min.lat()+","+min.lon()+","+max.lat()+","+max.lon()+"]";
 	}
+
+	/**
+	 * Extend the bounds if necessary to include the given point.
+	 */
+	public void extend(LatLon ll) {
+		if (ll.lat() < min.lat() || ll.lon() < min.lon())
+			min = new LatLon(Math.min(ll.lat(), min.lat()), Math.min(ll.lon(), min.lon()));
+		if (ll.lat() > max.lat() || ll.lon() > max.lon())
+			max = new LatLon(Math.max(ll.lat(), max.lat()), Math.max(ll.lon(), max.lon()));
+	}
 }

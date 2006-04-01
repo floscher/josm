@@ -41,7 +41,7 @@ public class SelectionComponentVisitor implements Visitor {
 			else
 				name = ls.id+" ("+ls.from.coor.lat()+","+ls.from.coor.lon()+") -> ("+ls.to.coor.lat()+","+ls.to.coor.lon()+")";
 		}
-		icon = ImageProvider.get("data", "linesegment");
+		icon = ImageProvider.get("data", "segment");
 	}
 
 	/**

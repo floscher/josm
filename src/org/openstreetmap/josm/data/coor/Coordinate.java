@@ -51,7 +51,7 @@ abstract class Coordinate {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj instanceof EastNorth ? x == ((EastNorth)obj).x && ((EastNorth)obj).y == y : false;
+		return obj instanceof Coordinate ? x == ((Coordinate)obj).x && ((Coordinate)obj).y == y : false;
 	}
 
 	@Override

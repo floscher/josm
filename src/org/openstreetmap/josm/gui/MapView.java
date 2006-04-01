@@ -16,6 +16,7 @@ import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
+import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer.ModifiedChangedListener;
@@ -213,9 +214,13 @@ public class MapView extends NavigatableComponent {
 			double oldScale = this.scale;
 			
 			if (v.min == null || v.max == null) {
-				// no bounds means standard scale and center 
-				center = Main.proj.latlon2eastNorth(new LatLon(51.526447, -0.14746371));
-				scale = 10;
+				// no bounds means whole world 
+				center = getProjection().latlon2eastNorth(new LatLon(0,0));
+				EastNorth world = getProjection().latlon2eastNorth(new LatLon(Projection.MAX_LAT,Projection.MAX_LON));
+				double scaleX = world.east()*2/w;
+				double scaleY = world.north()*2/h;
+				scale = Math.max(scaleX, scaleY); // minimum scale to see all of the screen
+				
 			} else {
 				center = new EastNorth(v.min.east()/2+v.max.east()/2, v.min.north()/2+v.max.north()/2);
 				double scaleX = (v.max.east()-v.min.east())/w;

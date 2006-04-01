@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 import org.openstreetmap.josm.data.coor.LatLon;
+import org.openstreetmap.josm.gui.layer.RawGpsDataLayer.GpsPoint;
 
 /**
  * Read raw gps data from a gpx file. Only way points with their ways segments
@@ -41,7 +41,7 @@ public class RawGpsReader {
 	/**
 	 * Parse and return the read data
 	 */
-	public Collection<Collection<LatLon>> parse() throws JDOMException, IOException {
+	public Collection<Collection<GpsPoint>> parse() throws JDOMException, IOException {
 		final SAXBuilder builder = new SAXBuilder();
 		builder.setValidation(false);
 		Element root = builder.build(source).getRootElement();
@@ -54,25 +54,28 @@ public class RawGpsReader {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	private Collection<Collection<LatLon>> parseData(Element root) throws JDOMException {
-		Collection<Collection<LatLon>> data = new LinkedList<Collection<LatLon>>();
+	private Collection<Collection<GpsPoint>> parseData(Element root) throws JDOMException {
+		Collection<Collection<GpsPoint>> data = new LinkedList<Collection<GpsPoint>>();
 
 		// workaround for bug where the server adds /gpx.asd to the namespace
 		GPX = Namespace.getNamespace(root.getNamespaceURI());
 		
 		for (Object o : root.getChildren("wpt", GPX)) {
-			Collection<LatLon> line = new LinkedList<LatLon>();
-			line.add(new LatLon(parseDouble((Element)o, LatLonAttr.lat), parseDouble((Element)o, LatLonAttr.lon)));
+			Collection<GpsPoint> line = new LinkedList<GpsPoint>();
+			line.add(new GpsPoint(
+					new LatLon(parseDouble((Element)o, LatLonAttr.lat), parseDouble((Element)o, LatLonAttr.lon)),
+					((Element)o).getChildText("time", GPX)));
 			data.add(line);
-		}
-		for (Object o : root.getChildren("rte", GPX)) {
-			Collection<LatLon> line = parseLine(((Element)o).getChildren("rtept", GPX));
-			if (!line.isEmpty())
-				data.add(line);
 		}
 		for (Object o : root.getChildren("trk", GPX)) {
 			for (Object seg : ((Element)o).getChildren("trkseg", GPX)) {
-				Collection<LatLon> line = parseLine(((Element)seg).getChildren("trkpt", GPX));
+				Collection<GpsPoint> data1 = new LinkedList<GpsPoint>();
+				for (Object trkObj : ((Element)seg).getChildren("trkpt", GPX)) {
+					data1.add(new GpsPoint(
+							new LatLon(parseDouble((Element)trkObj, LatLonAttr.lat), parseDouble((Element)trkObj, LatLonAttr.lon)),
+							((Element)trkObj).getChildText("time", GPX)));
+				}
+				Collection<GpsPoint> line = data1;
 				if (!line.isEmpty())
 					data.add(line);
 			}
@@ -92,16 +95,5 @@ public class RawGpsReader {
 		if (Math.abs(d) > (attr == LatLonAttr.lat ? 90 : 180))
 			throw new JDOMException("Data error: "+attr+" value '"+d+"' is out of bound.");
 		return d;
-	}
-
-	/**
-	 * Parse the list of waypoint - elements and return a collection with the
-	 * points read.
-	 */
-	private Collection<LatLon> parseLine(List<Element> wpt) throws JDOMException {
-		Collection<LatLon> data = new LinkedList<LatLon>();
-		for (Element e : wpt)
-			data.add(new LatLon(parseDouble(e, LatLonAttr.lat), parseDouble(e, LatLonAttr.lon)));
-		return data;
 	}
 }

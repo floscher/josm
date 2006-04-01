@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import org.openstreetmap.josm.data.SelectionTracker;
 
 /**
- * DataSet is the data behind the application. It can consist of only a few
+ * DataSet is the data behind the application. It can consists of only a few
  * points up to the whole osm database. DataSet's can be merged together, 
  * saved, (up/down/disk)loaded etc.
  *

@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
 
+import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -26,6 +27,7 @@ import javax.swing.UIManager;
 import org.openstreetmap.josm.actions.AboutAction;
 import org.openstreetmap.josm.actions.DownloadAction;
 import org.openstreetmap.josm.actions.ExitAction;
+import org.openstreetmap.josm.actions.GpxExportAction;
 import org.openstreetmap.josm.actions.OpenAction;
 import org.openstreetmap.josm.actions.PreferencesAction;
 import org.openstreetmap.josm.actions.RedoAction;
@@ -79,12 +81,6 @@ public class Main extends JFrame {
 	public final UndoAction undoAction;
 	public final RedoAction redoAction;
 
-	/**
-	 * This directory is used for all disc IO access as starting directory. Should
-	 * be set accordingly after the IO action.
-	 */
-	public File currentDirectory = new File(".");
-
 	private OpenAction openAction;
 
 	private DownloadAction downloadAction;
@@ -103,14 +99,15 @@ public class Main extends JFrame {
 		setVisible(true);
 		
 		downloadAction = new DownloadAction();
-		UploadAction uploadAction = new UploadAction();
+		Action uploadAction = new UploadAction();
 		openAction = new OpenAction();
-		SaveAction saveAction = new SaveAction();
-		ExitAction exitAction = new ExitAction();
+		Action saveAction = new SaveAction();
+		Action gpxExportAction = new GpxExportAction(null);
+		Action exitAction = new ExitAction();
 		undoAction = new UndoAction();
 		redoAction = new RedoAction();
-		PreferencesAction preferencesAction = new PreferencesAction();
-		AboutAction aboutAction = new AboutAction();
+		Action preferencesAction = new PreferencesAction();
+		Action aboutAction = new AboutAction();
 
 		// creating menu
 		JMenuBar mainMenu = new JMenuBar();
@@ -120,6 +117,7 @@ public class Main extends JFrame {
 		fileMenu.setMnemonic('F');
 		fileMenu.add(openAction);
 		fileMenu.add(saveAction);
+		fileMenu.add(gpxExportAction);
 		fileMenu.addSeparator();
 		fileMenu.add(exitAction);
 		mainMenu.add(fileMenu);
@@ -150,8 +148,10 @@ public class Main extends JFrame {
 		toolBar.setFloatable(false);
 		toolBar.add(downloadAction);
 		toolBar.add(uploadAction);
+		toolBar.addSeparator();
 		toolBar.add(openAction);
 		toolBar.add(saveAction);
+		toolBar.add(gpxExportAction);
 		toolBar.addSeparator();
 		toolBar.add(undoAction);
 		toolBar.add(redoAction);

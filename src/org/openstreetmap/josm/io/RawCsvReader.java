@@ -11,6 +11,7 @@ import java.util.StringTokenizer;
 import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.coor.LatLon;
+import org.openstreetmap.josm.gui.layer.RawGpsDataLayer.GpsPoint;
 
 /**
  * Read raw information from a csv style file (as defined in the preferences).
@@ -27,8 +28,8 @@ public class RawCsvReader {
 		this.in = new BufferedReader(in);
 	}
 	
-	public Collection<LatLon> parse() throws JDOMException, IOException {
-		Collection<LatLon> data = new LinkedList<LatLon>();
+	public Collection<GpsPoint> parse() throws JDOMException, IOException {
+		Collection<GpsPoint> data = new LinkedList<GpsPoint>();
 		String formatStr = Main.pref.get("csvImportString");
 		if (formatStr == null)
 			formatStr = in.readLine();
@@ -62,17 +63,20 @@ public class RawCsvReader {
 				lineNo++;
 				StringTokenizer st = new StringTokenizer(line, delim);
 				double lat = 0, lon = 0;
+				String time = null;
 				for (String token : format) {
 					if (token.equals("lat"))
 						lat = Double.parseDouble(st.nextToken());
 					else if (token.equals("lon"))
 						lon = Double.parseDouble(st.nextToken());
+					else if (token.equals("time"))
+						time = (time == null?"":(time+" ")) + st.nextToken();
 					else if (token.equals("ignore"))
 						st.nextToken();
 					else
 						throw new JDOMException("Unknown data type: '"+token+"'."+(Main.pref.get("csvImportString").equals("") ? " Maybe add an format string in preferences." : ""));
 				}
-				data.add(new LatLon(lat, lon));
+				data.add(new GpsPoint(new LatLon(lat, lon), time));
 			}
 		} catch (RuntimeException e) {
 			throw new JDOMException("Parsing error in line "+lineNo, e);
