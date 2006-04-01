@@ -11,7 +11,7 @@ import org.openstreetmap.josm.data.coor.EastNorth;
  */
 public interface Projection {
 
-	public static double MAX_LAT = 85;
+	public static double MAX_LAT = 85.05112877980659; // Mercator squares the world
 	public static double MAX_LON = 180;
 	public static final double MAX_SERVER_PRECISION = 1e12;
 

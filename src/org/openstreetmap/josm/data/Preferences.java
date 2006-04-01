@@ -72,7 +72,10 @@ public class Preferences {
 		return all;
 	}
 	synchronized public boolean getBoolean(String key) {
-		return properties.containsKey(key) ? Boolean.parseBoolean(properties.get(key)) : false;
+		return getBoolean(key, false);
+	}
+	synchronized public boolean getBoolean(String key, boolean def) {
+		return properties.containsKey(key) ? Boolean.parseBoolean(properties.get(key)) : def;
 	}
 
 
