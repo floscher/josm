@@ -3,6 +3,8 @@ package org.openstreetmap.josm.tools;
 import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.net.URL;
@@ -36,27 +38,28 @@ public class ImageProvider {
 	/**
 	 * The icon cache
 	 */
-	private static Map<URL, ImageIcon> cache = new HashMap<URL, ImageIcon>();
+	private static Map<URL, Image> cache = new HashMap<URL, Image>();
 	
 	/**
 	 * Return an image from the specified location.
 	 *
 	 * @param subdir	The position of the directory, e.g. "layer"
 	 * @param name		The icons name (without the ending of ".png")
-	 * @return	The requested ImageIcon.
+	 * @return The requested Image.
 	 */
 	public static ImageIcon get(String subdir, String name) {
 		if (subdir != "")
 			subdir += "/";
-		URL path = Main.class.getResource("/images/"+subdir+name+".png");
+        String ext = name.indexOf('.') != -1 ? "" : ".png";
+		URL path = Main.class.getResource("/images/"+subdir+name+ext);
 		if (path == null)
-			throw new NullPointerException("/images/"+subdir+name+".png not found");
-		ImageIcon icon = cache.get(path);
-		if (icon == null) {
-			icon = new ImageIcon(path);
-			cache.put(path, icon);
+			throw new NullPointerException("/images/"+subdir+name+ext+" not found");
+		Image img = cache.get(path);
+		if (img == null) {
+			img = Toolkit.getDefaultToolkit().createImage(path);
+			cache.put(path, img);
 		}
-		return icon;
+		return new ImageIcon(img);
 	}
 
 	/**

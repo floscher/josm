@@ -37,9 +37,9 @@ public class SelectionComponentVisitor implements Visitor {
 		name = ls.get("name");
 		if (name == null) {
 			if (ls.incomplete)
-				name = ""+ls.id;
+				name = ls.id == 0 ? "new" : ""+ls.id;
 			else
-				name = ls.id+" ("+ls.from.coor.lat()+","+ls.from.coor.lon()+") -> ("+ls.to.coor.lat()+","+ls.to.coor.lon()+")";
+				name = (ls.id==0?"":ls.id+" ")+"("+ls.from.coor.lat()+","+ls.from.coor.lon()+") -> ("+ls.to.coor.lat()+","+ls.to.coor.lon()+")";
 		}
 		icon = ImageProvider.get("data", "segment");
 	}
@@ -51,7 +51,7 @@ public class SelectionComponentVisitor implements Visitor {
 	public void visit(Node n) {
 		name = n.get("name");
 		if (name == null)
-			name = n.id+" ("+n.coor.lat()+","+n.coor.lon()+")";
+			name = (n.id==0?"":""+n.id)+" ("+n.coor.lat()+","+n.coor.lon()+")";
 		icon = ImageProvider.get("data", "node");
 	}
 

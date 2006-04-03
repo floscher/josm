@@ -19,6 +19,7 @@ import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
+import org.openstreetmap.josm.gui.layer.WmsServerLayer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer.ModifiedChangedListener;
 
 /**
@@ -107,7 +108,10 @@ public class MapView extends NavigatableComponent {
 		}
 
 		// add as a new layer
-		layers.add(0,layer);
+        if (layer instanceof WmsServerLayer)
+            layers.add(layers.size(), layer);
+        else
+            layers.add(0, layer);
 
 		for (LayerChangeListener l : listeners)
 			l.layerAdded(layer);

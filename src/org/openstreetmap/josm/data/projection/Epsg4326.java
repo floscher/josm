@@ -8,7 +8,7 @@ import org.openstreetmap.josm.data.coor.EastNorth;
  *
  * @author imi
  */
-public class Epsg4263 implements Projection {
+public class Epsg4326 implements Projection {
 
 	public EastNorth latlon2eastNorth(LatLon p) {
 		return new EastNorth(p.lon(), p.lat());
@@ -20,6 +20,10 @@ public class Epsg4263 implements Projection {
 
 	@Override
 	public String toString() {
-		return "EPSG:4263";
+		return "EPSG:4326";
 	}
+
+    public String getCacheDirectoryName() {
+        return "epsg4326";
+    }
 }

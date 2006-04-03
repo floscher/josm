@@ -75,6 +75,9 @@ public class WorldChooser extends NavigatableComponent {
 			public String toString() {
 				return "WorldChooser";
 			}
+            public String getCacheDirectoryName() {
+                throw new UnsupportedOperationException();
+            }
 		};
 		setMinimumSize(new Dimension(350, 350/2));
 	}

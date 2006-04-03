@@ -106,9 +106,9 @@ public class GpxExportAction extends DiskAccessAction {
 			return;
 		
 		Main.pref.put("lastAddAuthor", author.isSelected());
-		if (!authorName.getText().isEmpty())
+		if (authorName.getText().length() != 0)
 			Main.pref.put("lastAuthorName", authorName.getText());
-		if (!copyright.getText().isEmpty())
+		if (copyright.getText().length() != 0)
 			Main.pref.put("lastCopyright", copyright.getText());
 		
 		try {
@@ -159,7 +159,7 @@ public class GpxExportAction extends DiskAccessAction {
 				authorName.setText(b ? Main.pref.get("lastAuthorName") : "");
 				email.setText(b ? Main.pref.get("osm-server.username") : "");
 
-				boolean authorSet = !authorName.getText().isEmpty();
+				boolean authorSet = authorName.getText().length() != 0;
 				enableCopyright(copyright, predefined, copyrightYear, copyrightLabel, copyrightYearLabel, warning, b && authorSet);
 			}
 		};
@@ -167,7 +167,7 @@ public class GpxExportAction extends DiskAccessAction {
 
 		KeyAdapter authorNameListener = new KeyAdapter(){
 					@Override public void keyReleased(KeyEvent e) {
-						boolean b = !authorName.getText().isEmpty() && author.isSelected();
+						boolean b = authorName.getText().length()!=0 && author.isSelected();
 						enableCopyright(copyright, predefined, copyrightYear, copyrightLabel, copyrightYearLabel, warning, b);
 					}
 				};
@@ -192,7 +192,7 @@ public class GpxExportAction extends DiskAccessAction {
 						license = "public domain";
 						break;
 					}
-					license += license.isEmpty() ? urls[i] : ", "+urls[i];
+					license += license.length()==0 ? urls[i] : ", "+urls[i];
 				}
 				copyright.setText(license);
 				copyright.setCaretPosition(0);
@@ -211,12 +211,12 @@ public class GpxExportAction extends DiskAccessAction {
 		copyrightYearLabel.setEnabled(enable);
 		warning.setText(enable ? warningGpl : "<html><font size='-2'>&nbsp;</html");
 
-		if (enable && copyrightYear.getText().isEmpty()) {
+		if (enable && copyrightYear.getText().length()==0) {
 			copyrightYear.setText(enable ? Integer.toString(Calendar.getInstance().get(Calendar.YEAR)) : "");
 		} else if (!enable)
 			copyrightYear.setText("");
 
-		if (enable && copyright.getText().isEmpty()) {
+		if (enable && copyright.getText().length()==0) {
 			copyright.setText(enable ? Main.pref.get("lastCopyright", "http://creativecommons.org/licenses/by-sa/2.5") : "");
 			copyright.setCaretPosition(0);
 		} else if (!enable)

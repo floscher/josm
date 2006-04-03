@@ -80,7 +80,7 @@ public class OpenAction extends DiskAccessAction {
 						// temporary allow loading of old xml format.
 						dataSet = OsmReader.parseDataSet(new FileReader(filename));
 					} catch (SAXException x) {
-						if (x.getMessage().equals("Unknown version: null")) {
+						if (x.getMessage().equals("Unknown version null")) {
 							int answer = JOptionPane.showConfirmDialog(Main.main, 
 									fn+" seems to be an old 0.2 API XML file.\n" +
 									"JOSM can try to open it with the old parser. This option\n" +
@@ -111,10 +111,10 @@ public class OpenAction extends DiskAccessAction {
 
 		} catch (SAXException x) {
 			x.printStackTrace();
-			JOptionPane.showMessageDialog(Main.main, x.getMessage());
+			JOptionPane.showMessageDialog(Main.main, "Error while parsing: "+x.getMessage());
 		} catch (JDOMException x) {
 			x.printStackTrace();
-			JOptionPane.showMessageDialog(Main.main, x.getMessage());
+			JOptionPane.showMessageDialog(Main.main, "Error while parsing: "+x.getMessage());
 		} catch (IOException x) {
 			x.printStackTrace();
 			JOptionPane.showMessageDialog(Main.main, "Could not read '"+fn+"'\n"+x.getMessage());

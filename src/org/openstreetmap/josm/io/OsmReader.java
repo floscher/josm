@@ -73,7 +73,7 @@ public class OsmReader extends MinML2 {
 				if (atts == null)
 					throw new SAXException("Unknown version.");
 				if (!"0.3".equals(atts.getValue("version")))
-					throw new SAXException("Unknown version: "+atts.getValue("version"));
+					throw new SAXException("Unknown version "+atts.getValue("version"));
 			} else if (qName.equals("node")) {
 				Node n = new Node(new LatLon(getDouble(atts, "lat"), getDouble(atts, "lon")));
 				current = n;
@@ -92,6 +92,8 @@ public class OsmReader extends MinML2 {
 			} else if (qName.equals("seg")) {
 				if (current instanceof Way) {
 					long id = getLong(atts, "id");
+					if (id == 0)
+						throw new SAXException("Incomplete line segment with id=0");
 					LineSegment ls = lineSegments.get(id);
 					if (ls == null) {
 						ls = new LineSegment(id); // incomplete line segment
@@ -104,6 +106,7 @@ public class OsmReader extends MinML2 {
 				current.put(atts.getValue("k"), atts.getValue("v"));
 			}
 		} catch (NumberFormatException x) {
+            x.printStackTrace(); // SAXException does not chain correctly
 			throw new SAXException(x.getMessage(), x);
 		} catch (NullPointerException x) {
 			throw new SAXException("NullPointerException. Possible some missing tags.", x);
@@ -121,8 +124,10 @@ public class OsmReader extends MinML2 {
 	/**
 	 * Read out the common attributes from atts and put them into this.current.
 	 */
-	private void readCommon(Attributes atts) {
+	private void readCommon(Attributes atts) throws SAXException {
 		current.id = getLong(atts, "id");
+		if (current.id == 0)
+			throw new SAXException("Illegal object with id=0");
 		String action = atts.getValue("action");
 		if ("delete".equals(action))
 			current.setDeleted(true);

@@ -65,6 +65,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 	 */
 	public void visit(Node n) {
 		if (n.id == 0 && !n.isDeleted()) {
+			n.put("created_by", "JOSM");
 			sendRequest("PUT", "node", n, true);
 		} else if (n.isDeleted()) {
 			sendRequest("DELETE", "node", n, false);
@@ -79,6 +80,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 	 */
 	public void visit(LineSegment ls) {
 		if (ls.id == 0 && !ls.isDeleted()) {
+			ls.put("created_by", "JOSM");
 			sendRequest("PUT", "segment", ls, true);
 		} else if (ls.isDeleted()) {
 			sendRequest("DELETE", "segment", ls, false);
@@ -93,6 +95,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 	 */
 	public void visit(Way w) {
 		if (w.id == 0 && !w.isDeleted()) {
+			w.put("created_by", "JOSM");
 			sendRequest("PUT", "way", w, true);
 		} else if (w.isDeleted()) {
 			sendRequest("DELETE", "way", w, false);

@@ -23,6 +23,6 @@ public class EastNorth extends Coordinate {
 	
 	@Override
 	public String toString() {
-		return "(EastNorth e="+x+", n="+y+")";
+		return "EastNorth[e="+x+", n="+y+"]";
 	}
 }

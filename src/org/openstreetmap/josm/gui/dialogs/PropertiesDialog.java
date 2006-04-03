@@ -212,7 +212,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	 * Create a new PropertiesDialog
 	 */
 	public PropertiesDialog(MapFrame mapFrame) {
-		super("Properties", "Properties Dialog", "properties", "Property for selected objects.", "P", KeyEvent.VK_P);
+		super("Properties", "Properties Dialog", "properties", "Property for selected objects.", "P", KeyEvent.VK_P, "propertiesdialog");
 		mv = mapFrame.mapView;
 
 		setPreferredSize(new Dimension(320,150));

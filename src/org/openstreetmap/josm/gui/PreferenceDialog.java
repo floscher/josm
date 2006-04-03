@@ -67,6 +67,7 @@ public class PreferenceDialog extends JDialog {
 			if (pwd.equals(""))
 				pwd = null;
 			Main.pref.put("osm-server.password", pwd);
+			Main.pref.put("wmsServerBaseUrl", wmsServerBaseUrl.getText());
 			Main.pref.put("csvImportString", csvImportString.getText());
 			Main.pref.put("drawRawGpsLines", drawRawGpsLines.isSelected());
 			Main.pref.put("forceRawGpsLines", forceRawGpsLines.isSelected());
@@ -105,11 +106,11 @@ public class PreferenceDialog extends JDialog {
 	/**
 	 * ComboBox with all look and feels.
 	 */
-	JComboBox lafCombo = new JComboBox(UIManager.getInstalledLookAndFeels());
+    private JComboBox lafCombo = new JComboBox(UIManager.getInstalledLookAndFeels());
 	/**
 	 * Combobox with all projections available
 	 */
-	JComboBox projectionCombo = new JComboBox(Projection.allProjections);
+    private JComboBox projectionCombo = new JComboBox(Projection.allProjections);
 	/**
 	 * The main tab panel.
 	 */
@@ -118,30 +119,34 @@ public class PreferenceDialog extends JDialog {
 	/**
 	 * Editfield for the Base url to the REST API from OSM. 
 	 */
-	JTextField osmDataServer = new JTextField(20);
+    private JTextField osmDataServer = new JTextField(20);
 	/**
 	 * Editfield for the username to the OSM account.
 	 */
-	JTextField osmDataUsername = new JTextField(20);
+    private JTextField osmDataUsername = new JTextField(20);
 	/**
 	 * Passwordfield for the userpassword of the REST API.
 	 */
-	JPasswordField osmDataPassword = new JPasswordField(20);
+    private JPasswordField osmDataPassword = new JPasswordField(20);
+    /**
+     * Base url of the WMS server. Holds everything except the bbox= argument.
+     */
+	private JTextField wmsServerBaseUrl = new JTextField(20);
 	/**
 	 * Comma seperated import string specifier or <code>null</code> if the first
 	 * data line should be interpreted as one.
 	 */
-	JTextField csvImportString = new JTextField(20);
+    private JTextField csvImportString = new JTextField(20);
 	/**
 	 * The checkbox stating whether nodes should be merged together.
 	 */
-	JCheckBox drawRawGpsLines = new JCheckBox("Draw lines between raw gps points.");
+    private JCheckBox drawRawGpsLines = new JCheckBox("Draw lines between raw gps points.");
 	/**
 	 * The checkbox stating whether raw gps lines should be forced.
 	 */
-	JCheckBox forceRawGpsLines = new JCheckBox("Force lines if no line segments imported.");
+    private JCheckBox forceRawGpsLines = new JCheckBox("Force lines if no line segments imported.");
 
-	JTable colors;
+    private JTable colors;
 	
 	
 	/**
@@ -198,7 +203,8 @@ public class PreferenceDialog extends JDialog {
 		osmDataServer.setText(Main.pref.get("osm-server.url"));
 		osmDataUsername.setText(Main.pref.get("osm-server.username"));
 		osmDataPassword.setText(Main.pref.get("osm-server.password"));
-		csvImportString.setText(Main.pref.get("csvImportString"));
+        wmsServerBaseUrl.setText(Main.pref.get("wmsServerBaseUrl", "http://wms.jpl.nasa.gov/wms.cgi?request=GetMap&width=512&height=512&layers=global_mosaic&styles=&srs=EPSG:4326&format=image/jpeg&"));
+        csvImportString.setText(Main.pref.get("csvImportString"));
 		drawRawGpsLines.setSelected(Main.pref.getBoolean("drawRawGpsLines"));
 		forceRawGpsLines.setToolTipText("Force drawing of lines if the imported data contain no line information.");
 		forceRawGpsLines.setSelected(Main.pref.getBoolean("forceRawGpsLines"));
@@ -257,6 +263,7 @@ public class PreferenceDialog extends JDialog {
 		osmDataServer.setToolTipText("The base URL to the OSM server (REST API)");
 		osmDataUsername.setToolTipText("Login name (email) to the OSM account.");
 		osmDataPassword.setToolTipText("Login password to the OSM account. Leave blank to not store any password.");
+        wmsServerBaseUrl.setToolTipText("The base URL to the server retrieving WMS background pictures from.");
 		csvImportString.setToolTipText("<html>Import string specification. lat/lon and time are imported.<br>" +
 				"<b>lat</b>: The latitude coordinate<br>" +
 				"<b>lon</b>: The longitude coordinate<br>" +
@@ -296,6 +303,9 @@ public class PreferenceDialog extends JDialog {
 				"<b>Do not use a valuable Password.</b></html>");
 		warning.setFont(warning.getFont().deriveFont(Font.ITALIC));
 		con.add(warning, GBC.eop().fill(GBC.HORIZONTAL));
+		con.add(new JLabel("WMS server base url (everything except bbox-parameter)"), GBC.eol());
+		con.add(wmsServerBaseUrl, GBC.eop().fill(GBC.HORIZONTAL));
+		con.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
 		con.add(new JLabel("CSV import specification (empty: read from first line in data)"), GBC.eol());
 		con.add(csvImportString, GBC.eop().fill(GBC.HORIZONTAL));
 		con.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));

@@ -19,7 +19,7 @@ public interface Projection {
 	 * List of all available Projections.
 	 */
 	public static final Projection[] allProjections = new Projection[]{
-		new Epsg4263(),
+		new Epsg4326(),
 		new Mercator()
 	};
 	
@@ -41,4 +41,9 @@ public interface Projection {
 	 * Describe the projection converter in one or two words.
 	 */
 	String toString();
+    
+    /**
+     * Get a filename compatible string (for the cache directory)
+     */
+    String getCacheDirectoryName();
 }

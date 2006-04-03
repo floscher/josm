@@ -50,7 +50,7 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 	 * @param mapView The mapView to get the dataset from.
 	 */
 	public SelectionListDialog(MapFrame mapFrame) {
-		super("Current Selection", "Selection List", "selectionlist", "Open a selection list window.", "E", KeyEvent.VK_E);
+		super("Current Selection", "Selection List", "selectionlist", "Open a selection list window.", "E", KeyEvent.VK_E, "selectionlist");
 		setPreferredSize(new Dimension(320,150));
 		displaylist.setCellRenderer(new OsmPrimitivRenderer());
 		displaylist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
