@@ -34,7 +34,6 @@ import org.openstreetmap.josm.actions.RedoAction;
 import org.openstreetmap.josm.actions.SaveAction;
 import org.openstreetmap.josm.actions.UndoAction;
 import org.openstreetmap.josm.actions.UploadAction;
-import org.openstreetmap.josm.actions.WmsServerAction;
 import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.projection.Epsg4326;
@@ -84,7 +83,7 @@ public class Main extends JFrame {
 
 	private OpenAction openAction;
 	private DownloadAction downloadAction;
-    private Action wmsServerAction;
+    //private Action wmsServerAction;
 	
 	/**
 	 * Construct an main frame, ready sized and operating. Does not 
@@ -101,7 +100,7 @@ public class Main extends JFrame {
 		
 		downloadAction = new DownloadAction();
 		Action uploadAction = new UploadAction();
-		wmsServerAction = new WmsServerAction();
+		//wmsServerAction = new WmsServerAction();
         openAction = new OpenAction();
 		Action saveAction = new SaveAction();
 		Action gpxExportAction = new GpxExportAction(null);
@@ -324,10 +323,6 @@ public class Main extends JFrame {
 			panel.setVisible(true);
 			mapFrame.setVisible(true);
 		}
-        //TODO: This is really hacky to unselect the action when the layer gets
-        // deleted. The whole mapView/mapFrame/layer concept needs refactoring!
-		if (mapFrame == null && (Boolean)wmsServerAction.getValue(Action.SELECTED_KEY))
-			wmsServerAction.putValue(Action.SELECTED_KEY, false);
 	}
 	/**
 	 * @return Returns the mapFrame.
