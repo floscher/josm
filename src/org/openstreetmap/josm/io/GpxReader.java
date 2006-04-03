@@ -7,6 +7,7 @@ import static org.openstreetmap.josm.io.GpxWriter.OSM;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -101,7 +102,7 @@ public class GpxReader {
 			Node node = parseWaypoint((Element)o);
 			addNode(data, node);
 		}
-	
+
 		// read ways (and line segments)
 		for (Object wayElement : e.getChildren("trk", GPX))
 			parseWay((Element)wayElement, data);
@@ -111,6 +112,31 @@ public class GpxReader {
 			if (osm.id < 0)
 				osm.id = 0;
 		
+		// clean up the data a bit (remove broken stuff)
+		// remove line segments with from==to
+		for (Iterator<LineSegment> it = data.lineSegments.iterator(); it.hasNext();) {
+			LineSegment ls = it.next();
+			if (ls.from.equals(ls.to)) {
+				it.remove();
+				for (Way w : data.ways)
+					w.segments.remove(ls);
+			}
+		}
+		// remove double line segments (remove only subsequent doubles yet)
+		for (Iterator<Way> it = data.ways.iterator(); it.hasNext();) {
+			LineSegment ls = null;
+			for (Iterator<LineSegment> its = it.next().segments.iterator(); its.hasNext();) {
+				LineSegment cur = its.next();
+				if (ls != null && ls.equals(cur))
+					its.remove();
+				ls = cur;
+			}
+		}
+		// remove empty ways
+		for (Iterator<Way> it = data.ways.iterator(); it.hasNext();)
+			if (it.next().segments.isEmpty())
+				it.remove();
+
 		return data;
 	}
 

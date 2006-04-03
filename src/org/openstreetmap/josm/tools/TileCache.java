@@ -27,10 +27,10 @@ import org.openstreetmap.josm.data.coor.LatLon;
  * sixteen and so on.
  * 
  * The tile identifier is an 32-bit integer whose bits are ordered in pairs of two.
- * If bit0 (the LSB) is 0, then the tile is right of the equator (0°). If bit1 is 0, it
- * is in the northern hemisphere. The next two bits representing the quarter within
- * the first quarter, so bit2 equals to 0 means, it is in the right half of the
- * quarter, represented by bit0 and bit1.
+ * If bit0 (the LSB) is 0, then the tile is right of the equator (0 grad). If bit1 
+ * is 0, it is in the northern hemisphere. The next two bits representing the 
+ * quarter within the first quarter, so bit2 equals to 0 means, it is in the right 
+ * half of the quarter, represented by bit0 and bit1.
  */
 public class TileCache {
 

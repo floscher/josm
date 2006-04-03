@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractButton;
-import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -52,7 +51,7 @@ public class ToggleDialog extends JPanel {
 		if (Main.pref.getBoolean(prefName+"visible")) {
 		    EventQueue.invokeLater(new Runnable(){
 		        public void run() {
-		            action.putValue(Action.SELECTED_KEY, true);
+		        	action.putValue("active", true);
 		            action.actionPerformed(null);
 		        }
 		    });
