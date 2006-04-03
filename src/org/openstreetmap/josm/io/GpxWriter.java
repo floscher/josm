@@ -464,7 +464,7 @@ public class GpxWriter {
 				last =  p.latlon;
 				LatLon ll = p.latlon;
 				out.print("      <trkpt lat='"+ll.lat()+"' lon='"+ll.lon()+"'");
-				if (p.time != null && !p.time.isEmpty()) {
+				if (p.time != null && p.time.length()!=0) {
 					out.println(">");
 					out.println("        <time>"+p.time+"</time>");
 					out.println("      </trkpt>");

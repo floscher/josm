@@ -4,7 +4,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.Action;
-import javax.swing.JComponent;
 import javax.swing.JToggleButton;
 
 /**
@@ -18,7 +17,7 @@ public class IconToggleButton extends JToggleButton implements PropertyChangeLis
 	/**
 	 * Construct the toggle button with the given action.
 	 */
-	public IconToggleButton(JComponent acceleratorReceiver, Action action) {
+	public IconToggleButton(Action action) {
 		super(action);
 		setText(null);
 		

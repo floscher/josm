@@ -28,7 +28,7 @@ abstract public class DiskAccessAction extends JosmAction {
 	 */
 	protected boolean isDataSetEmpty() {
 		for (OsmPrimitive osm : Main.main.ds.allNonDeletedPrimitives())
-			if (osm.id > 0)
+			if (!osm.isDeleted() || osm.id > 0)
 				return false;
 		return true;
 	}

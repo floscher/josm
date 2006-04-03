@@ -134,7 +134,7 @@ public class Preferences {
 	public void resetToDefault() {
 		properties.clear();
 		properties.put("laf", "javax.swing.plaf.metal.MetalLookAndFeel");
-		properties.put("projection", "org.openstreetmap.josm.data.projection.Epsg4263");
+		properties.put("projection", "org.openstreetmap.josm.data.projection.Epsg4326");
 		properties.put("osm-server.url", "http://www.openstreetmap.org/api");
 		properties.put("color.node", ColorHelper.color2html(Color.red));
 		properties.put("color.segment", ColorHelper.color2html(SimplePaintVisitor.darkgreen));

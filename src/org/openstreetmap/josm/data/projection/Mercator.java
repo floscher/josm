@@ -30,4 +30,8 @@ public class Mercator implements Projection {
 	public String toString() {
 		return "Mercator";
 	}
+
+    public String getCacheDirectoryName() {
+        return "mercator";
+    }
 }

@@ -34,9 +34,10 @@ import org.openstreetmap.josm.actions.RedoAction;
 import org.openstreetmap.josm.actions.SaveAction;
 import org.openstreetmap.josm.actions.UndoAction;
 import org.openstreetmap.josm.actions.UploadAction;
+import org.openstreetmap.josm.actions.WmsServerAction;
 import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.projection.Epsg4263;
+import org.openstreetmap.josm.data.projection.Epsg4326;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.ShowModifiers;
@@ -82,8 +83,8 @@ public class Main extends JFrame {
 	public final RedoAction redoAction;
 
 	private OpenAction openAction;
-
 	private DownloadAction downloadAction;
+    private Action wmsServerAction;
 	
 	/**
 	 * Construct an main frame, ready sized and operating. Does not 
@@ -100,7 +101,8 @@ public class Main extends JFrame {
 		
 		downloadAction = new DownloadAction();
 		Action uploadAction = new UploadAction();
-		openAction = new OpenAction();
+		wmsServerAction = new WmsServerAction();
+        openAction = new OpenAction();
 		Action saveAction = new SaveAction();
 		Action gpxExportAction = new GpxExportAction(null);
 		Action exitAction = new ExitAction();
@@ -123,11 +125,13 @@ public class Main extends JFrame {
 		mainMenu.add(fileMenu);
 
 		
-		JMenu connectionMenu = new JMenu("Connection");
-		connectionMenu.setMnemonic('C');
-		connectionMenu.add(downloadAction);
-		connectionMenu.add(uploadAction);
-		mainMenu.add(connectionMenu);
+		JMenu layerMenu = new JMenu("Layer");
+		layerMenu.setMnemonic('L');
+		layerMenu.add(downloadAction);
+		layerMenu.add(uploadAction);
+        layerMenu.addSeparator();
+        //layerMenu.add(new JCheckBoxMenuItem(wmsServerAction));
+		mainMenu.add(layerMenu);
 		
 		JMenu editMenu = new JMenu("Edit");
 		editMenu.setMnemonic('E');
@@ -148,6 +152,7 @@ public class Main extends JFrame {
 		toolBar.setFloatable(false);
 		toolBar.add(downloadAction);
 		toolBar.add(uploadAction);
+		//toolBar.add(new IconToggleButton(wmsServerAction));
 		toolBar.addSeparator();
 		toolBar.add(openAction);
 		toolBar.add(saveAction);
@@ -241,7 +246,7 @@ public class Main extends JFrame {
 		} catch (Exception e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "The projection could not be read from preferences. Using EPSG:4263.");
-			proj = new Epsg4263();
+			proj = new Epsg4326();
 		}
 		
 		try {
@@ -319,6 +324,10 @@ public class Main extends JFrame {
 			panel.setVisible(true);
 			mapFrame.setVisible(true);
 		}
+        //TODO: This is really hacky to unselect the action when the layer gets
+        // deleted. The whole mapView/mapFrame/layer concept needs refactoring!
+		if (mapFrame == null && (Boolean)wmsServerAction.getValue(Action.SELECTED_KEY))
+			wmsServerAction.putValue(Action.SELECTED_KEY, false);
 	}
 	/**
 	 * @return Returns the mapFrame.

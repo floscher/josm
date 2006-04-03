@@ -355,16 +355,15 @@ public class DownloadAction extends JosmAction {
 				} catch (SAXException x) {
 					closeDialog();
 					x.printStackTrace();
-					JOptionPane.showMessageDialog(Main.main, x.getMessage());
+					JOptionPane.showMessageDialog(Main.main, "Error while parsing: "+x.getMessage());
 				} catch (JDOMException x) {
 					closeDialog();
 					x.printStackTrace();
-					JOptionPane.showMessageDialog(Main.main, x.getMessage());
+					JOptionPane.showMessageDialog(Main.main, "Error while parsing: "+x.getMessage());
 				} catch (FileNotFoundException x) {
 					closeDialog();
 					x.printStackTrace();
-					JOptionPane.showMessageDialog(Main.main,
-							"URL nicht gefunden: " + x.getMessage());
+					JOptionPane.showMessageDialog(Main.main, "URL not found: " + x.getMessage());
 				} catch (IOException x) {
 					closeDialog();
 					x.printStackTrace();

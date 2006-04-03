@@ -40,4 +40,9 @@ public class LatLon extends Coordinate {
 		return lat() < -Projection.MAX_LAT || lat() > Projection.MAX_LAT || 
 			lon() < -Projection.MAX_LON || lon() > Projection.MAX_LON;
 	}
+
+    @Override
+    public String toString() {
+        return "LatLon[lat="+lat()+",lon="+lon()+"]";
+    }
 }

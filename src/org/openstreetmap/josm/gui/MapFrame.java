@@ -67,14 +67,14 @@ public class MapFrame extends JPanel {
 
 		// toolbar
 		toolBarActions.setFloatable(false);
-		toolBarActions.add(new IconToggleButton(this, new ZoomAction(this)));
+		toolBarActions.add(new IconToggleButton(new ZoomAction(this)));
 		final SelectionAction selectionAction = new SelectionAction(this);
-		toolBarActions.add(new IconToggleButton(this, selectionAction));
-		toolBarActions.add(new IconToggleButton(this, new MoveAction(this)));
-		toolBarActions.add(new IconToggleButton(this, new AddNodeAction(this)));
-		toolBarActions.add(new IconToggleButton(this, new AddLineSegmentAction(this)));
-		toolBarActions.add(new IconToggleButton(this, new AddWayAction(this, selectionAction)));
-		toolBarActions.add(new IconToggleButton(this, new DeleteAction(this)));
+		toolBarActions.add(new IconToggleButton(selectionAction));
+		toolBarActions.add(new IconToggleButton(new MoveAction(this)));
+		toolBarActions.add(new IconToggleButton(new AddNodeAction(this)));
+		toolBarActions.add(new IconToggleButton(new AddLineSegmentAction(this)));
+		toolBarActions.add(new IconToggleButton(new AddWayAction(this, selectionAction)));
+		toolBarActions.add(new IconToggleButton(new DeleteAction(this)));
 
 		// all map modes in one button group
 		ButtonGroup toolGroup = new ButtonGroup();
@@ -85,7 +85,7 @@ public class MapFrame extends JPanel {
 
 		// autoScale
 		toolBarActions.addSeparator();
-		final JToggleButton autoScaleButton = new IconToggleButton(this, new AutoScaleAction(this));
+		final JToggleButton autoScaleButton = new IconToggleButton(new AutoScaleAction(this));
 		toolBarActions.add(autoScaleButton);
 		autoScaleButton.setText(null);
 		autoScaleButton.setSelected(mapView.isAutoScale());
@@ -110,7 +110,7 @@ public class MapFrame extends JPanel {
 
 
 	private void addIconToggle(JPanel toggleDialogs, ToggleDialog dlg) {
-		toolBarActions.add(new IconToggleButton(this, dlg.action));
+        toolBarActions.add(new IconToggleButton(dlg.action));
 		toggleDialogs.add(dlg);
 	}
 

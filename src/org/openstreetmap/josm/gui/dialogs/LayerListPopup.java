@@ -5,10 +5,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JColorChooser;
+import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.JSeparator;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.GpxExportAction;
@@ -16,6 +16,7 @@ import org.openstreetmap.josm.actions.SaveAction;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.RawGpsDataLayer;
+import org.openstreetmap.josm.gui.layer.WmsServerLayer;
 import org.openstreetmap.josm.tools.ColorHelper;
 import org.openstreetmap.josm.tools.ImageProvider;
 
@@ -24,12 +25,16 @@ import org.openstreetmap.josm.tools.ImageProvider;
  */
 public class LayerListPopup extends JPopupMenu {
 
-	public LayerListPopup(final Layer layer) {
+	public LayerListPopup(final JList layers, final Layer layer) {
+        add(new LayerList.ShowHideLayerAction(layers, layer));
+        add(new LayerList.DeleteLayerAction(layers, layer));
+        addSeparator();
+        
 		if (layer instanceof OsmDataLayer)
 			add(new JMenuItem(new SaveAction()));
 
-		add(new JMenuItem(new GpxExportAction(layer)));
-		
+        if (!(layer instanceof WmsServerLayer))
+            add(new JMenuItem(new GpxExportAction(layer)));
 
 		if (layer instanceof RawGpsDataLayer) {
 			JMenuItem color = new JMenuItem("Customize Color", ImageProvider.get("colorchooser"));
@@ -55,8 +60,9 @@ public class LayerListPopup extends JPopupMenu {
 			add(color);
 		}
 
-		add(new JSeparator());
-		
+        if (!(layer instanceof WmsServerLayer))
+            addSeparator();
+
 		JMenuItem info = new JMenuItem("Info", ImageProvider.get("info"));
 		info.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
