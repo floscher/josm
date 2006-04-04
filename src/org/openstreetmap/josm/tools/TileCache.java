@@ -173,8 +173,7 @@ public class TileCache {
             if (!currentlyLoading.contains(tileId*256+zoom)) {
                 currentlyLoading.add(tileId*256+zoom);
                 // load from network
-                new Thread(){
-                    @Override
+                Main.worker.execute(new Runnable(){
                     public void run() {
                         try {
                             Bounds b = tile2pos(tileId, zoom);
@@ -194,7 +193,7 @@ public class TileCache {
                             e.printStackTrace();
                         }        
                     }
-                }.start();
+                });
             }
         } else {
             System.out.println("providing from cache "+img.getWidth(null));

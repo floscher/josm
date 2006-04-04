@@ -90,7 +90,7 @@ abstract public class SelectionTracker {
 		if (listener != null)
 			listeners.remove(listener);
 	}
-	
+
 	/**
 	 * Remember to fire an selection changed event. A call to this will not fire
 	 * the event immediately. For more, @see SelectionChangedListener

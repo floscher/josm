@@ -2,6 +2,7 @@ package org.openstreetmap.josm.io;
 
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -138,6 +139,10 @@ public class OsmWriter implements Visitor {
 				action = "modify/property";
 			if (action != null)
 				out.print(" action='"+action+"'");
+		}
+		if (osm.lastModified != null) {
+			String time = SimpleDateFormat.getDateTimeInstance().format(osm.lastModified);
+			out.print(" timestamp='"+time+"'");
 		}
 	}
 }

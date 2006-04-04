@@ -75,19 +75,19 @@ public class UploadAction extends JosmAction {
 		all.addAll(update);
 		all.addAll(delete);
 		
-		new Thread(new PleaseWaitRunnable("Uploading data"){
-			@Override
-			public void realRun() {
-				try {
-					server.uploadOsm(all);
-				} catch (JDOMException x) {
-					closeDialog();
-					x.printStackTrace();
-					JOptionPane.showMessageDialog(Main.main, x.getMessage());
-				}
-				Main.main.getMapFrame().mapView.editLayer().cleanData(server.processed, !add.isEmpty());
-			}
-		}).start();
+		PleaseWaitRunnable uploadTask = new PleaseWaitRunnable("Uploading data"){
+        			@Override
+        			protected void realRun() throws JDOMException {
+        				server.uploadOsm(all);
+        			}
+        			@Override
+                    protected void finish() {
+        				Main.main.getMapFrame().mapView.editLayer().cleanData(server.processed, !add.isEmpty());
+                    }
+        			
+        		};
+		Main.worker.execute(uploadTask);
+		uploadTask.pleaseWaitDlg.setVisible(true);
 	}
 
 	/**

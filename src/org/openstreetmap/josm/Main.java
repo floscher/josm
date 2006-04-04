@@ -13,6 +13,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import javax.swing.Action;
 import javax.swing.JFrame;
@@ -57,6 +59,14 @@ public class Main extends JFrame {
 	 */
 	public static Main main;
 
+	/**
+	 * The worker thread slave. This is for executing all long and intensive
+	 * calculations. The executed runnables are guaranteed to be executed seperatly
+	 * and sequenciel.
+	 */
+	public static Executor worker = Executors.newSingleThreadExecutor();
+	
+	
 	public static Projection proj;
 
 	/**

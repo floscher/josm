@@ -1,15 +1,21 @@
 package org.openstreetmap.josm.actions;
 
+import java.awt.EventQueue;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
 
+import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.tools.ImageProvider;
+import org.xml.sax.SAXException;
 
 /**
  * Base class helper for all Actions in JOSM. Just to make the life easier.
@@ -24,15 +30,12 @@ abstract public class JosmAction extends AbstractAction {
 	 * @author Imi
 	 */
 	protected abstract class PleaseWaitRunnable implements Runnable {
-		private String msg;
-		private JDialog pleaseWaitDlg;
+		public final JDialog pleaseWaitDlg;
+		private String errorMessage;
 		/**
 		 * Create the runnable object with a given message for the user.
 		 */
-		PleaseWaitRunnable(String msg) {
-			this.msg = msg;
-		}
-		public final void run() {
+		public PleaseWaitRunnable(String msg) {
 			pleaseWaitDlg = new JDialog(Main.main, true);
 			pleaseWaitDlg.setUndecorated(true);
 			JLabel l = new JLabel(msg+". Please Wait.");
@@ -41,24 +44,52 @@ abstract public class JosmAction extends AbstractAction {
 					BorderFactory.createEmptyBorder(20,20,20,20)));
 			pleaseWaitDlg.getContentPane().add(l);
 			pleaseWaitDlg.pack();
-			pleaseWaitDlg.setLocation(Main.main.getX()+Main.main.getWidth()/2-pleaseWaitDlg.getWidth()/2,
-					Main.main.getY()+Main.main.getHeight()/2-pleaseWaitDlg.getHeight()/2);
+			pleaseWaitDlg.setLocationRelativeTo(Main.main);
 			pleaseWaitDlg.setResizable(false);
-			SwingUtilities.invokeLater(new Runnable(){
-				public void run() {
-					pleaseWaitDlg.setVisible(true);
-				}
-			});
+		}
+		public final void run() {
 			try {
 				realRun();
+	    	} catch (SAXException x) {
+	    		x.printStackTrace();
+	    		errorMessage = "Error while parsing: "+x.getMessage();
+	    	} catch (JDOMException x) {
+	    		x.printStackTrace();
+	    		errorMessage = "Error while parsing: "+x.getMessage();
+	    	} catch (FileNotFoundException x) {
+	    		x.printStackTrace();
+	    		errorMessage = "URL not found: " + x.getMessage();
+	    	} catch (IOException x) {
+	    		x.printStackTrace();
+	    		errorMessage = x.getMessage();
 			} finally {
 				closeDialog();
 			}
 		}
-		public abstract void realRun();
+		/**
+		 * Called in the worker thread to do the actual work. When any of the
+		 * exception is thrown, a message box will be displayed and closeDialog
+		 * is called. finish() is called in any case.
+		 */
+		protected abstract void realRun() throws SAXException, JDOMException, IOException;
+		/**
+		 * Finish up the data work. Is guaranteed to be called if realRun is called.
+		 * Finish is called in the gui thread just after the dialog disappeared.
+		 */
+		protected void finish() {}
+		/**
+		 * Close the dialog. Usually called from worker thread.
+		 */
 		public void closeDialog() {
-			pleaseWaitDlg.setVisible(false);
-			pleaseWaitDlg.dispose();
+			EventQueue.invokeLater(new Runnable(){
+				public void run() {
+					finish();
+					pleaseWaitDlg.setVisible(false);
+					pleaseWaitDlg.dispose();
+					if (errorMessage != null)
+						JOptionPane.showMessageDialog(Main.main, errorMessage);
+                }
+			});
 		}
 	}
 	

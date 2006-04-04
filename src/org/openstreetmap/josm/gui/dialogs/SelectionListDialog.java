@@ -2,6 +2,7 @@ package org.openstreetmap.josm.gui.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,13 +11,16 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
 
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
 import org.openstreetmap.josm.Main;
@@ -24,6 +28,7 @@ import org.openstreetmap.josm.data.SelectionChangedListener;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.OsmPrimitivRenderer;
+import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.ImageProvider;
 import org.openstreetmap.josm.tools.SearchCompiler;
 
@@ -81,20 +86,49 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 		button.addActionListener(new ActionListener(){
 			private String lastSearch = "";
 			public void actionPerformed(ActionEvent e) {
-				JLabel l = new JLabel("Please enter a search string.");
-				l.setToolTipText("<html>Fulltext search.<ul>" +
+				JLabel label = new JLabel("Please enter a search string.");
+				final JTextField input = new JTextField(lastSearch);
+				input.setToolTipText("<html>Fulltext search.<ul>" +
 						"<li><code>Baker Street</code>  - 'Baker' and 'Street' in any key or name.</li>" +
 						"<li><code>\"Baker Street\"</code>  - 'Baker Street' in any key or name.</li>" +
 						"<li><code>name:Bak</code>  - 'Bak' anywhere in the name.</li>" +
 						"<li><code>-name:Bak</code>  - not 'Bak' in the name.</li>" +
 						"<li><code>foot:</code>  - key=foot set to any value." +
 						"</ul></html>");
-				lastSearch = (String)JOptionPane.showInputDialog(Main.main,l,"Search",JOptionPane.INFORMATION_MESSAGE,null,null,lastSearch);
-				if (lastSearch == null)
+
+				JRadioButton replace = new JRadioButton("replace selection", true);
+				JRadioButton add = new JRadioButton("add to selection", false);
+				JRadioButton remove = new JRadioButton("remove from selection", false);
+				ButtonGroup bg = new ButtonGroup();
+				bg.add(replace);
+				bg.add(add);
+				bg.add(remove);
+
+				JPanel p = new JPanel(new GridBagLayout());
+				p.add(label, GBC.eop());
+				p.add(input, GBC.eop().fill(GBC.HORIZONTAL));
+				p.add(replace, GBC.eol());
+				p.add(add, GBC.eol());
+				p.add(remove, GBC.eol());
+				JOptionPane pane = new JOptionPane(p, JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null){
+					@Override public void selectInitialValue() {
+						input.requestFocusInWindow();
+                    }
+				};
+				pane.createDialog(Main.main, "Search").setVisible(true);
+				System.out.println(pane.getValue());
+				if (!Integer.valueOf(JOptionPane.OK_OPTION).equals(pane.getValue()))
 					return;
+				lastSearch = input.getText();
 				SearchCompiler.Match matcher = SearchCompiler.compile(lastSearch);
-				for (OsmPrimitive osm : Main.main.ds.allNonDeletedPrimitives())
-					osm.setSelected(matcher.match(osm));
+				for (OsmPrimitive osm : Main.main.ds.allNonDeletedPrimitives()) {
+					if (replace.isSelected())
+						osm.setSelected(matcher.match(osm));
+					else if (add.isSelected() && !osm.isSelected() && matcher.match(osm))
+						osm.setSelected(true);
+					else if (remove.isSelected() && osm.isSelected() && matcher.match(osm))
+						osm.setSelected(false);
+				}
 				selectionChanged(Main.main.ds.getSelected());
 				Main.main.getMapFrame().repaint();
 			}
