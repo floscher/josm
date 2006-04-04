@@ -334,8 +334,7 @@ public class PreferenceDialog extends JDialog {
 
 		setModal(true);
 		pack();
-		Dimension s = Main.main.getSize();
-		setLocation(Main.main.getX()+s.width/2-getWidth()/2, Main.main.getY()+s.height/2-getHeight()/2);
+		setLocationRelativeTo(Main.main);
 	}
 
 	/**

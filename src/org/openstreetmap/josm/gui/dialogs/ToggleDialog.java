@@ -43,7 +43,6 @@ public class ToggleDialog extends JPanel {
                 Main.pref.put(prefName+"visible", show);
 			}
 		};
-		
 		setLayout(new BorderLayout());
 		add(new JLabel(title), BorderLayout.NORTH);
 		setVisible(false);

@@ -9,8 +9,8 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,6 +40,7 @@ import org.openstreetmap.josm.gui.BookmarkList.Bookmark;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.RawGpsDataLayer;
+import org.openstreetmap.josm.gui.layer.RawGpsDataLayer.GpsPoint;
 import org.openstreetmap.josm.io.OsmServerReader;
 import org.openstreetmap.josm.tools.GBC;
 import org.xml.sax.SAXException;
@@ -54,7 +55,70 @@ import org.xml.sax.SAXException;
  */
 public class DownloadAction extends JosmAction {
 
-    /**
+	/**
+	 * Open the download dialog and download the data.
+	 * Run in the worker thread.
+	 */
+    private final class DownloadOsmTask extends PleaseWaitRunnable {
+	    private final OsmServerReader reader;
+		private DataSet dataSet;
+
+	    private DownloadOsmTask(OsmServerReader reader) {
+		    super("Downloading data");
+		    this.reader = reader;
+	    }
+
+	    @Override
+	    public void realRun() throws IOException, SAXException {
+    		dataSet = reader.parseOsm();
+    		if (dataSet.nodes.isEmpty())
+    			JOptionPane.showMessageDialog(Main.main, "No data imported.");
+	    }
+
+		@Override
+        protected void finish() {
+			if (dataSet == null)
+				return; // user cancelled download or error occoured
+			Layer layer = new OsmDataLayer(dataSet, "Data Layer", false);
+	    	if (Main.main.getMapFrame() == null)
+	    		Main.main.setMapFrame(new MapFrame(layer));
+	    	else
+	    		Main.main.getMapFrame().mapView.addLayer(layer);
+		}
+	    
+    }
+
+
+    private final class DownloadGpsTask extends PleaseWaitRunnable {
+	    private final OsmServerReader reader;
+		private Collection<Collection<GpsPoint>> rawData;
+
+	    private DownloadGpsTask(OsmServerReader reader) {
+		    super("Downloading GPS data");
+		    this.reader = reader;
+	    }
+
+	    @Override
+	    public void realRun() throws IOException, JDOMException {
+    		rawData = reader.parseRawGps();
+	    }
+
+		@Override
+        protected void finish() {
+			if (rawData == null)
+				return;
+			String name = latlon[0].getText() + " " + latlon[1].getText() + " x " + latlon[2].getText() + " " + latlon[3].getText();
+			Layer layer = new RawGpsDataLayer(rawData, name);
+	    	if (Main.main.getMapFrame() == null)
+	    		Main.main.setMapFrame(new MapFrame(layer));
+	    	else
+	    		Main.main.getMapFrame().mapView.addLayer(layer);
+		}
+	    
+    }
+    
+    
+	/**
      * minlat, minlon, maxlat, maxlon
      */
 	JTextField[] latlon = new JTextField[]{
@@ -230,35 +294,24 @@ public class DownloadAction extends JosmAction {
 		wc.addInputFields(latlon, osmUrl, osmUrlRefresher);
 		
 		// Finally: the dialog
-		while(true) {
+		Bookmark b;
+		do {
 			int r = JOptionPane.showConfirmDialog(Main.main, dlg, "Choose an area", 
 					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 			if (r != JOptionPane.OK_OPTION)
 				return;
-			if (startDownload()) 
-				break;
-		}
-	}
-
-	/**
-	 * Read the values from the edit fields and from the download.
-	 * @return <code>true</code> for a success, <code>false</code> redisplay
-	 */
-	private boolean startDownload() {
-		Bookmark b = readBookmark();
-		if (b == null) {
-			JOptionPane.showMessageDialog(Main.main, "Please enter the desired coordinates or click on a bookmark.");
-			return false;
-		}
+			b = readBookmark();
+			if (b == null)
+				JOptionPane.showMessageDialog(Main.main, "Please enter the desired coordinates or click on a bookmark.");
+		} while (b == null);
 
 		double minlon = b.latlon[0];
 		double minlat = b.latlon[1];
 		double maxlon = b.latlon[2];
 		double maxlat = b.latlon[3];
 		download(rawGps.isSelected(), minlon, minlat, maxlon, maxlat);
-		return true;
 	}
-	
+
 	/**
 	 * Read a bookmark from the current set edit fields. If one of the fields is
 	 * empty or contain illegal chars, <code>null</code> is returned.
@@ -324,52 +377,10 @@ public class DownloadAction extends JosmAction {
 	/**
 	 * Do the download for the given area.
 	 */
-	public void download(final boolean rawGps, double minlat, double minlon, double maxlat, double maxlon) {
-		final OsmServerReader osmReader = new OsmServerReader(minlat, minlon, maxlat, maxlon);
-		new Thread(new PleaseWaitRunnable("Downloading data"){
-			@Override
-			public void realRun() {
-				try {
-					String name = latlon[0].getText() + " " + latlon[1].getText() + " x " + latlon[2].getText() + " " + latlon[3].getText();
-
-					Layer layer = null;
-					if (rawGps) {
-						layer = new RawGpsDataLayer(osmReader.parseRawGps(), name);
-					} else {
-						DataSet dataSet = osmReader.parseOsm();
-						if (dataSet == null)
-							return; // user cancelled download
-						if (dataSet.nodes.isEmpty()) {
-							closeDialog();
-							JOptionPane.showMessageDialog(Main.main,
-							"No data imported.");
-						}
-
-						layer = new OsmDataLayer(dataSet, "Data Layer", false);
-					}
-
-					if (Main.main.getMapFrame() == null)
-						Main.main.setMapFrame(new MapFrame(layer));
-					else
-						Main.main.getMapFrame().mapView.addLayer(layer);
-				} catch (SAXException x) {
-					closeDialog();
-					x.printStackTrace();
-					JOptionPane.showMessageDialog(Main.main, "Error while parsing: "+x.getMessage());
-				} catch (JDOMException x) {
-					closeDialog();
-					x.printStackTrace();
-					JOptionPane.showMessageDialog(Main.main, "Error while parsing: "+x.getMessage());
-				} catch (FileNotFoundException x) {
-					closeDialog();
-					x.printStackTrace();
-					JOptionPane.showMessageDialog(Main.main, "URL not found: " + x.getMessage());
-				} catch (IOException x) {
-					closeDialog();
-					x.printStackTrace();
-					JOptionPane.showMessageDialog(Main.main, x.getMessage());
-				}
-			}
-		}).start();
+	public void download(boolean rawGps, double minlat, double minlon, double maxlat, double maxlon) {
+		OsmServerReader reader = new OsmServerReader(minlat, minlon, maxlat, maxlon);
+		PleaseWaitRunnable task = rawGps ? new DownloadGpsTask(reader) : new DownloadOsmTask(reader);
+		Main.worker.execute(task);
+		task.pleaseWaitDlg.setVisible(true);
 	}
 }

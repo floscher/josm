@@ -2,6 +2,7 @@ package org.openstreetmap.josm.data.osm;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -59,6 +60,13 @@ abstract public class OsmPrimitive {
 	 * If set to true, this object is currently selected.
 	 */
 	private boolean selected = false;
+
+	/**
+	 * Time of last modification to this object. This is not set by JOSM but
+	 * read from the server and delivered back to the server unmodified. It is
+	 * used to check against edit conflicts.
+	 */
+	public Date lastModified = null;
 
 	/**
 	 * Implementation of the visitor scheme. Subclases have to call the correct
@@ -189,5 +197,6 @@ abstract public class OsmPrimitive {
 		modifiedProperties = osm.modifiedProperties;
 		deleted = osm.deleted;
 		selected = osm.selected;
+		lastModified = osm.lastModified;
 	}
 }

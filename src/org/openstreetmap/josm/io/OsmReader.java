@@ -2,6 +2,8 @@ package org.openstreetmap.josm.io;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -81,9 +83,11 @@ public class OsmReader extends MinML2 {
 				current.id = getLong(atts, "id");
 				nodes.put(n.id, n);
 			} else if (qName.equals("segment")) {
-				current = new LineSegment(
-						nodes.get(getLong(atts, "from")), 
-						nodes.get(getLong(atts, "to")));
+				Node from = nodes.get(getLong(atts, "from"));
+				Node to = nodes.get(getLong(atts, "to"));
+				if (from == null || to == null)
+					throw new SAXException("Segment "+atts.getValue("id")+" is missing its nodes.");
+				current = new LineSegment(from, to);
 				readCommon(atts);
 				lineSegments.put(current.id, (LineSegment)current);
 			} else if (qName.equals("way")) {
@@ -102,9 +106,8 @@ public class OsmReader extends MinML2 {
 					}
 					((Way)current).segments.add(ls);
 				}
-			} else if (qName.equals("tag")) {
+			} else if (qName.equals("tag"))
 				current.put(atts.getValue("k"), atts.getValue("v"));
-			}
 		} catch (NumberFormatException x) {
             x.printStackTrace(); // SAXException does not chain correctly
 			throw new SAXException(x.getMessage(), x);
@@ -128,6 +131,17 @@ public class OsmReader extends MinML2 {
 		current.id = getLong(atts, "id");
 		if (current.id == 0)
 			throw new SAXException("Illegal object with id=0");
+		
+		String time = atts.getValue("timestamp");
+		if (time != null && time.length() != 0) {
+			try {
+	            current.lastModified = SimpleDateFormat.getDateTimeInstance().parse(time);
+            } catch (ParseException e) {
+	            e.printStackTrace();
+	            throw new SAXException("Couldn't read time format '"+time+"'.");
+            }
+		}
+		
 		String action = atts.getValue("action");
 		if ("delete".equals(action))
 			current.setDeleted(true);
