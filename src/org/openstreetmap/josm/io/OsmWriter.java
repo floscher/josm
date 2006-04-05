@@ -141,7 +141,7 @@ public class OsmWriter implements Visitor {
 				out.print(" action='"+action+"'");
 		}
 		if (osm.lastModified != null) {
-			String time = SimpleDateFormat.getDateTimeInstance().format(osm.lastModified);
+			String time = new SimpleDateFormat("y-M-d H:m:s").format(osm.lastModified);
 			out.print(" timestamp='"+time+"'");
 		}
 	}
