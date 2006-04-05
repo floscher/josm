@@ -2,6 +2,7 @@ package org.openstreetmap.josm.io;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -135,7 +136,8 @@ public class OsmReader extends MinML2 {
 		String time = atts.getValue("timestamp");
 		if (time != null && time.length() != 0) {
 			try {
-	            current.lastModified = SimpleDateFormat.getDateTimeInstance().parse(time);
+				DateFormat df = new SimpleDateFormat("y-M-d H:m:s");
+	            current.lastModified = df.parse(time);
             } catch (ParseException e) {
 	            e.printStackTrace();
 	            throw new SAXException("Couldn't read time format '"+time+"'.");
