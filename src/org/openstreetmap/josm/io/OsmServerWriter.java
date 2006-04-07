@@ -64,7 +64,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 	 * Upload a single node.
 	 */
 	public void visit(Node n) {
-		if (n.id == 0 && !n.isDeleted()) {
+		if (n.id == 0 && !n.isDeleted() && n.get("created_by") == null) {
 			n.put("created_by", "JOSM");
 			sendRequest("PUT", "node", n, true);
 		} else if (n.isDeleted()) {
@@ -79,7 +79,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 	 * Upload a line segment (without the nodes).
 	 */
 	public void visit(LineSegment ls) {
-		if (ls.id == 0 && !ls.isDeleted()) {
+		if (ls.id == 0 && !ls.isDeleted() && ls.get("created_by") == null) {
 			ls.put("created_by", "JOSM");
 			sendRequest("PUT", "segment", ls, true);
 		} else if (ls.isDeleted()) {
@@ -94,7 +94,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 	 * Upload a whole way with the complete line segment id list.
 	 */
 	public void visit(Way w) {
-		if (w.id == 0 && !w.isDeleted()) {
+		if (w.id == 0 && !w.isDeleted() && w.get("created_by") == null) {
 			w.put("created_by", "JOSM");
 			sendRequest("PUT", "way", w, true);
 		} else if (w.isDeleted()) {
