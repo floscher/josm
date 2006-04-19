@@ -56,7 +56,11 @@ public class PreferenceDialog extends JDialog {
 		public OkAction() {
 			super(UIManager.getString("OptionPane.okButtonText"), 
 					UIManager.getIcon("OptionPane.okIcon"));
-			putValue(MNEMONIC_KEY, new Integer((String)UIManager.get("OptionPane.okButtonMnemonic")));
+			try {
+				putValue(MNEMONIC_KEY, new Integer((String)UIManager.get("OptionPane.okButtonMnemonic")));
+			} catch (NumberFormatException e) {
+				// just don't set the mnemonic
+			}
 		}
 		public void actionPerformed(ActionEvent e) {
 			Main.pref.put("laf", ((LookAndFeelInfo)lafCombo.getSelectedItem()).getClassName());
@@ -92,7 +96,11 @@ public class PreferenceDialog extends JDialog {
 		public CancelAction() {
 			super(UIManager.getString("OptionPane.cancelButtonText"), 
 					UIManager.getIcon("OptionPane.cancelIcon"));
-			putValue(MNEMONIC_KEY, new Integer((String)UIManager.get("OptionPane.cancelButtonMnemonic")));
+			try {
+				putValue(MNEMONIC_KEY, new Integer((String)UIManager.get("OptionPane.cancelButtonMnemonic")));
+			} catch (NumberFormatException e) {
+				// just don't set the mnemonic
+			}
 		}
 		public void actionPerformed(ActionEvent e) {
 			setVisible(false);
@@ -106,11 +114,11 @@ public class PreferenceDialog extends JDialog {
 	/**
 	 * ComboBox with all look and feels.
 	 */
-    private JComboBox lafCombo = new JComboBox(UIManager.getInstalledLookAndFeels());
+	private JComboBox lafCombo = new JComboBox(UIManager.getInstalledLookAndFeels());
 	/**
 	 * Combobox with all projections available
 	 */
-    private JComboBox projectionCombo = new JComboBox(Projection.allProjections);
+	private JComboBox projectionCombo = new JComboBox(Projection.allProjections);
 	/**
 	 * The main tab panel.
 	 */
@@ -119,36 +127,36 @@ public class PreferenceDialog extends JDialog {
 	/**
 	 * Editfield for the Base url to the REST API from OSM. 
 	 */
-    private JTextField osmDataServer = new JTextField(20);
+	private JTextField osmDataServer = new JTextField(20);
 	/**
 	 * Editfield for the username to the OSM account.
 	 */
-    private JTextField osmDataUsername = new JTextField(20);
+	private JTextField osmDataUsername = new JTextField(20);
 	/**
 	 * Passwordfield for the userpassword of the REST API.
 	 */
-    private JPasswordField osmDataPassword = new JPasswordField(20);
-    /**
-     * Base url of the WMS server. Holds everything except the bbox= argument.
-     */
+	private JPasswordField osmDataPassword = new JPasswordField(20);
+	/**
+	 * Base url of the WMS server. Holds everything except the bbox= argument.
+	 */
 	private JTextField wmsServerBaseUrl = new JTextField(20);
 	/**
 	 * Comma seperated import string specifier or <code>null</code> if the first
 	 * data line should be interpreted as one.
 	 */
-    private JTextField csvImportString = new JTextField(20);
+	private JTextField csvImportString = new JTextField(20);
 	/**
 	 * The checkbox stating whether nodes should be merged together.
 	 */
-    private JCheckBox drawRawGpsLines = new JCheckBox("Draw lines between raw gps points.");
+	private JCheckBox drawRawGpsLines = new JCheckBox("Draw lines between raw gps points.");
 	/**
 	 * The checkbox stating whether raw gps lines should be forced.
 	 */
-    private JCheckBox forceRawGpsLines = new JCheckBox("Force lines if no line segments imported.");
+	private JCheckBox forceRawGpsLines = new JCheckBox("Force lines if no line segments imported.");
 
-    private JTable colors;
-	
-	
+	private JTable colors;
+
+
 	/**
 	 * Create a preference setting dialog from an preferences-file. If the file does not
 	 * exist, it will be created.
@@ -190,7 +198,7 @@ public class PreferenceDialog extends JDialog {
 				requiresRestart = true;
 			}
 		});
-		
+
 		// drawRawGpsLines
 		drawRawGpsLines.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
@@ -203,15 +211,15 @@ public class PreferenceDialog extends JDialog {
 		osmDataServer.setText(Main.pref.get("osm-server.url"));
 		osmDataUsername.setText(Main.pref.get("osm-server.username"));
 		osmDataPassword.setText(Main.pref.get("osm-server.password"));
-        wmsServerBaseUrl.setText(Main.pref.get("wmsServerBaseUrl", "http://wms.jpl.nasa.gov/wms.cgi?request=GetMap&width=512&height=512&layers=global_mosaic&styles=&srs=EPSG:4326&format=image/jpeg&"));
-        csvImportString.setText(Main.pref.get("csvImportString"));
+		wmsServerBaseUrl.setText(Main.pref.get("wmsServerBaseUrl", "http://wms.jpl.nasa.gov/wms.cgi?request=GetMap&width=512&height=512&layers=global_mosaic&styles=&srs=EPSG:4326&format=image/jpeg&"));
+		csvImportString.setText(Main.pref.get("csvImportString"));
 		drawRawGpsLines.setSelected(Main.pref.getBoolean("drawRawGpsLines"));
 		forceRawGpsLines.setToolTipText("Force drawing of lines if the imported data contain no line information.");
 		forceRawGpsLines.setSelected(Main.pref.getBoolean("forceRawGpsLines"));
 		forceRawGpsLines.setEnabled(drawRawGpsLines.isSelected());
 
-		
-		
+
+
 		Map<String,String> allColors = new TreeMap<String, String>(Main.pref.getAllPrefix("color."));
 
 		Vector<Vector<Object>> rows = new Vector<Vector<Object>>();
@@ -243,7 +251,7 @@ public class PreferenceDialog extends JDialog {
 			}
 		});
 		colors.getColumnModel().getColumn(1).setWidth(100);
-		
+
 		JButton colorEdit = new JButton("Choose");
 		colorEdit.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
@@ -263,19 +271,19 @@ public class PreferenceDialog extends JDialog {
 		osmDataServer.setToolTipText("The base URL to the OSM server (REST API)");
 		osmDataUsername.setToolTipText("Login name (email) to the OSM account.");
 		osmDataPassword.setToolTipText("Login password to the OSM account. Leave blank to not store any password.");
-        wmsServerBaseUrl.setToolTipText("The base URL to the server retrieving WMS background pictures from.");
+		wmsServerBaseUrl.setToolTipText("The base URL to the server retrieving WMS background pictures from.");
 		csvImportString.setToolTipText("<html>Import string specification. lat/lon and time are imported.<br>" +
 				"<b>lat</b>: The latitude coordinate<br>" +
 				"<b>lon</b>: The longitude coordinate<br>" +
 				"<b>time</b>: The measured time as string<br>" +
 				"<b>ignore</b>: Skip this field<br>" +
 				"An example: \"ignore ignore lat lon\" will use ' ' as delimiter, skip the first two values and read then lat/lon.<br>" +
-				"Other example: \"lat,lon\" will just read lat/lon values comma seperated.</html>");
+		"Other example: \"lat,lon\" will just read lat/lon values comma seperated.</html>");
 		drawRawGpsLines.setToolTipText("If your gps device draw to few lines, select this to draw lines along your way.");
 		colors.setToolTipText("Colors used by different objects in JOSM.");
-		
+
 		// creating the gui
-		
+
 		// Display tab
 		JPanel display = createPreferenceTab("display", "Display Settings", "Various settings that influence the visual representation of the whole program.");
 		display.add(new JLabel("Look and Feel"), GBC.std());
@@ -300,7 +308,7 @@ public class PreferenceDialog extends JDialog {
 		JLabel warning = new JLabel("<html>" +
 				"WARNING: The password is stored in plain text in the preferences file.<br>" +
 				"The password is transfered in plain text to the server, encoded in the url.<br>" +
-				"<b>Do not use a valuable Password.</b></html>");
+		"<b>Do not use a valuable Password.</b></html>");
 		warning.setFont(warning.getFont().deriveFont(Font.ITALIC));
 		con.add(warning, GBC.eop().fill(GBC.HORIZONTAL));
 		con.add(new JLabel("WMS server base url (everything except bbox-parameter)"), GBC.eol());
@@ -309,7 +317,7 @@ public class PreferenceDialog extends JDialog {
 		con.add(new JLabel("CSV import specification (empty: read from first line in data)"), GBC.eol());
 		con.add(csvImportString, GBC.eop().fill(GBC.HORIZONTAL));
 		con.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
-		
+
 		// Map tab
 		JPanel map = createPreferenceTab("map", "Map Settings", "Settings for the map projection and data interpretation.");
 		map.add(new JLabel("Projection method"), GBC.std());
@@ -319,7 +327,7 @@ public class PreferenceDialog extends JDialog {
 
 
 		tabPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-	
+
 		// OK/Cancel panel at bottom
 		JPanel okPanel = new JPanel(new GridBagLayout());
 		okPanel.add(Box.createHorizontalGlue(), GBC.std().fill(GBC.HORIZONTAL));
@@ -349,7 +357,7 @@ public class PreferenceDialog extends JDialog {
 	private JPanel createPreferenceTab(String icon, String title, String desc) {
 		JPanel p = new JPanel(new GridBagLayout());
 		p.add(new JLabel(title), GBC.eol().anchor(GBC.CENTER).insets(0,5,0,10));
-		
+
 		JLabel descLabel = new JLabel("<html>"+desc+"</html>");
 		descLabel.setFont(descLabel.getFont().deriveFont(Font.ITALIC));
 		p.add(descLabel, GBC.eol().insets(5,0,5,20).fill(GBC.HORIZONTAL));
