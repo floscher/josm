@@ -15,6 +15,8 @@ import java.util.LinkedList;
 import java.util.StringTokenizer;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.Action;
 import javax.swing.JFrame;
@@ -219,6 +221,7 @@ public class Main extends JFrame {
 			System.out.println();
 			System.out.println("options:");
 			System.out.println("\t--help                                  Show this help");
+			System.out.println("\t--geometry=widthxheight(+|-)x(+|-)y     Standard unix geometry argument");
 			System.out.println("\t--download=minlat,minlon,maxlat,maxlon  Download the bounding box");
 			System.out.println("\t--no-fullscreen                         Don't launch in fullscreen mode");
 			System.out.println("\t--reset-preferences                     Reset the preferences to default");
@@ -290,6 +293,25 @@ public class Main extends JFrame {
 				it.remove();
 			} else if (s.startsWith("--downloadgps=")) {
 				downloadFromParamString(true, s.substring(14));
+				it.remove();
+			} else if (s.startsWith("--geometry=")) {
+				Matcher m = Pattern.compile("(\\d+)x(\\d+)(([+-])(\\d+)([+-])(\\d+))?").matcher(s.substring(11));
+				if (m.matches()) {
+					main.setExtendedState(NORMAL);
+					Integer w = Integer.valueOf(m.group(1));
+					Integer h = Integer.valueOf(m.group(2));
+					main.setSize(w, h);
+					if (m.group(3) != null) {
+						int x = Integer.valueOf(m.group(5));
+						int y = Integer.valueOf(m.group(7));
+						if (m.group(4).equals("-"))
+							x = Toolkit.getDefaultToolkit().getScreenSize().width - x - w;
+						if (m.group(6).equals("-"))
+							y = Toolkit.getDefaultToolkit().getScreenSize().height - y - h;
+						main.setLocation(x,y);
+					}
+				} else
+					System.out.println("Ignoring malformed geometry: "+s.substring(11));
 				it.remove();
 			}
 		}
