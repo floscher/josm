@@ -26,14 +26,7 @@ public class ImageProvider {
 	 * Position of an overlay icon
 	 * @author imi
 	 */
-	public final static class OverlayPosition {
-		private OverlayPosition() {}
-		public static OverlayPosition NORTHWEST = new OverlayPosition();
-		public static OverlayPosition NORTHEAST = new OverlayPosition();
-		public static OverlayPosition SOUTHWEST = new OverlayPosition();
-		public static OverlayPosition SOUTHEAST = new OverlayPosition();
-	}
-	
+	public static enum OverlayPosition {NORTHWEST, NORTHEAST, SOUTHWEST, SOUTHEAST}
 	
 	/**
 	 * The icon cache
@@ -70,35 +63,37 @@ public class ImageProvider {
 	}
 
 	/**
-	 * Return an icon that represent the overlay of the two given icons. The
+	 * @return an icon that represent the overlay of the two given icons. The
 	 * second icon is layed on the first relative to the given position.
-	 *
-	 * @param ground The ground icon (base)
-	 * @param overlay The icon to put on top of the ground (overlay)
-	 * @return The merged icon.
 	 */
-	public static Icon overlay(Icon ground, Icon overlay, OverlayPosition pos) {
+	public static Icon overlay(Icon ground, String overlayImage, OverlayPosition pos) {
 		GraphicsConfiguration conf = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
 		int w = ground.getIconWidth();
 		int h = ground.getIconHeight();
+		ImageIcon overlay = ImageProvider.get("overlay",overlayImage);
 		int wo = overlay.getIconWidth();
 		int ho = overlay.getIconHeight();
 		BufferedImage img = conf.createCompatibleImage(w,h, Transparency.TRANSLUCENT);
 		Graphics g = img.createGraphics();
 		ground.paintIcon(null, g, 0, 0);
 		int x = 0, y = 0;
-		if (pos == OverlayPosition.NORTHWEST) {
+		switch (pos) {
+		case NORTHWEST:
 			x = 0;
 			y = 0;
-		} else if (pos == OverlayPosition.NORTHEAST) {
+			break;
+		case NORTHEAST:
 			x = w-wo;
 			y = 0;
-		} else if (pos == OverlayPosition.SOUTHWEST) {
+			break;
+		case SOUTHWEST:
 			x = 0;
 			y = h-ho;
-		} else if (pos == OverlayPosition.SOUTHEAST) {
+			break;
+		case SOUTHEAST:
 			x = w-wo;
 			y = h-ho;
+			break;
 		}
 		overlay.paintIcon(null, g, x, y);
 		return new ImageIcon(img);

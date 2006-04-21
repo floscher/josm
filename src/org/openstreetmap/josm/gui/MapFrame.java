@@ -11,13 +11,12 @@ import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
-import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.AutoScaleAction;
-import org.openstreetmap.josm.actions.mapmode.AddSegmentAction;
 import org.openstreetmap.josm.actions.mapmode.AddNodeAction;
+import org.openstreetmap.josm.actions.mapmode.AddSegmentAction;
 import org.openstreetmap.josm.actions.mapmode.AddWayAction;
 import org.openstreetmap.josm.actions.mapmode.DeleteAction;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
@@ -69,7 +68,9 @@ public class MapFrame extends JPanel {
 		setSize(400,400);
 		setLayout(new BorderLayout());
 
-		add(mapView = new MapView(layer), BorderLayout.CENTER);
+		AutoScaleAction autoScaleAction = new AutoScaleAction(this);
+		add(mapView = new MapView(autoScaleAction), BorderLayout.CENTER);
+		mapView.addLayer(layer);
 
 		// toolbar
 		toolBarActions.setFloatable(false);
@@ -91,7 +92,7 @@ public class MapFrame extends JPanel {
 
 		// autoScale
 		toolBarActions.addSeparator();
-		final JToggleButton autoScaleButton = new IconToggleButton(new AutoScaleAction(this));
+		final IconToggleButton autoScaleButton = new IconToggleButton(autoScaleAction);
 		toolBarActions.add(autoScaleButton);
 		autoScaleButton.setText(null);
 		autoScaleButton.setSelected(mapView.isAutoScale());

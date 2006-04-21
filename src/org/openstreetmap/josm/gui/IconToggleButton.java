@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.gui;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -14,6 +16,8 @@ import javax.swing.JToggleButton;
  */
 public class IconToggleButton extends JToggleButton implements PropertyChangeListener {
 
+	public boolean groupbutton;
+
 	/**
 	 * Construct the toggle button with the given action.
 	 */
@@ -24,8 +28,14 @@ public class IconToggleButton extends JToggleButton implements PropertyChangeLis
 		Object o = action.getValue(Action.SHORT_DESCRIPTION);
 		if (o != null)
 			setToolTipText(o.toString());
-		
+
 		action.addPropertyChangeListener(this);
+		
+		addMouseListener(new MouseAdapter(){
+			@Override public void mousePressed(MouseEvent e) {
+				groupbutton = e.getX() > getWidth()/3 && e.getY() > getHeight()/3;
+            }
+		});
 	}
 
 	public void propertyChange(PropertyChangeEvent evt) {

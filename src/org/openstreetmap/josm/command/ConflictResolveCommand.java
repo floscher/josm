@@ -43,10 +43,12 @@ public class ConflictResolveCommand extends Command {
 					completed.remove(e.getKey());
 			}
 		}
-		for (OsmPrimitive k : completed)
-			conflictDialog.conflicts.remove(k);
-		if (!completed.isEmpty())
+		if (!completed.isEmpty()) {
+			for (OsmPrimitive k : completed)
+				conflictDialog.conflicts.remove(k);
 			conflictDialog.rebuildList();
+			Main.main.getMapFrame().mapView.recalculateCenterScale(); // in case of auto-zoom
+ 		}
 	}
 
 	@Override public void undoCommand() {
