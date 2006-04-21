@@ -71,8 +71,8 @@ public class AddWayAction extends MapMode {
 		}
 		
 		if (numberOfSelectedWays > 0) {
-			String ways = "way" + (numberOfSelectedWays==1?"":"s");
-			int answer = JOptionPane.showConfirmDialog(Main.main, numberOfSelectedWays+" "+ways+" have been selected.\n" +
+			String ways = "way" + (numberOfSelectedWays==1?" has":"s have");
+			int answer = JOptionPane.showConfirmDialog(Main.main, numberOfSelectedWays+" "+ways+" been selected.\n" +
 					"Do you wish to select all segments belonging to the "+ways+" instead?");
 			if (answer == JOptionPane.CANCEL_OPTION)
 				return;
@@ -82,6 +82,9 @@ public class AddWayAction extends MapMode {
 						segments.addAll(((Way)osm).segments);
 			}
 		}
+		
+		if (segments.isEmpty())
+			return;
 		
 		// sort the segments in best possible order. This is done by:
 		// 0  if no elements in list, quit

@@ -1,5 +1,6 @@
 package org.openstreetmap.josm.data.osm;
 
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -159,5 +160,9 @@ abstract public class OsmPrimitive {
 		deleted == osm.deleted &&
 		(timestamp == null ? osm.timestamp==null : timestamp.equals(osm.timestamp)) &&
 		(keys == null ? osm.keys==null : keys.equals(osm.keys));
+	}
+	
+	public String getTimeStr() {
+		return timestamp == null ? null : new SimpleDateFormat("y-M-d H:m:s").format(timestamp);
 	}
 }

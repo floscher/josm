@@ -3,6 +3,7 @@ package org.openstreetmap.josm.gui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -13,6 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.AutoScaleAction;
 import org.openstreetmap.josm.actions.mapmode.AddSegmentAction;
 import org.openstreetmap.josm.actions.mapmode.AddNodeAction;
@@ -115,8 +117,12 @@ public class MapFrame extends JPanel {
 
 
 	private void addIconToggle(JPanel toggleDialogs, ToggleDialog dlg) {
-        toolBarActions.add(new IconToggleButton(dlg.action));
+        IconToggleButton button = new IconToggleButton(dlg.action);
+        dlg.action.button = button;
+		toolBarActions.add(button);
 		toggleDialogs.add(dlg);
+		if (Main.pref.getBoolean(dlg.action.prefname+".visible"))
+			dlg.action.actionPerformed(new ActionEvent(this, 0, ""));
 	}
 
 	

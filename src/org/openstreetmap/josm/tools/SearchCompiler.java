@@ -5,9 +5,9 @@ import java.io.PushbackReader;
 import java.io.StringReader;
 import java.util.Map.Entry;
 
-import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 
 /**
@@ -70,14 +70,18 @@ public class SearchCompiler {
 		boolean notValue;
 		public KeyValue(String key, String value, boolean notValue) {this.key = key; this.value = value; this.notValue = notValue;}
 		@Override public boolean match(OsmPrimitive osm) {
-			String value = osm.get(key);
+			String value = null;
+			if (key.equals("timestamp"))
+				value = osm.getTimeStr();
+			else
+				value = osm.get(key);
 			if (value == null)
-				return false;
+				return notValue;
 			return (value.indexOf(this.value) != -1) != notValue;
 		}
 		@Override public String toString() {return key+"="+(notValue?"!":"")+value;}
 	}
-	
+
 	private static class Any extends Match {
 		private String s;
 		public Any(String s) {this.s = s;}

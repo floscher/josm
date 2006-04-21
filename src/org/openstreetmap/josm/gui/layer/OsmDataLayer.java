@@ -2,6 +2,7 @@ package org.openstreetmap.josm.gui.layer;
 
 import java.awt.Graphics;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -12,6 +13,7 @@ import java.util.Stack;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
@@ -29,6 +31,7 @@ import org.openstreetmap.josm.data.osm.visitor.MergeVisitor;
 import org.openstreetmap.josm.data.osm.visitor.SimplePaintVisitor;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
 import org.openstreetmap.josm.gui.MapView;
+import org.openstreetmap.josm.gui.dialogs.ConflictDialog;
 import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
 import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.ImageProvider;
@@ -158,7 +161,11 @@ public class OsmDataLayer extends Layer {
 		visitor.fixReferences();
 		if (visitor.conflicts.isEmpty())
 			return;
-		Main.main.getMapFrame().conflictDialog.add(visitor.conflicts);
+		ConflictDialog dlg = Main.main.getMapFrame().conflictDialog;
+		dlg.add(visitor.conflicts);
+		JOptionPane.showMessageDialog(Main.main, "There were conflicts during import.");
+		if (!dlg.isVisible())
+			dlg.action.actionPerformed(new ActionEvent(this, 0, ""));
 	}
 
 	@Override public boolean isMergable(Layer other) {

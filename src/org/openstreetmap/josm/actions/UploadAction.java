@@ -53,6 +53,13 @@ public class UploadAction extends JosmAction {
 			int cutPos = osmDataServer.endsWith("/0.2") ? 4 : 5;
 			Main.pref.put("osm-server.url", osmDataServer.substring(0, osmDataServer.length()-cutPos));
 		}
+		
+		if (!Main.main.getMapFrame().conflictDialog.conflicts.isEmpty()) {
+			JOptionPane.showMessageDialog(Main.main, "There are unresolved conflicts. You have to resolve these first.");
+			Main.main.getMapFrame().conflictDialog.action.button.setSelected(true);
+			Main.main.getMapFrame().conflictDialog.action.actionPerformed(null);
+			return;
+		}
 
 		final Collection<OsmPrimitive> add = new LinkedList<OsmPrimitive>();
 		final Collection<OsmPrimitive> update = new LinkedList<OsmPrimitive>();

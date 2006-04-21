@@ -43,7 +43,7 @@ import org.openstreetmap.josm.tools.ImageProvider;
 public final class ConflictDialog extends ToggleDialog {
 
 	public final Map<OsmPrimitive, OsmPrimitive> conflicts = new HashMap<OsmPrimitive, OsmPrimitive>();
-	public final DefaultListModel model = new DefaultListModel();
+	private final DefaultListModel model = new DefaultListModel();
 	private final JList displaylist = new JList(model);
 
 	public ConflictDialog() {
@@ -119,11 +119,22 @@ public final class ConflictDialog extends ToggleDialog {
 		mv.repaint();
 	}
 
-	public final void add(Map<OsmPrimitive, OsmPrimitive> conflicts) {
-		this.conflicts.putAll(conflicts);
+	public final void rebuildList() {
 		model.removeAllElements();
 		for (OsmPrimitive osm : this.conflicts.keySet())
-			model.addElement(osm);
+			if (osm instanceof Node)
+				model.addElement(osm);
+		for (OsmPrimitive osm : this.conflicts.keySet())
+			if (osm instanceof Segment)
+				model.addElement(osm);
+		for (OsmPrimitive osm : this.conflicts.keySet())
+			if (osm instanceof Way)
+				model.addElement(osm);
+	}
+	
+	public final void add(Map<OsmPrimitive, OsmPrimitive> conflicts) {
+		this.conflicts.putAll(conflicts);
+		rebuildList();
 	}
 
 	/**

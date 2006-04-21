@@ -21,12 +21,9 @@ public class IconToggleButton extends JToggleButton implements PropertyChangeLis
 		super(action);
 		setText(null);
 
-		// Tooltip
-		String toolTipText = "";
 		Object o = action.getValue(Action.SHORT_DESCRIPTION);
 		if (o != null)
-			toolTipText = o.toString();
-		setToolTipText(toolTipText);
+			setToolTipText(o.toString());
 		
 		action.addPropertyChangeListener(this);
 	}
