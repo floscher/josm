@@ -13,7 +13,7 @@ import org.openstreetmap.josm.gui.MapView;
 
 /**
  * A class implementing MapMode is able to be selected as an mode for map editing.
- * As example scrolling the map is a MapMode, connecting Nodes to new LineSegments
+ * As example scrolling the map is a MapMode, connecting Nodes to new Segments
  * is another.
  * 
  * MapModes should register/deregister all necessary listener on the map's view

@@ -26,14 +26,12 @@ public class AddNodeAction extends MapMode {
 		super("Add nodes", "addnode", "Add nodes to the map.", "N", KeyEvent.VK_N, mapFrame);
 	}
 
-	@Override
-	public void registerListener() {
+	@Override public void registerListener() {
 		super.registerListener();
 		mv.addMouseListener(this);
 	}
 
-	@Override
-	public void unregisterListener() {
+	@Override public void unregisterListener() {
 		super.unregisterListener();
 		mv.removeMouseListener(this);
 	}
@@ -42,15 +40,14 @@ public class AddNodeAction extends MapMode {
 	 * If user clicked with the left button, add a node at the current mouse
 	 * position.
 	 */
-	@Override
-	public void mouseClicked(MouseEvent e) {
+	@Override public void mouseClicked(MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON1) {
 			Node node = new Node(mv.getLatLon(e.getX(), e.getY()));
 			if (node.coor.isOutSideWorld()) {
 				JOptionPane.showMessageDialog(Main.main, "Can not add a node outside of the world.");
 				return;
 			}
-			mv.editLayer().add(new AddCommand(Main.main.ds, node));
+			mv.editLayer().add(new AddCommand(Main.ds, node));
 			mv.repaint();
 		}
 	}

@@ -36,8 +36,7 @@ public class OsmConnection {
 		 */
 		boolean cancelled = false;
 
-		@Override
-		protected PasswordAuthentication getPasswordAuthentication() {
+		@Override protected PasswordAuthentication getPasswordAuthentication() {
 			String username = Main.pref.get("osm-server.username");
 			String password = Main.pref.get("osm-server.password");
 			if (passwordtried || username.equals("") || password.equals("")) {

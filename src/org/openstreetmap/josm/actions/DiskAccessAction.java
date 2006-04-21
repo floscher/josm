@@ -27,8 +27,8 @@ abstract public class DiskAccessAction extends JosmAction {
 	 * @return <code>true</code>, if a save result in an empty data set.
 	 */
 	protected boolean isDataSetEmpty() {
-		for (OsmPrimitive osm : Main.main.ds.allNonDeletedPrimitives())
-			if (!osm.isDeleted() || osm.id > 0)
+		for (OsmPrimitive osm : Main.ds.allNonDeletedPrimitives())
+			if (!osm.deleted || osm.id > 0)
 				return false;
 		return true;
 	}

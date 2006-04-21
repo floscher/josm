@@ -1,6 +1,6 @@
 package org.openstreetmap.josm.data.osm.visitor;
 
-import org.openstreetmap.josm.data.osm.LineSegment;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Way;
 
@@ -12,6 +12,6 @@ import org.openstreetmap.josm.data.osm.Way;
  */
 public interface Visitor {
 	void visit(Node n);
-	void visit(LineSegment ls);
+	void visit(Segment s);
 	void visit(Way w);
 }

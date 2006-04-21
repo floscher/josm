@@ -4,6 +4,7 @@ import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
 import java.util.Collection;
 
 import javax.swing.JOptionPane;
@@ -50,15 +51,13 @@ public class MoveAction extends MapMode {
 		super("Move", "move", "Move selected objects around.", "M", KeyEvent.VK_M, mapFrame);
 	}
 
-	@Override
-	public void registerListener() {
+	@Override public void registerListener() {
 		super.registerListener();
 		mv.addMouseListener(this);
 		mv.addMouseMotionListener(this);
 	}
 
-	@Override
-	public void unregisterListener() {
+	@Override public void unregisterListener() {
 		super.unregisterListener();
 		mv.removeMouseListener(this);
 		mv.removeMouseMotionListener(this);
@@ -69,8 +68,7 @@ public class MoveAction extends MapMode {
 	 * If the left mouse button is pressed, move all currently selected
 	 * objects.
 	 */
-	@Override
-	public void mouseDragged(MouseEvent e) {
+	@Override public void mouseDragged(MouseEvent e) {
 		if ((e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) == 0)
 			return;
 		
@@ -86,7 +84,7 @@ public class MoveAction extends MapMode {
 		if (dx == 0 && dy == 0)
 			return;
 
-		Collection<OsmPrimitive> selection = Main.main.ds.getSelected();
+		Collection<OsmPrimitive> selection = Main.ds.getSelected();
 		Collection<Node> affectedNodes = AllNodesVisitor.getAllNodes(selection);
 		
 		// check if any coordinate would be outside the world
@@ -116,15 +114,14 @@ public class MoveAction extends MapMode {
 	 * Also remember the starting position of the movement and change the mouse 
 	 * cursor to movement.
 	 */
-	@Override
-	public void mousePressed(MouseEvent e) {
+	@Override public void mousePressed(MouseEvent e) {
 		if (e.getButton() != MouseEvent.BUTTON1)
 			return;
 
-		if (Main.main.ds.getSelected().size() == 0) {
+		if (Main.ds.getSelected().size() == 0) {
 			OsmPrimitive osm = mv.getNearest(e.getPoint(), (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0);
 			if (osm != null)
-				osm.setSelected(true);
+				Main.ds.setSelected(Arrays.asList(new OsmPrimitive[]{osm}));
 			singleOsmPrimitive = osm;
 			mv.repaint();
 		} else
@@ -138,11 +135,10 @@ public class MoveAction extends MapMode {
 	/**
 	 * Restore the old mouse cursor.
 	 */
-	@Override
-	public void mouseReleased(MouseEvent e) {
+	@Override public void mouseReleased(MouseEvent e) {
 		mv.setCursor(oldCursor);
 		if (singleOsmPrimitive != null) {
-			singleOsmPrimitive.setSelected(false);
+			Main.ds.clearSelection();
 			mv.repaint();
 		}
 	}

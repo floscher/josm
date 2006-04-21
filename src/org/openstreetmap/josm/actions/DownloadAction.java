@@ -68,8 +68,7 @@ public class DownloadAction extends JosmAction {
 		    this.reader = reader;
 	    }
 
-	    @Override
-	    public void realRun() throws IOException, SAXException {
+	    @Override public void realRun() throws IOException, SAXException {
     		dataSet = reader.parseOsm();
     		if (dataSet == null)
     			return;
@@ -77,8 +76,7 @@ public class DownloadAction extends JosmAction {
     			JOptionPane.showMessageDialog(Main.main, "No data imported.");
 	    }
 
-		@Override
-        protected void finish() {
+		@Override protected void finish() {
 			if (dataSet == null)
 				return; // user cancelled download or error occoured
 			Layer layer = new OsmDataLayer(dataSet, "Data Layer", false);
@@ -100,13 +98,11 @@ public class DownloadAction extends JosmAction {
 		    this.reader = reader;
 	    }
 
-	    @Override
-	    public void realRun() throws IOException, JDOMException {
+	    @Override public void realRun() throws IOException, JDOMException {
     		rawData = reader.parseRawGps();
 	    }
 
-		@Override
-        protected void finish() {
+		@Override protected void finish() {
 			if (rawData == null)
 				return;
 			String name = latlon[0].getText() + " " + latlon[1].getText() + " x " + latlon[2].getText() + " " + latlon[3].getText();
@@ -187,8 +183,7 @@ public class DownloadAction extends JosmAction {
 		final JTextField osmUrl = new JTextField();
 		dlg.add(osmUrl, GBC.eop().fill(GBC.HORIZONTAL));
 		final KeyListener osmUrlRefresher = new KeyAdapter(){
-			@Override
-			public void keyTyped(KeyEvent e) {
+			@Override public void keyTyped(KeyEvent e) {
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
 						try {
@@ -222,8 +217,7 @@ public class DownloadAction extends JosmAction {
 			f.addKeyListener(osmUrlRefresher);
 		SwingUtilities.invokeLater(new Runnable() {public void run() {osmUrlRefresher.keyTyped(null);}});
 		osmUrl.addKeyListener(new KeyAdapter(){
-			@Override
-			public void keyTyped(KeyEvent e) {
+			@Override public void keyTyped(KeyEvent e) {
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
 						Map<String, Double> map = readArgs(osmUrl.getText());

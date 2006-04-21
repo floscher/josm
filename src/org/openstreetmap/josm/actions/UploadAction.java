@@ -57,12 +57,12 @@ public class UploadAction extends JosmAction {
 		final Collection<OsmPrimitive> add = new LinkedList<OsmPrimitive>();
 		final Collection<OsmPrimitive> update = new LinkedList<OsmPrimitive>();
 		final Collection<OsmPrimitive> delete = new LinkedList<OsmPrimitive>();
-		for (OsmPrimitive osm : Main.main.ds.allPrimitives()) {
-			if (osm.id == 0 && !osm.isDeleted())
+		for (OsmPrimitive osm : Main.ds.allPrimitives()) {
+			if (osm.id == 0 && !osm.deleted)
 				add.add(osm);
-			else if ((osm.modified || osm.modifiedProperties) && !osm.isDeleted())
+			else if (osm.modified && !osm.deleted)
 				update.add(osm);
-			else if (osm.isDeleted() && osm.id != 0)
+			else if (osm.deleted && osm.id != 0)
 				delete.add(osm);
 		}
 
@@ -76,12 +76,10 @@ public class UploadAction extends JosmAction {
 		all.addAll(delete);
 		
 		PleaseWaitRunnable uploadTask = new PleaseWaitRunnable("Uploading data"){
-        			@Override
-        			protected void realRun() throws JDOMException {
+        			@Override protected void realRun() throws JDOMException {
         				server.uploadOsm(all);
         			}
-        			@Override
-                    protected void finish() {
+        			@Override protected void finish() {
         				Main.main.getMapFrame().mapView.editLayer().cleanData(server.processed, !add.isEmpty());
                     }
         			

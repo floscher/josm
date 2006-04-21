@@ -6,7 +6,7 @@ import java.util.Set;
 
 import javax.swing.Icon;
 
-import org.openstreetmap.josm.data.osm.LineSegment;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.tools.ImageProvider;
@@ -29,11 +29,11 @@ public class SelectionComponentVisitor implements Visitor {
 	
 	
 	/**
-	 * If the line segment has a key named "name", its value is displayed. 
+	 * If the segment has a key named "name", its value is displayed. 
 	 * Otherwise, if it has "id", this is used. If none of these available, 
 	 * "(x1,y1) -> (x2,y2)" is displayed with the nodes coordinates.
 	 */
-	public void visit(LineSegment ls) {
+	public void visit(Segment ls) {
 		name = ls.get("name");
 		if (name == null) {
 			if (ls.incomplete)
@@ -64,7 +64,7 @@ public class SelectionComponentVisitor implements Visitor {
 		if (name == null) {
 			AllNodesVisitor.getAllNodes(w.segments);
 			Set<Node> nodes = new HashSet<Node>();
-			for (LineSegment ls : w.segments) {
+			for (Segment ls : w.segments) {
 				if (!ls.incomplete) {
 					nodes.add(ls.from);
 					nodes.add(ls.to);

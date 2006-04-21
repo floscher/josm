@@ -5,7 +5,7 @@ import java.io.PushbackReader;
 import java.io.StringReader;
 import java.util.Map.Entry;
 
-import org.openstreetmap.josm.data.osm.LineSegment;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Way;
@@ -98,7 +98,7 @@ public class SearchCompiler {
 		@Override public boolean match(OsmPrimitive osm) {
 			if (osm instanceof Node)
 				return type.equals("node");
-			if (osm instanceof LineSegment)
+			if (osm instanceof Segment)
 				return type.equals("segment");
 			if (osm instanceof Way)
 				return type.equals("way");

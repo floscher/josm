@@ -26,8 +26,7 @@ public class Mercator implements Projection {
 			p.east()*180/Math.PI);
 	}
 
-	@Override
-	public String toString() {
+	@Override public String toString() {
 		return "Mercator";
 	}
 

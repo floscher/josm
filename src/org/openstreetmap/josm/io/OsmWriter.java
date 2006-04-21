@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.LineSegment;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Way;
@@ -50,7 +50,7 @@ public class OsmWriter implements Visitor {
 		writer.out.println("<osm version='0.3' generator='JOSM'>");
 		for (Node n : ds.nodes)
 			writer.visit(n);
-		for (LineSegment ls : ds.lineSegments)
+		for (Segment ls : ds.segments)
 			writer.visit(ls);
 		for (Way w : ds.ways)
 			writer.visit(w);
@@ -79,9 +79,9 @@ public class OsmWriter implements Visitor {
 		addTags(n, "node", true);
 	}
 
-	public void visit(LineSegment ls) {
+	public void visit(Segment ls) {
 		if (ls.incomplete)
-			return; // Do not write an incomplete line segment
+			return; // Do not write an incomplete segment
 		addCommon(ls, "segment");
 		out.print(" from='"+getUsedId(ls.from)+"' to='"+getUsedId(ls.to)+"'");
 		addTags(ls, "segment", true);
@@ -90,7 +90,7 @@ public class OsmWriter implements Visitor {
 	public void visit(Way w) {
 		addCommon(w, "way");
 		out.println(">");
-		for (LineSegment ls : w.segments)
+		for (Segment ls : w.segments)
 			out.println("    <seg id='"+getUsedId(ls)+"' />");
 		addTags(w, "way", false);
 	}
@@ -129,19 +129,15 @@ public class OsmWriter implements Visitor {
 		out.print("  <"+tagname+" id='"+getUsedId(osm)+"'");
 		if (!osmConform) {
 			String action = null;
-			if (osm.isDeleted())
+			if (osm.deleted)
 				action = "delete";
-			else if (osm.modified && osm.modifiedProperties)
+			else if (osm.modified)
 				action = "modify";
-			else if (osm.modified && !osm.modifiedProperties)
-				action = "modify/object";
-			else if (!osm.modified && osm.modifiedProperties)
-				action = "modify/property";
 			if (action != null)
 				out.print(" action='"+action+"'");
 		}
-		if (osm.lastModified != null) {
-			String time = new SimpleDateFormat("y-M-d H:m:s").format(osm.lastModified);
+		if (osm.timestamp != null) {
+			String time = new SimpleDateFormat("y-M-d H:m:s").format(osm.timestamp);
 			out.print(" timestamp='"+time+"'");
 		}
 	}

@@ -9,7 +9,7 @@ import javax.swing.JComponent;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.coor.EastNorth;
-import org.openstreetmap.josm.data.osm.LineSegment;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Way;
@@ -108,20 +108,20 @@ public class NavigatableComponent extends JComponent {
 	 * First, a node will be searched. If a node within 10 pixel is found, the
 	 * nearest node is returned.
 	 * 
-	 * If no node is found, search for pending line segments.
+	 * If no node is found, search for pending segments.
 	 * 
-	 * If no such line segment is found, and a non-pending line segment is 
+	 * If no such segment is found, and a non-pending segment is 
 	 * within 10 pixel to p, this segment is returned, except when 
 	 * <code>wholeWay</code> is <code>true</code>, in which case the 
 	 * corresponding Way is returned.
 	 * 
-	 * If no line segment is found and the point is within an area, return that
+	 * If no segment is found and the point is within an area, return that
 	 * area.
 	 * 
 	 * If no area is found, return <code>null</code>.
 	 * 
 	 * @param p				 The point on screen.
-	 * @param segmentInsteadWay Whether the line segment (true) or only the whole
+	 * @param segmentInsteadWay Whether the segment (true) or only the whole
 	 * 					 	 way should be returned.
 	 * @return	The primitive, that is nearest to the point p.
 	 */
@@ -130,8 +130,8 @@ public class NavigatableComponent extends JComponent {
 		OsmPrimitive minPrimitive = null;
 	
 		// nodes
-		for (Node n : Main.main.ds.nodes) {
-			if (n.isDeleted())
+		for (Node n : Main.ds.nodes) {
+			if (n.deleted)
 				continue;
 			Point sp = getPoint(n.eastNorth);
 			double dist = p.distanceSq(sp);
@@ -146,11 +146,11 @@ public class NavigatableComponent extends JComponent {
 		// for whole ways, try the ways first
 		minDistanceSq = Double.MAX_VALUE;
 		if (!segmentInsteadWay) {
-			for (Way w : Main.main.ds.ways) {
-				if (w.isDeleted())
+			for (Way w : Main.ds.ways) {
+				if (w.deleted)
 					continue;
-				for (LineSegment ls : w.segments) {
-					if (ls.isDeleted() || ls.incomplete)
+				for (Segment ls : w.segments) {
+					if (ls.deleted || ls.incomplete)
 						continue;
 					Point A = getPoint(ls.from.eastNorth);
 					Point B = getPoint(ls.to.eastNorth);
@@ -169,9 +169,9 @@ public class NavigatableComponent extends JComponent {
 		}
 		
 		minDistanceSq = Double.MAX_VALUE;
-		// line segments
-		for (LineSegment ls : Main.main.ds.lineSegments) {
-			if (ls.isDeleted() || ls.incomplete)
+		// segments
+		for (Segment ls : Main.ds.segments) {
+			if (ls.deleted || ls.incomplete)
 				continue;
 			Point A = getPoint(ls.from.eastNorth);
 			Point B = getPoint(ls.to.eastNorth);
@@ -193,13 +193,13 @@ public class NavigatableComponent extends JComponent {
 	 * the mouse. To do this, first the nearest object is 
 	 * determined.
 	 * 
-	 * If its a node, return all line segments and
+	 * If its a node, return all segments and
 	 * streets the node is part of, as well as all nodes
-	 * (with their line segments and ways) with the same
+	 * (with their segments and ways) with the same
 	 * location.
 	 * 
-	 * If its a line segment, return all ways this segment 
-	 * belongs to as well as all line segments that are between
+	 * If its a segment, return all ways this segment 
+	 * belongs to as well as all segments that are between
 	 * the same nodes (in both direction) with all their ways.
 	 * 
 	 * @return A collection of all items or <code>null</code>
@@ -214,26 +214,26 @@ public class NavigatableComponent extends JComponent {
 		c.add(osm);
 		if (osm instanceof Node) {
 			Node node = (Node)osm;
-			for (Node n : Main.main.ds.nodes)
-				if (!n.isDeleted() && n.coor.equals(node.coor))
+			for (Node n : Main.ds.nodes)
+				if (!n.deleted && n.coor.equals(node.coor))
 					c.add(n);
-			for (LineSegment ls : Main.main.ds.lineSegments)
-				// line segments never match nodes, so they are skipped by contains
-				if (!ls.isDeleted() && !ls.incomplete && (c.contains(ls.from) || c.contains(ls.to)))
+			for (Segment ls : Main.ds.segments)
+				// segments never match nodes, so they are skipped by contains
+				if (!ls.deleted && !ls.incomplete && (c.contains(ls.from) || c.contains(ls.to)))
 					c.add(ls);
 		} 
-		if (osm instanceof LineSegment) {
-			LineSegment line = (LineSegment)osm;
-			for (LineSegment ls : Main.main.ds.lineSegments)
-				if (!ls.isDeleted() && ls.equalPlace(line))
+		if (osm instanceof Segment) {
+			Segment line = (Segment)osm;
+			for (Segment ls : Main.ds.segments)
+				if (!ls.deleted && ls.equalPlace(line))
 					c.add(ls);
 		}
-		if (osm instanceof Node || osm instanceof LineSegment) {
-			for (Way t : Main.main.ds.ways) {
-				if (t.isDeleted())
+		if (osm instanceof Node || osm instanceof Segment) {
+			for (Way t : Main.ds.ways) {
+				if (t.deleted)
 					continue;
-				for (LineSegment ls : t.segments) {
-					if (!ls.isDeleted() && !ls.incomplete && c.contains(ls)) {
+				for (Segment ls : t.segments) {
+					if (!ls.deleted && !ls.incomplete && c.contains(ls)) {
 						c.add(t);
 						break;
 					}

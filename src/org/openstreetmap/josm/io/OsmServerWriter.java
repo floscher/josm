@@ -15,7 +15,7 @@ import java.util.LinkedList;
 
 import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.osm.LineSegment;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Way;
@@ -64,10 +64,10 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 	 * Upload a single node.
 	 */
 	public void visit(Node n) {
-		if (n.id == 0 && !n.isDeleted() && n.get("created_by") == null) {
+		if (n.id == 0 && !n.deleted && n.get("created_by") == null) {
 			n.put("created_by", "JOSM");
 			sendRequest("PUT", "node", n, true);
-		} else if (n.isDeleted()) {
+		} else if (n.deleted) {
 			sendRequest("DELETE", "node", n, false);
 		} else {
 			sendRequest("PUT", "node", n, true);
@@ -76,13 +76,13 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 	}
 
 	/**
-	 * Upload a line segment (without the nodes).
+	 * Upload a segment (without the nodes).
 	 */
-	public void visit(LineSegment ls) {
-		if (ls.id == 0 && !ls.isDeleted() && ls.get("created_by") == null) {
+	public void visit(Segment ls) {
+		if (ls.id == 0 && !ls.deleted && ls.get("created_by") == null) {
 			ls.put("created_by", "JOSM");
 			sendRequest("PUT", "segment", ls, true);
-		} else if (ls.isDeleted()) {
+		} else if (ls.deleted) {
 			sendRequest("DELETE", "segment", ls, false);
 		} else {
 			sendRequest("PUT", "segment", ls, true);
@@ -91,13 +91,13 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 	}
 
 	/**
-	 * Upload a whole way with the complete line segment id list.
+	 * Upload a whole way with the complete segment id list.
 	 */
 	public void visit(Way w) {
-		if (w.id == 0 && !w.isDeleted() && w.get("created_by") == null) {
+		if (w.id == 0 && !w.deleted && w.get("created_by") == null) {
 			w.put("created_by", "JOSM");
 			sendRequest("PUT", "way", w, true);
-		} else if (w.isDeleted()) {
+		} else if (w.deleted) {
 			sendRequest("DELETE", "way", w, false);
 		} else {
 			sendRequest("PUT", "way", w, true);

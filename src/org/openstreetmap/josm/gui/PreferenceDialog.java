@@ -152,7 +152,7 @@ public class PreferenceDialog extends JDialog {
 	/**
 	 * The checkbox stating whether raw gps lines should be forced.
 	 */
-	private JCheckBox forceRawGpsLines = new JCheckBox("Force lines if no line segments imported.");
+	private JCheckBox forceRawGpsLines = new JCheckBox("Force lines if no segments imported.");
 
 	private JTable colors;
 

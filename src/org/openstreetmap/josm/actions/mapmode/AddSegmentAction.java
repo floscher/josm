@@ -10,21 +10,21 @@ import java.awt.event.MouseListener;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.AddCommand;
-import org.openstreetmap.josm.data.osm.LineSegment;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.MapFrame;
 
 /**
- * The user can add a new line segment between two nodes by pressing on the 
+ * The user can add a new segment between two nodes by pressing on the 
  * starting node and dragging to the ending node. 
  * 
- * No line segment can be created if there is already a line segment containing
+ * No segment can be created if there is already a segment containing
  * both nodes.
  * 
  * @author imi
  */
-public class AddLineSegmentAction extends MapMode implements MouseListener {
+public class AddSegmentAction extends MapMode implements MouseListener {
 
 	/**
 	 * The first node the user pressed the button onto.
@@ -41,22 +41,20 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 	private boolean hintDrawn = false;
 	
 	/**
-	 * Create a new AddLineSegmentAction.
+	 * Create a new AddSegmentAction.
 	 * @param mapFrame The MapFrame this action belongs to.
 	 */
-	public AddLineSegmentAction(MapFrame mapFrame) {
-		super("Add Line Segment", "addlinesegment", "Add a line segment between two nodes.", "G", KeyEvent.VK_G, mapFrame);
+	public AddSegmentAction(MapFrame mapFrame) {
+		super("Add segment", "addlinesegment", "Add a segment between two nodes.", "G", KeyEvent.VK_G, mapFrame);
 	}
 
-	@Override
-	public void registerListener() {
+	@Override public void registerListener() {
 		super.registerListener();
 		mv.addMouseListener(this);
 		mv.addMouseMotionListener(this);
 	}
 
-	@Override
-	public void unregisterListener() {
+	@Override public void unregisterListener() {
 		super.unregisterListener();
 		mv.removeMouseListener(this);
 		mv.removeMouseMotionListener(this);
@@ -64,17 +62,15 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 	}
 
 	
-	@Override
-	public void actionPerformed(ActionEvent e) {
+	@Override public void actionPerformed(ActionEvent e) {
 		super.actionPerformed(e);
-		makeLineSegment();
+		makeSegment();
 	}
 
 	/**
 	 * If user clicked on a node, from the dragging with that node. 
 	 */
-	@Override
-	public void mousePressed(MouseEvent e) {
+	@Override public void mousePressed(MouseEvent e) {
 		if (e.getButton() != MouseEvent.BUTTON1)
 			return;
 
@@ -90,8 +86,7 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 	 * Draw a hint which nodes will get connected if the user release
 	 * the mouse button now.
 	 */
-	@Override
-	public void mouseDragged(MouseEvent e) {
+	@Override public void mouseDragged(MouseEvent e) {
 		if ((e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) == 0)
 			return;
 
@@ -106,21 +101,20 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 	}
 
 	/**
-	 * If left button was released, try to create the line segment.
+	 * If left button was released, try to create the segment.
 	 */
-	@Override
-	public void mouseReleased(MouseEvent e) {
+	@Override public void mouseReleased(MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON1) {
-			makeLineSegment();
-			first = null; // release line segment drawing
+			makeSegment();
+			first = null; // release segment drawing
 		}
 	}
 
 	/**
-	 * Create the line segment if first and second are different and there is
-	 * not already a line segment.
+	 * Create the segment if first and second are different and there is
+	 * not already a segment.
 	 */
-	private void makeLineSegment() {
+	private void makeSegment() {
 		if (first == null || second == null) {
 			first = null;
 			second = null;
@@ -135,13 +129,13 @@ public class AddLineSegmentAction extends MapMode implements MouseListener {
 		second = null;
 		
 		if (start != end) {
-			// try to find a line segment
-			for (LineSegment ls : Main.main.ds.lineSegments)
+			// try to find a segment
+			for (Segment ls : Main.ds.segments)
 				if ((start == ls.from && end == ls.to) || (end == ls.from && start == ls.to))
-					return; // already a line segment here - be happy, do nothing.
+					return; // already a segment here - be happy, do nothing.
 
-			LineSegment ls = new LineSegment(start, end);
-			mv.editLayer().add(new AddCommand(Main.main.ds, ls));
+			Segment ls = new Segment(start, end);
+			mv.editLayer().add(new AddCommand(Main.ds, ls));
 		}
 
 		mv.repaint();

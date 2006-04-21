@@ -13,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.Map.Entry;
@@ -134,7 +135,7 @@ public class MapStatus extends JPanel {
 							SelectionComponentVisitor visitor = new SelectionComponentVisitor();
 							osm.visit(visitor);
 							final StringBuilder text = new StringBuilder();
-							if (osm.id == 0 || osm.modified || osm.modifiedProperties)
+							if (osm.id == 0 || osm.modified)
 								visitor.name = "<i><b>"+visitor.name+"*</b></i>";
 							text.append(visitor.name);
 							if (osm.id != 0)
@@ -146,18 +147,14 @@ public class MapStatus extends JPanel {
 							l.setVerticalTextPosition(JLabel.TOP);
 							l.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 							l.addMouseListener(new MouseAdapter(){
-								@Override
-								public void mouseEntered(MouseEvent e) {
+								@Override public void mouseEntered(MouseEvent e) {
 									l.setText("<html><u color='blue'>"+text.toString()+"</u></html>");
 								}
-								@Override
-								public void mouseExited(MouseEvent e) {
+								@Override public void mouseExited(MouseEvent e) {
 									l.setText("<html>"+text.toString()+"</html>");
 								}
-								@Override
-								public void mouseClicked(MouseEvent e) {
-									Main.main.ds.clearSelection();
-									osm.setSelected(true);
+								@Override public void mouseClicked(MouseEvent e) {
+									Main.ds.setSelected(Arrays.asList(new OsmPrimitive[]{osm}));
 									mv.repaint();
 								}
 							});

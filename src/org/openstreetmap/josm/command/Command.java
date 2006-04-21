@@ -1,8 +1,11 @@
 package org.openstreetmap.josm.command;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map.Entry;
 
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.data.osm.visitor.CloneVisitor;
 
 
 /**
@@ -15,20 +18,34 @@ import org.openstreetmap.josm.data.osm.OsmPrimitive;
  *
  * @author imi
  */
-public interface Command {
+abstract public class Command {
 
+	private CloneVisitor orig; 
+	
 	/**
-	 * Executes the command on the dataset.
+	 * Executes the command on the dataset. This implementation will remember all
+	 * primitives returned by fillModifiedData for restoring them on undo.
 	 */
-	void executeCommand();
+	public void executeCommand() {
+		orig = new CloneVisitor();
+		Collection<OsmPrimitive> all = new HashSet<OsmPrimitive>();
+		fillModifiedData(all, all, all);
+		for (OsmPrimitive osm : all)
+			osm.visit(orig);
+	}
 
 	/**
 	 * Undoes the command. 
 	 * It can be assumed, that all objects are in the same state they were before.
 	 * It can also be assumed that executeCommand was called exactly once before.
+	 * 
+	 * This implementation undoes all objects stored by a former call to executeCommand.
 	 */
-	void undoCommand();
-	
+	public void undoCommand() {
+		for (Entry<OsmPrimitive, OsmPrimitive> e : orig.orig.entrySet())
+			e.getKey().cloneFrom(e.getValue());
+	}
+
 	/**
 	 * Fill in the changed data this command operates on.
 	 * Add to the lists, don't clear them.
@@ -37,7 +54,7 @@ public interface Command {
 	 * @param deleted   The deleted primitives
 	 * @param added		The added primitives
 	 */
-	void fillModifiedData(Collection<OsmPrimitive> modified,
+	abstract public void fillModifiedData(Collection<OsmPrimitive> modified,
 			Collection<OsmPrimitive> deleted,
 			Collection<OsmPrimitive> added);
 }

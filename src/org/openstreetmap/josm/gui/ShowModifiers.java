@@ -130,8 +130,7 @@ public class ShowModifiers extends JFrame implements AWTEventListener, Runnable 
 			g.fillRect(26,24,9,6);
 	}
 
-	@Override
-	public void paint(Graphics g) {
+	@Override public void paint(Graphics g) {
 		super.paint(g);
 		paintMouse(g);
 	}

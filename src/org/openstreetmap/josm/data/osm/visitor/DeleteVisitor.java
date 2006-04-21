@@ -3,7 +3,7 @@
 package org.openstreetmap.josm.data.osm.visitor;
 
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.LineSegment;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Way;
 
@@ -25,8 +25,8 @@ public class DeleteVisitor implements Visitor {
 	public void visit(Node n) {
 		ds.nodes.remove(n);
 	}
-	public void visit(LineSegment ls) {
-		ds.lineSegments.remove(ls);
+	public void visit(Segment ls) {
+		ds.segments.remove(ls);
 	}
 	public void visit(Way t) {
 		ds.ways.remove(t);

@@ -18,7 +18,7 @@ import org.openstreetmap.josm.data.osm.visitor.AllNodesVisitor;
  * 
  * @author imi
  */
-public class MoveCommand implements Command {
+public class MoveCommand extends Command {
 
 	/**
 	 * The objects that should be moved.
@@ -83,7 +83,7 @@ public class MoveCommand implements Command {
 		this.y += y;
 	}
 	
-	public void executeCommand() {
+	@Override public void executeCommand() {
 		for (Node n : objects) {
 			n.eastNorth = new EastNorth(n.eastNorth.east()+x, n.eastNorth.north()+y);
 			n.coor = Main.proj.eastNorth2latlon(n.eastNorth);
@@ -91,7 +91,7 @@ public class MoveCommand implements Command {
 		}
 	}
 
-	public void undoCommand() {
+	@Override public void undoCommand() {
 		Iterator<OldState> it = oldState.iterator();
 		for (Node n : objects) {
 			OldState os = it.next();
@@ -101,7 +101,7 @@ public class MoveCommand implements Command {
 		}
 	}
 
-	public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {
+	@Override public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {
 		for (OsmPrimitive osm : objects)
 			modified.add(osm);
 	}

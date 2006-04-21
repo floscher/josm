@@ -5,6 +5,7 @@ import java.awt.Image;
 import java.awt.Point;
 
 import javax.swing.Icon;
+import javax.swing.JPopupMenu;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.coor.EastNorth;
@@ -12,6 +13,7 @@ import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.MapView;
+import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
 import org.openstreetmap.josm.tools.ImageProvider;
 import org.openstreetmap.josm.tools.TileCache;
 
@@ -42,27 +44,22 @@ public class WmsServerLayer extends Layer {
 		cache = new TileCache(url);
 	}
 
-	@Override
-	public Icon getIcon() {
+	@Override public Icon getIcon() {
 		return icon;
 	}
 
-	@Override
-	public String getToolTipText() {
+	@Override public String getToolTipText() {
 		return "WMS layer: "+url;
 	}
 
-	@Override
-	public boolean isMergable(Layer other) {
+	@Override public boolean isMergable(Layer other) {
 		return false;
 	}
 
-	@Override
-	public void mergeFrom(Layer from) {
+	@Override public void mergeFrom(Layer from) {
 	}
 
-	@Override
-	public void paint(Graphics g, final MapView mv) {
+	@Override public void paint(Graphics g, final MapView mv) {
 //		EastNorth max = mv.getEastNorth(mv.getWidth(),0);
 //		EastNorth min = mv.getEastNorth(0,mv.getHeight());
 //		double width = max.east() - min.east();
@@ -89,13 +86,16 @@ public class WmsServerLayer extends Layer {
 		//System.out.println(url+"bbox="+info.min.lon()+","+info.min.lat()+","+info.max.lon()+","+info.max.lat());
 	}
 
-	@Override
-	public void visitBoundingBox(BoundingXYVisitor v) {
+	@Override public void visitBoundingBox(BoundingXYVisitor v) {
 		// doesn't have a bounding box
 	}
 
-	@Override
-	public Object getInfoComponent() {
+	@Override public Object getInfoComponent() {
 		return getToolTipText();
 	}
+
+	@Override public void addMenuEntries(JPopupMenu menu) {
+		menu.addSeparator();
+		menu.add(new LayerListPopup.InfoAction(this));
+    }
 }

@@ -58,7 +58,7 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
         public void actionPerformed(ActionEvent e) {
         	if (layers.getModel().getSize() == 1) {
         		Main.main.setMapFrame(null);
-        		Main.main.ds = new DataSet();
+        		Main.ds = new DataSet();
         	} else {
         	    int sel = layers.getSelectedIndex();
                 if (layer != null)
@@ -132,8 +132,7 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 		add(new JScrollPane(layers), BorderLayout.CENTER);
 		layers.setBackground(UIManager.getColor("Button.background"));
 		layers.setCellRenderer(new DefaultListCellRenderer(){
-			@Override
-			public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+			@Override public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 				Layer layer = (Layer)value;
 				JLabel label = (JLabel)super.getListCellRendererComponent(list, 
 						layer.name, index, isSelected, cellHasFocus);

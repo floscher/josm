@@ -41,8 +41,7 @@ public class LatLon extends Coordinate {
 			lon() < -Projection.MAX_LON || lon() > Projection.MAX_LON;
 	}
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return "LatLon[lat="+lat()+",lon="+lon()+"]";
     }
 }

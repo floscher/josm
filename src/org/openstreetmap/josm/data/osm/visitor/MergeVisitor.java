@@ -1,12 +1,14 @@
 package org.openstreetmap.josm.data.osm.visitor;
 
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.LineSegment;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Way;
@@ -19,8 +21,14 @@ import org.openstreetmap.josm.data.osm.Way;
  */
 public class MergeVisitor implements Visitor {
 
+	/**
+	 * Map from primitives in the database to visited primitives. (Attention: The other way 
+	 * round than mergedNodes and mergedSegments)
+	 */
+	public Map<OsmPrimitive, OsmPrimitive> conflicts = new HashMap<OsmPrimitive, OsmPrimitive>();
+
 	private final DataSet ds;
-	
+
 	/**
 	 * A list of all nodes that got replaced with other nodes.
 	 * Key is the node in the other's dataset and the value is the one that is now
@@ -28,12 +36,12 @@ public class MergeVisitor implements Visitor {
 	 */
 	private final Map<Node, Node> mergedNodes = new HashMap<Node, Node>();
 	/**
-	 * A list of all line segments that got replaced with others.
+	 * A list of all segments that got replaced with others.
 	 * Key is the segment in the other's dataset and the value is the one that is now
-	 * in ds.lineSegments.
+	 * in ds.segments.
 	 */
-	private final Map<LineSegment, LineSegment> mergedLineSegments = new HashMap<LineSegment, LineSegment>();
-	
+	private final Map<Segment, Segment> mergedSegments = new HashMap<Segment, Segment>();
+
 	public MergeVisitor(DataSet ds) {
 		this.ds = ds;
 	}
@@ -42,89 +50,99 @@ public class MergeVisitor implements Visitor {
 	 * Merge the node if the id matches with any of the internal set or if
 	 * either id is zero, merge if lat/lon matches.
 	 */
-	public void visit(Node otherNode) {
-		Node myNode = null;
+	public void visit(Node other) {
+		if (mergeAfterId(mergedNodes, ds.nodes, other))
+			return;
+
+		Node my = null;
 		for (Node n : ds.nodes) {
-			if (match(n, otherNode)) {
-				myNode = n;
+			if (match(n, other)) {
+				my = n;
 				break;
 			}
 		}
-		if (myNode == null)
-			ds.nodes.add(otherNode);
+		if (my == null)
+			ds.nodes.add(other);
 		else {
-			mergedNodes.put(otherNode, myNode);
-			mergeCommon(myNode, otherNode);
-			if (myNode.modified && !otherNode.modified)
+			mergedNodes.put(other, my);
+			mergeCommon(my, other);
+			if (my.modified && !other.modified)
 				return;
-			if (!myNode.coor.equalsEpsilon(otherNode.coor)) {
-				myNode.coor = otherNode.coor;
-				myNode.modified = otherNode.modified;
+			if (!my.coor.equalsEpsilon(other.coor)) {
+				my.coor = other.coor;
+				my.eastNorth = other.eastNorth;
+				my.modified = other.modified;
 			}
 		}
 	}
 
 	/**
-	 * Merge the line segment if id matches or if both nodes are the same (and the
+	 * Merge the segment if id matches or if both nodes are the same (and the
 	 * id is zero of either segment). Nodes are the "same" when they @see match
 	 */
-	public void visit(LineSegment otherLs) {
-		LineSegment myLs = null;
-		for (LineSegment ls : ds.lineSegments) {
-			if (match(otherLs, ls)) {
-				myLs = ls;
+	public void visit(Segment other) {
+		if (mergeAfterId(mergedSegments, ds.segments, other))
+			return;
+
+		Segment my = null;
+		for (Segment ls : ds.segments) {
+			if (match(other, ls)) {
+				my = ls;
 				break;
 			}
 		}
-		if (myLs == null)
-			ds.lineSegments.add(otherLs);
-		else if (myLs.incomplete && !otherLs.incomplete) {
-			mergedLineSegments.put(otherLs, myLs);
-			myLs.cloneFrom(otherLs);
-		} else if (!otherLs.incomplete) {
-			mergedLineSegments.put(otherLs, myLs);
-			mergeCommon(myLs, otherLs);
-			if (myLs.modified && !otherLs.modified)
+		if (my == null)
+			ds.segments.add(other);
+		else if (my.incomplete && !other.incomplete) {
+			mergedSegments.put(other, my);
+			my.cloneFrom(other);
+		} else if (!other.incomplete) {
+			mergedSegments.put(other, my);
+			mergeCommon(my, other);
+			if (my.modified && !other.modified)
 				return;
-			if (!match(myLs.from, otherLs.from)) {
-				myLs.from = otherLs.from;
-				myLs.modified = otherLs.modified;
+			if (!match(my.from, other.from)) {
+				my.from = other.from;
+				my.modified = other.modified;
 			}
-			if (!match(myLs.to, otherLs.to)) {
-				myLs.to = otherLs.to;
-				myLs.modified = otherLs.modified;
+			if (!match(my.to, other.to)) {
+				my.to = other.to;
+				my.modified = other.modified;
 			}
 		}
 	}
 
 	/**
-	 * Merge the way if id matches or if all line segments matches and the
+	 * Merge the way if id matches or if all segments matches and the
 	 * id is zero of either way.
 	 */
-	public void visit(Way otherWay) {
-		Way myWay = null;
+	public void visit(Way other) {
+		if (mergeAfterId(null, ds.ways, other))
+			return;
+
+		Way my = null;
 		for (Way t : ds.ways) {
-			if (match(otherWay, t)) {
-				myWay = t;
+			if (match(other, t)) {
+				my = t;
 				break;
 			}
 		}
-		if (myWay == null)
-			ds.ways.add(otherWay);
+		if (my == null)
+			ds.ways.add(other);
 		else {
-			mergeCommon(myWay, otherWay);
-			if (myWay.modified && !otherWay.modified)
+			mergeCommon(my, other);
+			if (my.modified && !other.modified)
 				return;
 			boolean same = true;
-			Iterator<LineSegment> it = otherWay.segments.iterator();
-			for (LineSegment ls : myWay.segments) {
+			Iterator<Segment> it = other.segments.iterator();
+			for (Segment ls : my.segments) {
 				if (!match(ls, it.next()))
 					same = false;
 			}
 			if (!same) {
-				myWay.segments.clear();
-				myWay.segments.addAll(otherWay.segments);
-				myWay.modified = otherWay.modified;
+				my.segments.clear();
+				my.segments.addAll(other.segments);
+				my.modified = other.modified;
 			}
 		}
 	}
@@ -134,34 +152,43 @@ public class MergeVisitor implements Visitor {
 	 * data.
 	 */
 	public void fixReferences() {
-		for (LineSegment ls : ds.lineSegments) {
-			if (mergedNodes.containsKey(ls.from))
-				ls.from = mergedNodes.get(ls.from);
-			if (mergedNodes.containsKey(ls.to))
-				ls.to = mergedNodes.get(ls.to);
-		}
-		for (Way t : ds.ways) {
-			boolean replacedSomething = false;
-			LinkedList<LineSegment> newSegments = new LinkedList<LineSegment>();
-			for (LineSegment ls : t.segments) {
-				LineSegment otherLs = mergedLineSegments.get(ls);
-				newSegments.add(otherLs == null ? ls : otherLs);
-				if (otherLs != null)
-					replacedSomething = true;
-			}
-			if (replacedSomething) {
-				t.segments.clear();
-				t.segments.addAll(newSegments);
-			}
-			for (LineSegment ls : t.segments) {
-				if (mergedNodes.containsKey(ls.from))
-					ls.from = mergedNodes.get(ls.from);
-				if (mergedNodes.containsKey(ls.to))
-					ls.to = mergedNodes.get(ls.to);
-			}
-		}
+		for (Segment s : ds.segments)
+			fixSegment(s);
+		for (OsmPrimitive osm : conflicts.values())
+			if (osm instanceof Segment)
+				fixSegment((Segment)osm);
+		for (Way w : ds.ways)
+			fixWay(w);
+		for (OsmPrimitive osm : conflicts.values())
+			if (osm instanceof Way)
+				fixWay((Way)osm);
 	}
-	
+
+	private void fixWay(Way t) {
+	    boolean replacedSomething = false;
+	    LinkedList<Segment> newSegments = new LinkedList<Segment>();
+	    for (Segment ls : t.segments) {
+	    	Segment otherLs = mergedSegments.get(ls);
+	    	newSegments.add(otherLs == null ? ls : otherLs);
+	    	if (otherLs != null)
+	    		replacedSomething = true;
+	    }
+	    if (replacedSomething) {
+	    	t.segments.clear();
+	    	t.segments.addAll(newSegments);
+	    }
+	    for (Segment ls : t.segments) {
+	    	fixSegment(ls);
+	    }
+    }
+
+	private void fixSegment(Segment ls) {
+	    if (mergedNodes.containsKey(ls.from))
+	    	ls.from = mergedNodes.get(ls.from);
+	    if (mergedNodes.containsKey(ls.to))
+	    	ls.to = mergedNodes.get(ls.to);
+    }
+
 	/**
 	 * @return Whether the nodes matches (in sense of "be mergable").
 	 */
@@ -170,11 +197,11 @@ public class MergeVisitor implements Visitor {
 			return n1.coor.equalsEpsilon(n2.coor);
 		return n1.id == n2.id;
 	}
-	
+
 	/**
-	 * @return Whether the line segments matches (in sense of "be mergable").
+	 * @return Whether the segments matches (in sense of "be mergable").
 	 */
-	private boolean match(LineSegment ls1, LineSegment ls2) {
+	private boolean match(Segment ls1, Segment ls2) {
 		if (ls1.id == ls2.id)
 			return true;
 		if (ls1.incomplete || ls2.incomplete)
@@ -189,8 +216,8 @@ public class MergeVisitor implements Visitor {
 		if (t1.id == 0 || t2.id == 0) {
 			if (t1.segments.size() != t2.segments.size())
 				return false;
-			Iterator<LineSegment> it = t1.segments.iterator();
-			for (LineSegment ls : t2.segments)
+			Iterator<Segment> it = t1.segments.iterator();
+			for (Segment ls : t2.segments)
 				if (!match(ls, it.next()))
 					return false;
 			return true;
@@ -200,28 +227,67 @@ public class MergeVisitor implements Visitor {
 
 	/**
 	 * Merge the common parts of an osm primitive.
-	 * @param myOsm The object, the information gets merged into
-	 * @param otherOsm The object, the information gets merged from
+	 * @param my The object, the information gets merged into
+	 * @param other The object, the information gets merged from
 	 */
-	private void mergeCommon(OsmPrimitive myOsm, OsmPrimitive otherOsm) {
-		if (otherOsm.isDeleted())
-			myOsm.setDeleted(true);
-		if (!myOsm.modified || otherOsm.modified) {
-			if (myOsm.id == 0 && otherOsm.id != 0)
-				myOsm.id = otherOsm.id; // means not ncessary the object is now modified
-			else if (myOsm.id != 0 && otherOsm.id != 0 && otherOsm.modified)
-				myOsm.modified = true;
+	private void mergeCommon(OsmPrimitive my, OsmPrimitive other) {
+		if (other.deleted)
+			my.delete(true);
+		if (my.id == 0 || !my.modified || other.modified) {
+			if (my.id == 0 && other.id != 0) {
+				my.id = other.id;
+				my.modified = other.modified; // match a new node
+			} else if (my.id != 0 && other.id != 0 && other.modified)
+				my.modified = true;
 		}
-		if (myOsm.modifiedProperties && !otherOsm.modifiedProperties)
+		if (other.keys == null)
 			return;
-		if (otherOsm.keys == null)
+		if (my.keySet().containsAll(other.keys.entrySet()))
 			return;
-		if (myOsm.keys != null && myOsm.keys.entrySet().containsAll(otherOsm.keys.entrySet()))
-			return;
-		if (myOsm.keys == null)
-			myOsm.keys = otherOsm.keys;
+		if (my.keys == null)
+			my.keys = other.keys;
 		else
-			myOsm.keys.putAll(otherOsm.keys);
-		myOsm.modifiedProperties = true;
+			my.keys.putAll(other.keys);
+		my.modified = true;
+	}
+
+	private <P extends OsmPrimitive> boolean mergeAfterId(Map<P,P> merged, Collection<P> primitives, P other) {
+		for (P my : primitives) {
+			if (my.realEqual(other))
+				return true; // no merge needed.
+			if (my.id == other.id) {
+				Date d1 = my.timestamp == null ? new Date(0) : my.timestamp;
+				Date d2 = other.timestamp == null ? new Date(0) : other.timestamp;
+				if (my.modified && other.modified) {
+					conflicts.put(my, other);
+					if (merged != null)
+						merged.put(other, my);
+				} else if (!my.modified && !other.modified) {
+					if (d1.before(d2)) {
+						my.cloneFrom(other);
+						if (merged != null)
+							merged.put(other, my);
+					}
+				} else if (other.modified) {
+					if (d1.after(d2)) {
+						conflicts.put(my, other);
+						if (merged != null)
+							merged.put(other, my);
+					} else {
+						my.cloneFrom(other);
+						if (merged != null)
+							merged.put(other, my);
+					}
+				} else if (my.modified) {
+					if (d2.after(d1)) {
+						conflicts.put(my, other);
+						if (merged != null)
+							merged.put(other, my);
+					}
+				}
+				return true;
+			}
+		}
+		return false;
 	}
 }

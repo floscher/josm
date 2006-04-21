@@ -12,9 +12,11 @@ import java.util.LinkedList;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.Bounds;
+import org.openstreetmap.josm.data.SelectionChangedListener;
 import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.layer.Layer;
@@ -75,13 +77,19 @@ public class MapView extends NavigatableComponent {
 	 */
 	public MapView(Layer layer) {
 		addComponentListener(new ComponentAdapter(){
-			@Override
-			public void componentResized(ComponentEvent e) {
+			@Override public void componentResized(ComponentEvent e) {
 				recalculateCenterScale();
 			}
 		});
 		new MapMover(this);
 		addLayer(layer);
+		
+		// listend to selection changes to redraw the map
+		Main.ds.addSelectionChangedListener(new SelectionChangedListener(){
+			public void selectionChanged(Collection<OsmPrimitive> newSelection) {
+				repaint();
+            }
+		});
 	}
 
 	/**
@@ -154,8 +162,7 @@ public class MapView extends NavigatableComponent {
 	/**
 	 * Draw the component.
 	 */
-	@Override
-	public void paint(Graphics g) {
+	@Override public void paint(Graphics g) {
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, getWidth(), getHeight());
 
@@ -217,14 +224,13 @@ public class MapView extends NavigatableComponent {
 			EastNorth oldCenter = center;
 			double oldScale = this.scale;
 			
-			if (v.min == null || v.max == null) {
+			if (v.min == null || v.max == null || v.min.equals(v.max)) {
 				// no bounds means whole world 
 				center = getProjection().latlon2eastNorth(new LatLon(0,0));
 				EastNorth world = getProjection().latlon2eastNorth(new LatLon(Projection.MAX_LAT,Projection.MAX_LON));
 				double scaleX = world.east()*2/w;
 				double scaleY = world.north()*2/h;
 				scale = Math.max(scaleX, scaleY); // minimum scale to see all of the screen
-				
 			} else {
 				center = new EastNorth(v.min.east()/2+v.max.east()/2, v.min.north()/2+v.max.north()/2);
 				double scaleX = (v.max.east()-v.min.east())/w;
@@ -276,7 +282,7 @@ public class MapView extends NavigatableComponent {
 		Layer old = activeLayer;
 		activeLayer = layer;
 		if (layer instanceof OsmDataLayer)
-			Main.main.ds = ((OsmDataLayer)layer).data;
+			Main.ds = ((OsmDataLayer)layer).data;
 		if (old != layer) {
 			for (LayerChangeListener l : listeners)
 				l.activeLayerChange(old, layer);
@@ -305,8 +311,7 @@ public class MapView extends NavigatableComponent {
 	 * In addition to the base class funcitonality, this keep trak of the autoscale
 	 * feature.
 	 */
-	@Override
-	public void zoomTo(EastNorth newCenter, double scale) {
+	@Override public void zoomTo(EastNorth newCenter, double scale) {
 		boolean oldAutoScale = autoScale;
 		EastNorth oldCenter = center;
 		double oldScale = this.scale;
