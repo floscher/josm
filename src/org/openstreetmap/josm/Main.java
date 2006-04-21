@@ -77,7 +77,7 @@ public class Main extends JFrame {
 	/**
 	 * The global dataset.
 	 */
-	public DataSet ds = new DataSet();
+	public static DataSet ds = new DataSet();
 	
 	/**
 	 * The main panel.
@@ -175,8 +175,7 @@ public class Main extends JFrame {
 		getContentPane().add(toolBar, BorderLayout.NORTH);
 	
 		addWindowListener(new WindowAdapter(){
-			@Override
-			public void windowClosing(WindowEvent arg0) {
+			@Override public void windowClosing(WindowEvent arg0) {
 				if (mapFrame != null) {
 					boolean modified = false;
 					boolean uploadedModified = false;
@@ -216,14 +215,14 @@ public class Main extends JFrame {
 			System.out.println("Java OpenStreetMap Editor");
 			System.out.println();
 			System.out.println("usage:");
-			System.out.println("\tjava -jar josm.jar <options>");
+			System.out.println("\tjava -jar josm.jar <options> file file file...");
 			System.out.println();
 			System.out.println("options:");
 			System.out.println("\t--help                                  Show this help");
 			System.out.println("\t--download=minlat,minlon,maxlat,maxlon  Download the bounding box");
-			System.out.println("\t--open=file(.osm|.xml|.gpx|.txt|.csv)   Open the specific file");
 			System.out.println("\t--no-fullscreen                         Don't launch in fullscreen mode");
 			System.out.println("\t--reset-preferences                     Reset the preferences to default");
+			System.out.println("file(.osm|.xml|.gpx|.txt|.csv)            Open the specific file");
 			System.exit(0);
 		}
 
@@ -286,10 +285,7 @@ public class Main extends JFrame {
 
 		for (Iterator<String> it = arguments.iterator(); it.hasNext();) {
 			String s = it.next();
-			if (s.startsWith("--open=")) {
-				main.openAction.openFile(new File(s.substring(7)));
-				it.remove();
-			} else if (s.startsWith("--download=")) {
+			if (s.startsWith("--download=")) {
 				downloadFromParamString(false, s.substring(11));
 				it.remove();
 			} else if (s.startsWith("--downloadgps=")) {
@@ -298,12 +294,8 @@ public class Main extends JFrame {
 			}
 		}
 		
-		if (!arguments.isEmpty()) {
-			String s = "Unknown Parameter:\n";
-			for (String arg : arguments)
-				s += arg+"\n";
-			JOptionPane.showMessageDialog(main, s);
-		}
+		for (String s : arguments)
+			main.openAction.openFile(new File(s));
 	}
 
 

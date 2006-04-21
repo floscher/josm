@@ -13,7 +13,7 @@ import org.openstreetmap.josm.data.osm.visitor.DeleteVisitor;
  * 
  * @author imi
  */
-public class AddCommand implements Command {
+public class AddCommand extends Command {
 
 	/**
 	 * The dataset this command operates on.
@@ -33,15 +33,15 @@ public class AddCommand implements Command {
 		this.osm = osm;
 	}
 
-	public void executeCommand() {
+	@Override public void executeCommand() {
 		osm.visit(new AddVisitor(ds));
 	}
 
-	public void undoCommand() {
+	@Override public void undoCommand() {
 		osm.visit(new DeleteVisitor(ds));
 	}
 
-	public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {
+	@Override public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {
 		added.add(osm);
 	}
 }

@@ -14,7 +14,7 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 import org.openstreetmap.josm.actions.AutoScaleAction;
-import org.openstreetmap.josm.actions.mapmode.AddLineSegmentAction;
+import org.openstreetmap.josm.actions.mapmode.AddSegmentAction;
 import org.openstreetmap.josm.actions.mapmode.AddNodeAction;
 import org.openstreetmap.josm.actions.mapmode.AddWayAction;
 import org.openstreetmap.josm.actions.mapmode.DeleteAction;
@@ -22,6 +22,7 @@ import org.openstreetmap.josm.actions.mapmode.MapMode;
 import org.openstreetmap.josm.actions.mapmode.MoveAction;
 import org.openstreetmap.josm.actions.mapmode.SelectionAction;
 import org.openstreetmap.josm.actions.mapmode.ZoomAction;
+import org.openstreetmap.josm.gui.dialogs.ConflictDialog;
 import org.openstreetmap.josm.gui.dialogs.LayerList;
 import org.openstreetmap.josm.gui.dialogs.PropertiesDialog;
 import org.openstreetmap.josm.gui.dialogs.SelectionListDialog;
@@ -52,6 +53,9 @@ public class MapFrame extends JPanel {
 	 * The status line below the map
 	 */
 	public MapStatus statusLine;
+	
+	public ConflictDialog conflictDialog;
+	
 	/**
 	 * Construct a map with a given DataSet. The set cannot be replaced after 
 	 * construction (but of course, the data can be altered using the map's
@@ -72,7 +76,7 @@ public class MapFrame extends JPanel {
 		toolBarActions.add(new IconToggleButton(selectionAction));
 		toolBarActions.add(new IconToggleButton(new MoveAction(this)));
 		toolBarActions.add(new IconToggleButton(new AddNodeAction(this)));
-		toolBarActions.add(new IconToggleButton(new AddLineSegmentAction(this)));
+		toolBarActions.add(new IconToggleButton(new AddSegmentAction(this)));
 		toolBarActions.add(new IconToggleButton(new AddWayAction(this, selectionAction)));
 		toolBarActions.add(new IconToggleButton(new DeleteAction(this)));
 
@@ -103,6 +107,7 @@ public class MapFrame extends JPanel {
 		addIconToggle(toggleDialogs, new LayerList(this));
 		addIconToggle(toggleDialogs, new PropertiesDialog(this));
 		addIconToggle(toggleDialogs, new SelectionListDialog(this));
+		addIconToggle(toggleDialogs, conflictDialog = new ConflictDialog());
 
 		// status line below the map
 		statusLine = new MapStatus(this);
@@ -118,8 +123,7 @@ public class MapFrame extends JPanel {
 	/**
 	 * Fires an property changed event "visible".
 	 */
-	@Override
-	public void setVisible(boolean aFlag) {
+	@Override public void setVisible(boolean aFlag) {
 		boolean old = isVisible();
 		super.setVisible(aFlag);
 		if (old != aFlag)

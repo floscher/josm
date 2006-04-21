@@ -25,7 +25,7 @@ import org.openstreetmap.josm.gui.MapFrame;
  * deleted. The exact definition of "all its references" are in 
  * @see #deleteWithReferences(OsmPrimitive)
  *
- * Pressing Alt will select the way instead of a line segment, as usual.
+ * Pressing Alt will select the way instead of a segment, as usual.
  * 
  * If the user did not press Ctrl and the object has any references, the user
  * is informed and nothing is deleted.
@@ -45,27 +45,24 @@ public class DeleteAction extends MapMode {
 		super("Delete", "delete", "Delete nodes, streets or segments.", "Delete", KeyEvent.VK_DELETE, mapFrame);
 	}
 
-	@Override
-	public void registerListener() {
+	@Override public void registerListener() {
 		super.registerListener();
 		mv.addMouseListener(this);
 	}
 
-	@Override
-	public void unregisterListener() {
+	@Override public void unregisterListener() {
 		super.unregisterListener();
 		mv.removeMouseListener(this);
 	}
 
 	
-	@Override
-	public void actionPerformed(ActionEvent e) {
+	@Override public void actionPerformed(ActionEvent e) {
 		super.actionPerformed(e);
 		boolean ctrl = (e.getModifiers() & ActionEvent.CTRL_MASK) != 0;
 		if (ctrl)
-			deleteWithReferences(Main.main.ds.getSelected());
+			deleteWithReferences(Main.ds.getSelected());
 		else
-			delete(Main.main.ds.getSelected(), false);
+			delete(Main.ds.getSelected(), false);
 		mv.repaint();
 	}
 
@@ -73,8 +70,7 @@ public class DeleteAction extends MapMode {
 	 * If user clicked with the left button, delete the nearest object.
 	 * position.
 	 */
-	@Override
-	public void mouseClicked(MouseEvent e) {
+	@Override public void mouseClicked(MouseEvent e) {
 		if (e.getButton() != MouseEvent.BUTTON1)
 			return;
 		
@@ -93,13 +89,13 @@ public class DeleteAction extends MapMode {
 	/**
 	 * Delete the primitives and everything they references.
 	 * 
-	 * If a node is deleted, the node and all line segments, ways and areas
+	 * If a node is deleted, the node and all segments, ways and areas
 	 * the node is part of are deleted as well.
 	 * 
-	 * If a line segment is deleted, all ways the line segment is part of 
+	 * If a segment is deleted, all ways the segment is part of 
 	 * are deleted as well. No nodes are deleted.
 	 * 
-	 * If a way is deleted, only the way and no line segments or nodes are 
+	 * If a way is deleted, only the way and no segments or nodes are 
 	 * deleted.
 	 * 
 	 * If an area is deleted, only the area gets deleted.
@@ -109,7 +105,7 @@ public class DeleteAction extends MapMode {
 	private void deleteWithReferences(Collection<OsmPrimitive> selection) {
 		Collection<Command> deleteCommands = new LinkedList<Command>();
 		for (OsmPrimitive osm : selection)
-			deleteCommands.add(new DeleteCommand(Main.main.ds, osm));
+			deleteCommands.add(new DeleteCommand(osm));
 		if (!deleteCommands.isEmpty())
 			mv.editLayer().add(new SequenceCommand(deleteCommands));
 	}
@@ -125,13 +121,13 @@ public class DeleteAction extends MapMode {
 	private void delete(Collection<OsmPrimitive> selection, boolean msgBox) {
 		Collection<Command> deleteCommands = new LinkedList<Command>();
 		for (OsmPrimitive osm : selection) {
-			CollectBackReferencesVisitor v = new CollectBackReferencesVisitor(Main.main.ds);
+			CollectBackReferencesVisitor v = new CollectBackReferencesVisitor(Main.ds);
 			osm.visit(v);
 			if (!selection.containsAll(v.data)) {
 				if (msgBox)
 					JOptionPane.showMessageDialog(Main.main, "This object is in use.");
 			} else
-				deleteCommands.add(new DeleteCommand(Main.main.ds, osm));
+				deleteCommands.add(new DeleteCommand(osm));
 		}
 		if (!deleteCommands.isEmpty())
 			mv.editLayer().add(new SequenceCommand(deleteCommands));

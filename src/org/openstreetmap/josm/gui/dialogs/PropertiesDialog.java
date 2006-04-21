@@ -35,7 +35,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.command.ChangeKeyValueCommand;
+import org.openstreetmap.josm.command.ChangePropertyCommand;
 import org.openstreetmap.josm.data.SelectionChangedListener;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.MapFrame;
@@ -67,8 +67,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	 * @author imi
 	 */
 	public class DblClickWatch extends MouseAdapter {
-		@Override
-		public void mouseClicked(MouseEvent e) {
+		@Override public void mouseClicked(MouseEvent e) {
 			if (e.getClickCount() < 2)
 				return;
 			if (e.getSource() instanceof JScrollPane)
@@ -86,7 +85,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	 */
 	void edit(int row) {
 		String key = data.getValueAt(row, 0).toString();
-		Collection<OsmPrimitive> sel = Main.main.ds.getSelected();
+		Collection<OsmPrimitive> sel = Main.ds.getSelected();
 		String msg = "<html>This will change "+sel.size()+" object"+(sel.size()==1?"":"s")+".<br><br>"+
 		"Please select a new value for '"+key+"'.<br>(Empty string deletes the key.)";
 		final JComboBox combo = (JComboBox)data.getValueAt(row, 1);
@@ -124,7 +123,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 			return;
 		if (value.equals(""))
 			value = null; // delete the key
-		mv.editLayer().add(new ChangeKeyValueCommand(sel, key, value));
+		mv.editLayer().add(new ChangePropertyCommand(sel, key, value));
 
 		if (value == null)
 			selectionChanged(sel); // update whole table
@@ -137,13 +136,13 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	 * dataset, of course).
 	 */
 	void add() {
-		Collection<OsmPrimitive> sel = Main.main.ds.getSelected();
+		Collection<OsmPrimitive> sel = Main.ds.getSelected();
 		
 		JPanel p = new JPanel(new BorderLayout());
 		p.add(new JLabel("<html>This will change "+sel.size()+" object"+(sel.size()==1?"":"s")+".<br><br>"+
 		"Please select a key"), BorderLayout.NORTH);
 		Vector<String> allKeys = new Vector<String>();
-		for (OsmPrimitive osm : Main.main.ds.allNonDeletedPrimitives())
+		for (OsmPrimitive osm : Main.ds.allNonDeletedPrimitives())
 			allKeys.addAll(osm.keySet());
 		for (Iterator<String> it = allKeys.iterator(); it.hasNext();) {
 			String s = it.next();
@@ -171,7 +170,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		String value = values.getText();
 		if (value.equals(""))
 			return;
-		mv.editLayer().add(new ChangeKeyValueCommand(sel, key, value));
+		mv.editLayer().add(new ChangePropertyCommand(sel, key, value));
 		selectionChanged(sel); // update table
 	}
 
@@ -181,8 +180,8 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	 */
 	private void delete(int row) {
 		String key = data.getValueAt(row, 0).toString();
-		Collection<OsmPrimitive> sel = Main.main.ds.getSelected();
-		mv.editLayer().add(new ChangeKeyValueCommand(sel, key, null));
+		Collection<OsmPrimitive> sel = Main.ds.getSelected();
+		mv.editLayer().add(new ChangePropertyCommand(sel, key, null));
 		selectionChanged(sel); // update table
 	}
 	
@@ -190,12 +189,10 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	 * The property data.
 	 */
 	private final DefaultTableModel data = new DefaultTableModel(){
-		@Override
-		public boolean isCellEditable(int row, int column) {
+		@Override public boolean isCellEditable(int row, int column) {
 			return false;
 		}
-		@Override
-		public Class<?> getColumnClass(int columnIndex) {
+		@Override public Class<?> getColumnClass(int columnIndex) {
 			return columnIndex == 1 ? JComboBox.class : String.class;
 		}
 	};
@@ -220,8 +217,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		data.setColumnIdentifiers(new String[]{"Key", "Value"});
 		propertyTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		propertyTable.setDefaultRenderer(JComboBox.class, new DefaultTableCellRenderer(){
-			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			@Override public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 				Component c = super.getTableCellRendererComponent(table, value, isSelected, false, row, column);
 				if (c instanceof JLabel) {
 					String str = ((JComboBox)value).getEditor().getItem().toString();
@@ -233,8 +229,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 			}
 		});
 		propertyTable.setDefaultRenderer(String.class, new DefaultTableCellRenderer(){
-			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			@Override public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 				return super.getTableCellRendererComponent(table, value, isSelected, false, row, column);
 			}
 		});
@@ -278,18 +273,19 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		return b;
 	}
 
-	@Override
-	public void setVisible(boolean b) {
+	@Override public void setVisible(boolean b) {
 		if (b) {
-			Main.main.ds.addSelectionChangedListener(this);
-			selectionChanged(Main.main.ds.getSelected());
+			Main.ds.addSelectionChangedListener(this);
+			selectionChanged(Main.ds.getSelected());
 		} else {
-			Main.main.ds.removeSelectionChangedListener(this);
+			Main.ds.removeSelectionChangedListener(this);
 		}
 		super.setVisible(b);
 	}
 
 	public void selectionChanged(Collection<OsmPrimitive> newSelection) {
+		if (propertyTable == null)
+			return; // selection changed may be received in base class constructor before init
 		if (propertyTable.getCellEditor() != null)
 			propertyTable.getCellEditor().cancelCellEditing();
 		data.setRowCount(0);

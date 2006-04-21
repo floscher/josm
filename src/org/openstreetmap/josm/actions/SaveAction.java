@@ -13,7 +13,7 @@ import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.osm.LineSegment;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.io.GpxWriter;
 import org.openstreetmap.josm.io.OsmWriter;
 
@@ -40,6 +40,12 @@ public class SaveAction extends DiskAccessAction {
 		}
 		if (isDataSetEmpty() && JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(Main.main, "The document contains no data. Save anyway?", "Empty document", JOptionPane.YES_NO_OPTION))
 			return;
+		if (!Main.main.getMapFrame().conflictDialog.conflicts.isEmpty()) {
+			int answer = JOptionPane.showConfirmDialog(Main.main, 
+					"There are unresolved conflicts. Conflicts will not be saved and handled as if you rejected all. Continue?", "Conflicts", JOptionPane.YES_NO_OPTION);
+			if (answer != JOptionPane.YES_OPTION)
+				return;
+		}
 
 		JFileChooser fc = createAndOpenFileChooser(false, false);
 		if (fc == null)
@@ -59,15 +65,15 @@ public class SaveAction extends DiskAccessAction {
 			}
 			FileWriter fileWriter;
 			if (ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn)) {
-				for (LineSegment ls : Main.main.ds.lineSegments) {
+				for (Segment ls : Main.ds.segments) {
 					if (ls.incomplete) {
 						JOptionPane.showMessageDialog(Main.main, "Export of data containing incomplete ways to GPX is not implemented.\nBe aware, that in future versions of JOSM, GPX support will be kept at a minimum.\nPlease use .osm or .xml as extension for the better OSM support.");
 						return;
 					}
 				}
-				new GpxWriter(fileWriter = new FileWriter(file), Main.main.ds).output();
+				new GpxWriter(fileWriter = new FileWriter(file), Main.ds).output();
 			} else if (ExtensionFileFilter.filters[ExtensionFileFilter.OSM].acceptName(fn))
-				OsmWriter.output(fileWriter = new FileWriter(file), Main.main.ds, false);
+				OsmWriter.output(fileWriter = new FileWriter(file), Main.ds, false);
 			else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
 				JOptionPane.showMessageDialog(Main.main, "CSV output not supported yet.");
 				return;

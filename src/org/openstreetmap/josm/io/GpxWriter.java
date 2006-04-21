@@ -18,7 +18,7 @@ import org.jdom.output.XMLOutputter;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.LineSegment;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Way;
@@ -107,12 +107,12 @@ public class GpxWriter {
 		e.setAttribute("creator", "JOSM");
 		// for getting all unreferenced waypoints in the wpt-list
 		LinkedList<Node> unrefNodes = new LinkedList<Node>(ds.nodes);
-		// for getting all unreferenced line segments
-		LinkedList<LineSegment> unrefLs = new LinkedList<LineSegment>(ds.lineSegments);
+		// for getting all unreferenced segments
+		LinkedList<Segment> unrefLs = new LinkedList<Segment>(ds.segments);
 
 		// ways
 		for (Way t : ds.ways) {
-			if (t.isDeleted() && t.id == 0)
+			if (t.deleted && t.id == 0)
 				continue;
 			Element tElem = new Element("trk", GPX);
 			HashMap<String, String> keys = null;
@@ -128,9 +128,9 @@ public class GpxWriter {
 			}
 			addPropertyExtensions(tElem, keys, t);
 
-			// line segments
-			for (LineSegment ls : t.segments) {
-				tElem.getChildren().add(parseLineSegment(ls));
+			// segments
+			for (Segment ls : t.segments) {
+				tElem.getChildren().add(parseSegment(ls));
 				unrefNodes.remove(ls.from);
 				unrefNodes.remove(ls.to);
 				unrefLs.remove(ls);
@@ -139,12 +139,12 @@ public class GpxWriter {
 			e.getChildren().add(tElem);
 		}
 		
-		// encode pending line segments as ways
-		for (LineSegment ls : unrefLs) {
-			if (ls.isDeleted() && ls.id == 0)
+		// encode pending segments as ways
+		for (Segment ls : unrefLs) {
+			if (ls.deleted && ls.id == 0)
 				continue;
 			Element t = new Element("trk", GPX);
-			t.getChildren().add(parseLineSegment(ls));
+			t.getChildren().add(parseSegment(ls));
 			unrefNodes.remove(ls.from);
 			unrefNodes.remove(ls.to);
 			Element ext = new Element("extensions", GPX);
@@ -155,7 +155,7 @@ public class GpxWriter {
 
 		// waypoints (missing nodes)
 		for (Node n : unrefNodes) {
-			if (n.isDeleted() && n.id == 0)
+			if (n.deleted && n.id == 0)
 				continue;
 			e.getChildren().add(parseWaypoint(n, "wpt"));
 		}
@@ -178,10 +178,10 @@ public class GpxWriter {
 
 
 	/**
-	 * Parse a line segment and store it into a JDOM-Element. Return that element.
+	 * Parse a segment and store it into a JDOM-Element. Return that element.
 	 */
 	@SuppressWarnings("unchecked")
-	private Element parseLineSegment(LineSegment ls) {
+	private Element parseSegment(Segment ls) {
 		Element lsElem = new Element("trkseg", GPX);
 		addPropertyExtensions(lsElem, ls.keys, ls);
 		lsElem.getChildren().add(parseWaypoint(ls.from, "trkpt"));
@@ -305,12 +305,8 @@ public class GpxWriter {
 			Element modElement = new Element("modified", JOSM);
 			extensions.add(modElement);
 		}
-		if (osm.isDeleted()) {
+		if (osm.deleted) {
 			Element modElement = new Element("deleted", JOSM);
-			extensions.add(modElement);
-		}
-		if (osm.modifiedProperties) {
-			Element modElement = new Element("modifiedProperties", JOSM);
 			extensions.add(modElement);
 		}
 		
@@ -354,10 +350,10 @@ public class GpxWriter {
 	}
 
 	/**
-	 * Export the dataset to gpx. Only the physical line segment structure is
+	 * Export the dataset to gpx. Only the physical segment structure is
 	 * exported. To do this, the list of ways is processed. If a way span a 
-	 * sequence of line segments, this is added as one trkseg.
-	 * Then, all remaining line segments are added in one extra trk. Finally,
+	 * sequence of segments, this is added as one trkseg.
+	 * Then, all remaining segments are added in one extra trk. Finally,
 	 * all remaining nodes are added as wpt.
 	 */
 	public void output(DataSet data) {
@@ -370,18 +366,18 @@ public class GpxWriter {
 		// calculate bounds
 		Bounds b = new Bounds(new LatLon(Double.MAX_VALUE, Double.MAX_VALUE), new LatLon(Double.MIN_VALUE, Double.MIN_VALUE));
 		for (Node n : data.nodes)
-			if (!n.isDeleted())
+			if (!n.deleted)
 				b.extend(n.coor);
 		out.println("    <bounds minlat='"+b.min.lat()+"' minlon='"+b.min.lon()+"' maxlat='"+b.max.lat()+"' maxlon='"+b.max.lon()+"' />");
 		out.println("  </metadata>");
 		
 		// add ways
 		for (Way w : data.ways) {
-			if (w.isDeleted())
+			if (w.deleted)
 				continue;
 			out.println("  <trk>");
-			LineSegment oldLs = null;
-			for (LineSegment ls : w.segments) {
+			Segment oldLs = null;
+			for (Segment ls : w.segments) {
 				// end old segemnt, if no longer match a chain
 				if (oldLs != null && !oldLs.to.coor.equals(ls.from.coor)) {
 					out.println("    </trkseg>");
@@ -407,14 +403,14 @@ public class GpxWriter {
 			all.remove(w);
 		}
 		
-		// add remaining line segments
-		Collection<LineSegment> lineSegments = new LinkedList<LineSegment>();
+		// add remaining segments
+		Collection<Segment> segments = new LinkedList<Segment>();
 		for (OsmPrimitive osm : all)
-			if (osm instanceof LineSegment)
-				lineSegments.add((LineSegment)osm);
-		if (!lineSegments.isEmpty()) {
+			if (osm instanceof Segment)
+				segments.add((Segment)osm);
+		if (!segments.isEmpty()) {
 			out.println("  <trk>");
-			for (LineSegment ls : lineSegments) {
+			for (Segment ls : segments) {
 				out.println("    <trkseg>");
 				outputNode(ls.from, false);
 				all.remove(ls.from);

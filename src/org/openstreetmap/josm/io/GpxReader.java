@@ -14,7 +14,7 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.LineSegment;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Way;
@@ -103,7 +103,7 @@ public class GpxReader {
 			addNode(data, node);
 		}
 
-		// read ways (and line segments)
+		// read ways (and segments)
 		for (Object wayElement : e.getChildren("trk", GPX))
 			parseWay((Element)wayElement, data);
 
@@ -113,20 +113,20 @@ public class GpxReader {
 				osm.id = 0;
 		
 		// clean up the data a bit (remove broken stuff)
-		// remove line segments with from==to
-		for (Iterator<LineSegment> it = data.lineSegments.iterator(); it.hasNext();) {
-			LineSegment ls = it.next();
+		// remove segments with from==to
+		for (Iterator<Segment> it = data.segments.iterator(); it.hasNext();) {
+			Segment ls = it.next();
 			if (ls.from.equals(ls.to)) {
 				it.remove();
 				for (Way w : data.ways)
 					w.segments.remove(ls);
 			}
 		}
-		// remove double line segments (remove only subsequent doubles yet)
+		// remove double segments (remove only subsequent doubles yet)
 		for (Iterator<Way> it = data.ways.iterator(); it.hasNext();) {
-			LineSegment ls = null;
-			for (Iterator<LineSegment> its = it.next().segments.iterator(); its.hasNext();) {
-				LineSegment cur = its.next();
+			Segment ls = null;
+			for (Iterator<Segment> its = it.next().segments.iterator(); its.hasNext();) {
+				Segment cur = its.next();
 				if (ls != null && ls.equals(cur))
 					its.remove();
 				ls = cur;
@@ -149,7 +149,7 @@ public class GpxReader {
 	 */
 	private void parseWay(Element e, DataSet ds) {
 		Way way = new Way();
-		boolean realLineSegment = false; // is this way just a fake?
+		boolean realSegment = false; // is this way just a fake?
 
 		for (Object o : e.getChildren()) {
 			Element child = (Element)o;
@@ -161,25 +161,25 @@ public class GpxReader {
 					if (start == null)
 						start = node;
 					else {
-						LineSegment lineSegment = new LineSegment(start, node);
-						parseKeyValueExtensions(lineSegment, child.getChild("extensions", GPX));
-						lineSegment = (LineSegment)getNewIfSeenBefore(lineSegment);
-						way.segments.add(lineSegment);
+						Segment segment = new Segment(start, node);
+						parseKeyValueExtensions(segment, child.getChild("extensions", GPX));
+						segment = (Segment)getNewIfSeenBefore(segment);
+						way.segments.add(segment);
 						start = node;
 					}
 				}
 			} else if (child.getName().equals("extensions")) {
 				parseKeyValueExtensions(way, child);
 				if (child.getChild("segment", JOSM) != null)
-					realLineSegment = true;
+					realSegment = true;
 			} else if (child.getName().equals("link"))
 				parseKeyValueLink(way, child);
 			else
 				parseKeyValueTag(way, child);
 		}
 		way = (Way)getNewIfSeenBefore(way);
-		ds.lineSegments.addAll(way.segments);
-		if (!realLineSegment)
+		ds.segments.addAll(way.segments);
+		if (!realSegment)
 			ds.ways.add(way);
 	}
 
@@ -239,8 +239,7 @@ public class GpxReader {
 			if (osm.id < 0 && !newCreatedPrimitives.containsKey(osm.id))
 				newCreatedPrimitives.put(osm.id, osm);
 			osm.modified = e.getChild("modified", JOSM) != null;
-			osm.setDeleted(e.getChild("deleted", JOSM) != null);
-			osm.modifiedProperties = e.getChild("modifiedProperties", JOSM) != null;
+			osm.delete(e.getChild("deleted", JOSM) != null);
 		}
 	}
 

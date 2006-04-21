@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
 
 
@@ -37,36 +36,29 @@ abstract public class OsmPrimitive {
 	public long id = 0;
 
 	/**
-	 * <code>true</code>, if the objects content (not the properties) has been 
-	 * modified since it was loaded from the server. In this case, on next upload,
-	 * this object will be updated. Deleted objects are deleted from the server.
-	 * If the objects are added (id=0), the modified is ignored and the object is
-	 * added to the server. 
+	 * <code>true</code>, if the object has been modified since it was loaded from
+	 * the server. In this case, on next upload, this object will be updated.
+	 * Deleted objects are deleted from the server. If the objects are added (id=0),
+	 * the modified is ignored and the object is added to the server. 
 	 */
 	public boolean modified = false;
 
 	/**
-	 * <code>true</code>, if the object's keys has been changed by JOSM since
-	 * last update.
-	 */
-	public boolean modifiedProperties = false;
-	
-	/**
 	 * <code>true</code>, if the object has been deleted.
 	 */
-	private boolean deleted = false;
+	public boolean deleted = false;
 
 	/**
 	 * If set to true, this object is currently selected.
 	 */
-	private boolean selected = false;
+	public volatile boolean selected = false;
 
 	/**
 	 * Time of last modification to this object. This is not set by JOSM but
 	 * read from the server and delivered back to the server unmodified. It is
 	 * used to check against edit conflicts.
 	 */
-	public Date lastModified = null;
+	public Date timestamp = null;
 
 	/**
 	 * Implementation of the visitor scheme. Subclases have to call the correct
@@ -75,55 +67,10 @@ abstract public class OsmPrimitive {
 	 */
 	abstract public void visit(Visitor visitor);
 
-	/**
-	 * Return <code>true</code>, if either <code>this.keys</code> and 
-	 * <code>other.keys</code> is <code>null</code> or if they do not share Keys
-	 * with different values.
-	 *  
-	 * @param other		The second key-set to compare with.
-	 * @return	True, if the keysets are mergable
-	 */
-	final public boolean keyPropertiesMergable(OsmPrimitive other) {
-		if ((keys == null) != (other.keys == null))
-			return false;
-
-		if (keys != null) {
-			for (String k : keys.keySet())
-				if (other.keys.containsKey(k) && !keys.get(k).equals(other.keys.get(k)))
-					return false;
-			for (String k : other.keys.keySet())
-				if (keys.containsKey(k) && !other.keys.get(k).equals(keys.get(k)))
-					return false;
-		}
-		return true;
-	}
-
-	/**
-	 * Mark the primitive as selected or not selected and fires a selection 
-	 * changed later, if the value actualy changed.
-	 * @param selected Whether the primitive should be selected or not.
-	 */
-	final public void setSelected(boolean selected) {
-		if (selected != this.selected)
-			Main.main.ds.fireSelectionChanged();
-		this.selected = selected;
-	}
-
-	/**
-	 * @return Return whether the primitive is selected on screen.
-	 */
-	final public boolean isSelected() {
-		return selected;
-	}
-
-
-	public void setDeleted(boolean deleted) {
+	public final void delete(boolean deleted) {
 		this.deleted = deleted;
-		setSelected(false);
-	}
-
-	public boolean isDeleted() {
-		return deleted;
+		selected = false;
+		modified = true;
 	}
 
 	/**
@@ -132,8 +79,7 @@ abstract public class OsmPrimitive {
 	 * 
 	 * An primitive is equal to its incomplete counter part.
 	 */
-	@Override
-	public boolean equals(Object obj) {
+	@Override public final boolean equals(Object obj) {
 		if (obj == null || getClass() != obj.getClass() || id == 0 || ((OsmPrimitive)obj).id == 0)
 			return super.equals(obj);
 		return id == ((OsmPrimitive)obj).id;
@@ -144,8 +90,7 @@ abstract public class OsmPrimitive {
 	 * 
 	 * An primitive has the same hashcode as its incomplete counter part.
 	 */
-	@Override
-	public int hashCode() {
+	@Override public final int hashCode() {
 		return id == 0 ? super.hashCode() : (int)id;
 	}
 
@@ -154,15 +99,19 @@ abstract public class OsmPrimitive {
 	 * @param key The key, for which the value is to be set.
 	 * @param value The value for the key.
 	 */
-	public void put(String key, String value) {
-		if (keys == null)
-			keys = new HashMap<String, String>();
-		keys.put(key, value);
+	public final void put(String key, String value) {
+		if (value == null)
+			remove(key);
+		else {
+			if (keys == null)
+				keys = new HashMap<String, String>();
+			keys.put(key, value);
+		}
 	}
 	/**
 	 * Remove the given key from the list.
 	 */
-	public void remove(String key) {
+	public final void remove(String key) {
 		if (keys != null) {
 			keys.remove(key);
 			if (keys.isEmpty())
@@ -170,17 +119,17 @@ abstract public class OsmPrimitive {
 		}
 	}
 
-	public String get(String key) {
+	public final String get(String key) {
 		return keys == null ? null : keys.get(key);
 	}
-	
-	public Collection<Entry<String, String>> entrySet() {
+
+	public final Collection<Entry<String, String>> entrySet() {
 		if (keys == null)
 			return Collections.emptyList();
 		return keys.entrySet();
 	}
 
-	public Collection<String> keySet() {
+	public final Collection<String> keySet() {
 		if (keys == null)
 			return Collections.emptyList();
 		return keys.keySet();
@@ -191,12 +140,24 @@ abstract public class OsmPrimitive {
 	 * use this only in the data initializing phase
 	 */
 	public void cloneFrom(OsmPrimitive osm) {
-		keys = osm.keys;
+		keys = osm.keys == null ? null : new HashMap<String, String>(osm.keys);
 		id = osm.id;
 		modified = osm.modified;
-		modifiedProperties = osm.modifiedProperties;
 		deleted = osm.deleted;
 		selected = osm.selected;
-		lastModified = osm.lastModified;
+		timestamp = osm.timestamp;
+	}
+
+	/**
+	 * Perform an equality compare for all non-volatile fields not only for the id 
+	 * but for the whole object (for conflict resolving etc)
+	 */
+	public boolean realEqual(OsmPrimitive osm) {
+		return
+		id == osm.id && 
+		modified == osm.modified && 
+		deleted == osm.deleted &&
+		(timestamp == null ? osm.timestamp==null : timestamp.equals(osm.timestamp)) &&
+		(keys == null ? osm.keys==null : keys.equals(osm.keys));
 	}
 }

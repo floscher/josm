@@ -46,8 +46,7 @@ public class BookmarkList extends JList {
 		load();
 		setVisibleRowCount(7);
 		setCellRenderer(new DefaultListCellRenderer(){
-			@Override
-			public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+			@Override public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 				Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 				if (c instanceof JLabel) {
 					Bookmark b = (Bookmark)value;

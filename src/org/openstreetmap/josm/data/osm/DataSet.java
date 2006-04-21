@@ -1,10 +1,11 @@
 package org.openstreetmap.josm.data.osm;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import org.openstreetmap.josm.data.SelectionTracker;
+import org.openstreetmap.josm.data.SelectionChangedListener;
 
 /**
  * DataSet is the data behind the application. It can consists of only a few
@@ -16,7 +17,7 @@ import org.openstreetmap.josm.data.SelectionTracker;
  * 
  * @author imi
  */
-public class DataSet extends SelectionTracker {
+public class DataSet {
 
 	/**
 	 * All nodes goes here, even when included in other data (ways etc).
@@ -26,9 +27,9 @@ public class DataSet extends SelectionTracker {
 	public Collection<Node> nodes = new LinkedList<Node>();
 
 	/**
-	 * All line segments goes here, even when they are in a way.
+	 * All segments goes here, even when they are in a way.
 	 */
-	public Collection<LineSegment> lineSegments = new LinkedList<LineSegment>();
+	public Collection<Segment> segments = new LinkedList<Segment>();
 
 	/**
 	 * All ways (Streets etc.) in the DataSet. 
@@ -40,13 +41,18 @@ public class DataSet extends SelectionTracker {
 	public Collection<Way> ways = new LinkedList<Way>();
 
 	/**
+     * A list of listeners to selection changed events.
+     */
+    transient Collection<SelectionChangedListener> listeners = new LinkedList<SelectionChangedListener>();
+
+	/**
 	 * @return A collection containing all primitives (except keys) of the
 	 * dataset.
 	 */
 	public Collection<OsmPrimitive> allPrimitives() {
 		Collection<OsmPrimitive> o = new LinkedList<OsmPrimitive>();
 		o.addAll(nodes);
-		o.addAll(lineSegments);
+		o.addAll(segments);
 		o.addAll(ways);
 		return o;
 	}
@@ -57,7 +63,7 @@ public class DataSet extends SelectionTracker {
 	public Collection<OsmPrimitive> allNonDeletedPrimitives() {
 		Collection<OsmPrimitive> o = new LinkedList<OsmPrimitive>();
 		for (OsmPrimitive osm : allPrimitives())
-			if (!osm.isDeleted())
+			if (!osm.deleted)
 				o.add(osm);
 		return o;
 	}
@@ -67,22 +73,30 @@ public class DataSet extends SelectionTracker {
 	 */
 	public void clearSelection() {
 		clearSelection(nodes);
-		clearSelection(lineSegments);
+		clearSelection(segments);
 		clearSelection(ways);
+		Collection<OsmPrimitive> sel = Collections.emptyList();
+		fireSelectionChanged(sel);
 	}
 
 	/**
 	 * Return a list of all selected objects. Even keys are returned.
 	 * @return List of all selected objects.
 	 */
-	@Override
 	public Collection<OsmPrimitive> getSelected() {
 		Collection<OsmPrimitive> sel = getSelected(nodes);
-		sel.addAll(getSelected(lineSegments));
+		sel.addAll(getSelected(segments));
 		sel.addAll(getSelected(ways));
 		return sel;
 	}
 
+	public void setSelected(Collection<OsmPrimitive> selection) {
+		clearSelection();
+		for (OsmPrimitive osm : selection)
+			osm.selected = true;
+		fireSelectionChanged(selection);
+	}
+	
 	/**
 	 * Remove the selection from every value in the collection.
 	 * @param list The collection to remove the selection from.
@@ -91,7 +105,7 @@ public class DataSet extends SelectionTracker {
 		if (list == null)
 			return;
 		for (OsmPrimitive osm : list)
-			osm.setSelected(false);
+			osm.selected = false;
 	}
 
 	/**
@@ -103,8 +117,37 @@ public class DataSet extends SelectionTracker {
 		if (list == null)
 			return sel;
 		for (OsmPrimitive osm : list)
-			if (osm.isSelected() && !osm.isDeleted())
+			if (osm.selected && !osm.deleted)
 				sel.add(osm);
 		return sel;
 	}
+
+	/**
+     * Remember to fire an selection changed event. A call to this will not fire
+     * the event immediately. For more, @see SelectionChangedListener
+     */
+    private void fireSelectionChanged(Collection<OsmPrimitive> sel) {
+		for (SelectionChangedListener l : listeners)
+			l.selectionChanged(sel);
+    }
+
+	/**
+     * Add a listener to the selection changed listener list. If <code>null</code>
+     * is passed, nothing happens.
+     * @param listener The listener to add to the list.
+     */
+    public void addSelectionChangedListener(SelectionChangedListener listener) {
+    	if (listener != null)
+    		listeners.add(listener);
+    }
+
+	/**
+     * Remove a listener from the selection changed listener list. 
+     * If <code>null</code> is passed, nothing happens.
+     * @param listener The listener to remove from the list.
+     */
+    public void removeSelectionChangedListener(SelectionChangedListener listener) {
+    	if (listener != null)
+    		listeners.remove(listener);
+    }
 }

@@ -18,8 +18,7 @@ public class Epsg4326 implements Projection {
 		return new LatLon(p.north(), p.east());
 	}
 
-	@Override
-	public String toString() {
+	@Override public String toString() {
 		return "EPSG:4326";
 	}
 

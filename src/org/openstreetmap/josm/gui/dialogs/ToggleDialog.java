@@ -31,7 +31,6 @@ public class ToggleDialog extends JPanel {
 	 * Create a new ToggleDialog.
 	 * @param title The title of the dialog.
      * @param prefName Name of the base preference setting string (prefix)
-     *      with the final . (e.g.: "layerlist.")
 	 */
 	public ToggleDialog(String title, String name, String iconName, String tooltip, String shortCutName, int shortCut, final String prefName) {
 		action = new JosmAction(name, "dialogs/"+iconName, tooltip, "Alt-"+shortCutName, KeyStroke.getKeyStroke(shortCut, KeyEvent.ALT_MASK)){
@@ -40,14 +39,14 @@ public class ToggleDialog extends JPanel {
 				if (e != null && e.getSource() instanceof AbstractButton)
 					show = ((AbstractButton)e.getSource()).isSelected();
 				setVisible(show);
-                Main.pref.put(prefName+"visible", show);
+                Main.pref.put(prefName+".visible", show);
 			}
 		};
 		setLayout(new BorderLayout());
 		add(new JLabel(title), BorderLayout.NORTH);
 		setVisible(false);
 		setBorder(BorderFactory.createEtchedBorder());
-		if (Main.pref.getBoolean(prefName+"visible")) {
+		if (Main.pref.getBoolean(prefName+".visible")) {
 		    EventQueue.invokeLater(new Runnable(){
 		        public void run() {
 		        	action.putValue("active", true);

@@ -30,7 +30,7 @@ public class GpxWriterTest extends TestCase {
 	 */
 	@Bug(47)
 	public void testDeleteNewDoesReallyRemove() throws JDOMException, IOException {
-		ds.ways.iterator().next().setDeleted(true);
+		ds.ways.iterator().next().delete(true);
 		root = reparse();
 		assertEquals("way has vanished and 3 trk (segments) left", 3, root.getChildren("trk", GPX).size());
 	}
@@ -76,8 +76,7 @@ public class GpxWriterTest extends TestCase {
 	}
 
 
-	@Override
-	protected void setUp() throws Exception {
+	@Override protected void setUp() throws Exception {
 		super.setUp();
 		ds = DataSetTestCaseHelper.createCommon();
 		root = reparse();

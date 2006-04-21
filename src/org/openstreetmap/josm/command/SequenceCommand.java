@@ -9,7 +9,7 @@ import org.openstreetmap.josm.data.osm.OsmPrimitive;
  * and undo them in reverse order.
  * @author imi
  */
-public class SequenceCommand implements Command {
+public class SequenceCommand extends Command {
 
 	/**
 	 * The command sequenz to be executed.
@@ -25,18 +25,17 @@ public class SequenceCommand implements Command {
 		this.sequenz = sequenz.toArray(this.sequenz);
 	}
 	
-	public void executeCommand() {
+	@Override public void executeCommand() {
 		for (Command c : sequenz)
 			c.executeCommand();
 	}
 
-	public void undoCommand() {
+	@Override public void undoCommand() {
 		for (int i = sequenz.length-1; i >= 0; --i)
 			sequenz[i].undoCommand();
 	}
 
-	public void fillModifiedData(Collection<OsmPrimitive> modified,
-			Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {
+	@Override public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {
 		for (Command c : sequenz)
 			c.fillModifiedData(modified, deleted, added);
 	}

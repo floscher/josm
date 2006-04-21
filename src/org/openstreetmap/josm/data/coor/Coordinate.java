@@ -49,13 +49,11 @@ abstract class Coordinate {
 		return (x-other.x)*(x-other.x)+(y-other.y)*(y-other.y);
 	}
 
-	@Override
-	public boolean equals(Object obj) {
+	@Override public boolean equals(Object obj) {
 		return obj instanceof Coordinate ? x == ((Coordinate)obj).x && ((Coordinate)obj).y == y : false;
 	}
 
-	@Override
-	public int hashCode() {
+	@Override public int hashCode() {
 		return (int)(x*65536+y*4096);
 	}
 }

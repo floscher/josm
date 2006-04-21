@@ -10,6 +10,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
+import java.util.LinkedList;
 
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
@@ -60,8 +61,7 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 		displaylist.setCellRenderer(new OsmPrimitivRenderer());
 		displaylist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		displaylist.addMouseListener(new MouseAdapter(){
-			@Override
-			public void mouseClicked(MouseEvent e) {
+			@Override public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() < 2)
 					return;
 				updateMap();
@@ -121,31 +121,33 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 					return;
 				lastSearch = input.getText();
 				SearchCompiler.Match matcher = SearchCompiler.compile(lastSearch);
-				for (OsmPrimitive osm : Main.main.ds.allNonDeletedPrimitives()) {
-					if (replace.isSelected())
-						osm.setSelected(matcher.match(osm));
-					else if (add.isSelected() && !osm.isSelected() && matcher.match(osm))
-						osm.setSelected(true);
-					else if (remove.isSelected() && osm.isSelected() && matcher.match(osm))
-						osm.setSelected(false);
+				Collection<OsmPrimitive> sel = Main.ds.getSelected();
+				for (OsmPrimitive osm : Main.ds.allNonDeletedPrimitives()) {
+					if (replace.isSelected()) {
+						if (matcher.match(osm))
+							sel.add(osm);
+						else
+							sel.remove(osm);
+					} else if (add.isSelected() && !osm.selected && matcher.match(osm))
+						sel.add(osm);
+					else if (remove.isSelected() && osm.selected && matcher.match(osm))
+						sel.remove(osm);
 				}
-				selectionChanged(Main.main.ds.getSelected());
-				Main.main.getMapFrame().repaint();
+				Main.ds.setSelected(sel);
 			}
 		});
 		buttonPanel.add(button);
 		
 		add(buttonPanel, BorderLayout.SOUTH);
-		selectionChanged(Main.main.ds.getSelected());
+		selectionChanged(Main.ds.getSelected());
 	}
 
-	@Override
-	public void setVisible(boolean b) {
+	@Override public void setVisible(boolean b) {
 		if (b) {
-			Main.main.ds.addSelectionChangedListener(this);
-			selectionChanged(Main.main.ds.getSelected());
+			Main.ds.addSelectionChangedListener(this);
+			selectionChanged(Main.ds.getSelected());
 		} else {
-			Main.main.ds.removeSelectionChangedListener(this);
+			Main.ds.removeSelectionChangedListener(this);
 		}
 		super.setVisible(b);
 	}
@@ -157,6 +159,8 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 	 * @param newSelection The new selection array.
 	 */
 	public void selectionChanged(Collection<OsmPrimitive> newSelection) {
+		if (list == null)
+			return; // selection changed may be received in base class constructor before init
 		list.removeAllElements();
 		list.setSize(newSelection.size());
 		int i = 0;
@@ -168,10 +172,10 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 	 * Sets the selection of the map to the current selected items.
 	 */
 	public void updateMap() {
-		Main.main.ds.clearSelection();
+		Collection<OsmPrimitive> sel = new LinkedList<OsmPrimitive>();
 		for (int i = 0; i < list.getSize(); ++i)
 			if (displaylist.isSelectedIndex(i))
-				((OsmPrimitive)list.get(i)).setSelected(true);
-		Main.main.getMapFrame().repaint();
+				sel.add((OsmPrimitive)list.get(i));
+		Main.ds.setSelected(sel);
 	}
 }

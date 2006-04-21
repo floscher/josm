@@ -11,12 +11,16 @@ import java.util.Stack;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.actions.GpxExportAction;
+import org.openstreetmap.josm.actions.SaveAction;
 import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.LineSegment;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Way;
@@ -25,6 +29,7 @@ import org.openstreetmap.josm.data.osm.visitor.MergeVisitor;
 import org.openstreetmap.josm.data.osm.visitor.SimplePaintVisitor;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
 import org.openstreetmap.josm.gui.MapView;
+import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
 import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.ImageProvider;
 
@@ -36,10 +41,34 @@ import org.openstreetmap.josm.tools.ImageProvider;
  */
 public class OsmDataLayer extends Layer {
 
+	public final static class DataCountVisitor implements Visitor {
+		public final int[] normal = new int[3];		
+		public final int[] deleted = new int[3];
+		public final String[] names = {"node", "segment", "way"};
+
+		private void inc(OsmPrimitive osm, int i) {
+			normal[i]++;
+			if (osm.deleted)
+				deleted[i]++;
+		}
+
+		public void visit(Node n) {
+			inc(n, 0);
+		}
+
+		public void visit(Segment ls) {
+			inc(ls, 1);
+		}
+
+		public void visit(Way w) {
+			inc(w, 2);
+		}
+	}
+
 	public interface ModifiedChangedListener {
 		void modifiedChanged(boolean value, OsmDataLayer source);
 	}
-	
+
 	private static Icon icon;
 
 	/**
@@ -74,7 +103,7 @@ public class OsmDataLayer extends Layer {
 	 */
 	LinkedList<ModifiedChangedListener> listener;
 
-	
+
 	/**
 	 * Construct a OsmDataLayer.
 	 */
@@ -88,8 +117,7 @@ public class OsmDataLayer extends Layer {
 	 * TODO: @return Return a dynamic drawn icon of the map data. The icon is
 	 * 		updated by a background thread to not disturb the running programm.
 	 */
-	@Override
-	public Icon getIcon() {
+	@Override public Icon getIcon() {
 		if (icon == null)
 			icon = ImageProvider.get("layer", "osmdata");
 		return icon;
@@ -98,47 +126,46 @@ public class OsmDataLayer extends Layer {
 	/**
 	 * Draw all primitives in this layer but do not draw modified ones (they
 	 * are drawn by the edit layer).
-	 * Draw nodes last to overlap the line segments they belong to.
+	 * Draw nodes last to overlap the segments they belong to.
 	 */
-	@Override
-	public void paint(Graphics g, MapView mv) {
+	@Override public void paint(Graphics g, MapView mv) {
 		SimplePaintVisitor visitor = new SimplePaintVisitor(g, mv);
-		for (OsmPrimitive osm : data.lineSegments)
-			if (!osm.isDeleted())
+		for (OsmPrimitive osm : data.segments)
+			if (!osm.deleted)
 				osm.visit(visitor);
 		for (OsmPrimitive osm : data.ways)
-			if (!osm.isDeleted())
+			if (!osm.deleted)
 				osm.visit(visitor);
 		for (OsmPrimitive osm : data.nodes)
-			if (!osm.isDeleted())
+			if (!osm.deleted)
 				osm.visit(visitor);
 		for (OsmPrimitive osm : data.getSelected())
-			if (!osm.isDeleted())
+			if (!osm.deleted)
 				osm.visit(visitor);
+		Main.main.getMapFrame().conflictDialog.paintConflicts(g, mv);
 	}
 
-	@Override
-	public String getToolTipText() {
+	@Override public String getToolTipText() {
 		return undeletedSize(data.nodes)+" nodes, "+
-			undeletedSize(data.lineSegments)+" segments, "+
-			undeletedSize(data.ways)+" streets.";
+		undeletedSize(data.segments)+" segments, "+
+		undeletedSize(data.ways)+" streets.";
 	}
 
-	@Override
-	public void mergeFrom(Layer from) {
-		MergeVisitor visitor = new MergeVisitor(data);
+	@Override public void mergeFrom(Layer from) {
+		final MergeVisitor visitor = new MergeVisitor(data);
 		for (OsmPrimitive osm : ((OsmDataLayer)from).data.allPrimitives())
 			osm.visit(visitor);
 		visitor.fixReferences();
+		if (visitor.conflicts.isEmpty())
+			return;
+		Main.main.getMapFrame().conflictDialog.add(visitor.conflicts);
 	}
 
-	@Override
-	public boolean isMergable(Layer other) {
+	@Override public boolean isMergable(Layer other) {
 		return other instanceof OsmDataLayer;
 	}
 
-	@Override
-	public void visitBoundingBox(BoundingXYVisitor v) {
+	@Override public void visitBoundingBox(BoundingXYVisitor v) {
 		for (Node n : data.nodes)
 			v.visit(n);
 	}
@@ -149,7 +176,7 @@ public class OsmDataLayer extends Layer {
 	public Command lastCommand() {
 		return commands.isEmpty() ? null : commands.getLast();
 	}
-	
+
 	/**
 	 * Execute the command and add it to the intern command queue. Also mark all
 	 * primitives in the command as modified.
@@ -213,17 +240,17 @@ public class OsmDataLayer extends Layer {
 			Set<OsmPrimitive> processedSet = new HashSet<OsmPrimitive>(processed);
 			for (Iterator<Node> it = data.nodes.iterator(); it.hasNext();)
 				cleanIterator(it, processedSet);
-			for (Iterator<LineSegment> it = data.lineSegments.iterator(); it.hasNext();)
+			for (Iterator<Segment> it = data.segments.iterator(); it.hasNext();)
 				cleanIterator(it, processedSet);
 			for (Iterator<Way> it = data.ways.iterator(); it.hasNext();)
 				cleanIterator(it, processedSet);
 		}
 
 		// update the modified flag
-		
+
 		if (fromDisk && processed != null && !dataAdded)
 			return; // do nothing when uploading non-harmful changes.
-		
+
 		// modified if server changed the data (esp. the id).
 		uploadedModified = fromDisk && processed != null && dataAdded;
 		setModified(uploadedModified);
@@ -245,8 +272,7 @@ public class OsmDataLayer extends Layer {
 		if (!processed.remove(osm))
 			return;
 		osm.modified = false;
-		osm.modifiedProperties = false;
-		if (osm.isDeleted())
+		if (osm.deleted)
 			it.remove();
 	}
 
@@ -279,43 +305,30 @@ public class OsmDataLayer extends Layer {
 	private int undeletedSize(Collection<? extends OsmPrimitive> list) {
 		int size = 0;
 		for (OsmPrimitive osm : list)
-			if (!osm.isDeleted())
+			if (!osm.deleted)
 				size++;
 		return size;
 	}
 
-	@Override
-	public Object getInfoComponent() {
-		final int[] normal = new int[3];		
-		final int[] deleted = new int[3];
-		final String[] names = {"node", "segment", "way"};
-		Visitor counter = new Visitor(){
-			private void inc(OsmPrimitive osm, int i) {
-				normal[i]++;
-				if (osm.isDeleted())
-					deleted[i]++;
-			}
-			public void visit(Node n) {
-				inc(n, 0);
-			}
-			public void visit(LineSegment ls) {
-				inc(ls, 1);
-			}
-			public void visit(Way w) {
-				inc(w, 2);
-			}
-		};
+	@Override public Object getInfoComponent() {
+		DataCountVisitor counter = new DataCountVisitor();
 		for (OsmPrimitive osm : data.allPrimitives())
 			osm.visit(counter);
-
 		JPanel p = new JPanel(new GridBagLayout());
 		p.add(new JLabel(name+" consists of:"), GBC.eol());
-		for (int i = 0; i < normal.length; ++i) {
-			String s = normal[i]+" "+names[i]+(normal[i] != 1 ?"s":"");
-			if (deleted[i] > 0)
-				s += " ("+deleted[i]+" deleted)";
-			p.add(new JLabel(s, ImageProvider.get("data", names[i]), JLabel.HORIZONTAL), GBC.eol().insets(15,0,0,0));
+		for (int i = 0; i < counter.normal.length; ++i) {
+			String s = counter.normal[i]+" "+counter.names[i]+(counter.normal[i] != 1 ?"s":"");
+			if (counter.deleted[i] > 0)
+				s += " ("+counter.deleted[i]+" deleted)";
+			p.add(new JLabel(s, ImageProvider.get("data", counter.names[i]), JLabel.HORIZONTAL), GBC.eol().insets(15,0,0,0));
 		}
 		return p;
+	}
+
+	@Override public void addMenuEntries(JPopupMenu menu) {
+		menu.add(new JMenuItem(new SaveAction()));
+		menu.add(new JMenuItem(new GpxExportAction(this)));
+		menu.addSeparator();
+		menu.add(new LayerListPopup.InfoAction(this));
 	}
 }

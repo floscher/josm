@@ -10,7 +10,7 @@ import java.util.Map;
 
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.LineSegment;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Way;
@@ -49,7 +49,7 @@ public class OsmReader extends MinML2 {
 	/**
 	 * All read segents so far.
 	 */
-	private Map<Long, LineSegment> lineSegments = new HashMap<Long, LineSegment>();
+	private Map<Long, Segment> segments = new HashMap<Long, Segment>();
 	
 	/**
 	 * Parse the given input source and return the dataset.
@@ -69,8 +69,7 @@ public class OsmReader extends MinML2 {
 		parse(source);
 	}
 
-	@Override
-	public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
+	@Override public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
 		try {
 			if (qName.equals("osm")) {
 				if (atts == null)
@@ -88,9 +87,9 @@ public class OsmReader extends MinML2 {
 				Node to = nodes.get(getLong(atts, "to"));
 				if (from == null || to == null)
 					throw new SAXException("Segment "+atts.getValue("id")+" is missing its nodes.");
-				current = new LineSegment(from, to);
+				current = new Segment(from, to);
 				readCommon(atts);
-				lineSegments.put(current.id, (LineSegment)current);
+				segments.put(current.id, (Segment)current);
 			} else if (qName.equals("way")) {
 				current = new Way();
 				readCommon(atts);
@@ -98,11 +97,11 @@ public class OsmReader extends MinML2 {
 				if (current instanceof Way) {
 					long id = getLong(atts, "id");
 					if (id == 0)
-						throw new SAXException("Incomplete line segment with id=0");
-					LineSegment ls = lineSegments.get(id);
+						throw new SAXException("Incomplete segment with id=0");
+					Segment ls = segments.get(id);
 					if (ls == null) {
-						ls = new LineSegment(id); // incomplete line segment
-						lineSegments.put(id, ls);
+						ls = new Segment(id); // incomplete segment
+						segments.put(id, ls);
 						adder.visit(ls);
 					}
 					((Way)current).segments.add(ls);
@@ -118,8 +117,7 @@ public class OsmReader extends MinML2 {
 	}
 
 	
-	@Override
-	public void endElement(String namespaceURI, String localName, String qName) {
+	@Override public void endElement(String namespaceURI, String localName, String qName) {
 		if (qName.equals("node") || qName.equals("segment") || qName.equals("way") || qName.equals("area")) {
 			current.visit(adder);
 		}
@@ -137,7 +135,7 @@ public class OsmReader extends MinML2 {
 		if (time != null && time.length() != 0) {
 			try {
 				DateFormat df = new SimpleDateFormat("y-M-d H:m:s");
-	            current.lastModified = df.parse(time);
+	            current.timestamp = df.parse(time);
             } catch (ParseException e) {
 	            e.printStackTrace();
 	            throw new SAXException("Couldn't read time format '"+time+"'.");
@@ -145,15 +143,12 @@ public class OsmReader extends MinML2 {
 		}
 		
 		String action = atts.getValue("action");
-		if ("delete".equals(action))
-			current.setDeleted(true);
-		else if ("modify".equals(action)) {
+		if (action == null)
+			return;
+		if (action.equals("delete"))
+			current.delete(true);
+		else if (action.startsWith("modify"))
 			current.modified = true;
-			current.modifiedProperties = true;
-		} else if ("modify/object".equals(action))
-			current.modified = true;
-		else if ("modify/property".equals(action))
-			current.modifiedProperties = true;
 	}
 
 	private double getDouble(Attributes atts, String value) {

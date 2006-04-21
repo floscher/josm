@@ -34,8 +34,7 @@ public class Bounds {
 		max = new LatLon(Projection.MAX_LAT, Projection.MAX_LON);
 	}
 	
-	@Override
-	public String toString() {
+	@Override public String toString() {
 		return "Bounds["+min.lat()+","+min.lon()+","+max.lat()+","+max.lon()+"]";
 	}
 

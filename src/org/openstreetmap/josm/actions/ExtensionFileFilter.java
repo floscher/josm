@@ -44,15 +44,13 @@ public class ExtensionFileFilter extends FileFilter {
 		return false;
 	}
 
-	@Override
-	public boolean accept(File pathname) {
+	@Override public boolean accept(File pathname) {
 		if (pathname.isDirectory())
 			return true;
 		return acceptName(pathname.getName());
 	}
 
-	@Override
-	public String getDescription() {
+	@Override public String getDescription() {
 		return description;
 	}
 }

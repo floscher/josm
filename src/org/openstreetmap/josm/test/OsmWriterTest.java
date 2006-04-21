@@ -13,11 +13,12 @@ import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.LineSegment;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.Way;
+import org.openstreetmap.josm.data.projection.Mercator;
 import org.openstreetmap.josm.io.OsmWriter;
 import org.openstreetmap.josm.test.framework.Bug;
 import org.openstreetmap.josm.test.framework.DataSetTestCaseHelper;
@@ -33,18 +34,20 @@ public class OsmWriterTest extends TestCase {
 	private Node n3;
 	private Node n4;
 	private Node n5;
-	private LineSegment ls1;
-	private LineSegment ls2;
-	private LineSegment ls3;
-	private Way w;
+	private Segment ls1;
+	private Segment ls2;
+	private Segment ls3;
 	
 	private DataSet ds;
 	private Element osm;
 	private List<Element> nodes;
-	private List<Element> lineSegments;
+	private List<Element> segments;
 	private List<Element> ways;
 	private StringWriter out;
 	
+	public OsmWriterTest() {
+		Main.proj = new Mercator();
+	}
 
 	public void testNode() throws Exception {
 		ds = new DataSet();
@@ -71,12 +74,12 @@ public class OsmWriterTest extends TestCase {
 		assertEquals(s, value.getValue());
 	}
 	
-	public void testLineSegment() throws Exception {
+	public void testSegment() throws Exception {
 		ds = new DataSet();
-		LineSegment ls = DataSetTestCaseHelper.createLineSegment(ds, DataSetTestCaseHelper.createNode(ds), DataSetTestCaseHelper.createNode(ds));
+		Segment ls = DataSetTestCaseHelper.createSegment(ds, DataSetTestCaseHelper.createNode(ds), DataSetTestCaseHelper.createNode(ds));
 		ls.put("foo", "bar");
 		reparse();
-		assertEquals(1, lineSegments.size());
+		assertEquals(1, segments.size());
 		assertEquals("foo", getAttr(osm.getChild("segment"), "tag", 0, "k"));
 		assertEquals("bar", getAttr(osm.getChild("segment"), "tag", 0, "v"));
 	}
@@ -93,7 +96,7 @@ public class OsmWriterTest extends TestCase {
 			assertTrue("id "+id+" is negative", id < 0);
 			ids.add(id);
 		}
-		assertEquals(nodes.size()+lineSegments.size()+ways.size(), ids.size());
+		assertEquals(nodes.size()+segments.size()+ways.size(), ids.size());
 	}
 
 	/**
@@ -124,7 +127,7 @@ public class OsmWriterTest extends TestCase {
 	 */
 	@Bug(47)
 	public void testDeleteNewDoesReallyRemove() throws Exception {
-		ds.ways.iterator().next().setDeleted(true);
+		ds.ways.iterator().next().delete(true);
 		reparse();
 		//assertEquals(0, deleted.size());
 	}
@@ -137,11 +140,9 @@ public class OsmWriterTest extends TestCase {
 		int id = 1;
 		for (OsmPrimitive osm : ds.allPrimitives())
 			osm.id = id++; // make all objects "old".
-		n1.setDeleted(true);
+		n1.delete(true);
 		ls1.modified = true;
-		ls1.modifiedProperties = true;
 		ls3.modified = true;
-		w.modifiedProperties = true;
 		reparse();
 		
 		boolean foundNode = false;
@@ -155,25 +156,22 @@ public class OsmWriterTest extends TestCase {
 
 		boolean foundLs1 = false;
 		boolean foundLs3 = false;
-		for (Element lsElem : lineSegments) {
+		for (Element lsElem : segments) {
 			String idStr = lsElem.getAttributeValue("id");
 			String action = lsElem.getAttributeValue("action");
 			if (idStr.equals(""+ls1.id)) {
 				assertEquals("Attribute action on modified data is ok", "modify", action);
 				foundLs1 = true;
 			} else if (idStr.equals(""+ls3.id)) {
-				assertEquals("Attribute action on modified/object data is ok", "modify/object", action);
+				assertEquals("Attribute action on modified/object data is ok", "modify", action);
 				foundLs3 = true;
 			}
 		}
-		assertTrue("LineSegments found in output", foundLs1 && foundLs3);
-		
+		assertTrue("Segments found in output", foundLs1 && foundLs3);
 		assertEquals("Way found in output", 1, ways.size());
-		assertEquals("Attribute action on modifiedProperty data is ok", "modify/property", ways.get(0).getAttributeValue("action"));
 	}
 
-	@Override
-	protected void setUp() throws Exception {
+	@Override protected void setUp() throws Exception {
 		super.setUp();
 		
 		// create some data
@@ -183,10 +181,10 @@ public class OsmWriterTest extends TestCase {
 		n3 = DataSetTestCaseHelper.createNode(ds);
 		n4 = DataSetTestCaseHelper.createNode(ds);
 		n5 = DataSetTestCaseHelper.createNode(ds);
-		ls1 = DataSetTestCaseHelper.createLineSegment(ds, n1, n2);
-		ls2 = DataSetTestCaseHelper.createLineSegment(ds, n2, n3);
-		ls3 = DataSetTestCaseHelper.createLineSegment(ds, n4, n5);
-		w = DataSetTestCaseHelper.createWay(ds, ls1, ls2);
+		ls1 = DataSetTestCaseHelper.createSegment(ds, n1, n2);
+		ls2 = DataSetTestCaseHelper.createSegment(ds, n2, n3);
+		ls3 = DataSetTestCaseHelper.createSegment(ds, n4, n5);
+		DataSetTestCaseHelper.createWay(ds, ls1, ls2);
 		
 		reparse();
 	}
@@ -210,7 +208,7 @@ public class OsmWriterTest extends TestCase {
 		// reparse
 		osm = new SAXBuilder().build(new StringReader(out.toString())).getRootElement();
 		nodes = osm.getChildren("node");
-		lineSegments = osm.getChildren("segment");
+		segments = osm.getChildren("segment");
 		ways = osm.getChildren("way");
 	}
 }

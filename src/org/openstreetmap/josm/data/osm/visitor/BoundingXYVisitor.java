@@ -3,7 +3,7 @@ package org.openstreetmap.josm.data.osm.visitor;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.coor.EastNorth;
-import org.openstreetmap.josm.data.osm.LineSegment;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Way;
 
@@ -20,7 +20,7 @@ public class BoundingXYVisitor implements Visitor {
 		visit(n.eastNorth);
 	}
 
-	public void visit(LineSegment ls) {
+	public void visit(Segment ls) {
 		if (!ls.incomplete) {
 			visit(ls.from);
 			visit(ls.to);
@@ -28,7 +28,7 @@ public class BoundingXYVisitor implements Visitor {
 	}
 
 	public void visit(Way t) {
-		for (LineSegment ls : t.segments)
+		for (Segment ls : t.segments)
 			visit(ls);
 	}
 

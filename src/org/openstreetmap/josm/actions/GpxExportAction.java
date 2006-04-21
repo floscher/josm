@@ -120,7 +120,7 @@ public class GpxExportAction extends DiskAccessAction {
 			if (layer instanceof RawGpsDataLayer)
 				w.output(((RawGpsDataLayer)layer).data);
 			else
-				w.output(Main.main.ds);
+				w.output(Main.ds);
 			out.close();
 		} catch (IOException x) {
 			x.printStackTrace();

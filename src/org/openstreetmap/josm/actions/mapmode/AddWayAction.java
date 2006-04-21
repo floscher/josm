@@ -10,21 +10,21 @@ import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.AddCommand;
-import org.openstreetmap.josm.data.osm.LineSegment;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.gui.MapFrame;
 
 /**
- * Add a new way from all selected line segments.
+ * Add a new way from all selected segments.
  *
- * If there is a selection when the mode is entered, all line segments in this
+ * If there is a selection when the mode is entered, all segments in this
  * selection form a new way, except the user holds down Shift.
  *
- * The user can click on a line segment. If he holds down Shift, no way is 
+ * The user can click on a segment. If he holds down Shift, no way is 
  * created yet. If he holds down Alt, the whole way is considered instead of 
- * the clicked line segment. If the user holds down Ctrl, no way is created 
- * and the clicked line segment get removed from the list.
+ * the clicked segment. If the user holds down Ctrl, no way is created 
+ * and the clicked segment get removed from the list.
  *
  * Also, the user may select a rectangle as in selection mode. No node, area or
  * way can be selected this way.
@@ -46,8 +46,7 @@ public class AddWayAction extends MapMode {
 		this.followMode = followMode;
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
+	@Override public void actionPerformed(ActionEvent e) {
 		makeWay();
 		super.actionPerformed(e);
 		mapFrame.selectMapMode(followMode);
@@ -57,18 +56,18 @@ public class AddWayAction extends MapMode {
 	 * Just make a way of all selected items.
 	 */
 	private void makeWay() {
-		Collection<OsmPrimitive> selection = Main.main.ds.getSelected();
+		Collection<OsmPrimitive> selection = Main.ds.getSelected();
 		if (selection.isEmpty())
 			return;
 
 		// form a new way
-		LinkedList<LineSegment> lineSegments = new LinkedList<LineSegment>();
+		LinkedList<Segment> segments = new LinkedList<Segment>();
 		int numberOfSelectedWays = 0;
 		for (OsmPrimitive osm : selection) {
 			if (osm instanceof Way)
 				numberOfSelectedWays++;
-			else if (osm instanceof LineSegment)
-				lineSegments.add((LineSegment)osm);
+			else if (osm instanceof Segment)
+				segments.add((Segment)osm);
 		}
 		
 		if (numberOfSelectedWays > 0) {
@@ -80,25 +79,25 @@ public class AddWayAction extends MapMode {
 			if (answer == JOptionPane.YES_OPTION) {
 				for (OsmPrimitive osm : selection)
 					if (osm instanceof Way)
-						lineSegments.addAll(((Way)osm).segments);
+						segments.addAll(((Way)osm).segments);
 			}
 		}
 		
-		// sort the line segments in best possible order. This is done by:
+		// sort the segments in best possible order. This is done by:
 		// 0  if no elements in list, quit
 		// 1  taking the first ls as pivot, remove it from list
 		// 2  searching for a connection at from or to of pivot
 		// 3  if found, attach it, remove it from list, goto 2
 		// 4  if not found, save the pivot-string and goto 0
-		LinkedList<LineSegment> sortedLineSegments = new LinkedList<LineSegment>();
-		while (!lineSegments.isEmpty()) {
-			LinkedList<LineSegment> pivotList = new LinkedList<LineSegment>();
-			pivotList.add(lineSegments.getFirst());
-			lineSegments.removeFirst();
+		LinkedList<Segment> sortedSegments = new LinkedList<Segment>();
+		while (!segments.isEmpty()) {
+			LinkedList<Segment> pivotList = new LinkedList<Segment>();
+			pivotList.add(segments.getFirst());
+			segments.removeFirst();
 			for (boolean found = true; found;) {
 				found = false;
-				for (Iterator<LineSegment> it = lineSegments.iterator(); it.hasNext();) {
-					LineSegment ls = it.next();
+				for (Iterator<Segment> it = segments.iterator(); it.hasNext();) {
+					Segment ls = it.next();
 					if (ls.incomplete)
 						continue; // incomplete segments are never added to a new way
 					if (ls.from == pivotList.getLast().to) {
@@ -112,13 +111,13 @@ public class AddWayAction extends MapMode {
 					}
 				}
 			}
-			sortedLineSegments.addAll(pivotList);
+			sortedSegments.addAll(pivotList);
 		}
 		
 		Way t = new Way();
-		t.segments.addAll(sortedLineSegments);
-		mv.editLayer().add(new AddCommand(Main.main.ds, t));
-		Main.main.ds.clearSelection();
+		t.segments.addAll(sortedSegments);
+		mv.editLayer().add(new AddCommand(Main.ds, t));
+		Main.ds.clearSelection();
 		mv.repaint();
 	}
 }

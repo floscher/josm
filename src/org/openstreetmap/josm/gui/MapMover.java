@@ -63,8 +63,7 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 	/**
 	 * Start the movement, if it was the 3rd button (right button).
 	 */
-	@Override
-	public void mousePressed(MouseEvent e) {
+	@Override public void mousePressed(MouseEvent e) {
 		int offMask = MouseEvent.BUTTON1_DOWN_MASK | MouseEvent.BUTTON2_DOWN_MASK;
 		if (e.getButton() == MouseEvent.BUTTON3 && (e.getModifiersEx() & offMask) == 0)
 			startMovement(e);
@@ -73,8 +72,7 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 	/**
 	 * Change the cursor back to it's pre-move cursor.
 	 */
-	@Override
-	public void mouseReleased(MouseEvent e) {
+	@Override public void mouseReleased(MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON3)
 			endMovement();
 	}

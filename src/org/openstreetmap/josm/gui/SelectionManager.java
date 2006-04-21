@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.osm.LineSegment;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Way;
@@ -256,7 +256,7 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 	 * modifier.
 	 * @param alt Whether the alt key was pressed, which means select all objects
 	 * 		that are touched, instead those which are completly covered. Also 
-	 * 		select whole ways instead of line segments.
+	 * 		select whole ways instead of segments.
 	 */
 	public Collection<OsmPrimitive> getObjectsInRectangle(Rectangle r, boolean alt) {
 		Collection<OsmPrimitive> selection = new LinkedList<OsmPrimitive>();
@@ -271,21 +271,21 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 				selection.add(osm);
 		} else {
 			// nodes
-			for (Node n : Main.main.ds.nodes) {
+			for (Node n : Main.ds.nodes) {
 				if (r.contains(nc.getPoint(n.eastNorth)))
 					selection.add(n);
 			}
 			
-			// pending line segments
-			for (LineSegment ls : Main.main.ds.lineSegments)
-				if (rectangleContainLineSegment(r, alt, ls))
+			// pending segments
+			for (Segment ls : Main.ds.segments)
+				if (rectangleContainSegment(r, alt, ls))
 					selection.add(ls);
 
 			// ways
-			for (Way t : Main.main.ds.ways) {
+			for (Way t : Main.ds.ways) {
 				boolean wholeWaySelected = !t.segments.isEmpty();
-				for (LineSegment ls : t.segments)
-					if (rectangleContainLineSegment(r, alt, ls))
+				for (Segment ls : t.segments)
+					if (rectangleContainSegment(r, alt, ls))
 						selection.add(ls);
 					else
 						wholeWaySelected = false;
@@ -299,15 +299,15 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 	}
 
 	/**
-	 * Decide whether the line segment is in the rectangle Return 
+	 * Decide whether the segment is in the rectangle Return 
 	 * <code>true</code>, if it is in or false if not.
 	 * 
-	 * @param r			The rectangle, in which the line segment has to be.
+	 * @param r			The rectangle, in which the segment has to be.
 	 * @param alt		Whether user pressed the Alt key
-	 * @param ls		The line segment.
-	 * @return <code>true</code>, if the LineSegment was added to the selection.
+	 * @param ls		The segment.
+	 * @return <code>true</code>, if the Segment was added to the selection.
 	 */
-	private boolean rectangleContainLineSegment(Rectangle r, boolean alt, LineSegment ls) {
+	private boolean rectangleContainSegment(Rectangle r, boolean alt, Segment ls) {
 		if (ls.incomplete)
 			return false;
 		if (alt) {

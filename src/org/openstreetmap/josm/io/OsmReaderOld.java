@@ -10,7 +10,7 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.LineSegment;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Way;
@@ -79,7 +79,7 @@ public class OsmReaderOld {
 		if (e.getName().equals("node"))
 			return parseNode(e);
 		else if (e.getName().equals("segment"))
-			return parseLineSegment(e, data);
+			return parseSegment(e, data);
 		else if (e.getName().equals("way"))
 			return parseWay(e, data);
 		else if (e.getName().equals("property")) {
@@ -114,14 +114,14 @@ public class OsmReaderOld {
 	}
 
 	/**
-	 * Parse and return an line segment. The node information of the "from" and
+	 * Parse and return an segment. The node information of the "from" and
 	 * "to" attributes must already be in the dataset.
-	 * @param e		The line segment element to parse.
+	 * @param e		The segment element to parse.
 	 * @param data	The dataset to obtain the node information from.
-	 * @return The parsed line segment.
+	 * @return The parsed segment.
 	 * @throws JDOMException In case of parsing errors.
 	 */
-	private LineSegment parseLineSegment(Element e, DataSet data) throws JDOMException {
+	private Segment parseSegment(Element e, DataSet data) throws JDOMException {
 		long startId = Long.parseLong(e.getAttributeValue("from"));
 		long endId = Long.parseLong(e.getAttributeValue("to"));
 		
@@ -134,7 +134,7 @@ public class OsmReaderOld {
 		}
 		if (start == null || end == null)
 			throw new JDOMException("The 'from' or 'to' object has not been transfered before.");
-		LineSegment ls = new LineSegment(start, end);
+		Segment ls = new Segment(start, end);
 		parseCommon(ls, e);
 		return ls;
 	}
@@ -153,7 +153,7 @@ public class OsmReaderOld {
 		for (Object o : e.getChildren("segment")) {
 			Element child = (Element)o;
 			long id = Long.parseLong(child.getAttributeValue("uid"));
-			LineSegment ls = findLineSegment(data.lineSegments, id);
+			Segment ls = findSegment(data.segments, id);
 			way.segments.add(ls);
 		}
 		return way;
@@ -188,13 +188,11 @@ public class OsmReaderOld {
 		}
 		
 		String action = e.getAttributeValue("action");
-		if ("delete".equals(action))
-			data.setDeleted(true);
-		else if ("modify".equals(action))
-			data.modified = data.modifiedProperties = true;
-		else if ("modify/property".equals(action))
-			data.modifiedProperties = true;
-		else if ("modify/object".equals(action))
+		if (action == null)
+			return;
+		if (action.equals("delete"))
+			data.delete(true);
+		else if (action.startsWith("modify"))
 			data.modified = true;
 	}
 
@@ -217,7 +215,7 @@ public class OsmReaderOld {
 		for (OsmPrimitive osm : data.nodes)
 			if (osm.id == id)
 				return osm;
-		for (OsmPrimitive osm : data.lineSegments)
+		for (OsmPrimitive osm : data.segments)
 			if (osm.id == id)
 				return osm;
 		for (OsmPrimitive osm : data.ways)
@@ -229,10 +227,10 @@ public class OsmReaderOld {
 	/**
 	 * Search for a segment in a collection by comparing the id.
 	 */
-	private LineSegment findLineSegment(Collection<LineSegment> segments, long id) throws JDOMException {
-		for (LineSegment ls : segments)
+	private Segment findSegment(Collection<Segment> segments, long id) throws JDOMException {
+		for (Segment ls : segments)
 			if (ls.id == id)
 				return ls;
-		throw new JDOMException("Unknown line segment reference: "+id);
+		throw new JDOMException("Unknown segment reference: "+id);
 	}
 }

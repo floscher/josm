@@ -30,7 +30,7 @@ public class WmsServerAction extends JosmAction {
                     if (l instanceof WmsServerLayer) {
                         if (mv.getAllLayers().size() == 1) {
                             Main.main.setMapFrame(null);
-                            Main.main.ds = new DataSet();
+                            Main.ds = new DataSet();
                         } else
                             mv.removeLayer(l);
                         return;

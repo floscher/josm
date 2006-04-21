@@ -71,8 +71,7 @@ public class WorldChooser extends NavigatableComponent {
 						p.north()*180/world.getIconHeight() - 90,
 						p.east()*360/world.getIconWidth() - 180);
 			}
-			@Override
-			public String toString() {
+			@Override public String toString() {
 				return "WorldChooser";
 			}
             public String getCacheDirectoryName() {
@@ -86,8 +85,7 @@ public class WorldChooser extends NavigatableComponent {
 	/**
 	 * Set the scale as well as the preferred size.
 	 */
-	@Override
-	public void setPreferredSize(Dimension preferredSize) {
+	@Override public void setPreferredSize(Dimension preferredSize) {
 		super.setPreferredSize(preferredSize);
 		scale = world.getIconWidth()/preferredSize.getWidth();
 		scaleMax = scale;
@@ -97,8 +95,7 @@ public class WorldChooser extends NavigatableComponent {
 	/**
 	 * Draw the current selected region.
 	 */
-	@Override
-	public void paint(Graphics g) {
+	@Override public void paint(Graphics g) {
 		EastNorth tl = getEastNorth(0,0);
 		EastNorth br = getEastNorth(getWidth(),getHeight());
 		g.drawImage(world.getImage(),0,0,getWidth(),getHeight(),(int)tl.east(),(int)tl.north(),(int)br.east(),(int)br.north(), null);
@@ -121,8 +118,7 @@ public class WorldChooser extends NavigatableComponent {
 	}
 
 
-	@Override
-	public void zoomTo(EastNorth newCenter, double scale) {
+	@Override public void zoomTo(EastNorth newCenter, double scale) {
 		if (getWidth() != 0 && scale > scaleMax) {
 			scale = scaleMax;
 			newCenter = center;
@@ -157,8 +153,7 @@ public class WorldChooser extends NavigatableComponent {
 		// listener that invokes updateMarkerFromTextField after all
 		// messages are dispatched and so text fields are updated.
 		KeyListener listener = new KeyAdapter(){
-			@Override
-			public void keyTyped(KeyEvent e) {
+			@Override public void keyTyped(KeyEvent e) {
 				SwingUtilities.invokeLater(new Runnable(){
 					public void run() {
 						updateMarkerFromTextFields(field);
@@ -215,8 +210,7 @@ public class WorldChooser extends NavigatableComponent {
 	/**
 	 * Always use our image projection mode.
 	 */
-	@Override
-	protected Projection getProjection() {
+	@Override protected Projection getProjection() {
 		return projection;
 	}
 }
