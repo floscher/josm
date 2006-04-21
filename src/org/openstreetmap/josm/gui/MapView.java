@@ -11,11 +11,11 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.actions.AutoScaleAction;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.SelectionChangedListener;
 import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.coor.LatLon;
-import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.data.projection.Projection;
@@ -70,25 +70,23 @@ public class MapView extends NavigatableComponent {
 	 * The listener of the active layer changes.
 	 */
 	private Collection<LayerChangeListener> listeners = new LinkedList<LayerChangeListener>();
-	
-	/**
-	 * Construct a MapView.
-	 * @param layer The first layer in the view.
-	 */
-	public MapView(Layer layer) {
+
+	private final AutoScaleAction autoScaleAction;
+
+	public MapView(AutoScaleAction autoScaleAction) {
+		this.autoScaleAction = autoScaleAction;
 		addComponentListener(new ComponentAdapter(){
 			@Override public void componentResized(ComponentEvent e) {
 				recalculateCenterScale();
 			}
 		});
 		new MapMover(this);
-		addLayer(layer);
-		
+
 		// listend to selection changes to redraw the map
 		Main.ds.addSelectionChangedListener(new SelectionChangedListener(){
 			public void selectionChanged(Collection<OsmPrimitive> newSelection) {
 				repaint();
-            }
+			}
 		});
 	}
 
@@ -100,14 +98,13 @@ public class MapView extends NavigatableComponent {
 		if (layer instanceof OsmDataLayer) {
 			final OsmDataLayer dataLayer = (OsmDataLayer)layer;
 			if (editLayer != null) {
-				// merge the layer into the existing one
-				if (!editLayer.isMergable(layer))
-					throw new IllegalArgumentException("Cannot merge argument");
 				editLayer.mergeFrom(layer);
 				repaint();
 				return;
 			}
 			editLayer = dataLayer;
+			dataLayer.data.addAllSelectionListener(Main.ds);
+			Main.ds = dataLayer.data;
 			dataLayer.addModifiedListener(new ModifiedChangedListener(){
 				public void modifiedChanged(boolean value, OsmDataLayer source) {
 					Main.main.setTitle((value?"*":"")+"Java Open Street Map - Editor");
@@ -116,17 +113,16 @@ public class MapView extends NavigatableComponent {
 		}
 
 		// add as a new layer
-        if (layer instanceof WmsServerLayer)
-            layers.add(layers.size(), layer);
-        else
-            layers.add(0, layer);
+		if (layer instanceof WmsServerLayer)
+			layers.add(layers.size(), layer);
+		else
+			layers.add(0, layer);
 
 		for (LayerChangeListener l : listeners)
 			l.layerAdded(layer);
 
 		// autoselect the new layer
 		setActiveLayer(layer);
-		recalculateCenterScale();
 	}
 
 	/**
@@ -206,7 +202,7 @@ public class MapView extends NavigatableComponent {
 	 * Set the new dimension to the projection class. Also adjust the components 
 	 * scale, if in autoScale mode.
 	 */
-	void recalculateCenterScale() {
+	public void recalculateCenterScale() {
 		if (autoScale) {
 			// -20 to leave some border
 			int w = getWidth()-20;
@@ -216,14 +212,12 @@ public class MapView extends NavigatableComponent {
 			if (h < 20)
 				h = 20;
 
-			BoundingXYVisitor v = new BoundingXYVisitor();
-			for (Layer l : layers)
-				l.visitBoundingBox(v);
+			BoundingXYVisitor v = autoScaleAction.getBoundingBox();
 
 			boolean oldAutoScale = autoScale;
 			EastNorth oldCenter = center;
 			double oldScale = this.scale;
-			
+
 			if (v.min == null || v.max == null || v.min.equals(v.max)) {
 				// no bounds means whole world 
 				center = getProjection().latlon2eastNorth(new LatLon(0,0));
@@ -237,7 +231,7 @@ public class MapView extends NavigatableComponent {
 				double scaleY = (v.max.north()-v.min.north())/h;
 				scale = Math.max(scaleX, scaleY); // minimum scale to see all of the screen
 			}
-	
+
 			if (!center.equals(oldCenter))
 				firePropertyChange("center", oldCenter, center);
 			if (oldAutoScale != autoScale)
@@ -274,15 +268,12 @@ public class MapView extends NavigatableComponent {
 
 	/**
 	 * Set the active selection to the given value and raise an layerchange event.
-	 * Also, swap the active dataset in Main.main if it is a datalayer.
 	 */
 	public void setActiveLayer(Layer layer) {
 		if (!layers.contains(layer))
 			throw new IllegalArgumentException("layer must be in layerlist");
 		Layer old = activeLayer;
 		activeLayer = layer;
-		if (layer instanceof OsmDataLayer)
-			Main.ds = ((OsmDataLayer)layer).data;
 		if (old != layer) {
 			for (LayerChangeListener l : listeners)
 				l.activeLayerChange(old, layer);
@@ -303,7 +294,7 @@ public class MapView extends NavigatableComponent {
 	 */
 	public OsmDataLayer editLayer() {
 		if (editLayer == null)
-			addLayer(new OsmDataLayer(new DataSet(), "unnamed", false));
+			addLayer(new OsmDataLayer(Main.ds, "unnamed", false));
 		return editLayer;
 	}
 
@@ -318,9 +309,9 @@ public class MapView extends NavigatableComponent {
 		autoScale = false;
 
 		super.zoomTo(newCenter, scale);
-		
+
 		recalculateCenterScale();
-		
+
 		if (!oldCenter.equals(center))
 			firePropertyChange("center", oldCenter, center);
 		if (oldAutoScale != autoScale)

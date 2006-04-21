@@ -62,32 +62,11 @@ abstract public class MapMode extends JosmAction implements MouseListener, Mouse
 		mapFrame.selectMapMode(this);
 	}
 
-	/**
-	 * Does nothing. Only to subclass.
-	 */
-	public void mouseClicked(MouseEvent e) {}
-	/**
-	 * Does nothing. Only to subclass.
-	 */
-	public void mousePressed(MouseEvent e) {}
-	/**
-	 * Does nothing. Only to subclass.
-	 */
 	public void mouseReleased(MouseEvent e) {}
-	/**
-	 * Does nothing. Only to subclass.
-	 */
-	public void mouseEntered(MouseEvent e) {}
-	/**
-	 * Does nothing. Only to subclass.
-	 */
 	public void mouseExited(MouseEvent e) {}
-	/**
-	 * Does nothing. Only to subclass.
-	 */
+	public void mousePressed(MouseEvent e) {}
+	public void mouseClicked(MouseEvent e) {}
+	public void mouseEntered(MouseEvent e) {}
 	public void mouseMoved(MouseEvent e) {}
-	/**
-	 * Does nothing. Only to subclass.
-	 */
 	public void mouseDragged(MouseEvent e) {}
 }

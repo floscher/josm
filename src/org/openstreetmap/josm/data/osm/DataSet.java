@@ -150,4 +150,8 @@ public class DataSet {
     	if (listener != null)
     		listeners.remove(listener);
     }
+
+	public void addAllSelectionListener(DataSet ds) {
+		listeners.addAll(ds.listeners);
+    }
 }

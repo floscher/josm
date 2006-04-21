@@ -101,11 +101,6 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 	 */
 	JList layers = new JList(model);
 	/**
-	 * The invisible icon blended over invisible layers.
-	 */
-	static final Icon invisible = ImageProvider.get("layer", "invisible");
-
-	/**
 	 * The merge action. This is only called, if the current selection and its
 	 * item below are editable datasets and the merge button is clicked. 
 	 */
@@ -138,7 +133,7 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 						layer.name, index, isSelected, cellHasFocus);
 				Icon icon = layer.getIcon();
 				if (!layer.visible)
-					icon = ImageProvider.overlay(icon, invisible, OverlayPosition.SOUTHEAST);
+					icon = ImageProvider.overlay(icon, "invisible", OverlayPosition.SOUTHEAST);
 				label.setIcon(icon);
 				label.setToolTipText(layer.getToolTipText());
 				return label;

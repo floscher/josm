@@ -10,9 +10,9 @@ import java.util.Map;
 
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.AddVisitor;
 import org.xml.sax.Attributes;
@@ -112,6 +112,7 @@ public class OsmReader extends MinML2 {
             x.printStackTrace(); // SAXException does not chain correctly
 			throw new SAXException(x.getMessage(), x);
 		} catch (NullPointerException x) {
+			x.printStackTrace(); // SAXException does not chain correctly
 			throw new SAXException("NullPointerException. Possible some missing tags.", x);
 		}
 	}
