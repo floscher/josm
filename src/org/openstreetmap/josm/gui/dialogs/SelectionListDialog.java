@@ -116,7 +116,6 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
                     }
 				};
 				pane.createDialog(Main.main, "Search").setVisible(true);
-				System.out.println(pane.getValue());
 				if (!Integer.valueOf(JOptionPane.OK_OPTION).equals(pane.getValue()))
 					return;
 				lastSearch = input.getText();

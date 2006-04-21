@@ -1,7 +1,6 @@
 package org.openstreetmap.josm.gui.dialogs;
 
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
@@ -22,37 +21,38 @@ import org.openstreetmap.josm.actions.JosmAction;
  */
 public class ToggleDialog extends JPanel {
 
+	public final class ToggleDialogAction extends JosmAction {
+	    public final String prefname;
+	    public AbstractButton button;
+
+	    private ToggleDialogAction(String name, String iconName, String tooltip, String shortcut, KeyStroke cut, String prefname) {
+		    super(name, iconName, tooltip, shortcut, cut);
+		    this.prefname = prefname;
+	    }
+
+	    public void actionPerformed(ActionEvent e) {
+	    	if (e != null && !(e.getSource() instanceof AbstractButton))
+	    		button.setSelected(!button.isSelected());
+	    	setVisible(button.isSelected());
+	        Main.pref.put(prefname+".visible", button.isSelected());
+	    }
+    }
+
 	/**
 	 * The action to toggle this dialog.
 	 */
-	public JosmAction action;
-	
+	public ToggleDialogAction action;
+
 	/**
 	 * Create a new ToggleDialog.
 	 * @param title The title of the dialog.
      * @param prefName Name of the base preference setting string (prefix)
 	 */
 	public ToggleDialog(String title, String name, String iconName, String tooltip, String shortCutName, int shortCut, final String prefName) {
-		action = new JosmAction(name, "dialogs/"+iconName, tooltip, "Alt-"+shortCutName, KeyStroke.getKeyStroke(shortCut, KeyEvent.ALT_MASK)){
-			public void actionPerformed(ActionEvent e) {
-				boolean show = !isVisible();
-				if (e != null && e.getSource() instanceof AbstractButton)
-					show = ((AbstractButton)e.getSource()).isSelected();
-				setVisible(show);
-                Main.pref.put(prefName+".visible", show);
-			}
-		};
+		action = new ToggleDialogAction(name, "dialogs/"+iconName, tooltip, "Alt-"+shortCutName, KeyStroke.getKeyStroke(shortCut, KeyEvent.ALT_MASK), prefName);
 		setLayout(new BorderLayout());
 		add(new JLabel(title), BorderLayout.NORTH);
 		setVisible(false);
 		setBorder(BorderFactory.createEtchedBorder());
-		if (Main.pref.getBoolean(prefName+".visible")) {
-		    EventQueue.invokeLater(new Runnable(){
-		        public void run() {
-		        	action.putValue("active", true);
-		            action.actionPerformed(null);
-		        }
-		    });
-        }
 	}
 }

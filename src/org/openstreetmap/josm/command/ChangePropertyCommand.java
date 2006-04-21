@@ -38,11 +38,15 @@ public class ChangePropertyCommand extends Command {
 	@Override public void executeCommand() {
 		super.executeCommand(); // save old
 		if (value == null) {
-			for (OsmPrimitive osm : objects)
+			for (OsmPrimitive osm : objects) {
+				osm.modified = true;
 				osm.remove(key);
+			}
 		} else {
-			for (OsmPrimitive osm : objects)
+			for (OsmPrimitive osm : objects) {
+				osm.modified = true;
 				osm.put(key, value);
+			}
 		}
 	}
 

@@ -269,14 +269,6 @@ public class Main extends JFrame {
 		new Main();
 		main.setVisible(true);
 
-
-		if (arguments.remove("--show-modifiers")) {
-			Point p = main.getLocationOnScreen();
-			Dimension s = main.getSize();
-			new ShowModifiers(p.x + s.width - 3, p.y + s.height - 32);
-			main.setVisible(true);
-		}
-		
 		if (!arguments.remove("--no-fullscreen")) {
 			if (Toolkit.getDefaultToolkit().isFrameStateSupported(MAXIMIZED_BOTH))
 				main.setExtendedState(MAXIMIZED_BOTH); // some platform are able to maximize
@@ -315,7 +307,14 @@ public class Main extends JFrame {
 				it.remove();
 			}
 		}
-		
+
+		if (arguments.remove("--show-modifiers")) {
+			Point p = main.getLocationOnScreen();
+			Dimension s = main.getSize();
+			new ShowModifiers(p.x + s.width - 3, p.y + s.height - 32);
+			main.setVisible(true);
+		}
+
 		for (String s : arguments)
 			main.openAction.openFile(new File(s));
 	}

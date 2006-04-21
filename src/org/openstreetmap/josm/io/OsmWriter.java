@@ -2,14 +2,13 @@ package org.openstreetmap.josm.io;
 
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
 import org.openstreetmap.josm.tools.XmlWriter;
@@ -137,7 +136,7 @@ public class OsmWriter implements Visitor {
 				out.print(" action='"+action+"'");
 		}
 		if (osm.timestamp != null) {
-			String time = new SimpleDateFormat("y-M-d H:m:s").format(osm.timestamp);
+			String time = osm.getTimeStr();
 			out.print(" timestamp='"+time+"'");
 		}
 	}
