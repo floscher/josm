@@ -45,7 +45,7 @@ public class AddSegmentAction extends MapMode implements MouseListener {
 	 * @param mapFrame The MapFrame this action belongs to.
 	 */
 	public AddSegmentAction(MapFrame mapFrame) {
-		super("Add segment", "addlinesegment", "Add a segment between two nodes.", "G", KeyEvent.VK_G, mapFrame);
+		super("Add segment", "addsegment", "Add a segment between two nodes.", "G", KeyEvent.VK_G, mapFrame);
 	}
 
 	@Override public void registerListener() {
@@ -131,7 +131,7 @@ public class AddSegmentAction extends MapMode implements MouseListener {
 		if (start != end) {
 			// try to find a segment
 			for (Segment ls : Main.ds.segments)
-				if ((start == ls.from && end == ls.to) || (end == ls.from && start == ls.to))
+				if (!ls.deleted && ((start == ls.from && end == ls.to) || (end == ls.from && start == ls.to)))
 					return; // already a segment here - be happy, do nothing.
 
 			Segment ls = new Segment(start, end);
