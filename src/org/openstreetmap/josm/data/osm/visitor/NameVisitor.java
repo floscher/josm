@@ -16,8 +16,12 @@ import org.openstreetmap.josm.tools.ImageProvider;
  * 
  * @author imi
  */
-public class SelectionComponentVisitor implements Visitor {
+public class NameVisitor implements Visitor {
 
+	/**
+	 * The name of the item class
+	 */
+	public String className;
 	/**
 	 * The name of this item.
 	 */
@@ -42,6 +46,7 @@ public class SelectionComponentVisitor implements Visitor {
 				name = (ls.id==0?"":ls.id+" ")+"("+ls.from.coor.lat()+","+ls.from.coor.lon()+") -> ("+ls.to.coor.lat()+","+ls.to.coor.lon()+")";
 		}
 		icon = ImageProvider.get("data", "segment");
+		className = "segment";
 	}
 
 	/**
@@ -53,6 +58,7 @@ public class SelectionComponentVisitor implements Visitor {
 		if (name == null)
 			name = (n.id==0?"":""+n.id)+" ("+n.coor.lat()+","+n.coor.lon()+")";
 		icon = ImageProvider.get("data", "node");
+		className = "node";
 	}
 
 	/**
@@ -73,5 +79,6 @@ public class SelectionComponentVisitor implements Visitor {
 			name = "("+nodes.size()+" nodes)";
 		}
 		icon = ImageProvider.get("data", "way");
+		className = "way";
 	}
 }

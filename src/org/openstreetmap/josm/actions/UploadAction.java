@@ -18,6 +18,7 @@ import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.OsmPrimitivRenderer;
+import org.openstreetmap.josm.gui.PleaseWaitRunnable;
 import org.openstreetmap.josm.io.OsmServerWriter;
 import org.openstreetmap.josm.tools.GBC;
 
@@ -37,7 +38,7 @@ public class UploadAction extends JosmAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		
+
 		String osmDataServer = Main.pref.get("osm-server.url");
 		//TODO: Remove this in later versions (temporary only)
 		if (osmDataServer.endsWith("/0.2") || osmDataServer.endsWith("/0.2/")) {
@@ -53,7 +54,7 @@ public class UploadAction extends JosmAction {
 			int cutPos = osmDataServer.endsWith("/0.2") ? 4 : 5;
 			Main.pref.put("osm-server.url", osmDataServer.substring(0, osmDataServer.length()-cutPos));
 		}
-		
+
 		if (!Main.main.getMapFrame().conflictDialog.conflicts.isEmpty()) {
 			JOptionPane.showMessageDialog(Main.main, "There are unresolved conflicts. You have to resolve these first.");
 			Main.main.getMapFrame().conflictDialog.action.button.setSelected(true);
@@ -81,16 +82,19 @@ public class UploadAction extends JosmAction {
 		all.addAll(add);
 		all.addAll(update);
 		all.addAll(delete);
-		
+
 		PleaseWaitRunnable uploadTask = new PleaseWaitRunnable("Uploading data"){
-        			@Override protected void realRun() throws JDOMException {
-        				server.uploadOsm(all);
-        			}
-        			@Override protected void finish() {
-        				Main.main.getMapFrame().mapView.editLayer().cleanData(server.processed, !add.isEmpty());
-                    }
-        			
-        		};
+			@Override protected void realRun() throws JDOMException {
+				server.setProgressInformation(currentAction, progress);
+				server.uploadOsm(all);
+			}
+			@Override protected void finish() {
+				Main.main.getMapFrame().mapView.editLayer().cleanData(server.processed, !add.isEmpty());
+			}
+			@Override protected void cancel() {
+				server.cancel();
+			}
+		};
 		Main.worker.execute(uploadTask);
 		uploadTask.pleaseWaitDlg.setVisible(true);
 	}

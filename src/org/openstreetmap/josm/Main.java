@@ -1,4 +1,4 @@
-// Licence: GPL
+//Licence: GPL
 package org.openstreetmap.josm;
 
 import java.awt.BorderLayout;
@@ -10,7 +10,6 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
 import java.util.concurrent.Executor;
@@ -38,12 +37,14 @@ import org.openstreetmap.josm.actions.RedoAction;
 import org.openstreetmap.josm.actions.SaveAction;
 import org.openstreetmap.josm.actions.UndoAction;
 import org.openstreetmap.josm.actions.UploadAction;
+import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.projection.Epsg4326;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.ShowModifiers;
+import org.openstreetmap.josm.gui.dialogs.SelectionListDialog;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.tools.BugReportExceptionHandler;
@@ -67,8 +68,8 @@ public class Main extends JFrame {
 	 * and sequenciel.
 	 */
 	public static Executor worker = Executors.newSingleThreadExecutor();
-	
-	
+
+
 	public static Projection proj;
 
 	/**
@@ -80,7 +81,7 @@ public class Main extends JFrame {
 	 * The global dataset.
 	 */
 	public static DataSet ds = new DataSet();
-	
+
 	/**
 	 * The main panel.
 	 */
@@ -95,8 +96,8 @@ public class Main extends JFrame {
 
 	private OpenAction openAction;
 	private DownloadAction downloadAction;
-    //private Action wmsServerAction;
-	
+	//private Action wmsServerAction;
+
 	/**
 	 * Construct an main frame, ready sized and operating. Does not 
 	 * display the frame.
@@ -109,11 +110,11 @@ public class Main extends JFrame {
 		getContentPane().add(panel, BorderLayout.CENTER);
 		setSize(1000,740); // some strange default size
 		setVisible(true);
-		
+
 		downloadAction = new DownloadAction();
 		Action uploadAction = new UploadAction();
 		//wmsServerAction = new WmsServerAction();
-        openAction = new OpenAction();
+		openAction = new OpenAction();
 		Action saveAction = new SaveAction();
 		Action gpxExportAction = new GpxExportAction(null);
 		Action exitAction = new ExitAction();
@@ -135,15 +136,15 @@ public class Main extends JFrame {
 		fileMenu.add(exitAction);
 		mainMenu.add(fileMenu);
 
-		
+
 		JMenu layerMenu = new JMenu("Layer");
 		layerMenu.setMnemonic('L');
 		layerMenu.add(downloadAction);
 		layerMenu.add(uploadAction);
-        layerMenu.addSeparator();
-        //layerMenu.add(new JCheckBoxMenuItem(wmsServerAction));
+		layerMenu.addSeparator();
+		//layerMenu.add(new JCheckBoxMenuItem(wmsServerAction));
 		mainMenu.add(layerMenu);
-		
+
 		JMenu editMenu = new JMenu("Edit");
 		editMenu.setMnemonic('E');
 		editMenu.add(undoAction);
@@ -151,7 +152,7 @@ public class Main extends JFrame {
 		editMenu.addSeparator();
 		editMenu.add(preferencesAction);
 		mainMenu.add(editMenu);
-		
+
 		mainMenu.add(new JSeparator());
 		JMenu helpMenu = new JMenu("Help");
 		helpMenu.setMnemonic('H');
@@ -173,9 +174,9 @@ public class Main extends JFrame {
 		toolBar.add(redoAction);
 		toolBar.addSeparator();
 		toolBar.add(preferencesAction);
-		
+
 		getContentPane().add(toolBar, BorderLayout.NORTH);
-	
+
 		addWindowListener(new WindowAdapter(){
 			@Override public void windowClosing(WindowEvent arg0) {
 				if (mapFrame != null) {
@@ -213,19 +214,32 @@ public class Main extends JFrame {
 
 		LinkedList<String> arguments = new LinkedList<String>(Arrays.asList(args));
 
-		if (arguments.contains("--help")) {
+		if (arguments.contains("--help") || arguments.contains("-?") || arguments.contains("-h")) {
 			System.out.println("Java OpenStreetMap Editor");
 			System.out.println();
 			System.out.println("usage:");
-			System.out.println("\tjava -jar josm.jar <options> file file file...");
+			System.out.println("\tjava -jar josm.jar <option> <option> <option>...");
 			System.out.println();
 			System.out.println("options:");
-			System.out.println("\t--help                                  Show this help");
-			System.out.println("\t--geometry=widthxheight(+|-)x(+|-)y     Standard unix geometry argument");
-			System.out.println("\t--download=minlat,minlon,maxlat,maxlon  Download the bounding box");
-			System.out.println("\t--no-fullscreen                         Don't launch in fullscreen mode");
-			System.out.println("\t--reset-preferences                     Reset the preferences to default");
-			System.out.println("file(.osm|.xml|.gpx|.txt|.csv)            Open the specific file");
+			System.out.println("\t--help|-?|-h                              Show this help");
+			System.out.println("\t--geometry=widthxheight(+|-)x(+|-)y       Standard unix geometry argument");
+			System.out.println("\t--download=minlat,minlon,maxlat,maxlon    Download the bounding box");
+			System.out.println("\t--downloadgps=minlat,minlon,maxlat,maxlon Download the bounding box");
+			System.out.println("\t--selection=<searchstring>                Select with the given search");
+			System.out.println("\t--no-fullscreen                           Don't launch in fullscreen mode");
+			System.out.println("\t--reset-preferences                       Reset the preferences to default");
+			System.out.println("\tURL|filename(.osm|.xml|.gpx|.txt|.csv)    Open file / Download url");
+			System.out.println();
+			System.out.println("examples:");
+			System.out.println("\tjava -jar josm.jar track1.gpx track2.gpx london.osm");
+			System.out.println("\tjava -jar josm.jar http://www.openstreetmap.org/index.html?lat=43.2&lon=11.1&zoom=13");
+			System.out.println("\tjava -jar josm.jar london.osm --selection=http://www.ostertag.name/osm/OSM_errors_node-duplicate.xml");
+			System.out.println("\tjava -jar josm.jar osm://43.2,11.1,43.4,11.4");
+			System.out.println();
+			System.out.println("Parameters are read in the order they are specified, so make sure you load");
+			System.out.println("some data before --selection");
+			System.out.println();
+			System.out.println("Instead of --download=<bbox> you may specify osm://<bbox>");
 			System.exit(0);
 		}
 
@@ -259,13 +273,13 @@ public class Main extends JFrame {
 			JOptionPane.showMessageDialog(null, "The projection could not be read from preferences. Using EPSG:4263.");
 			proj = new Epsg4326();
 		}
-		
+
 		try {
 			UIManager.setLookAndFeel(pref.get("laf"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		new Main();
 		main.setVisible(true);
 
@@ -278,14 +292,13 @@ public class Main extends JFrame {
 			}
 		}
 
-		for (Iterator<String> it = arguments.iterator(); it.hasNext();) {
-			String s = it.next();
-			if (s.startsWith("--download=")) {
-				downloadFromParamString(false, s.substring(11));
-				it.remove();
+		boolean showModifiers = false;
+
+		for (String s : arguments) {
+			if (s.startsWith("--download=") || s.startsWith("osm:")) {
+				downloadFromParamString(false, s);
 			} else if (s.startsWith("--downloadgps=")) {
-				downloadFromParamString(true, s.substring(14));
-				it.remove();
+				downloadFromParamString(true, s);
 			} else if (s.startsWith("--geometry=")) {
 				Matcher m = Pattern.compile("(\\d+)x(\\d+)(([+-])(\\d+)([+-])(\\d+))?").matcher(s.substring(11));
 				if (m.matches()) {
@@ -304,26 +317,37 @@ public class Main extends JFrame {
 					}
 				} else
 					System.out.println("Ignoring malformed geometry: "+s.substring(11));
-				it.remove();
+			} else if (s.equals("--show-modifiers")) {
+				showModifiers = true;
+			} else if (s.startsWith("--selection=")) {
+				SelectionListDialog.search(s.substring(12), SelectionListDialog.SearchMode.add);
+			} else if (s.startsWith("http:") || s.startsWith("ftp:") || s.startsWith("https:")) {
+				Bounds b = DownloadAction.osmurl2bounds(s);
+				if (b == null)
+					System.out.println("Ignoring malformed url: "+s);
+				else
+					Main.main.downloadAction.download(false, b.min.lat(), b.min.lon(), b.max.lat(), b.max.lon());
+			} else {
+				main.openAction.openFile(new File(s));
 			}
 		}
 
-		if (arguments.remove("--show-modifiers")) {
+		if (showModifiers) {
 			Point p = main.getLocationOnScreen();
 			Dimension s = main.getSize();
 			new ShowModifiers(p.x + s.width - 3, p.y + s.height - 32);
 			main.setVisible(true);
 		}
-
-		for (String s : arguments)
-			main.openAction.openFile(new File(s));
 	}
 
 
 	private static void downloadFromParamString(boolean rawGps, String s) {
+		s = s.replaceAll("^(osm:/?/?)|(--download(gps)?=)", "");
+		System.out.println(s);
+		System.exit(1);
 		StringTokenizer st = new StringTokenizer(s, ",");
 		if (st.countTokens() != 4) {
-			JOptionPane.showMessageDialog(main, "Download option does not take "+st.countTokens()+" bounding parameter.");
+			JOptionPane.showMessageDialog(main, "Malformed bounding box: "+s);
 			return;
 		}
 
@@ -354,7 +378,7 @@ public class Main extends JFrame {
 		return mapFrame;
 	}
 
-	
+
 	/**
 	 * Sets some icons to the ui.
 	 */

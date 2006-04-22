@@ -17,7 +17,9 @@ import uk.co.wilson.xml.MinML2;
  */
 public class OsmIdReader extends MinML2 {
 
+	private boolean cancel;
 	Map<Long, String> entries = new HashMap<Long, String>();
+	private Reader in;
 
 	@Override public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
 		if (qName.equals("node") || qName.equals("segment") || qName.equals("way")) {
@@ -30,9 +32,20 @@ public class OsmIdReader extends MinML2 {
 		}
     }
 
-	public static Map<Long, String> parseIds(Reader in) throws IOException, SAXException {
-		OsmIdReader r = new OsmIdReader();
-        r.parse(in);
-		return r.entries;
+	public Map<Long, String> parseIds(Reader in) throws IOException, SAXException {
+        this.in = in;
+		try {
+	        parse(in);
+        } catch (SAXException e) {
+        	if (!cancel)
+        		throw e;
+        }        
+		return entries;
+	}
+	
+	public void cancel() {
+		cancel = true;
+		if (in != null)
+            try {in.close();} catch (IOException e) {}
 	}
 }
