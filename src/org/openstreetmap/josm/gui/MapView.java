@@ -52,7 +52,7 @@ public class MapView extends NavigatableComponent {
 	/**
 	 * Whether to adjust the scale property on every resize.
 	 */
-	boolean autoScale = true;
+	private boolean autoScale = true;
 
 	/**
 	 * A list of all layers currently loaded.

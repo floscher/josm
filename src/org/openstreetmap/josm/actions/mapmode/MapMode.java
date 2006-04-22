@@ -10,6 +10,7 @@ import javax.swing.KeyStroke;
 import org.openstreetmap.josm.actions.JosmAction;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
+import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * A class implementing MapMode is able to be selected as an mode for map editing.
@@ -31,10 +32,21 @@ abstract public class MapMode extends JosmAction implements MouseListener, Mouse
 	protected final MapView mv;
 
 	/**
-	 * Construct a mapMode with the given icon and the given MapFrame
+	 * Constructor for mapmodes without an menu
 	 */
 	public MapMode(String name, String iconName, String tooltip, String keyname, int keystroke, MapFrame mapFrame) {
 		super(name, "mapmode/"+iconName, tooltip, keyname, KeyStroke.getKeyStroke(keystroke, 0));
+		this.mapFrame = mapFrame;
+		mv = mapFrame.mapView;
+	}
+
+	/**
+	 * Constructor for mapmodes with an menu (no shortcut will be registered)
+	 */
+	public MapMode(String name, String iconName, String tooltip, MapFrame mapFrame) {
+		putValue(NAME, name);
+		putValue(SMALL_ICON, ImageProvider.get("mapmode", iconName));
+		putValue(SHORT_DESCRIPTION, tooltip);
 		this.mapFrame = mapFrame;
 		mv = mapFrame.mapView;
 	}
@@ -44,15 +56,15 @@ abstract public class MapMode extends JosmAction implements MouseListener, Mouse
 	 * @param mapView	The view, where the listener should be registered.
 	 */
 	public void registerListener() {
-		firePropertyChange("active", false, true);
+		putValue("active", true);
 	}
-	
+
 	/**
 	 * Unregister all listener previously registered. 
 	 * @param mapView	The view from which the listener should be deregistered.
 	 */
 	public void unregisterListener() {
-		firePropertyChange("active", true, false);
+		putValue("active", false);
 	}
 
 	/**

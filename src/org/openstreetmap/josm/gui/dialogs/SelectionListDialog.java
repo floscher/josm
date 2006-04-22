@@ -11,9 +11,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.Reader;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Map;
@@ -71,7 +71,7 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 			currentAction.setText("Contact "+url.getHost()+"...");
 			sel = mode != SearchMode.remove ? new LinkedList<OsmPrimitive>() : Main.ds.allNonDeletedPrimitives();
 			try {
-		        HttpURLConnection con = (HttpURLConnection)url.openConnection();
+		        URLConnection con = url.openConnection();
 		        Reader in = new ProgressReader(con, progress);
 				currentAction.setText("Downloading...");
 				Map<Long, String> ids = idReader.parseIds(in);
@@ -226,8 +226,8 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 	}
 
 	public static void search(String search, SearchMode mode) {
-	    if (search.startsWith("http://")) {
-	    	SelectionWebsiteLoader loader = new SelectionWebsiteLoader(search, mode);
+		if (search.startsWith("http://") || search.startsWith("ftp://") || search.startsWith("https://") || search.startsWith("file:/")) {
+			SelectionWebsiteLoader loader = new SelectionWebsiteLoader(search, mode);
 	    	if (loader.url != null) {
 	    		Main.worker.execute(loader);
 	    		loader.pleaseWaitDlg.setVisible(true);

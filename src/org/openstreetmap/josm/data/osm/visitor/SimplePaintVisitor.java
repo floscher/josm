@@ -5,8 +5,8 @@ import java.awt.Graphics;
 import java.awt.Point;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.gui.NavigatableComponent;
 import org.openstreetmap.josm.tools.ColorHelper;
@@ -31,6 +31,7 @@ public class SimplePaintVisitor implements Visitor {
 	 * MapView to get screen coordinates.
 	 */
 	private final NavigatableComponent nc;
+	private static final double PHI = Math.toRadians(20);
 
 	/**
 	 * Construct the painter visitor.
@@ -74,6 +75,7 @@ public class SimplePaintVisitor implements Visitor {
 				break;
 			}
 		}
+
 		for (Segment ls : w.segments)
 			if (!ls.selected) // selected already in good color
 				drawSegment(ls, w.selected ? getPreferencesColor("selected", Color.WHITE) : wayColor);
@@ -103,6 +105,12 @@ public class SimplePaintVisitor implements Visitor {
 		Point p1 = nc.getPoint(ls.from.eastNorth);
 		Point p2 = nc.getPoint(ls.to.eastNorth);
 		g.drawLine(p1.x, p1.y, p2.x, p2.y);
+
+		if (Main.pref.getBoolean("draw.segment.direction")) {
+			double t = Math.atan2(p2.y-p1.y, p2.x-p1.x) + Math.PI;
+	        g.drawLine(p2.x,p2.y, (int)(p2.x + 10*Math.cos(t-PHI)), (int)(p2.y + 10*Math.sin(t-PHI)));
+	        g.drawLine(p2.x,p2.y, (int)(p2.x + 10*Math.cos(t+PHI)), (int)(p2.y + 10*Math.sin(t+PHI)));
+		}
 	}
 
 	public static Color getPreferencesColor(String colName, Color def) {

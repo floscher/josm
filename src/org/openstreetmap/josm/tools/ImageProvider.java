@@ -27,12 +27,12 @@ public class ImageProvider {
 	 * @author imi
 	 */
 	public static enum OverlayPosition {NORTHWEST, NORTHEAST, SOUTHWEST, SOUTHEAST}
-	
+
 	/**
 	 * The icon cache
 	 */
 	private static Map<URL, Image> cache = new HashMap<URL, Image>();
-	
+
 	/**
 	 * Return an image from the specified location.
 	 *
@@ -43,7 +43,7 @@ public class ImageProvider {
 	public static ImageIcon get(String subdir, String name) {
 		if (subdir != "")
 			subdir += "/";
-        String ext = name.indexOf('.') != -1 ? "" : ".png";
+		String ext = name.indexOf('.') != -1 ? "" : ".png";
 		URL path = Main.class.getResource("/images/"+subdir+name+ext);
 		if (path == null)
 			throw new NullPointerException("/images/"+subdir+name+ext+" not found");

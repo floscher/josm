@@ -321,12 +321,12 @@ public class Main extends JFrame {
 				showModifiers = true;
 			} else if (s.startsWith("--selection=")) {
 				SelectionListDialog.search(s.substring(12), SelectionListDialog.SearchMode.add);
-			} else if (s.startsWith("http:") || s.startsWith("ftp:") || s.startsWith("https:")) {
+			} else if (s.startsWith("http:")) {
 				Bounds b = DownloadAction.osmurl2bounds(s);
 				if (b == null)
-					System.out.println("Ignoring malformed url: "+s);
+					JOptionPane.showMessageDialog(main, "Ignoring malformed url: "+s);
 				else
-					Main.main.downloadAction.download(false, b.min.lat(), b.min.lon(), b.max.lat(), b.max.lon());
+					main.downloadAction.download(false, b.min.lat(), b.min.lon(), b.max.lat(), b.max.lon());
 			} else {
 				main.openAction.openFile(new File(s));
 			}
@@ -343,8 +343,6 @@ public class Main extends JFrame {
 
 	private static void downloadFromParamString(boolean rawGps, String s) {
 		s = s.replaceAll("^(osm:/?/?)|(--download(gps)?=)", "");
-		System.out.println(s);
-		System.exit(1);
 		StringTokenizer st = new StringTokenizer(s, ",");
 		if (st.countTokens() != 4) {
 			JOptionPane.showMessageDialog(main, "Malformed bounding box: "+s);
@@ -354,7 +352,7 @@ public class Main extends JFrame {
 		try {
 			main.downloadAction.download(rawGps, Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()));
 		} catch (NumberFormatException e) {
-			JOptionPane.showMessageDialog(main, "Could not parse the Coordinates.");
+			JOptionPane.showMessageDialog(main, "Could not parse the Coordinates: "+s);
 		}
 	}
 
