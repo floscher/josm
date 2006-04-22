@@ -233,7 +233,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 				return super.getTableCellRendererComponent(table, value, isSelected, false, row, column);
 			}
 		});
-		propertyTable.addMouseListener(new DblClickWatch());
+		//propertyTable.addMouseListener(new DblClickWatch());
 
 		JScrollPane scrollPane = new JScrollPane(propertyTable);
 		scrollPane.addMouseListener(new DblClickWatch());

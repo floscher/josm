@@ -7,7 +7,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.visitor.SelectionComponentVisitor;
+import org.openstreetmap.josm.data.osm.visitor.NameVisitor;
 
 /**
  * Renderer that renders the objects from an OsmPrimitive as data.
@@ -15,7 +15,7 @@ import org.openstreetmap.josm.data.osm.visitor.SelectionComponentVisitor;
  */
 public class OsmPrimitivRenderer extends DefaultListCellRenderer {
 
-	private SelectionComponentVisitor visitor = new SelectionComponentVisitor();
+	private NameVisitor visitor = new NameVisitor();
 
 	@Override public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 		Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);

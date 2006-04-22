@@ -12,7 +12,6 @@ import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -35,6 +34,7 @@ import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.gui.BookmarkList;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
+import org.openstreetmap.josm.gui.PleaseWaitRunnable;
 import org.openstreetmap.josm.gui.WorldChooser;
 import org.openstreetmap.josm.gui.BookmarkList.Bookmark;
 import org.openstreetmap.josm.gui.layer.Layer;
@@ -59,66 +59,72 @@ public class DownloadAction extends JosmAction {
 	 * Open the download dialog and download the data.
 	 * Run in the worker thread.
 	 */
-    private final class DownloadOsmTask extends PleaseWaitRunnable {
-	    private final OsmServerReader reader;
+	private final class DownloadOsmTask extends PleaseWaitRunnable {
+		private final OsmServerReader reader;
 		private DataSet dataSet;
 
-	    private DownloadOsmTask(OsmServerReader reader) {
-		    super("Downloading data");
-		    this.reader = reader;
-	    }
+		private DownloadOsmTask(OsmServerReader reader) {
+			super("Downloading data");
+			this.reader = reader;
+			reader.setProgressInformation(currentAction, progress);
+		}
 
-	    @Override public void realRun() throws IOException, SAXException {
-    		dataSet = reader.parseOsm();
-    		if (dataSet == null)
-    			return;
-    		if (dataSet.nodes.isEmpty())
-    			JOptionPane.showMessageDialog(Main.main, "No data imported.");
-	    }
+		@Override public void realRun() throws IOException, SAXException {
+			dataSet = reader.parseOsm();
+			if (dataSet == null)
+				return;
+			if (dataSet.nodes.isEmpty())
+				JOptionPane.showMessageDialog(Main.main, "No data imported.");
+		}
 
 		@Override protected void finish() {
 			if (dataSet == null)
 				return; // user cancelled download or error occoured
 			Layer layer = new OsmDataLayer(dataSet, "Data Layer", false);
-	    	if (Main.main.getMapFrame() == null)
-	    		Main.main.setMapFrame(new MapFrame(layer));
-	    	else
-	    		Main.main.getMapFrame().mapView.addLayer(layer);
+			if (Main.main.getMapFrame() == null)
+				Main.main.setMapFrame(new MapFrame(layer));
+			else
+				Main.main.getMapFrame().mapView.addLayer(layer);
 		}
-	    
-    }
+
+		@Override protected void cancel() {
+			reader.cancel();
+		}
+	}
 
 
-    private final class DownloadGpsTask extends PleaseWaitRunnable {
-	    private final OsmServerReader reader;
+	private final class DownloadGpsTask extends PleaseWaitRunnable {
+		private final OsmServerReader reader;
 		private Collection<Collection<GpsPoint>> rawData;
 
-	    private DownloadGpsTask(OsmServerReader reader) {
-		    super("Downloading GPS data");
-		    this.reader = reader;
-	    }
+		private DownloadGpsTask(OsmServerReader reader) {
+			super("Downloading GPS data");
+			this.reader = reader;
+		}
 
-	    @Override public void realRun() throws IOException, JDOMException {
-    		rawData = reader.parseRawGps();
-	    }
+		@Override public void realRun() throws IOException, JDOMException {
+			rawData = reader.parseRawGps();
+		}
 
 		@Override protected void finish() {
 			if (rawData == null)
 				return;
 			String name = latlon[0].getText() + " " + latlon[1].getText() + " x " + latlon[2].getText() + " " + latlon[3].getText();
 			Layer layer = new RawGpsDataLayer(rawData, name);
-	    	if (Main.main.getMapFrame() == null)
-	    		Main.main.setMapFrame(new MapFrame(layer));
-	    	else
-	    		Main.main.getMapFrame().mapView.addLayer(layer);
+			if (Main.main.getMapFrame() == null)
+				Main.main.setMapFrame(new MapFrame(layer));
+			else
+				Main.main.getMapFrame().mapView.addLayer(layer);
 		}
-	    
-    }
-    
-    
+
+		@Override protected void cancel() {
+		}
+	}
+
+
 	/**
-     * minlat, minlon, maxlat, maxlon
-     */
+	 * minlat, minlon, maxlat, maxlon
+	 */
 	JTextField[] latlon = new JTextField[]{
 			new JTextField(9),
 			new JTextField(9),
@@ -135,7 +141,6 @@ public class DownloadAction extends JosmAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		
 		String osmDataServer = Main.pref.get("osm-server.url");
 		//TODO: Remove this in later versions (temporary only)
 		if (osmDataServer.endsWith("/0.2") || osmDataServer.endsWith("/0.2/")) {
@@ -177,7 +182,7 @@ public class DownloadAction extends JosmAction {
 			rawGps.setSelected(mv.getActiveLayer() instanceof RawGpsDataLayer);
 		}
 		dlg.add(rawGps, GBC.eop());
-		
+
 		// OSM url edit
 		dlg.add(new JLabel("URL from www.openstreetmap.org"), GBC.eol());
 		final JTextField osmUrl = new JTextField();
@@ -220,22 +225,17 @@ public class DownloadAction extends JosmAction {
 			@Override public void keyTyped(KeyEvent e) {
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
-						Map<String, Double> map = readArgs(osmUrl.getText());
-						try {
-							double size = 180.0 / Math.pow(2, map.get("zoom"));
-							Bounds b = new Bounds(
-									new LatLon(map.get("lat") - size/2, map.get("lon") - size),
-									new LatLon(map.get("lat") + size/2, map.get("lon") + size));
+						Bounds b = osmurl2bounds(osmUrl.getText());
+						if (b != null)
 							setEditBounds(b);
-						} catch (Exception x) { // NPE or IAE
+						else 
 							for (JTextField f : latlon)
 								f.setText("");
-						}
 					}
 				});
 			}
 		});
-		
+
 		// Bookmarks
 		dlg.add(new JLabel("Bookmarks"), GBC.eol());
 		final BookmarkList bookmarks = new BookmarkList();
@@ -288,7 +288,7 @@ public class DownloadAction extends JosmAction {
 		Dimension d = dlg.getPreferredSize();
 		wc.setPreferredSize(new Dimension(d.width, d.width/2));
 		wc.addInputFields(latlon, osmUrl, osmUrlRefresher);
-		
+
 		// Finally: the dialog
 		Bookmark b;
 		do {
@@ -329,16 +329,13 @@ public class DownloadAction extends JosmAction {
 			return null;
 		}
 	}
-	
-	
-	/**
-	 * Extrakt URL arguments.
-	 */
-	private Map<String, Double> readArgs(String s) {
-		int i = s.indexOf('?');
+
+
+	public static Bounds osmurl2bounds(String url) {
+		int i = url.indexOf('?');
 		if (i == -1)
-			return new HashMap<String, Double>();
-		String[] args = s.substring(i+1).split("&");
+			return null;
+		String[] args = url.substring(i+1).split("&");
 		HashMap<String, Double> map = new HashMap<String, Double>();
 		for (String arg : args) {
 			int eq = arg.indexOf('=');
@@ -349,9 +346,16 @@ public class DownloadAction extends JosmAction {
 				}				
 			}
 		}
-		return map;
+		try {
+			double size = 180.0 / Math.pow(2, map.get("zoom"));
+			return new Bounds(
+					new LatLon(map.get("lat") - size/2, map.get("lon") - size),
+					new LatLon(map.get("lat") + size/2, map.get("lon") + size));
+		} catch (Exception x) { // NPE or IAE
+			return null;
+		}
 	}
-	
+
 	/**
 	 * Set the four edit fields to the given bounds coordinates.
 	 */

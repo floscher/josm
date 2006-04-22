@@ -10,8 +10,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
@@ -30,12 +30,15 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
+import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.SelectionChangedListener;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.OsmPrimitivRenderer;
+import org.openstreetmap.josm.gui.PleaseWaitRunnable;
 import org.openstreetmap.josm.io.OsmIdReader;
+import org.openstreetmap.josm.io.ProgressReader;
 import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.ImageProvider;
 import org.openstreetmap.josm.tools.SearchCompiler;
@@ -50,6 +53,54 @@ import org.xml.sax.SAXException;
  */
 public class SelectionListDialog extends ToggleDialog implements SelectionChangedListener {
 
+	public static enum SearchMode {replace, add, remove}
+
+	private static class SelectionWebsiteLoader extends PleaseWaitRunnable {
+		public final URL url;
+		public Collection<OsmPrimitive> sel;
+		private final SearchMode mode;
+		private OsmIdReader idReader = new OsmIdReader();
+		public SelectionWebsiteLoader(String urlStr, SearchMode mode) {
+	        super("Load Selection");
+	        this.mode = mode;
+	        URL u = null;
+			try {u = new URL(urlStr);} catch (MalformedURLException e) {}
+            this.url = u;
+        }
+		@Override protected void realRun() throws SAXException, JDOMException, IOException {
+			currentAction.setText("Contact "+url.getHost()+"...");
+			sel = mode != SearchMode.remove ? new LinkedList<OsmPrimitive>() : Main.ds.allNonDeletedPrimitives();
+			try {
+		        HttpURLConnection con = (HttpURLConnection)url.openConnection();
+		        Reader in = new ProgressReader(con, progress);
+				currentAction.setText("Downloading...");
+				Map<Long, String> ids = idReader.parseIds(in);
+		        for (OsmPrimitive osm : Main.ds.allNonDeletedPrimitives()) {
+		        	if (ids.containsKey(osm.id) && osm.getClass().getName().toLowerCase().endsWith(ids.get(osm.id))) {
+		        		if (mode == SearchMode.remove)
+		        			sel.remove(osm);
+		        		else
+		        			sel.add(osm);
+		        	}
+				}
+	        } catch (IOException e) {
+		        e.printStackTrace();
+		        JOptionPane.showMessageDialog(Main.main, "Could not read from url: '"+url+"'");
+	        } catch (SAXException e) {
+		        e.printStackTrace();
+		        JOptionPane.showMessageDialog(Main.main, "Parsing error in url: '"+url+"'");
+	        }
+        }
+		@Override protected void cancel() {
+			sel = null;
+			idReader.cancel();
+		}
+		@Override protected void finish() {
+			if (sel != null)
+				Main.ds.setSelected(sel);
+        }
+	}
+	
 	/**
 	 * The selection's list data.
 	 */
@@ -127,25 +178,8 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 				if (!Integer.valueOf(JOptionPane.OK_OPTION).equals(pane.getValue()))
 					return;
 				lastSearch = input.getText();
-				Collection<OsmPrimitive> sel = null;
-				if (lastSearch.startsWith("http://"))
-					sel = selectFromWebsite(lastSearch, replace.isSelected(), add.isSelected(), remove.isSelected());
-				if (sel == null) {
-					sel = Main.ds.getSelected();
-					SearchCompiler.Match matcher = SearchCompiler.compile(lastSearch);
-					for (OsmPrimitive osm : Main.ds.allNonDeletedPrimitives()) {
-						if (replace.isSelected()) {
-							if (matcher.match(osm))
-								sel.add(osm);
-							else
-								sel.remove(osm);
-						} else if (add.isSelected() && !osm.selected && matcher.match(osm))
-							sel.add(osm);
-						else if (remove.isSelected() && osm.selected && matcher.match(osm))
-							sel.remove(osm);
-					}
-				}
-				Main.ds.setSelected(sel);
+				SearchMode mode = replace.isSelected() ? SearchMode.replace : (add.isSelected() ? SearchMode.add : SearchMode.remove);
+				search(lastSearch, mode);
 			}
 		});
 		buttonPanel.add(button);
@@ -153,31 +187,6 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 		add(buttonPanel, BorderLayout.SOUTH);
 		selectionChanged(Main.ds.getSelected());
 	}
-
-	private Collection<OsmPrimitive> selectFromWebsite(String url, boolean replace, boolean add, boolean remove) {
-		Collection<OsmPrimitive> sel = replace ? new LinkedList<OsmPrimitive>() : Main.ds.allNonDeletedPrimitives();
-		try {
-	        Reader in = new InputStreamReader(new URL(url).openStream());
-	        Map<Long, String> ids = OsmIdReader.parseIds(in);
-	        for (OsmPrimitive osm : Main.ds.allNonDeletedPrimitives()) {
-	        	if (ids.containsKey(osm.id) && osm.getClass().getName().toLowerCase().endsWith(ids.get(osm.id))) {
-	        		if (remove)
-	        			sel.remove(osm);
-	        		else
-	        			sel.add(osm);
-	        	}
-			}
-        } catch (MalformedURLException e) {
-	        return null;
-        } catch (IOException e) {
-	        e.printStackTrace();
-	        JOptionPane.showMessageDialog(Main.main, "Could not read from url: '"+url+"'");
-        } catch (SAXException e) {
-	        e.printStackTrace();
-	        JOptionPane.showMessageDialog(Main.main, "Parsing error in url: '"+url+"'");
-        }
-        return sel;
-    }
 
 	@Override public void setVisible(boolean b) {
 		if (b) {
@@ -215,4 +224,29 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 				sel.add((OsmPrimitive)list.get(i));
 		Main.ds.setSelected(sel);
 	}
+
+	public static void search(String search, SearchMode mode) {
+	    if (search.startsWith("http://")) {
+	    	SelectionWebsiteLoader loader = new SelectionWebsiteLoader(search, mode);
+	    	if (loader.url != null) {
+	    		Main.worker.execute(loader);
+	    		loader.pleaseWaitDlg.setVisible(true);
+	    		return;
+	    	}
+	    }
+	    Collection<OsmPrimitive> sel = Main.ds.getSelected();
+    	SearchCompiler.Match matcher = SearchCompiler.compile(search);
+    	for (OsmPrimitive osm : Main.ds.allNonDeletedPrimitives()) {
+    		if (mode == SearchMode.replace) {
+    			if (matcher.match(osm))
+    				sel.add(osm);
+    			else
+    				sel.remove(osm);
+    		} else if (mode == SearchMode.add && !osm.selected && matcher.match(osm))
+    			sel.add(osm);
+    		else if (mode == SearchMode.remove && osm.selected && matcher.match(osm))
+    			sel.remove(osm);
+    	}
+	    Main.ds.setSelected(sel);
+    }
 }

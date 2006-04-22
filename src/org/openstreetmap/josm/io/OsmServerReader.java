@@ -1,7 +1,6 @@
 package org.openstreetmap.josm.io;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -67,6 +66,7 @@ public class OsmServerReader extends OsmConnection {
 			if (!foundSomething)
 				break;
 			r.close();
+			activeConnection = null;
 		}
 
 		data.add(list);
@@ -82,8 +82,10 @@ public class OsmServerReader extends OsmConnection {
 		Reader r = getReader(Main.pref.get("osm-server.url")+"/0.3/map?bbox="+lon1+","+lat1+","+lon2+","+lat2);
 		if (r == null)
 			return null;
+		currentAction.setText("Downloading OSM data...");
 		DataSet data = OsmReader.parseDataSet(r);
 		r.close();
+		activeConnection = null;
 		return data;
 	}
 
@@ -98,10 +100,10 @@ public class OsmServerReader extends OsmConnection {
 		System.out.println("download: "+urlStr);
 		initAuthentication();
 		URL url = new URL(urlStr);
-		HttpURLConnection con = (HttpURLConnection)url.openConnection();
-		con.setConnectTimeout(20000);
-		if (con.getResponseCode() == 401 && isCancelled())
+		activeConnection = (HttpURLConnection)url.openConnection();
+		activeConnection.setConnectTimeout(15000);
+		if (isAuthCancelled() && activeConnection.getResponseCode() == 401)
 			return null;
-		return new InputStreamReader(con.getInputStream());
+		return new ProgressReader(activeConnection, progress);
 	}
 }

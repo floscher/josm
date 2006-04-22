@@ -15,10 +15,11 @@ import java.util.LinkedList;
 
 import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
+import org.openstreetmap.josm.data.osm.visitor.NameVisitor;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
 
 /**
@@ -43,7 +44,12 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 	 * than where passed in the list to upload*.
 	 */
 	public Collection<OsmPrimitive> processed;
-	
+
+	/**
+	 * Whether the operation should be aborted as soon as possible.
+	 */
+	private boolean cancel = false;
+
 	/**
 	 * Send the dataset to the server. Ask the user first and does nothing if he
 	 * does not want to send the data.
@@ -52,9 +58,19 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 		processed = new LinkedList<OsmPrimitive>();
 		initAuthentication();
 
+		progress.setMaximum(list.size());
+		progress.setValue(0);
+
+		NameVisitor v = new NameVisitor();
 		try {
-			for (OsmPrimitive osm : list)
+			for (OsmPrimitive osm : list) {
+				if (cancel)
+					return;
+				osm.visit(v);
+				currentAction.setText("Upload "+v.className+" "+osm.id+"...");
 				osm.visit(this);
+				progress.setValue(progress.getValue()+1);
+			}
 		} catch (RuntimeException e) {
 			throw new JDOMException("An error occoured: ", e);
 		}
@@ -137,25 +153,25 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 		try {
 			URL url = new URL(Main.pref.get("osm-server.url") + "/0.3/" + urlSuffix + "/" + osm.id);
 			System.out.println("upload to: "+url);
-			HttpURLConnection con = (HttpURLConnection) url.openConnection();
-			con.setConnectTimeout(20000);
-			con.setRequestMethod(requestMethod);
+			activeConnection = (HttpURLConnection) url.openConnection();
+			activeConnection.setConnectTimeout(15000);
+			activeConnection.setRequestMethod(requestMethod);
 			if (addBody)
-				con.setDoOutput(true);
-			con.connect();
+				activeConnection.setDoOutput(true);
+			activeConnection.connect();
 
 			if (addBody) {
-				Writer out = new OutputStreamWriter(con.getOutputStream());
+				Writer out = new OutputStreamWriter(activeConnection.getOutputStream());
 				OsmWriter.outputSingle(out, osm, true);
 				out.close();
 			}
 
-			int retCode = con.getResponseCode();
+			int retCode = activeConnection.getResponseCode();
 			if (retCode == 200 && osm.id == 0)
-				osm.id = readId(con.getInputStream());
+				osm.id = readId(activeConnection.getInputStream());
 			System.out.println("got return: "+retCode+" with id "+osm.id);
-			String retMsg = con.getResponseMessage();
-			con.disconnect();
+			String retMsg = activeConnection.getResponseMessage();
+			activeConnection.disconnect();
 			if (retCode == 410 && requestMethod.equals("DELETE"))
 				return; // everything fine.. was already deleted.
 			if (retCode != 200) {
@@ -169,7 +185,8 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 		} catch (Exception e) {
 			if (e instanceof RuntimeException)
 				throw (RuntimeException)e;
-			throw new RuntimeException(e.getMessage(), e);
+			if (!cancel)
+				throw new RuntimeException(e.getMessage(), e);
 		}
 	}
 }

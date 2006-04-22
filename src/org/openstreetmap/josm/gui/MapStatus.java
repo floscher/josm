@@ -29,7 +29,7 @@ import javax.swing.PopupFactory;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.visitor.SelectionComponentVisitor;
+import org.openstreetmap.josm.data.osm.visitor.NameVisitor;
 import org.openstreetmap.josm.tools.GBC;
 
 /**
@@ -119,7 +119,7 @@ public class MapStatus extends JPanel {
 					// Set the text label in the bottom status bar
 					osmNearest = mv.getNearest(ms.mousePos, (ms.modifiers & MouseEvent.ALT_DOWN_MASK) != 0);
 					if (osmNearest != null) {
-						SelectionComponentVisitor visitor = new SelectionComponentVisitor();
+						NameVisitor visitor = new NameVisitor();
 						osmNearest.visit(visitor);
 						nameText.setText(visitor.name);
 					} else
@@ -132,7 +132,7 @@ public class MapStatus extends JPanel {
 						
 						JPanel c = new JPanel(new GridBagLayout());
 						for (final OsmPrimitive osm : osms) {
-							SelectionComponentVisitor visitor = new SelectionComponentVisitor();
+							NameVisitor visitor = new NameVisitor();
 							osm.visit(visitor);
 							final StringBuilder text = new StringBuilder();
 							if (osm.id == 0 || osm.modified)
