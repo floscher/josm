@@ -3,7 +3,7 @@ package org.openstreetmap.josm.io;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.HttpURLConnection;
+import java.net.URLConnection;
 
 import javax.swing.BoundedRangeModel;
 
@@ -16,7 +16,7 @@ public class ProgressReader extends Reader {
 	private final Reader in;
 	private final BoundedRangeModel progress;
 
-	public ProgressReader(HttpURLConnection con, BoundedRangeModel progress) throws IOException {
+	public ProgressReader(URLConnection con, BoundedRangeModel progress) throws IOException {
 		this.in = new InputStreamReader(con.getInputStream());
 		this.progress = progress;
 		int contentLength = con.getContentLength();

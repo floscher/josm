@@ -4,8 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.Collection;
 
-import javax.swing.KeyStroke;
-import javax.swing.MenuElement;
+import javax.swing.AbstractAction;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.SelectionChangedListener;
@@ -15,6 +14,7 @@ import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.layer.Layer;
+import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * Toggles the autoScale feature of the mapView
@@ -26,22 +26,25 @@ public class AutoScaleAction extends GroupAction {
 	private AutoScaleMode mode = AutoScaleMode.data;
 	private final MapFrame mapFrame;
 
-	private class Action extends JosmAction {
+	private class Action extends AbstractAction {
 		private final AutoScaleMode mode;
 		public Action(AutoScaleMode mode) {
-	        super("Auto Scale: "+mode, "dialogs/autoscale/"+mode, "Auto zoom the view to "+mode+". Disabled if the view is moved.", "Alt-A", KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.ALT_MASK));
+			super("Auto Scale: "+mode, ImageProvider.get("dialogs/autoscale/"+mode));
+			putValue(SHORT_DESCRIPTION, "Auto zoom the view to "+mode+". Disabled if the view is moved.");
 			this.mode = mode;
-        }
+		}
 		public void actionPerformed(ActionEvent e) {
 			AutoScaleAction.this.mode = mode;
-			if (e.getSource() instanceof MenuElement)
-				setAutoScaleOnMapView();
-			else
-				mapFrame.mapView.setAutoScale(!mapFrame.mapView.isAutoScale());
-        }
+			if (mapFrame.mapView.isAutoScale())
+            	mapFrame.mapView.recalculateCenterScale();
+            else
+            	mapFrame.mapView.setAutoScale(true);
+			putValue("active", true);
+		}
 	}
-	
+
 	public AutoScaleAction(final MapFrame mapFrame) {
+		super(KeyEvent.VK_A, 0);
 		for (AutoScaleMode mode : AutoScaleMode.values())
 			actions.add(new Action(mode));
 		setCurrent(0);
@@ -50,7 +53,7 @@ public class AutoScaleAction extends GroupAction {
 			public void selectionChanged(Collection<OsmPrimitive> newSelection) {
 				if (mode == AutoScaleMode.selection)
 					mapFrame.mapView.recalculateCenterScale();
-            }
+			}
 		});
 	}
 
@@ -78,12 +81,5 @@ public class AutoScaleAction extends GroupAction {
 			break;
 		}
 		return v;
-    }
-
-	private void setAutoScaleOnMapView() {
-    	if (mapFrame.mapView.isAutoScale())
-    		mapFrame.mapView.recalculateCenterScale();
-    	else
-    		mapFrame.mapView.setAutoScale(true);
-    }
+	}
 }

@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -15,7 +16,6 @@ import javax.swing.JToolBar;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.AutoScaleAction;
-import org.openstreetmap.josm.actions.mapmode.AddNodeAction;
 import org.openstreetmap.josm.actions.mapmode.AddSegmentAction;
 import org.openstreetmap.josm.actions.mapmode.AddWayAction;
 import org.openstreetmap.josm.actions.mapmode.DeleteAction;
@@ -23,6 +23,7 @@ import org.openstreetmap.josm.actions.mapmode.MapMode;
 import org.openstreetmap.josm.actions.mapmode.MoveAction;
 import org.openstreetmap.josm.actions.mapmode.SelectionAction;
 import org.openstreetmap.josm.actions.mapmode.ZoomAction;
+import org.openstreetmap.josm.actions.mapmode.AddNodeAction.AddNodeGroup;
 import org.openstreetmap.josm.gui.dialogs.ConflictDialog;
 import org.openstreetmap.josm.gui.dialogs.LayerList;
 import org.openstreetmap.josm.gui.dialogs.PropertiesDialog;
@@ -68,7 +69,7 @@ public class MapFrame extends JPanel {
 		setSize(400,400);
 		setLayout(new BorderLayout());
 
-		AutoScaleAction autoScaleAction = new AutoScaleAction(this);
+		final AutoScaleAction autoScaleAction = new AutoScaleAction(this);
 		add(mapView = new MapView(autoScaleAction), BorderLayout.CENTER);
 		mapView.addLayer(layer);
 
@@ -78,7 +79,7 @@ public class MapFrame extends JPanel {
 		final SelectionAction selectionAction = new SelectionAction(this);
 		toolBarActions.add(new IconToggleButton(selectionAction));
 		toolBarActions.add(new IconToggleButton(new MoveAction(this)));
-		toolBarActions.add(new IconToggleButton(new AddNodeAction(this)));
+		toolBarActions.add(new IconToggleButton(new AddNodeGroup(this)));
 		toolBarActions.add(new IconToggleButton(new AddSegmentAction(this)));
 		toolBarActions.add(new IconToggleButton(new AddWayAction(this, selectionAction)));
 		toolBarActions.add(new IconToggleButton(new DeleteAction(this)));
@@ -96,11 +97,20 @@ public class MapFrame extends JPanel {
 		toolBarActions.add(autoScaleButton);
 		autoScaleButton.setText(null);
 		autoScaleButton.setSelected(mapView.isAutoScale());
+		autoScaleAction.putValue("active", true);
 		mapView.addPropertyChangeListener(new PropertyChangeListener(){
 			public void propertyChange(PropertyChangeEvent evt) {
-				if (evt.getPropertyName().equals("autoScale"))
-					autoScaleButton.setSelected(mapView.isAutoScale());
+				if (evt.getPropertyName().equals("autoScale")) {
+					autoScaleAction.putValue("active", evt.getNewValue());
+					autoScaleButton.setSelected((Boolean)evt.getNewValue());
+				}
 			}
+		});
+		autoScaleButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				if (!autoScaleButton.groupbutton)
+					autoScaleButton.setSelected(true);
+            }
 		});
 
 		JPanel toggleDialogs = new JPanel();
@@ -145,6 +155,8 @@ public class MapFrame extends JPanel {
 	 * @param mapMode	The new mode to set.
 	 */
 	public void selectMapMode(MapMode mapMode) {
+		if (mapMode == this.mapMode)
+			return;
 		if (this.mapMode != null)
 			this.mapMode.unregisterListener();
 		this.mapMode = mapMode;

@@ -71,10 +71,11 @@ public class PreferenceDialog extends JDialog {
 			if (pwd.equals(""))
 				pwd = null;
 			Main.pref.put("osm-server.password", pwd);
-			Main.pref.put("wmsServerBaseUrl", wmsServerBaseUrl.getText());
-			Main.pref.put("csvImportString", csvImportString.getText());
-			Main.pref.put("drawRawGpsLines", drawRawGpsLines.isSelected());
-			Main.pref.put("forceRawGpsLines", forceRawGpsLines.isSelected());
+			Main.pref.put("wms.baseurl", wmsServerBaseUrl.getText());
+			Main.pref.put("csv.importstring", csvImportString.getText());
+			Main.pref.put("draw.rawgps.lines", drawRawGpsLines.isSelected());
+			Main.pref.put("draw.rawgps.lines.force", forceRawGpsLines.isSelected());
+			Main.pref.put("draw.segment.direction", directionHint.isSelected());
 
 			for (int i = 0; i < colors.getRowCount(); ++i) {
 				String name = (String)colors.getValueAt(i, 0);
@@ -153,7 +154,7 @@ public class PreferenceDialog extends JDialog {
 	 * The checkbox stating whether raw gps lines should be forced.
 	 */
 	private JCheckBox forceRawGpsLines = new JCheckBox("Force lines if no segments imported.");
-
+	private JCheckBox directionHint = new JCheckBox("Draw Direction Arrows");
 	private JTable colors;
 
 
@@ -199,7 +200,6 @@ public class PreferenceDialog extends JDialog {
 			}
 		});
 
-		// drawRawGpsLines
 		drawRawGpsLines.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				if (!drawRawGpsLines.isSelected())
@@ -211,12 +211,14 @@ public class PreferenceDialog extends JDialog {
 		osmDataServer.setText(Main.pref.get("osm-server.url"));
 		osmDataUsername.setText(Main.pref.get("osm-server.username"));
 		osmDataPassword.setText(Main.pref.get("osm-server.password"));
-		wmsServerBaseUrl.setText(Main.pref.get("wmsServerBaseUrl", "http://wms.jpl.nasa.gov/wms.cgi?request=GetMap&width=512&height=512&layers=global_mosaic&styles=&srs=EPSG:4326&format=image/jpeg&"));
-		csvImportString.setText(Main.pref.get("csvImportString"));
-		drawRawGpsLines.setSelected(Main.pref.getBoolean("drawRawGpsLines"));
+		wmsServerBaseUrl.setText(Main.pref.get("wms.baseurl", "http://wms.jpl.nasa.gov/wms.cgi?request=GetMap&width=512&height=512&layers=global_mosaic&styles=&srs=EPSG:4326&format=image/jpeg&"));
+		csvImportString.setText(Main.pref.get("csv.importstring"));
+		drawRawGpsLines.setSelected(Main.pref.getBoolean("draw.rawgps.lines"));
 		forceRawGpsLines.setToolTipText("Force drawing of lines if the imported data contain no line information.");
-		forceRawGpsLines.setSelected(Main.pref.getBoolean("forceRawGpsLines"));
+		forceRawGpsLines.setSelected(Main.pref.getBoolean("draw.rawgps.lines.force"));
 		forceRawGpsLines.setEnabled(drawRawGpsLines.isSelected());
+		directionHint.setToolTipText("Draw direction hints for all segments.");
+		directionHint.setSelected(Main.pref.getBoolean("draw.segment.direction"));
 
 
 
@@ -291,6 +293,7 @@ public class PreferenceDialog extends JDialog {
 		display.add(lafCombo, GBC.eol().fill(GBC.HORIZONTAL));
 		display.add(drawRawGpsLines, GBC.eol().insets(20,0,0,0));
 		display.add(forceRawGpsLines, GBC.eop().insets(40,0,0,0));
+		display.add(directionHint, GBC.eop().insets(20,0,0,0));
 		display.add(new JLabel("Colors"), GBC.eol());
 		colors.setPreferredScrollableViewportSize(new Dimension(100,112));
 		display.add(new JScrollPane(colors), GBC.eol().fill(GBC.BOTH));

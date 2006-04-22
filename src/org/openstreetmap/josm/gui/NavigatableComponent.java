@@ -103,6 +103,77 @@ public class NavigatableComponent extends JComponent {
 	}
 
 	/**
+	 * Return the nearest point to the screen point given.
+	 * If a node within 10 pixel is found, the nearest node is returned.
+	 */
+	public final Node getNearestNode(Point p) {
+		double minDistanceSq = Double.MAX_VALUE;
+		Node minPrimitive = null;
+		for (Node n : Main.ds.nodes) {
+			if (n.deleted)
+				continue;
+			Point sp = getPoint(n.eastNorth);
+			double dist = p.distanceSq(sp);
+			if (minDistanceSq > dist && dist < 100) {
+				minDistanceSq = p.distanceSq(sp);
+				minPrimitive = n;
+			}
+		}
+		return minPrimitive;
+	}
+
+	/**
+	 * @return the nearest way to the screen point given.
+	 */
+	public final Way getNearestWay(Point p) {
+		Way minPrimitive = null;
+		double minDistanceSq = Double.MAX_VALUE;
+		for (Way w : Main.ds.ways) {
+			if (w.deleted)
+				continue;
+			for (Segment ls : w.segments) {
+				if (ls.deleted || ls.incomplete)
+					continue;
+				Point A = getPoint(ls.from.eastNorth);
+				Point B = getPoint(ls.to.eastNorth);
+				double c = A.distanceSq(B);
+				double a = p.distanceSq(B);
+				double b = p.distanceSq(A);
+				double perDist = a-(a-b+c)*(a-b+c)/4/c; // perpendicular distance squared
+				if (perDist < 100 && minDistanceSq > perDist && a < c+100 && b < c+100) {
+					minDistanceSq = perDist;
+					minPrimitive = w;
+				}
+			}			
+		}
+		return minPrimitive;
+	}
+
+	/**
+	 * @return the nearest segment to the screen point given.
+	 */
+	public final Segment getNearestSegment(Point p) {
+		Segment minPrimitive = null;
+		double minDistanceSq = Double.MAX_VALUE;
+		// segments
+		for (Segment ls : Main.ds.segments) {
+			if (ls.deleted || ls.incomplete)
+				continue;
+			Point A = getPoint(ls.from.eastNorth);
+			Point B = getPoint(ls.to.eastNorth);
+			double c = A.distanceSq(B);
+			double a = p.distanceSq(B);
+			double b = p.distanceSq(A);
+			double perDist = a-(a-b+c)*(a-b+c)/4/c; // perpendicular distance squared
+			if (perDist < 100 && minDistanceSq > perDist && a < c+100 && b < c+100) {
+				minDistanceSq = perDist;
+				minPrimitive = ls;
+			}
+		}
+		return minPrimitive;
+    }
+
+	/**
 	 * Return the object, that is nearest to the given screen point.
 	 * 
 	 * First, a node will be searched. If a node within 10 pixel is found, the
@@ -126,66 +197,12 @@ public class NavigatableComponent extends JComponent {
 	 * @return	The primitive, that is nearest to the point p.
 	 */
 	public OsmPrimitive getNearest(Point p, boolean segmentInsteadWay) {
-		double minDistanceSq = Double.MAX_VALUE;
-		OsmPrimitive minPrimitive = null;
-	
-		// nodes
-		for (Node n : Main.ds.nodes) {
-			if (n.deleted)
-				continue;
-			Point sp = getPoint(n.eastNorth);
-			double dist = p.distanceSq(sp);
-			if (minDistanceSq > dist && dist < 100) {
-				minDistanceSq = p.distanceSq(sp);
-				minPrimitive = n;
-			}
-		}
-		if (minPrimitive != null)
-			return minPrimitive;
-		
-		// for whole ways, try the ways first
-		minDistanceSq = Double.MAX_VALUE;
-		if (!segmentInsteadWay) {
-			for (Way w : Main.ds.ways) {
-				if (w.deleted)
-					continue;
-				for (Segment ls : w.segments) {
-					if (ls.deleted || ls.incomplete)
-						continue;
-					Point A = getPoint(ls.from.eastNorth);
-					Point B = getPoint(ls.to.eastNorth);
-					double c = A.distanceSq(B);
-					double a = p.distanceSq(B);
-					double b = p.distanceSq(A);
-					double perDist = a-(a-b+c)*(a-b+c)/4/c; // perpendicular distance squared
-					if (perDist < 100 && minDistanceSq > perDist && a < c+100 && b < c+100) {
-						minDistanceSq = perDist;
-						minPrimitive = w;
-					}
-				}			
-			}
-			if (minPrimitive != null)
-				return minPrimitive;
-		}
-		
-		minDistanceSq = Double.MAX_VALUE;
-		// segments
-		for (Segment ls : Main.ds.segments) {
-			if (ls.deleted || ls.incomplete)
-				continue;
-			Point A = getPoint(ls.from.eastNorth);
-			Point B = getPoint(ls.to.eastNorth);
-			double c = A.distanceSq(B);
-			double a = p.distanceSq(B);
-			double b = p.distanceSq(A);
-			double perDist = a-(a-b+c)*(a-b+c)/4/c; // perpendicular distance squared
-			if (perDist < 100 && minDistanceSq > perDist && a < c+100 && b < c+100) {
-				minDistanceSq = perDist;
-				minPrimitive = ls;
-			}
-		}
-	
-		return minPrimitive;
+		OsmPrimitive osm = getNearestNode(p);
+		if (osm == null && !segmentInsteadWay)
+			osm = getNearestWay(p);
+		if (osm == null)
+			osm = getNearestSegment(p);
+		return osm;
 	}
 
 	/**
@@ -242,7 +259,7 @@ public class NavigatableComponent extends JComponent {
 		}
 		return c;
 	}
-	
+
 	/**
 	 * @return The projection to be used in calculating stuff.
 	 */

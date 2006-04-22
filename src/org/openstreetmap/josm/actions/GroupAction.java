@@ -2,39 +2,83 @@ package org.openstreetmap.josm.actions;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.KeyStroke;
 
 import org.openstreetmap.josm.gui.IconToggleButton;
 import org.openstreetmap.josm.tools.ImageProvider;
 import org.openstreetmap.josm.tools.ImageProvider.OverlayPosition;
 
 
-public class GroupAction extends AbstractAction {
+public class GroupAction extends JosmAction {
 
 	protected final List<Action> actions = new ArrayList<Action>();
-	private int current;
+	private int current = -1;
+	private String shortCutName = "";
+
+	private PropertyChangeListener forwardActiveListener = new PropertyChangeListener(){
+		public void propertyChange(PropertyChangeEvent evt) {
+			if (evt.getPropertyName().equals("active")) {
+				putValue("active", evt.getNewValue());
+				if (evt.getNewValue() == Boolean.FALSE)
+					cycle = false;
+			}
+		}
+	};
+	public boolean cycle;
 
 	protected void setCurrent(int current) {
+		if (this.current != -1)
+			actions.get(this.current).removePropertyChangeListener(forwardActiveListener);
+		actions.get(current).addPropertyChangeListener(forwardActiveListener);
+
 		this.current = current;
 		putValue(SMALL_ICON, ImageProvider.overlay((Icon)actions.get(current).getValue(SMALL_ICON), "right", OverlayPosition.SOUTHEAST));
-		putValue(SHORT_DESCRIPTION, actions.get(current).getValue(SHORT_DESCRIPTION));
-    }
+		Object tooltip = actions.get(current).getValue(SHORT_DESCRIPTION);
+		putValue(SHORT_DESCRIPTION, "<html>"+tooltip+" <font size='-2'>"+shortCutName+"</font>&nbsp;</html>");
+	}
+
+	public GroupAction(int shortCut, int modifiers) {
+		registerShortCut(getClass().getName(), KeyStroke.getKeyStroke(shortCut, modifiers));
+		if ((modifiers & KeyEvent.CTRL_DOWN_MASK) != 0)
+			shortCutName += "Ctrl-";
+		if ((modifiers & KeyEvent.ALT_DOWN_MASK) != 0)
+			shortCutName += "Alt-";
+		if ((modifiers & KeyEvent.ALT_GRAPH_DOWN_MASK) != 0)
+			shortCutName += "AltGr-";
+		if ((modifiers & KeyEvent.SHIFT_DOWN_MASK) != 0)
+			shortCutName += "Shift-";
+		shortCutName += Character.toUpperCase((char)shortCut);
+		addPropertyChangeListener(new PropertyChangeListener(){
+			public void propertyChange(PropertyChangeEvent evt) {
+				if (evt.getPropertyName().equals("active") && evt.getNewValue() == Boolean.FALSE)
+					cycle = false;
+            }
+		});
+	}
 
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() instanceof IconToggleButton && ((IconToggleButton)e.getSource()).groupbutton) {
 			IconToggleButton b = (IconToggleButton)e.getSource();
 			b.setSelected(!b.isSelected());
 			openPopup(b);
-		} else
+		} else {
+			if (cycle)
+				setCurrent((current+1)%actions.size());
+			else
+				cycle = true;
 			actions.get(current).actionPerformed(e);
-    }
+		}
+	}
 
 	private void openPopup(IconToggleButton b) {
 		JPopupMenu popup = new JPopupMenu();
@@ -44,10 +88,10 @@ public class GroupAction extends AbstractAction {
 			item.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e) {
 					setCurrent(j);
-                }
+				}
 			});
 			popup.add(item);
 		}
 		popup.show(b, b.getWidth(), 0);
-    }
+	}
 }

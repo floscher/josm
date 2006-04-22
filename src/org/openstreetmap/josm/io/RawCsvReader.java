@@ -30,7 +30,7 @@ public class RawCsvReader {
 	
 	public Collection<GpsPoint> parse() throws JDOMException, IOException {
 		Collection<GpsPoint> data = new LinkedList<GpsPoint>();
-		String formatStr = Main.pref.get("csvImportString");
+		String formatStr = Main.pref.get("csv.importstring");
 		if (formatStr == null)
 			formatStr = in.readLine();
 		if (formatStr == null)
@@ -52,7 +52,7 @@ public class RawCsvReader {
 
 		// test for completness
 		if (!format.contains("lat") || !format.contains("lon")) {
-			if (Main.pref.get("csvImportString").equals(""))
+			if (Main.pref.get("csv.importstring").equals(""))
 				throw new JDOMException("Format string in data is incomplete or not found. Try setting an manual format string in Preferences.");
 			throw new JDOMException("Format string is incomplete. Need at least 'lat' and 'lon' specification");
 		}
@@ -74,7 +74,7 @@ public class RawCsvReader {
 					else if (token.equals("ignore"))
 						st.nextToken();
 					else
-						throw new JDOMException("Unknown data type: '"+token+"'."+(Main.pref.get("csvImportString").equals("") ? " Maybe add an format string in preferences." : ""));
+						throw new JDOMException("Unknown data type: '"+token+"'."+(Main.pref.get("csv.importstring").equals("") ? " Maybe add an format string in preferences." : ""));
 				}
 				data.add(new GpsPoint(new LatLon(lat, lon), time));
 			}

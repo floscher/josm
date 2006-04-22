@@ -117,9 +117,9 @@ public class AddWayAction extends MapMode {
 			sortedSegments.addAll(pivotList);
 		}
 		
-		Way t = new Way();
-		t.segments.addAll(sortedSegments);
-		mv.editLayer().add(new AddCommand(Main.ds, t));
+		Way w = new Way();
+		w.segments.addAll(sortedSegments);
+		mv.editLayer().add(new AddCommand(w));
 		Main.ds.clearSelection();
 		mv.repaint();
 	}

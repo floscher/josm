@@ -38,7 +38,7 @@ public class WmsServerAction extends JosmAction {
                 }
             }
         } else {
-            WmsServerLayer layer = new WmsServerLayer(Main.pref.get("wmsServerBaseUrl", "http://wms.jpl.nasa.gov/wms.cgi?request=GetMap&width=512&height=512&layers=global_mosaic&styles=&srs=EPSG:4326&format=image/jpeg&"));
+            WmsServerLayer layer = new WmsServerLayer(Main.pref.get("wms.baseurl", "http://wms.jpl.nasa.gov/wms.cgi?request=GetMap&width=512&height=512&layers=global_mosaic&styles=&srs=EPSG:4326&format=image/jpeg&"));
             if (mapFrame == null)
                 Main.main.setMapFrame(new MapFrame(layer));
             else

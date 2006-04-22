@@ -135,7 +135,7 @@ public class AddSegmentAction extends MapMode implements MouseListener {
 					return; // already a segment here - be happy, do nothing.
 
 			Segment ls = new Segment(start, end);
-			mv.editLayer().add(new AddCommand(Main.ds, ls));
+			mv.editLayer().add(new AddCommand(ls));
 		}
 
 		mv.repaint();

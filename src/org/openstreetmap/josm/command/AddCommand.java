@@ -2,7 +2,7 @@ package org.openstreetmap.josm.command;
 
 import java.util.Collection;
 
-import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.visitor.AddVisitor;
 import org.openstreetmap.josm.data.osm.visitor.DeleteVisitor;
@@ -16,11 +16,6 @@ import org.openstreetmap.josm.data.osm.visitor.DeleteVisitor;
 public class AddCommand extends Command {
 
 	/**
-	 * The dataset this command operates on.
-	 */
-	private DataSet ds;
-
-	/**
 	 * The primitive to add to the dataset.
 	 */
 	private final OsmPrimitive osm;
@@ -28,17 +23,16 @@ public class AddCommand extends Command {
 	/**
 	 * Create the command and specify the element to add.
 	 */
-	public AddCommand(DataSet ds, OsmPrimitive osm) {
-		this.ds = ds;
+	public AddCommand(OsmPrimitive osm) {
 		this.osm = osm;
 	}
 
 	@Override public void executeCommand() {
-		osm.visit(new AddVisitor(ds));
+		osm.visit(new AddVisitor(Main.ds));
 	}
 
 	@Override public void undoCommand() {
-		osm.visit(new DeleteVisitor(ds));
+		osm.visit(new DeleteVisitor(Main.ds));
 	}
 
 	@Override public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {
