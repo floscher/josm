@@ -94,7 +94,7 @@ public class MoveAction extends MapMode {
 			}
 		}
 		
-		Command c = mv.editLayer().commands.getLast();
+		Command c = !mv.editLayer().commands.isEmpty() ? mv.editLayer().commands.getLast() : null;
 		if (c instanceof MoveCommand && affectedNodes.equals(((MoveCommand)c).objects))
 			((MoveCommand)c).moveAgain(dx,dy);
 		else
