@@ -24,6 +24,7 @@ import org.openstreetmap.josm.actions.mapmode.MoveAction;
 import org.openstreetmap.josm.actions.mapmode.SelectionAction;
 import org.openstreetmap.josm.actions.mapmode.ZoomAction;
 import org.openstreetmap.josm.actions.mapmode.AddNodeAction.AddNodeGroup;
+import org.openstreetmap.josm.gui.dialogs.CommandStackDialog;
 import org.openstreetmap.josm.gui.dialogs.ConflictDialog;
 import org.openstreetmap.josm.gui.dialogs.LayerList;
 import org.openstreetmap.josm.gui.dialogs.PropertiesDialog;
@@ -81,7 +82,7 @@ public class MapFrame extends JPanel {
 		toolBarActions.add(new IconToggleButton(new MoveAction(this)));
 		toolBarActions.add(new IconToggleButton(new AddNodeGroup(this)));
 		toolBarActions.add(new IconToggleButton(new AddSegmentAction(this)));
-		toolBarActions.add(new IconToggleButton(new AddWayAction(this, selectionAction)));
+		toolBarActions.add(new IconToggleButton(new AddWayAction(this)));
 		toolBarActions.add(new IconToggleButton(new DeleteAction(this)));
 
 		// all map modes in one button group
@@ -121,6 +122,7 @@ public class MapFrame extends JPanel {
 		addIconToggle(toggleDialogs, new PropertiesDialog(this));
 		addIconToggle(toggleDialogs, new SelectionListDialog(this));
 		addIconToggle(toggleDialogs, conflictDialog = new ConflictDialog());
+		addIconToggle(toggleDialogs, new CommandStackDialog(this));
 
 		// status line below the map
 		statusLine = new MapStatus(this);
@@ -158,9 +160,9 @@ public class MapFrame extends JPanel {
 		if (mapMode == this.mapMode)
 			return;
 		if (this.mapMode != null)
-			this.mapMode.unregisterListener();
+			this.mapMode.exitMode();
 		this.mapMode = mapMode;
-		mapMode.registerListener();
+		mapMode.enterMode();
 	}
 
 	/**

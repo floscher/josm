@@ -8,11 +8,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import javax.swing.JLabel;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.MutableTreeNode;
+
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.conflict.ConflictItem;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.ConflictResolver;
 import org.openstreetmap.josm.gui.dialogs.ConflictDialog;
+import org.openstreetmap.josm.tools.ImageProvider;
 
 public class ConflictResolveCommand extends Command {
 
@@ -61,4 +66,12 @@ public class ConflictResolveCommand extends Command {
 	@Override public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {
 		modified.addAll(resolved.keySet());
 	}
+
+	@Override public MutableTreeNode description() {
+		int i = 0;
+		for (ConflictItem c : conflicts)
+			if (c.resolution != null)
+				i++;
+		return new DefaultMutableTreeNode(new JLabel("Resolve "+i+" conflicts in "+resolved.size()+" objects", ImageProvider.get("data", "primitive"), JLabel.HORIZONTAL));
+    }
 }

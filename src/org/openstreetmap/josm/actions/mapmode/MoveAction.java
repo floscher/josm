@@ -4,7 +4,6 @@ import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
 import java.util.Collection;
 
 import javax.swing.JOptionPane;
@@ -51,14 +50,14 @@ public class MoveAction extends MapMode {
 		super("Move", "move", "Move selected objects around.", "M", KeyEvent.VK_M, mapFrame);
 	}
 
-	@Override public void registerListener() {
-		super.registerListener();
+	@Override public void enterMode() {
+		super.enterMode();
 		mv.addMouseListener(this);
 		mv.addMouseMotionListener(this);
 	}
 
-	@Override public void unregisterListener() {
-		super.unregisterListener();
+	@Override public void exitMode() {
+		super.exitMode();
 		mv.removeMouseListener(this);
 		mv.removeMouseMotionListener(this);
 	}
@@ -95,7 +94,7 @@ public class MoveAction extends MapMode {
 			}
 		}
 		
-		Command c = mv.editLayer().lastCommand();
+		Command c = mv.editLayer().commands.getLast();
 		if (c instanceof MoveCommand && affectedNodes.equals(((MoveCommand)c).objects))
 			((MoveCommand)c).moveAgain(dx,dy);
 		else
@@ -121,7 +120,7 @@ public class MoveAction extends MapMode {
 		if (Main.ds.getSelected().size() == 0) {
 			OsmPrimitive osm = mv.getNearest(e.getPoint(), (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0);
 			if (osm != null)
-				Main.ds.setSelected(Arrays.asList(new OsmPrimitive[]{osm}));
+				Main.ds.setSelected(osm);
 			singleOsmPrimitive = osm;
 			mv.repaint();
 		} else

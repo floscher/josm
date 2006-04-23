@@ -45,4 +45,8 @@ public class Node extends OsmPrimitive {
 	@Override public boolean realEqual(OsmPrimitive osm) {
 		return osm instanceof Node ? super.realEqual(osm) && coor.equals(((Node)osm).coor) : false;
     }
+
+	public int compareTo(OsmPrimitive o) {
+	    return o instanceof Node ? Long.valueOf(id).compareTo(o.id) : -1;
+    }
 }

@@ -4,7 +4,13 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.JLabel;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.MutableTreeNode;
+
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.data.osm.visitor.NameVisitor;
+import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * Command that manipulate the key/value structure of several objects. Manages deletion,
@@ -54,4 +60,23 @@ public class ChangePropertyCommand extends Command {
 		modified.addAll(objects);
 	}
 
+	@Override public MutableTreeNode description() {
+		String text = value == null ? "Remove '"+key+"'" : "Set '"+key+"="+value+"'";
+		text += " for ";
+		if (objects.size() == 1) {
+			NameVisitor v = new NameVisitor();
+			objects.iterator().next().visit(v);
+			text += v.className+" "+v.name;
+		} else
+			text += objects.size()+" objects";
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode(new JLabel(text, ImageProvider.get("data", "key"), JLabel.HORIZONTAL));
+		if (objects.size() == 1)
+			return root;
+		NameVisitor v = new NameVisitor();
+		for (OsmPrimitive osm : objects) {
+			osm.visit(v);
+			root.add(new DefaultMutableTreeNode(v.toLabel()));
+		}
+		return root;
+    }
 }

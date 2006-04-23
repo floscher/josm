@@ -48,13 +48,13 @@ public class AddNodeAction extends MapMode {
 		this.mode = mode;
 	}
 
-	@Override public void registerListener() {
-		super.registerListener();
+	@Override public void enterMode() {
+		super.enterMode();
 		mv.addMouseListener(this);
 	}
 
-	@Override public void unregisterListener() {
-		super.unregisterListener();
+	@Override public void exitMode() {
+		super.exitMode();
 		mv.removeMouseListener(this);
 	}
 

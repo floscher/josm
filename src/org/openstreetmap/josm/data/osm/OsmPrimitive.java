@@ -22,7 +22,7 @@ import org.openstreetmap.josm.data.osm.visitor.Visitor;
  *
  * @author imi
  */
-abstract public class OsmPrimitive {
+abstract public class OsmPrimitive implements Comparable<OsmPrimitive> {
 
 	/**
 	 * The key/value list for this primitive.

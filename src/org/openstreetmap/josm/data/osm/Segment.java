@@ -84,4 +84,8 @@ public class Segment extends OsmPrimitive {
 				from.equals(((Segment)osm).from) && 
 				to.equals(((Segment)osm).to) : false;
 	}
-}	
+
+	public int compareTo(OsmPrimitive o) {
+		return o instanceof Segment ? Long.valueOf(id).compareTo(o.id) : (o instanceof Node ? 1 : -1);
+	}
+}

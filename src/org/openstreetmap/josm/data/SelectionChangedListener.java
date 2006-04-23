@@ -21,5 +21,5 @@ public interface SelectionChangedListener {
 	 * Informs the listener that the selection in the dataset has changed.
 	 * @param newSelection The new selection.
 	 */
-	public void selectionChanged(Collection<OsmPrimitive> newSelection);
+	public void selectionChanged(Collection<? extends OsmPrimitive> newSelection);
 }

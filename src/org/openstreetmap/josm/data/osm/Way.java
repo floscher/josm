@@ -45,4 +45,8 @@ public class Way extends OsmPrimitive {
 	@Override public boolean realEqual(OsmPrimitive osm) {
 		return osm instanceof Way ? super.realEqual(osm) && segments.equals(((Way)osm).segments) : false;
     }
+
+	public int compareTo(OsmPrimitive o) {
+	    return o instanceof Way ? Long.valueOf(id).compareTo(o.id) : 1;
+    }
 }

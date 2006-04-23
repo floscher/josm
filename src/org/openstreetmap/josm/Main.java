@@ -109,7 +109,6 @@ public class Main extends JFrame {
 		panel = new JPanel(new BorderLayout());
 		getContentPane().add(panel, BorderLayout.CENTER);
 		setSize(1000,740); // some strange default size
-		setVisible(true);
 
 		downloadAction = new DownloadAction();
 		Action uploadAction = new UploadAction();
