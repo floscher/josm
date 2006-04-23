@@ -46,31 +46,45 @@ public class OsmServerReader extends OsmConnection {
 	 * 		ways.
 	 */
 	public Collection<Collection<GpsPoint>> parseRawGps() throws IOException, JDOMException {
-		String url = Main.pref.get("osm-server.url")+"/0.3/trackpoints?bbox="+lon1+","+lat1+","+lon2+","+lat2+"&page=";
-		Collection<Collection<GpsPoint>> data = new LinkedList<Collection<GpsPoint>>();
-		Collection<GpsPoint> list = new LinkedList<GpsPoint>();
-		
-		for (int i = 0;;++i) {
-			Reader r = getReader(url+i);
-			if (r == null)
-				break;
-			RawGpsReader gpsReader = new RawGpsReader(r);
-			Collection<Collection<GpsPoint>> allWays = gpsReader.parse();
-			boolean foundSomething = false;
-			for (Collection<GpsPoint> t : allWays) {
-				if (!t.isEmpty()) {
-					foundSomething = true;
-					list.addAll(t);
+		try {
+			String url = Main.pref.get("osm-server.url")+"/0.3/trackpoints?bbox="+lon1+","+lat1+","+lon2+","+lat2+"&page=";
+			Collection<Collection<GpsPoint>> data = new LinkedList<Collection<GpsPoint>>();
+			Collection<GpsPoint> list = new LinkedList<GpsPoint>();
+			
+			for (int i = 0;;++i) {
+				Reader r = getReader(url+i);
+				if (r == null)
+					break;
+				RawGpsReader gpsReader = new RawGpsReader(r);
+				Collection<Collection<GpsPoint>> allWays = gpsReader.parse();
+				boolean foundSomething = false;
+				for (Collection<GpsPoint> t : allWays) {
+					if (!t.isEmpty()) {
+						foundSomething = true;
+						list.addAll(t);
+					}
 				}
+				if (!foundSomething)
+					break;
+				r.close();
+				activeConnection = null;
 			}
-			if (!foundSomething)
-				break;
-			r.close();
-			activeConnection = null;
+	
+			data.add(list);
+			return data;
+		} catch (IOException e) {
+			if (cancel)
+				return null;
+			throw e;
+		} catch (JDOMException e) {
+			throw e;
+		} catch (Exception e) {
+			if (cancel)
+				return null;
+			if (e instanceof RuntimeException)
+				throw (RuntimeException)e;
+			throw new RuntimeException(e);
 		}
-
-		data.add(list);
-		return data;
 	}
 
 
@@ -79,14 +93,28 @@ public class OsmServerReader extends OsmConnection {
 	 * @return A data set containing all data retrieved from that url
 	 */
 	public DataSet parseOsm() throws SAXException, IOException {
-		Reader r = getReader(Main.pref.get("osm-server.url")+"/0.3/map?bbox="+lon1+","+lat1+","+lon2+","+lat2);
-		if (r == null)
-			return null;
-		currentAction.setText("Downloading OSM data...");
-		DataSet data = OsmReader.parseDataSet(r);
-		r.close();
-		activeConnection = null;
-		return data;
+		try {
+			final Reader r = getReader(Main.pref.get("osm-server.url")+"/0.3/map?bbox="+lon1+","+lat1+","+lon2+","+lat2);
+			if (r == null)
+				return null;
+			currentAction.setText("Downloading OSM data...");
+			final DataSet data = OsmReader.parseDataSet(r);
+			r.close();
+			activeConnection = null;
+			return data;
+		} catch (IOException e) {
+			if (cancel)
+				return null;
+			throw e;
+		} catch (SAXException e) {
+			throw e;
+		} catch (Exception e) {
+			if (cancel)
+				return null;
+			if (e instanceof RuntimeException)
+				throw (RuntimeException)e;
+			throw new RuntimeException(e);
+		}
 	}
 
 

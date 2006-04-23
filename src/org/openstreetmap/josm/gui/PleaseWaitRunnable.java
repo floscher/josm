@@ -31,7 +31,7 @@ import org.xml.sax.SAXException;
  */
 public abstract class PleaseWaitRunnable implements Runnable {
 	public final JDialog pleaseWaitDlg;
-	private String errorMessage;
+	public String errorMessage;
 
 	private final JProgressBar progressBar = new JProgressBar();
 	private boolean closeDialogCalled = false;
