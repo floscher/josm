@@ -81,6 +81,9 @@ public class MergeVisitor implements Visitor {
 	 * id is zero of either segment). Nodes are the "same" when they @see match
 	 */
 	public void visit(Segment other) {
+		if (other.incomplete)
+			return; // won't merge in an incomplete line segment!
+		
 		if (mergeAfterId(mergedSegments, ds.segments, other))
 			return;
 
@@ -251,11 +254,16 @@ public class MergeVisitor implements Visitor {
 		my.modified = true;
 	}
 
+	/**
+	 * @return <code>true</code>, if no merge is needed.
+	 */
 	private <P extends OsmPrimitive> boolean mergeAfterId(Map<P,P> merged, Collection<P> primitives, P other) {
 		for (P my : primitives) {
 			if (my.realEqual(other))
 				return true; // no merge needed.
 			if (my.id == other.id) {
+				if (my instanceof Segment && ((Segment)my).incomplete)
+					return false; // merge always over an incomplete
 				Date d1 = my.timestamp == null ? new Date(0) : my.timestamp;
 				Date d2 = other.timestamp == null ? new Date(0) : other.timestamp;
 				if (my.modified && other.modified) {

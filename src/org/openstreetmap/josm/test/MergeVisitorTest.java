@@ -15,7 +15,7 @@ import org.openstreetmap.josm.test.framework.DataSetTestCaseHelper;
 
 public class MergeVisitorTest extends TestCase {
 
-	
+
 	private DataSet ds;
 	private Node dsNode;
 	private Node n;
@@ -26,7 +26,7 @@ public class MergeVisitorTest extends TestCase {
 		dsNode = DataSetTestCaseHelper.createNode(ds);
 		v = new MergeVisitor(ds);
 		n = DataSetTestCaseHelper.createNode(null);
-    }
+	}
 
 
 	public void testNodesMergeUpdate() {
@@ -100,18 +100,18 @@ public class MergeVisitorTest extends TestCase {
 		sold.modified = true;
 		ds.segments.add(sold);
 		// have a conflicting segment point to the new node
-		Segment s = new Segment(n,n);
+		Segment s = new Segment(n,DataSetTestCaseHelper.createNode(null));
 		s.id = 23;
 		s.modified = true;
 
 		v.visit(n); // merge
 		assertEquals(n.timestamp, dsNode.timestamp);
 		v.visit(s);
+		assertEquals(1, v.conflicts.size());
 		v.fixReferences();
 		assertSame(s.from, dsNode);
-		assertSame(s.to, dsNode);
 	}
-	
+
 	public void testNoConflictForSame() {
 		dsNode.id = 1;
 		dsNode.modified = true;
@@ -135,7 +135,20 @@ public class MergeVisitorTest extends TestCase {
 		v.visit(newls);
 		assertEquals("segment should have been merged.", 1, ds.segments.size());
 	}
-	
+
+	/**
+	 * Incomplete segments should always loose.
+	 */
+	public void testImportIncomplete() throws Exception {
+		Segment s1 = DataSetTestCaseHelper.createSegment(ds, dsNode, dsNode);
+		s1.id = 1;
+		Segment s2 = new Segment(s1);
+		s1.incomplete = true;
+		v.visit(s2);
+		assertTrue(s1.realEqual(s2));
+	}
+
+
 	/**
 	 * Nodes beeing merged are equal but should be the same.
 	 */
@@ -162,8 +175,8 @@ public class MergeVisitorTest extends TestCase {
 
 		assertSame(ls1.from, ls2.from);
 	}
-	
-	
+
+
 	/**
 	 * Create that amount of nodes and add them to the dataset. The id will be 1,2,3,4...
 	 * @param amount Number of nodes to create.

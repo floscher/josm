@@ -27,7 +27,7 @@ public class OsmServerReader extends OsmConnection {
 	private final double lon1;
 	private final double lat2;
 	private final double lon2;
-	
+
 	/**
 	 * Construct the reader and store the information for attaching
 	 */
@@ -50,8 +50,9 @@ public class OsmServerReader extends OsmConnection {
 			String url = Main.pref.get("osm-server.url")+"/0.3/trackpoints?bbox="+lon1+","+lat1+","+lon2+","+lat2+"&page=";
 			Collection<Collection<GpsPoint>> data = new LinkedList<Collection<GpsPoint>>();
 			Collection<GpsPoint> list = new LinkedList<GpsPoint>();
-			
+
 			for (int i = 0;;++i) {
+				currentAction.setText("Downloading points "+(i*5000)+" to "+((i+1)*5000)+"...");
 				Reader r = getReader(url+i);
 				if (r == null)
 					break;
@@ -69,7 +70,7 @@ public class OsmServerReader extends OsmConnection {
 				r.close();
 				activeConnection = null;
 			}
-	
+
 			data.add(list);
 			return data;
 		} catch (IOException e) {

@@ -79,10 +79,11 @@ public class Segment extends OsmPrimitive {
 	}
 
 	@Override public boolean realEqual(OsmPrimitive osm) {
-		return osm instanceof Segment ? 
-				super.realEqual(osm) && 
-				from.equals(((Segment)osm).from) && 
-				to.equals(((Segment)osm).to) : false;
+		if (!(osm instanceof Segment))
+			return super.realEqual(osm); 
+		if (incomplete)
+			return ((Segment)osm).incomplete;
+		return from.equals(((Segment)osm).from) && to.equals(((Segment)osm).to);
 	}
 
 	public int compareTo(OsmPrimitive o) {
