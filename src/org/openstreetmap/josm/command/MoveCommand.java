@@ -5,12 +5,17 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.JLabel;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.MutableTreeNode;
+
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.coor.EastNorth;
+import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.visitor.AllNodesVisitor;
+import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * MoveCommand moves a set of OsmPrimitives along the map. It can be moved again
@@ -105,4 +110,8 @@ public class MoveCommand extends Command {
 		for (OsmPrimitive osm : objects)
 			modified.add(osm);
 	}
+
+	@Override public MutableTreeNode description() {
+		return new DefaultMutableTreeNode(new JLabel("Move "+objects.size()+" Node"+(objects.size()==1?"":"s"), ImageProvider.get("data", "node"), JLabel.HORIZONTAL));
+    }
 }

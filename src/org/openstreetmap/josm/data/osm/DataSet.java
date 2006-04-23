@@ -1,5 +1,6 @@
 package org.openstreetmap.josm.data.osm;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -90,11 +91,19 @@ public class DataSet {
 		return sel;
 	}
 
-	public void setSelected(Collection<OsmPrimitive> selection) {
+	public void setSelected(Collection<? extends OsmPrimitive> selection) {
 		clearSelection();
 		for (OsmPrimitive osm : selection)
 			osm.selected = true;
 		fireSelectionChanged(selection);
+	}
+
+	public void setSelected(OsmPrimitive osm) {
+		clearSelection();
+		if (osm == null)
+			return;
+		osm.selected = true;
+		fireSelectionChanged(Arrays.asList(new OsmPrimitive[]{osm}));
 	}
 	
 	/**
@@ -126,7 +135,7 @@ public class DataSet {
      * Remember to fire an selection changed event. A call to this will not fire
      * the event immediately. For more, @see SelectionChangedListener
      */
-    private void fireSelectionChanged(Collection<OsmPrimitive> sel) {
+    public void fireSelectionChanged(Collection<? extends OsmPrimitive> sel) {
 		for (SelectionChangedListener l : listeners)
 			l.selectionChanged(sel);
     }

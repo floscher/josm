@@ -272,28 +272,31 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 		} else {
 			// nodes
 			for (Node n : Main.ds.nodes) {
-				if (r.contains(nc.getPoint(n.eastNorth)))
+				if (!n.deleted && r.contains(nc.getPoint(n.eastNorth)))
 					selection.add(n);
 			}
 			
 			// pending segments
-			for (Segment ls : Main.ds.segments)
-				if (rectangleContainSegment(r, alt, ls))
-					selection.add(ls);
+			for (Segment s : Main.ds.segments)
+				if (!s.deleted && rectangleContainSegment(r, alt, s))
+					selection.add(s);
 
 			// ways
-			for (Way t : Main.ds.ways) {
-				boolean wholeWaySelected = !t.segments.isEmpty();
-				for (Segment ls : t.segments)
-					if (rectangleContainSegment(r, alt, ls))
-						selection.add(ls);
-					else
+			for (Way w : Main.ds.ways) {
+				if (w.deleted)
+					continue;
+				boolean wholeWaySelected = !w.segments.isEmpty();
+				for (Segment s : w.segments) {
+					if (s.incomplete)
+						continue;
+					if (!rectangleContainSegment(r, alt, s)) {
 						wholeWaySelected = false;
+						break;
+					}
+				}
 				if (wholeWaySelected)
-					selection.add(t);
+					selection.add(w);
 			}
-			
-			// TODO areas
 		}
 		return selection;
 	}

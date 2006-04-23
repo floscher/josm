@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.Icon;
+import javax.swing.JLabel;
 
 import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
@@ -80,5 +81,9 @@ public class NameVisitor implements Visitor {
 		}
 		icon = ImageProvider.get("data", "way");
 		className = "way";
+	}
+	
+	public JLabel toLabel() {
+		return new JLabel(name, icon, JLabel.HORIZONTAL);
 	}
 }

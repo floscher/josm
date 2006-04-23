@@ -48,14 +48,14 @@ public class AddSegmentAction extends MapMode implements MouseListener {
 		super("Add segment", "addsegment", "Add a segment between two nodes.", "G", KeyEvent.VK_G, mapFrame);
 	}
 
-	@Override public void registerListener() {
-		super.registerListener();
+	@Override public void enterMode() {
+		super.enterMode();
 		mv.addMouseListener(this);
 		mv.addMouseMotionListener(this);
 	}
 
-	@Override public void unregisterListener() {
-		super.unregisterListener();
+	@Override public void exitMode() {
+		super.exitMode();
 		mv.removeMouseListener(this);
 		mv.removeMouseMotionListener(this);
 		drawHint(false);

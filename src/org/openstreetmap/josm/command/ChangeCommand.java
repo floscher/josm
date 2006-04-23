@@ -2,7 +2,12 @@ package org.openstreetmap.josm.command;
 
 import java.util.Collection;
 
+import javax.swing.JLabel;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.MutableTreeNode;
+
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.data.osm.visitor.NameVisitor;
 
 public class ChangeCommand extends Command {
 
@@ -17,9 +22,16 @@ public class ChangeCommand extends Command {
 	@Override public void executeCommand() {
 	    super.executeCommand();
 	    osm.cloneFrom(newOsm);
+	    osm.modified = true;
     }
 
 	@Override public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {
 		modified.add(osm);
+    }
+
+	@Override public MutableTreeNode description() {
+		NameVisitor v = new NameVisitor();
+		osm.visit(v);
+		return new DefaultMutableTreeNode(new JLabel("Change "+v.className+" "+v.name, v.icon, JLabel.HORIZONTAL));
     }
 }

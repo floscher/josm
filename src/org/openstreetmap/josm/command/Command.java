@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map.Entry;
 
+import javax.swing.tree.MutableTreeNode;
+
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.visitor.CloneVisitor;
 
@@ -57,4 +59,6 @@ abstract public class Command {
 	abstract public void fillModifiedData(Collection<OsmPrimitive> modified,
 			Collection<OsmPrimitive> deleted,
 			Collection<OsmPrimitive> added);
+
+	abstract public MutableTreeNode description();
 }

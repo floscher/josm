@@ -17,6 +17,7 @@ import java.net.URLConnection;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.TreeSet;
 
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
@@ -115,7 +116,7 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 	 * @param mapView The mapView to get the dataset from.
 	 */
 	public SelectionListDialog(MapFrame mapFrame) {
-		super("Current Selection", "Selection List", "selectionlist", "Open a selection list window.", "E", KeyEvent.VK_E, "selectionlist");
+		super("Current Selection", "selectionlist", "Open a selection list window.", KeyEvent.VK_E);
 		setPreferredSize(new Dimension(320,150));
 		displaylist.setCellRenderer(new OsmPrimitivRenderer());
 		displaylist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -140,6 +141,15 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 		});
 		buttonPanel.add(button);
 
+		button = new JButton("Reload", ImageProvider.get("dialogs", "refresh"));
+		button.setToolTipText("Refresh the selection list.");
+		button.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				selectionChanged(Main.ds.getSelected());
+			}
+		});
+		buttonPanel.add(button);
+		
 		button = new JButton("Search", ImageProvider.get("dialogs", "search"));
 		button.setToolTipText("Search for objects.");
 		button.addActionListener(new ActionListener(){
@@ -204,13 +214,13 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 	 * Called when the selection in the dataset changed.
 	 * @param newSelection The new selection array.
 	 */
-	public void selectionChanged(Collection<OsmPrimitive> newSelection) {
+	public void selectionChanged(Collection<? extends OsmPrimitive> newSelection) {
+		TreeSet<OsmPrimitive> sortedSel = new TreeSet<OsmPrimitive>(newSelection);
 		if (list == null)
 			return; // selection changed may be received in base class constructor before init
-		list.removeAllElements();
-		list.setSize(newSelection.size());
+		list.setSize(sortedSel.size());
 		int i = 0;
-		for (OsmPrimitive osm : newSelection)
+		for (OsmPrimitive osm : sortedSel)
 			list.setElementAt(osm, i++);
 	}
 

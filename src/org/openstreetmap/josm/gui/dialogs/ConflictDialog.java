@@ -47,7 +47,7 @@ public final class ConflictDialog extends ToggleDialog {
 	private final JList displaylist = new JList(model);
 
 	public ConflictDialog() {
-		super("Conflict", "Conflict Dialog", "merge", "Merging conflicts.", "C", KeyEvent.VK_C, "conflict");
+		super("Conflict", "conflict", "Merging conflicts.", KeyEvent.VK_C);
 		displaylist.setCellRenderer(new OsmPrimitivRenderer());
 		displaylist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		displaylist.addMouseListener(new MouseAdapter(){
@@ -59,7 +59,7 @@ public final class ConflictDialog extends ToggleDialog {
 		add(new JScrollPane(displaylist), BorderLayout.CENTER);
 
 		JPanel buttonPanel = new JPanel(new GridLayout(1,2));
-		JButton button = new JButton("Resolve", ImageProvider.get("dialogs", "merge"));
+		JButton button = new JButton("Resolve", ImageProvider.get("dialogs", "conflict"));
 		button.setToolTipText("Open a merge dialog of all selected items in the list above.");
 		button.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
@@ -83,7 +83,7 @@ public final class ConflictDialog extends ToggleDialog {
 		add(buttonPanel, BorderLayout.SOUTH);
 
 		Main.ds.addSelectionChangedListener(new SelectionChangedListener(){
-			public void selectionChanged(Collection<OsmPrimitive> newSelection) {
+			public void selectionChanged(Collection<? extends OsmPrimitive> newSelection) {
 				displaylist.clearSelection();
 				for (OsmPrimitive osm : newSelection) {
 					if (conflicts.containsKey(osm)) {

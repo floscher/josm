@@ -12,6 +12,7 @@ import javax.swing.KeyStroke;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.JosmAction;
+import org.openstreetmap.josm.tools.ShortCutLabel;
 
 /**
  * This class is a toggle dialog that can be turned on and off. It is attached
@@ -43,15 +44,10 @@ public class ToggleDialog extends JPanel {
 	 */
 	public ToggleDialogAction action;
 
-	/**
-	 * Create a new ToggleDialog.
-	 * @param title The title of the dialog.
-     * @param prefName Name of the base preference setting string (prefix)
-	 */
-	public ToggleDialog(String title, String name, String iconName, String tooltip, String shortCutName, int shortCut, final String prefName) {
-		action = new ToggleDialogAction(name, "dialogs/"+iconName, tooltip, "Alt-"+shortCutName, KeyStroke.getKeyStroke(shortCut, KeyEvent.ALT_MASK), prefName);
+	public ToggleDialog(String name, String iconName, String tooltip, int shortCut) {
+		action = new ToggleDialogAction(name, "dialogs/"+iconName, tooltip, ShortCutLabel.name(shortCut, KeyEvent.ALT_MASK), KeyStroke.getKeyStroke(shortCut, KeyEvent.ALT_MASK), iconName);
 		setLayout(new BorderLayout());
-		add(new JLabel(title), BorderLayout.NORTH);
+		add(new JLabel(name), BorderLayout.NORTH);
 		setVisible(false);
 		setBorder(BorderFactory.createEtchedBorder());
 	}

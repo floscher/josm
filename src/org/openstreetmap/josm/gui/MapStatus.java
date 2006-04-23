@@ -13,7 +13,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.Map.Entry;
@@ -154,7 +153,7 @@ public class MapStatus extends JPanel {
 									l.setText("<html>"+text.toString()+"</html>");
 								}
 								@Override public void mouseClicked(MouseEvent e) {
-									Main.ds.setSelected(Arrays.asList(new OsmPrimitive[]{osm}));
+									Main.ds.setSelected(osm);
 									mv.repaint();
 								}
 							});

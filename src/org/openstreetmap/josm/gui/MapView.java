@@ -84,7 +84,7 @@ public class MapView extends NavigatableComponent {
 
 		// listend to selection changes to redraw the map
 		Main.ds.addSelectionChangedListener(new SelectionChangedListener(){
-			public void selectionChanged(Collection<OsmPrimitive> newSelection) {
+			public void selectionChanged(Collection<? extends OsmPrimitive> newSelection) {
 				repaint();
 			}
 		});
@@ -105,11 +105,11 @@ public class MapView extends NavigatableComponent {
 			editLayer = dataLayer;
 			dataLayer.data.addAllSelectionListener(Main.ds);
 			Main.ds = dataLayer.data;
-			dataLayer.addModifiedListener(new ModifiedChangedListener(){
-				public void modifiedChanged(boolean value, OsmDataLayer source) {
-					Main.main.setTitle((value?"*":"")+"Java Open Street Map - Editor");
-				}
-			});
+			dataLayer.listenerModified.add(new ModifiedChangedListener(){
+            	public void modifiedChanged(boolean value, OsmDataLayer source) {
+            		Main.main.setTitle((value?"*":"")+"Java Open Street Map - Editor");
+            	}
+            });
 		}
 
 		// add as a new layer

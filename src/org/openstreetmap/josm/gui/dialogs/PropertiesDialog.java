@@ -209,7 +209,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	 * Create a new PropertiesDialog
 	 */
 	public PropertiesDialog(MapFrame mapFrame) {
-		super("Properties", "Properties Dialog", "properties", "Property for selected objects.", "P", KeyEvent.VK_P, "propertiesdialog");
+		super("Properties", "propertiesdialog", "Property for selected objects.", KeyEvent.VK_P);
 		mv = mapFrame.mapView;
 
 		setPreferredSize(new Dimension(320,150));
@@ -283,7 +283,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		super.setVisible(b);
 	}
 
-	public void selectionChanged(Collection<OsmPrimitive> newSelection) {
+	public void selectionChanged(Collection<? extends OsmPrimitive> newSelection) {
 		if (propertyTable == null)
 			return; // selection changed may be received in base class constructor before init
 		if (propertyTable.getCellEditor() != null)

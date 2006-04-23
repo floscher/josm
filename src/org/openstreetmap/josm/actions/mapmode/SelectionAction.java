@@ -67,13 +67,13 @@ public class SelectionAction extends MapMode implements SelectionEnded {
 		this.selectionManager = new SelectionManager(this, false, mv);
 	}
 
-	@Override public void registerListener() {
-		super.registerListener();
+	@Override public void enterMode() {
+		super.enterMode();
 		selectionManager.register(mv);
 	}
 
-	@Override public void unregisterListener() {
-		super.unregisterListener();
+	@Override public void exitMode() {
+		super.exitMode();
 		selectionManager.unregister(mv);
 	}
 

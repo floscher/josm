@@ -38,6 +38,7 @@ abstract public class MapMode extends JosmAction implements MouseListener, Mouse
 		super(name, "mapmode/"+iconName, tooltip, keyname, KeyStroke.getKeyStroke(keystroke, 0));
 		this.mapFrame = mapFrame;
 		mv = mapFrame.mapView;
+		putValue("active", false);
 	}
 
 	/**
@@ -51,19 +52,10 @@ abstract public class MapMode extends JosmAction implements MouseListener, Mouse
 		mv = mapFrame.mapView;
 	}
 
-	/**
-	 * Register all listener to the mapView
-	 * @param mapView	The view, where the listener should be registered.
-	 */
-	public void registerListener() {
+	public void enterMode() {
 		putValue("active", true);
 	}
-
-	/**
-	 * Unregister all listener previously registered. 
-	 * @param mapView	The view from which the listener should be deregistered.
-	 */
-	public void unregisterListener() {
+	public void exitMode() {
 		putValue("active", false);
 	}
 

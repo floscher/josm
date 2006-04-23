@@ -100,6 +100,7 @@ public class DownloadAction extends JosmAction {
 		private DownloadGpsTask(OsmServerReader reader) {
 			super("Downloading GPS data");
 			this.reader = reader;
+			reader.setProgressInformation(currentAction, progress);
 		}
 
 		@Override public void realRun() throws IOException, JDOMException {

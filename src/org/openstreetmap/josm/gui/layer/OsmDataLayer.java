@@ -22,9 +22,9 @@ import org.openstreetmap.josm.actions.GpxExportAction;
 import org.openstreetmap.josm.actions.SaveAction;
 import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.data.osm.visitor.MergeVisitor;
@@ -71,6 +71,9 @@ public class OsmDataLayer extends Layer {
 	public interface ModifiedChangedListener {
 		void modifiedChanged(boolean value, OsmDataLayer source);
 	}
+	public interface CommandQueueListener {
+		void commandChanged();
+	}
 
 	private static Icon icon;
 
@@ -93,18 +96,16 @@ public class OsmDataLayer extends Layer {
 	 */
 	private boolean fromDisk = false;
 	/**
-	 * All commands that were made on the dataset.
+	 * All commands that were made on the dataset. Don't write from outside!
 	 */
-	private LinkedList<Command> commands = new LinkedList<Command>();
+	public final LinkedList<Command> commands = new LinkedList<Command>();
 	/**
 	 * The stack for redoing commands
 	 */
 	private Stack<Command> redoCommands = new Stack<Command>();
 
-	/**
-	 * List of all listeners for changes of modified flag.
-	 */
-	LinkedList<ModifiedChangedListener> listener;
+	public final LinkedList<ModifiedChangedListener> listenerModified = new LinkedList<ModifiedChangedListener>();
+	public final LinkedList<CommandQueueListener> listenerCommands = new LinkedList<CommandQueueListener>();
 
 
 	/**
@@ -174,14 +175,8 @@ public class OsmDataLayer extends Layer {
 
 	@Override public void visitBoundingBox(BoundingXYVisitor v) {
 		for (Node n : data.nodes)
-			v.visit(n);
-	}
-
-	/**
-	 * @return the last command added or <code>null</code> if no command in queue.
-	 */
-	public Command lastCommand() {
-		return commands.isEmpty() ? null : commands.getLast();
+			if (!n.deleted)
+				v.visit(n);
 	}
 
 	/**
@@ -196,6 +191,8 @@ public class OsmDataLayer extends Layer {
 		Main.main.undoAction.setEnabled(true);
 		Main.main.redoAction.setEnabled(false);
 		setModified(true);
+		for (CommandQueueListener l : listenerCommands)
+			l.commandChanged();
 	}
 
 	/**
@@ -212,6 +209,9 @@ public class OsmDataLayer extends Layer {
 		Main.main.redoAction.setEnabled(true);
 		if (commands.isEmpty())
 			setModified(uploadedModified);
+		Main.ds.clearSelection();
+		for (CommandQueueListener l : listenerCommands)
+			l.commandChanged();
 	}
 	/**
 	 * Redoes the last undoed command.
@@ -226,6 +226,8 @@ public class OsmDataLayer extends Layer {
 		Main.main.undoAction.setEnabled(true);
 		Main.main.redoAction.setEnabled(!redoCommands.isEmpty());
 		setModified(true);
+		for (CommandQueueListener l : listenerCommands)
+			l.commandChanged();
 	}
 
 	/**
@@ -233,7 +235,6 @@ public class OsmDataLayer extends Layer {
 	 * really deleting all deleted objects and reset the modified flags. This is done
 	 * after a successfull upload.
 	 * 
-	 * @param uploaded <code>true</code>, if the data was uploaded, false if saved to disk
 	 * @param processed A list of all objects, that were actually uploaded. 
 	 * 		May be <code>null</code>, which means nothing has been uploaded but 
 	 * 		saved to disk instead.
@@ -291,19 +292,8 @@ public class OsmDataLayer extends Layer {
 		if (modified == this.modified)
 			return;
 		this.modified = modified;
-		if (listener != null)
-			for (ModifiedChangedListener l : listener)
-				l.modifiedChanged(modified, this);
-	}
-
-	/**
-	 * Add the parameter to the intern list of listener for modified state.
-	 * @param l Listener to add to the list. Must not be null.
-	 */
-	public void addModifiedListener(ModifiedChangedListener l) {
-		if (listener == null)
-			listener = new LinkedList<ModifiedChangedListener>();
-		listener.add(l);
+		for (ModifiedChangedListener l : listenerModified)
+			l.modifiedChanged(modified, this);
 	}
 
 	/**
@@ -327,7 +317,7 @@ public class OsmDataLayer extends Layer {
 			String s = counter.normal[i]+" "+counter.names[i]+(counter.normal[i] != 1 ?"s":"");
 			if (counter.deleted[i] > 0)
 				s += " ("+counter.deleted[i]+" deleted)";
-			p.add(new JLabel(s, ImageProvider.get("data", counter.names[i]), JLabel.HORIZONTAL), GBC.eol().insets(15,0,0,0));
+			p.add(new JLabel(s, ImageProvider.get("data", counter.names[i]), JLabel.HORIZONTAL), GBC.eop().insets(15,0,0,0));
 		}
 		return p;
 	}

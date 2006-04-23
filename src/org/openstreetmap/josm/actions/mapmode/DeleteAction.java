@@ -5,14 +5,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
+import java.util.HashSet;
 
 import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.DeleteCommand;
-import org.openstreetmap.josm.command.SequenceCommand;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.visitor.CollectBackReferencesVisitor;
 import org.openstreetmap.josm.gui.MapFrame;
@@ -45,13 +43,13 @@ public class DeleteAction extends MapMode {
 		super("Delete", "delete", "Delete nodes, streets or segments.", "Delete", KeyEvent.VK_DELETE, mapFrame);
 	}
 
-	@Override public void registerListener() {
-		super.registerListener();
+	@Override public void enterMode() {
+		super.enterMode();
 		mv.addMouseListener(this);
 	}
 
-	@Override public void unregisterListener() {
-		super.unregisterListener();
+	@Override public void exitMode() {
+		super.exitMode();
 		mv.removeMouseListener(this);
 	}
 
@@ -103,11 +101,12 @@ public class DeleteAction extends MapMode {
 	 * @param selection The list of all object to be deleted.
 	 */
 	private void deleteWithReferences(Collection<OsmPrimitive> selection) {
-		Collection<Command> deleteCommands = new LinkedList<Command>();
+		CollectBackReferencesVisitor v = new CollectBackReferencesVisitor(Main.ds);
 		for (OsmPrimitive osm : selection)
-			deleteCommands.add(new DeleteCommand(osm));
-		if (!deleteCommands.isEmpty())
-			mv.editLayer().add(new SequenceCommand(deleteCommands));
+			osm.visit(v);
+		v.data.addAll(selection);
+		if (!v.data.isEmpty())
+			mv.editLayer().add(new DeleteCommand(v.data));
 	}
 
 	/**
@@ -119,17 +118,21 @@ public class DeleteAction extends MapMode {
 	 * @param msgBox Whether a message box for errors should be shown
 	 */
 	private void delete(Collection<OsmPrimitive> selection, boolean msgBox) {
-		Collection<Command> deleteCommands = new LinkedList<Command>();
+		Collection<OsmPrimitive> del = new HashSet<OsmPrimitive>();
 		for (OsmPrimitive osm : selection) {
 			CollectBackReferencesVisitor v = new CollectBackReferencesVisitor(Main.ds);
 			osm.visit(v);
 			if (!selection.containsAll(v.data)) {
-				if (msgBox)
+				if (msgBox) {
 					JOptionPane.showMessageDialog(Main.main, "This object is in use.");
-			} else
-				deleteCommands.add(new DeleteCommand(osm));
+					return;
+				}
+			} else {
+				del.addAll(v.data);
+				del.add(osm);
+			}
 		}
-		if (!deleteCommands.isEmpty())
-			mv.editLayer().add(new SequenceCommand(deleteCommands));
+		if (!del.isEmpty())
+			mv.editLayer().add(new DeleteCommand(del));
 	}
 }

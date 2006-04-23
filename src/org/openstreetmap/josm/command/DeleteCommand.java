@@ -1,11 +1,14 @@
 package org.openstreetmap.josm.command;
 
 import java.util.Collection;
-import java.util.HashSet;
 
-import org.openstreetmap.josm.Main;
+import javax.swing.JLabel;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.MutableTreeNode;
+
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.visitor.CollectBackReferencesVisitor;
+import org.openstreetmap.josm.data.osm.visitor.NameVisitor;
+import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * A command to delete a number of primitives from the dataset.
@@ -16,15 +19,12 @@ public class DeleteCommand extends Command {
 	/**
 	 * The primitive that get deleted.
 	 */
-	final Collection<OsmPrimitive> data = new HashSet<OsmPrimitive>();
+	private final Collection<OsmPrimitive> data;
 
-	public DeleteCommand(OsmPrimitive osm) {
-		CollectBackReferencesVisitor v = new CollectBackReferencesVisitor(Main.ds);
-		osm.visit(v);
-		data.addAll(v.data);
-		data.add(osm);
+	public DeleteCommand(Collection<OsmPrimitive> data) {
+		this.data = data;
 	}
-	
+
 	@Override public void executeCommand() {
 		super.executeCommand();
 		for (OsmPrimitive osm : data)
@@ -33,5 +33,29 @@ public class DeleteCommand extends Command {
 
 	@Override public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {
 		deleted.addAll(data);
+	}
+
+	@Override public MutableTreeNode description() {
+		NameVisitor v = new NameVisitor();
+
+		if (data.size() == 1) {
+			data.iterator().next().visit(v);
+			return new DefaultMutableTreeNode(new JLabel("Delete "+v.className+" "+v.name, v.icon, JLabel.HORIZONTAL));
+		}
+
+		String cname = null;
+		for (OsmPrimitive osm : data) {
+			osm.visit(v);
+			if (cname == null)
+				cname = v.className;
+			else if (!cname.equals(v.className))
+				cname = "primitive";
+		}
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode(new JLabel("Delete "+data.size()+" "+cname+(data.size()==1?"":"s"), ImageProvider.get("data", cname), JLabel.HORIZONTAL));
+		for (OsmPrimitive osm : data) {
+			osm.visit(v);
+			root.add(new DefaultMutableTreeNode(v.toLabel()));
+		}
+		return root;
 	}
 }
