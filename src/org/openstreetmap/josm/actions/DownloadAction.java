@@ -71,15 +71,13 @@ public class DownloadAction extends JosmAction {
 
 		@Override public void realRun() throws IOException, SAXException {
 			dataSet = reader.parseOsm();
-			if (dataSet == null)
-				return;
-			if (dataSet.nodes.isEmpty())
-				JOptionPane.showMessageDialog(Main.main, "No data imported.");
 		}
 
 		@Override protected void finish() {
 			if (dataSet == null)
 				return; // user cancelled download or error occoured
+			if (dataSet.nodes.isEmpty())
+				errorMessage = "No data imported.";
 			Layer layer = new OsmDataLayer(dataSet, "Data Layer", false);
 			if (Main.main.getMapFrame() == null)
 				Main.main.setMapFrame(new MapFrame(layer));
@@ -119,6 +117,7 @@ public class DownloadAction extends JosmAction {
 		}
 
 		@Override protected void cancel() {
+			reader.cancel();
 		}
 	}
 
