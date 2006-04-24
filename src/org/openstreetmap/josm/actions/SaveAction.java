@@ -34,14 +34,14 @@ public class SaveAction extends DiskAccessAction {
 	}
 	
 	public void actionPerformed(ActionEvent event) {
-		if (Main.main.getMapFrame() == null) {
-			JOptionPane.showMessageDialog(Main.main, "No document open so nothing to save.");
+		if (Main.map == null) {
+			JOptionPane.showMessageDialog(Main.parent, "No document open so nothing to save.");
 			return;
 		}
-		if (isDataSetEmpty() && JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(Main.main, "The document contains no data. Save anyway?", "Empty document", JOptionPane.YES_NO_OPTION))
+		if (isDataSetEmpty() && JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(Main.parent, "The document contains no data. Save anyway?", "Empty document", JOptionPane.YES_NO_OPTION))
 			return;
-		if (!Main.main.getMapFrame().conflictDialog.conflicts.isEmpty()) {
-			int answer = JOptionPane.showConfirmDialog(Main.main, 
+		if (!Main.map.conflictDialog.conflicts.isEmpty()) {
+			int answer = JOptionPane.showConfirmDialog(Main.parent, 
 					"There are unresolved conflicts. Conflicts will not be saved and handled as if you rejected all. Continue?", "Conflicts", JOptionPane.YES_NO_OPTION);
 			if (answer != JOptionPane.YES_OPTION)
 				return;
@@ -67,7 +67,7 @@ public class SaveAction extends DiskAccessAction {
 			if (ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn)) {
 				for (Segment ls : Main.ds.segments) {
 					if (ls.incomplete) {
-						JOptionPane.showMessageDialog(Main.main, "Export of data containing incomplete ways to GPX is not implemented.\nBe aware, that in future versions of JOSM, GPX support will be kept at a minimum.\nPlease use .osm or .xml as extension for the better OSM support.");
+						JOptionPane.showMessageDialog(Main.parent, "Export of data containing incomplete ways to GPX is not implemented.\nBe aware, that in future versions of JOSM, GPX support will be kept at a minimum.\nPlease use .osm or .xml as extension for the better OSM support.");
 						return;
 					}
 				}
@@ -75,17 +75,17 @@ public class SaveAction extends DiskAccessAction {
 			} else if (ExtensionFileFilter.filters[ExtensionFileFilter.OSM].acceptName(fn))
 				OsmWriter.output(fileWriter = new FileWriter(file), Main.ds, false);
 			else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
-				JOptionPane.showMessageDialog(Main.main, "CSV output not supported yet.");
+				JOptionPane.showMessageDialog(Main.parent, "CSV output not supported yet.");
 				return;
 			} else {
-				JOptionPane.showMessageDialog(Main.main, "Unknown file extension.");
+				JOptionPane.showMessageDialog(Main.parent, "Unknown file extension.");
 				return;
 			}
 			fileWriter.close();
-			Main.main.getMapFrame().mapView.editLayer().cleanData(null, false);
+			Main.main.editLayer().cleanData(null, false);
 		} catch (IOException e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(Main.main, "An error occoured while saving.\n"+e.getMessage());
+			JOptionPane.showMessageDialog(Main.parent, "An error occoured while saving.\n"+e.getMessage());
 		}
 	}
 }

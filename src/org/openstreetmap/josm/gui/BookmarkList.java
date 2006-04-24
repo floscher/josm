@@ -16,7 +16,6 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
@@ -37,7 +36,7 @@ public class BookmarkList extends JList {
 			return name;
 		}
 	}
-	
+
 	/**
 	 * Create a bookmark list as well as the Buttons add and remove.
 	 */
@@ -63,12 +62,12 @@ public class BookmarkList extends JList {
 	public void load() {
 		DefaultListModel model = (DefaultListModel)getModel();
 		model.removeAllElements();
-		File bookmarkFile = new File(Preferences.getPreferencesDir()+"bookmarks");
+		File bookmarkFile = new File(Main.pref.getPreferencesDir()+"bookmarks");
 		try {
 			if (!bookmarkFile.exists())
 				bookmarkFile.createNewFile();
 			BufferedReader in = new BufferedReader(new FileReader(bookmarkFile));
-			
+
 			for (String line = in.readLine(); line != null; line = in.readLine()) {
 				StringTokenizer st = new StringTokenizer(line, ",");
 				if (st.countTokens() != 6)
@@ -86,7 +85,7 @@ public class BookmarkList extends JList {
 			}
 			in.close();
 		} catch (IOException e) {
-			JOptionPane.showMessageDialog(Main.main, "Could not read bookmarks.\n"+e.getMessage());
+			JOptionPane.showMessageDialog(Main.parent, "Could not read bookmarks.\n"+e.getMessage());
 		}
 	}
 
@@ -94,7 +93,7 @@ public class BookmarkList extends JList {
 	 * Save all bookmarks to the preferences file
 	 */
 	public void save() {
-		File bookmarkFile = new File(Preferences.getPreferencesDir()+"bookmarks");
+		File bookmarkFile = new File(Main.pref.getPreferencesDir()+"bookmarks");
 		try {
 			if (!bookmarkFile.exists())
 				bookmarkFile.createNewFile();
@@ -110,7 +109,7 @@ public class BookmarkList extends JList {
 			}
 			out.close();
 		} catch (IOException e) {
-			JOptionPane.showMessageDialog(Main.main, "Could not write bookmark.\n"+e.getMessage());
+			JOptionPane.showMessageDialog(Main.parent, "Could not write bookmark.\n"+e.getMessage());
 		}
 	}
 }

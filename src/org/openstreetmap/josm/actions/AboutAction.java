@@ -66,7 +66,7 @@ public class AboutAction extends JosmAction {
 		
 		about.setPreferredSize(new Dimension(500,300));
 		
-		JOptionPane.showMessageDialog(Main.main, about, "About JOSM...",
+		JOptionPane.showMessageDialog(Main.parent, about, "About JOSM...",
 				JOptionPane.INFORMATION_MESSAGE, ImageProvider.get("logo"));
 	}
 	

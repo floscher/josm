@@ -68,29 +68,29 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 		if (way != null) {
 			c = new AddCommand(way);
 			Main.ds.setSelected(way);
-			mv.editLayer().add(c);
+			Main.main.editLayer().add(c);
 		} else
 			Main.ds.clearSelection();
-		mv.addMouseListener(this);
+		Main.map.mapView.addMouseListener(this);
 	}
 
 	@Override public void exitMode() {
 		super.exitMode();
 		way = null;
-		mv.removeMouseListener(this);
+		Main.map.mapView.removeMouseListener(this);
 	}
 
 	@Override public void mouseClicked(MouseEvent e) {
 		if (e.getButton() != MouseEvent.BUTTON1)
 			return;
 
-		Segment s = mv.getNearestSegment(e.getPoint());
+		Segment s = Main.map.mapView.getNearestSegment(e.getPoint());
 		if (s == null)
 			return;
 
 		// special case for initial selecting one way
 		if (way == null && (e.getModifiers() & MouseEvent.ALT_DOWN_MASK) == 0) {
-			Way w = mv.getNearestWay(e.getPoint());
+			Way w = Main.map.mapView.getNearestWay(e.getPoint());
 			if (w != null) {
 				way = w;
 				Main.ds.setSelected(way);
@@ -103,15 +103,15 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 
 			copy.segments.remove(s);
 			if (copy.segments.isEmpty()) {
-				mv.editLayer().add(new DeleteCommand(Arrays.asList(new OsmPrimitive[]{way})));
+				Main.main.editLayer().add(new DeleteCommand(Arrays.asList(new OsmPrimitive[]{way})));
 				way = null;
 			} else
-				mv.editLayer().add(new ChangeCommand(way, copy));
+				Main.main.editLayer().add(new ChangeCommand(way, copy));
 		} else {
 			if (way == null) {
 				way = new Way();
 				way.segments.add(s);
-				mv.editLayer().add(new AddCommand(way));
+				Main.main.editLayer().add(new AddCommand(way));
 			} else {
 				Way copy = new Way(way);
 				int i;
@@ -119,7 +119,7 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 					if (way.segments.get(i).from == s.to)
 						break;
 				copy.segments.add(i, s);
-				mv.editLayer().add(new ChangeCommand(way, copy));
+				Main.main.editLayer().add(new ChangeCommand(way, copy));
 			}
 		}
 		Main.ds.setSelected(way);
@@ -148,7 +148,7 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 
 		if (numberOfSelectedWays > 0) {
 			String ways = "way" + (numberOfSelectedWays==1?" has":"s have");
-			int answer = JOptionPane.showConfirmDialog(Main.main, numberOfSelectedWays+" "+ways+" been selected.\n" +
+			int answer = JOptionPane.showConfirmDialog(Main.parent, numberOfSelectedWays+" "+ways+" been selected.\n" +
 					"Do you wish to select all segments belonging to the "+ways+" instead?", "Add segments from ways", JOptionPane.YES_NO_OPTION);
 			if (answer == JOptionPane.YES_OPTION) {
 				for (OsmPrimitive osm : selection)
@@ -192,7 +192,7 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 			sortedSegments.addAll(pivotList);
 		}
 
-		if (JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(Main.main, "Create a new way out of "+sortedSegments.size()+" segments?", "Create new way", JOptionPane.YES_NO_OPTION))
+		if (JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(Main.parent, "Create a new way out of "+sortedSegments.size()+" segments?", "Create new way", JOptionPane.YES_NO_OPTION))
 			return null;
 
 		Way w = new Way();

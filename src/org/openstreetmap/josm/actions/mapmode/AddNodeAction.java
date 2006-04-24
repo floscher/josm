@@ -4,6 +4,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import javax.swing.JOptionPane;
@@ -50,12 +51,12 @@ public class AddNodeAction extends MapMode {
 
 	@Override public void enterMode() {
 		super.enterMode();
-		mv.addMouseListener(this);
+		Main.map.mapView.addMouseListener(this);
 	}
 
 	@Override public void exitMode() {
 		super.exitMode();
-		mv.removeMouseListener(this);
+		Main.map.mapView.removeMouseListener(this);
 	}
 
 	/**
@@ -70,15 +71,15 @@ public class AddNodeAction extends MapMode {
 		if (e.getButton() != MouseEvent.BUTTON1)
 			return;
 
-		Node n = new Node(mv.getLatLon(e.getX(), e.getY()));
+		Node n = new Node(Main.map.mapView.getLatLon(e.getX(), e.getY()));
 		if (n.coor.isOutSideWorld()) {
-			JOptionPane.showMessageDialog(Main.main, "Can not add a node outside of the world.");
+			JOptionPane.showMessageDialog(Main.parent, "Can not add a node outside of the world.");
 			return;
 		}
 
 		Command c = new AddCommand(n);
 		if (mode == Mode.nodesegment) {
-			Segment s = mv.getNearestSegment(e.getPoint());
+			Segment s = Main.map.mapView.getNearestSegment(e.getPoint());
 			if (s == null)
 				return;
 
@@ -88,6 +89,8 @@ public class AddNodeAction extends MapMode {
 			s1.to = n;
 			Segment s2 = new Segment(s.from, s.to);
 			s2.from = n;
+			if (s.keys != null)
+				s2.keys = new HashMap<String, String>(s.keys);
 
 			cmds.add(new ChangeCommand(s, s1));
 			cmds.add(new AddCommand(s2));
@@ -109,7 +112,7 @@ public class AddNodeAction extends MapMode {
 
 			c = new SequenceCommand(cmds);
 		}
-		mv.editLayer().add(c);
-		mv.repaint();
+		Main.main.editLayer().add(c);
+		Main.map.mapView.repaint();
 	}
 }

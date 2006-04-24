@@ -45,12 +45,12 @@ public class DeleteAction extends MapMode {
 
 	@Override public void enterMode() {
 		super.enterMode();
-		mv.addMouseListener(this);
+		Main.map.mapView.addMouseListener(this);
 	}
 
 	@Override public void exitMode() {
 		super.exitMode();
-		mv.removeMouseListener(this);
+		Main.map.mapView.removeMouseListener(this);
 	}
 
 	
@@ -61,7 +61,7 @@ public class DeleteAction extends MapMode {
 			deleteWithReferences(Main.ds.getSelected());
 		else
 			delete(Main.ds.getSelected(), false);
-		mv.repaint();
+		Main.map.repaint();
 	}
 
 	/**
@@ -72,7 +72,7 @@ public class DeleteAction extends MapMode {
 		if (e.getButton() != MouseEvent.BUTTON1)
 			return;
 		
-		OsmPrimitive sel = mv.getNearest(e.getPoint(), (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0);
+		OsmPrimitive sel = Main.map.mapView.getNearest(e.getPoint(), (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0);
 		if (sel == null)
 			return;
 
@@ -81,7 +81,7 @@ public class DeleteAction extends MapMode {
 		else
 			delete(Collections.singleton(sel), true);
 
-		mv.repaint();
+		Main.map.mapView.repaint();
 	}
 
 	/**
@@ -106,7 +106,7 @@ public class DeleteAction extends MapMode {
 			osm.visit(v);
 		v.data.addAll(selection);
 		if (!v.data.isEmpty())
-			mv.editLayer().add(new DeleteCommand(v.data));
+			Main.main.editLayer().add(new DeleteCommand(v.data));
 	}
 
 	/**
@@ -124,7 +124,7 @@ public class DeleteAction extends MapMode {
 			osm.visit(v);
 			if (!selection.containsAll(v.data)) {
 				if (msgBox) {
-					JOptionPane.showMessageDialog(Main.main, "This object is in use.");
+					JOptionPane.showMessageDialog(Main.parent, "This object is in use.");
 					return;
 				}
 			} else {
@@ -133,6 +133,6 @@ public class DeleteAction extends MapMode {
 			}
 		}
 		if (!del.isEmpty())
-			mv.editLayer().add(new DeleteCommand(del));
+			Main.main.editLayer().add(new DeleteCommand(del));
 	}
 }

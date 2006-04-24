@@ -85,7 +85,7 @@ public class PreferenceDialog extends JDialog {
 
 			if (requiresRestart)
 				JOptionPane.showMessageDialog(PreferenceDialog.this, "You have to restart JOSM for some settings to take effect.");
-			Main.main.repaint();
+			Main.parent.repaint();
 			setVisible(false);
 		}
 	}
@@ -165,7 +165,7 @@ public class PreferenceDialog extends JDialog {
 	 * file, otherwise no change of the file happens.
 	 */
 	public PreferenceDialog() {
-		super(Main.main, "Preferences");
+		super(JOptionPane.getFrameForComponent(Main.parent), "Preferences");
 
 		// look and feel combo box
 		String laf = Main.pref.get("laf");
@@ -345,7 +345,7 @@ public class PreferenceDialog extends JDialog {
 
 		setModal(true);
 		pack();
-		setLocationRelativeTo(Main.main);
+		setLocationRelativeTo(Main.parent);
 	}
 
 	/**

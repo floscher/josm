@@ -29,7 +29,7 @@ public class ConflictResolveCommand extends Command {
 	public ConflictResolveCommand(List<ConflictItem> conflicts, Map<OsmPrimitive, OsmPrimitive> resolved) {
 		this.conflicts = conflicts;
 		this.resolved = resolved;
-		conflictDialog = Main.main.getMapFrame().conflictDialog;
+		conflictDialog = Main.map.conflictDialog;
 	}
 
 	@Override public void executeCommand() {
@@ -52,15 +52,15 @@ public class ConflictResolveCommand extends Command {
 			for (OsmPrimitive k : completed)
 				conflictDialog.conflicts.remove(k);
 			conflictDialog.rebuildList();
-			Main.main.getMapFrame().mapView.recalculateCenterScale(); // in case of auto-zoom
+			Main.map.mapView.recalculateCenterScale(); // in case of auto-zoom
  		}
 	}
 
 	@Override public void undoCommand() {
 		super.undoCommand();
-		Main.main.getMapFrame().conflictDialog.conflicts.clear();
-		Main.main.getMapFrame().conflictDialog.conflicts.putAll(origAllConflicts);
-		Main.main.getMapFrame().conflictDialog.rebuildList();
+		Main.map.conflictDialog.conflicts.clear();
+		Main.map.conflictDialog.conflicts.putAll(origAllConflicts);
+		Main.map.conflictDialog.rebuildList();
 	}
 
 	@Override public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {

@@ -43,7 +43,7 @@ abstract public class DiskAccessAction extends JosmAction {
 			fc.addChoosableFileFilter(ExtensionFileFilter.filters[i]);
 		fc.setAcceptAllFileFilterUsed(true);
 	
-		int answer = open ? fc.showOpenDialog(Main.main) : fc.showSaveDialog(Main.main);
+		int answer = open ? fc.showOpenDialog(Main.parent) : fc.showSaveDialog(Main.parent);
 		if (answer != JFileChooser.APPROVE_OPTION)
 			return null;
 		
@@ -53,7 +53,7 @@ abstract public class DiskAccessAction extends JosmAction {
 		if (!open) {
 			File file = fc.getSelectedFile();
 			if (file == null || (file.exists() && JOptionPane.YES_OPTION != 
-					JOptionPane.showConfirmDialog(Main.main, "File exists. Overwrite?", "Overwrite", JOptionPane.YES_NO_OPTION)))
+					JOptionPane.showConfirmDialog(Main.parent, "File exists. Overwrite?", "Overwrite", JOptionPane.YES_NO_OPTION)))
 				return null;
 		}
 		

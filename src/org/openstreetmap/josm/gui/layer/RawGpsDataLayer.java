@@ -53,12 +53,12 @@ public class RawGpsDataLayer extends Layer {
 	public RawGpsDataLayer(Collection<Collection<GpsPoint>> data, String name) {
 		super(name);
 		this.data = data;
-		Main.pref.addPreferenceChangedListener(new PreferenceChangedListener(){
-			public void preferenceChanged(String key, String newValue) {
-				if (Main.main.getMapFrame() != null && (key.equals("drawRawGpsLines") || key.equals("forceRawGpsLines")))
-					Main.main.getMapFrame().repaint();
-			}
-		});
+		Main.pref.listener.add(new PreferenceChangedListener(){
+        	public void preferenceChanged(String key, String newValue) {
+        		if (Main.map != null && (key.equals("drawRawGpsLines") || key.equals("forceRawGpsLines")))
+        			Main.map.repaint();
+        	}
+        });
 	}
 
 	/**
@@ -136,7 +136,7 @@ public class RawGpsDataLayer extends Layer {
 				String col = Main.pref.get("color.layer "+name, Main.pref.get("color.gps point", ColorHelper.color2html(Color.gray)));
 				JColorChooser c = new JColorChooser(ColorHelper.html2color(col));
 				Object[] options = new Object[]{"OK", "Cancel", "Default"};
-				int answer = JOptionPane.showOptionDialog(Main.main, c, "Choose a color", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+				int answer = JOptionPane.showOptionDialog(Main.parent, c, "Choose a color", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 				switch (answer) {
 				case 0:
 					Main.pref.put("color.layer "+name, ColorHelper.color2html(c.getColor()));
@@ -147,7 +147,7 @@ public class RawGpsDataLayer extends Layer {
 					Main.pref.put("color.layer "+name, null);
 					break;
 				}
-				Main.main.repaint();
+				Main.map.repaint();
 			}
 		});
 		menu.add(color);

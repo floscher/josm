@@ -45,8 +45,8 @@ public class GpxExportAction extends DiskAccessAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		if (layer == null && Main.main.getMapFrame() == null) {
-			JOptionPane.showMessageDialog(Main.main, "Nothing to export. Get some data first.");
+		if (layer == null && Main.map == null) {
+			JOptionPane.showMessageDialog(Main.parent, "Nothing to export. Get some data first.");
 			return;
 		}
 
@@ -101,7 +101,7 @@ public class GpxExportAction extends DiskAccessAction {
 		JTextField keywords = new JTextField();
 		p.add(keywords, GBC.eop().fill(GBC.HORIZONTAL));
 
-		int answer = JOptionPane.showConfirmDialog(Main.main, p, "Export options", JOptionPane.OK_CANCEL_OPTION);
+		int answer = JOptionPane.showConfirmDialog(Main.parent, p, "Export options", JOptionPane.OK_CANCEL_OPTION);
 		if (answer != JOptionPane.OK_OPTION)
 			return;
 		
@@ -112,7 +112,7 @@ public class GpxExportAction extends DiskAccessAction {
 			Main.pref.put("lastCopyright", copyright.getText());
 		
 		try {
-			Layer layer = this.layer == null ? Main.main.getMapFrame().mapView.editLayer() : this.layer;
+			Layer layer = this.layer == null ? Main.main.editLayer() : this.layer;
 			FileWriter out = new FileWriter(file);
 			GpxWriter w = new GpxWriter(out, layer.name, desc.getText(),
 					authorName.getText(), email.getText(), copyright.getText(),
@@ -124,7 +124,7 @@ public class GpxExportAction extends DiskAccessAction {
 			out.close();
 		} catch (IOException x) {
 			x.printStackTrace();
-			JOptionPane.showMessageDialog(Main.main, "Error while exporting "+fn+":\n"+x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(Main.parent, "Error while exporting "+fn+":\n"+x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		}		
 	}
 
@@ -178,7 +178,7 @@ public class GpxExportAction extends DiskAccessAction {
 				JList l = new JList(new String[]{"Creative Commons By-SA", "public domain", "GNU Lesser Public License (LGPL)", "BSD License (same as MIT/X11)"});
 				l.setVisibleRowCount(4);
 				l.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-				int answer = JOptionPane.showConfirmDialog(Main.main, new JScrollPane(l), "Choose a predefined license", JOptionPane.OK_CANCEL_OPTION);
+				int answer = JOptionPane.showConfirmDialog(Main.parent, new JScrollPane(l), "Choose a predefined license", JOptionPane.OK_CANCEL_OPTION);
 				if (answer != JOptionPane.OK_OPTION || l.getSelectedIndex() == -1)
 					return;
 				final String[] urls = {

@@ -43,8 +43,10 @@ public class ToggleDialog extends JPanel {
 	 * The action to toggle this dialog.
 	 */
 	public ToggleDialogAction action;
+	public final String prefName;
 
 	public ToggleDialog(String name, String iconName, String tooltip, int shortCut) {
+		this.prefName = iconName;
 		action = new ToggleDialogAction(name, "dialogs/"+iconName, tooltip, ShortCutLabel.name(shortCut, KeyEvent.ALT_MASK), KeyStroke.getKeyStroke(shortCut, KeyEvent.ALT_MASK), iconName);
 		setLayout(new BorderLayout());
 		add(new JLabel(name), BorderLayout.NORTH);

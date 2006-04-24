@@ -58,6 +58,7 @@ public class MapFrame extends JPanel {
 	public MapStatus statusLine;
 	
 	public ConflictDialog conflictDialog;
+	private JPanel toggleDialogs = new JPanel();
 	
 	/**
 	 * Construct a map with a given DataSet. The set cannot be replaced after 
@@ -114,10 +115,9 @@ public class MapFrame extends JPanel {
             }
 		});
 
-		JPanel toggleDialogs = new JPanel();
 		add(toggleDialogs, BorderLayout.EAST);
-
 		toggleDialogs.setLayout(new BoxLayout(toggleDialogs, BoxLayout.Y_AXIS));
+
 		addIconToggle(toggleDialogs, new LayerList(this));
 		addIconToggle(toggleDialogs, new PropertiesDialog(this));
 		addIconToggle(toggleDialogs, new SelectionListDialog(this));
@@ -128,14 +128,20 @@ public class MapFrame extends JPanel {
 		statusLine = new MapStatus(this);
 	}
 
+	/**
+	 * Open all ToggleDialogs that have their preferences property set. Close all others.
+	 */
+	public void setVisibleDialogs() {
+		for (Component c : toggleDialogs.getComponents())
+			if (c instanceof ToggleDialog)
+				c.setVisible(Main.pref.getBoolean(((ToggleDialog)c).prefName+".visible"));
+	}
 
 	private void addIconToggle(JPanel toggleDialogs, ToggleDialog dlg) {
         IconToggleButton button = new IconToggleButton(dlg.action);
         dlg.action.button = button;
 		toolBarActions.add(button);
 		toggleDialogs.add(dlg);
-		if (Main.pref.getBoolean(dlg.action.prefname+".visible"))
-			dlg.action.actionPerformed(new ActionEvent(this, 0, ""));
 	}
 
 	

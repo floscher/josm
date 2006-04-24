@@ -13,21 +13,30 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.gui.MapFrame;
+import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
+import org.openstreetmap.josm.gui.layer.Layer;
+import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer.CommandQueueListener;
 
 public class CommandStackDialog extends ToggleDialog implements CommandQueueListener {
 
 	private DefaultTreeModel treeModel = new DefaultTreeModel(new DefaultMutableTreeNode());
     private JTree tree = new JTree(treeModel);
-	private final MapFrame mapFrame;
 
-	public CommandStackDialog(MapFrame mapFrame) {
+	public CommandStackDialog(final MapFrame mapFrame) {
 		super("Command Stack", "commandstack", "Open a list of all commands (undo buffer).", KeyEvent.VK_C);
-		this.mapFrame = mapFrame;
 		setPreferredSize(new Dimension(320,100));
-		mapFrame.mapView.editLayer().listenerCommands.add(this);
+		mapFrame.mapView.addLayerChangeListener(new LayerChangeListener(){
+			public void activeLayerChange(Layer oldLayer, Layer newLayer) {}
+			public void layerAdded(Layer newLayer) {
+				if (newLayer instanceof OsmDataLayer)
+					Main.main.editLayer().listenerCommands.add(CommandStackDialog.this);
+			}
+			public void layerRemoved(Layer oldLayer) {}
+		});
 		tree.setRootVisible(false);
 		tree.setShowsRootHandles(true);
 		tree.expandRow(0);
@@ -56,14 +65,14 @@ public class CommandStackDialog extends ToggleDialog implements CommandQueueList
 	}
 
 	private void buildList() {
-		Collection<Command> commands = mapFrame.mapView.editLayer().commands;
+		Collection<Command> commands = Main.main.editLayer().commands;
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode();
 		for (Command c : commands)
 			root.add(c.description());
 		treeModel.setRoot(root);
 	}
 
-	public void commandChanged() {
+	public void commandChanged(int queueSize, int redoSize) {
 		if (!isVisible())
 			return;
         treeModel.setRoot(new DefaultMutableTreeNode());

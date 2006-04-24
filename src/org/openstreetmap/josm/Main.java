@@ -1,16 +1,16 @@
-//Licence: GPL
 package org.openstreetmap.josm;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedList;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -18,7 +18,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.Action;
-import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
@@ -43,90 +42,94 @@ import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.projection.Epsg4326;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.MapFrame;
-import org.openstreetmap.josm.gui.ShowModifiers;
+import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
 import org.openstreetmap.josm.gui.dialogs.SelectionListDialog;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
-import org.openstreetmap.josm.tools.BugReportExceptionHandler;
+import org.openstreetmap.josm.gui.layer.OsmDataLayer.CommandQueueListener;
 import org.openstreetmap.josm.tools.ImageProvider;
 
-/**
- * Main window class application.
- *  
- * @author imi
- */
-public class Main extends JFrame {
-
+abstract public class Main {
+	/**
+	 * Global parent component for all dialogs and message boxes
+	 */
+	public static Component parent;
 	/**
 	 * Global application window. Use this as JOPtionPane-parent to center on application.
 	 */
 	public static Main main;
-
 	/**
 	 * The worker thread slave. This is for executing all long and intensive
 	 * calculations. The executed runnables are guaranteed to be executed seperatly
 	 * and sequenciel.
 	 */
-	public static Executor worker = Executors.newSingleThreadExecutor();
-
-
-	public static Projection proj;
-
+	public final static Executor worker = Executors.newSingleThreadExecutor();
 	/**
 	 * Global application preferences
 	 */
-	public final static Preferences pref = new Preferences();
-
+	public static Preferences pref = new Preferences();
 	/**
 	 * The global dataset.
 	 */
 	public static DataSet ds = new DataSet();
+	/**
+	 * The projection method used.
+	 */
+	public static Projection proj;
+	/**
+	 * The MapFrame. Use setMapFrame to set or clear it.
+	 */
+	public static MapFrame map;
 
 	/**
-	 * The main panel.
+	 * Set or clear (if passed <code>null</code>) the map.
 	 */
-	public JPanel panel;
+	public final void setMapFrame(final MapFrame map) {
+		Main.map = map;
+		panel.setVisible(false);
+		panel.removeAll();
+		if (map != null) {
+			map.fillPanel(panel);
+			panel.setVisible(true);
+			map.mapView.addLayerChangeListener(new LayerChangeListener(){
+				public void activeLayerChange(final Layer oldLayer, final Layer newLayer) {}
+				public void layerAdded(final Layer newLayer) {
+					if (newLayer instanceof OsmDataLayer)
+						Main.main.editLayer().listenerCommands.add(redoUndoListener);
+				}
+				public void layerRemoved(final Layer oldLayer) {}
+			});
+		}
+		redoUndoListener.commandChanged(0,0);
+	}
+
 	/**
-	 * The mapFrame currently loaded.
+	 * Remove the specified layer from the map. If it is the last layer, remove the map as well.
 	 */
-	private MapFrame mapFrame;
-
-	public final UndoAction undoAction;
-	public final RedoAction redoAction;
-
-	private OpenAction openAction;
-	private DownloadAction downloadAction;
-	//private Action wmsServerAction;
-
-	/**
-	 * Construct an main frame, ready sized and operating. Does not 
-	 * display the frame.
-	 */
+	public final void removeLayer(final Layer layer) {
+		final Collection<Layer> allLayers = map.mapView.getAllLayers();
+		if (allLayers.size() == 1 && allLayers.iterator().next() == layer) {
+			Main.map.setVisible(false);
+			setMapFrame(null);
+			ds = new DataSet();
+		} else {
+			map.mapView.removeLayer(layer);
+			if (layer instanceof OsmDataLayer)
+				ds = new DataSet();
+		}
+	}
 	public Main() {
-		super("Java Open Street Map - Editor");
-		Main.main = this;
-		setLayout(new BorderLayout());
-		panel = new JPanel(new BorderLayout());
-		getContentPane().add(panel, BorderLayout.CENTER);
-		setSize(1000,740); // some strange default size
+		main = this;
+		contentPane.add(panel, BorderLayout.CENTER);
 
-		downloadAction = new DownloadAction();
-		Action uploadAction = new UploadAction();
-		//wmsServerAction = new WmsServerAction();
-		openAction = new OpenAction();
-		Action saveAction = new SaveAction();
-		Action gpxExportAction = new GpxExportAction(null);
-		Action exitAction = new ExitAction();
-		undoAction = new UndoAction();
-		redoAction = new RedoAction();
-		Action preferencesAction = new PreferencesAction();
-		Action aboutAction = new AboutAction();
+		final Action uploadAction = new UploadAction();
+		final Action saveAction = new SaveAction();
+		final Action gpxExportAction = new GpxExportAction(null);
+		final Action exitAction = new ExitAction();
+		final Action preferencesAction = new PreferencesAction();
+		final Action aboutAction = new AboutAction();
 
-		// creating menu
-		JMenuBar mainMenu = new JMenuBar();
-		setJMenuBar(mainMenu);
-
-		JMenu fileMenu = new JMenu("Files");
+		final JMenu fileMenu = new JMenu("Files");
 		fileMenu.setMnemonic('F');
 		fileMenu.add(openAction);
 		fileMenu.add(saveAction);
@@ -136,15 +139,14 @@ public class Main extends JFrame {
 		mainMenu.add(fileMenu);
 
 
-		JMenu layerMenu = new JMenu("Layer");
+		final JMenu layerMenu = new JMenu("Layer");
 		layerMenu.setMnemonic('L');
 		layerMenu.add(downloadAction);
 		layerMenu.add(uploadAction);
 		layerMenu.addSeparator();
-		//layerMenu.add(new JCheckBoxMenuItem(wmsServerAction));
 		mainMenu.add(layerMenu);
 
-		JMenu editMenu = new JMenu("Edit");
+		final JMenu editMenu = new JMenu("Edit");
 		editMenu.setMnemonic('E');
 		editMenu.add(undoAction);
 		editMenu.add(redoAction);
@@ -153,17 +155,16 @@ public class Main extends JFrame {
 		mainMenu.add(editMenu);
 
 		mainMenu.add(new JSeparator());
-		JMenu helpMenu = new JMenu("Help");
+		final JMenu helpMenu = new JMenu("Help");
 		helpMenu.setMnemonic('H');
 		helpMenu.add(aboutAction);
 		mainMenu.add(helpMenu);
 
 		// creating toolbar
-		JToolBar toolBar = new JToolBar();
+		final JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
 		toolBar.add(downloadAction);
 		toolBar.add(uploadAction);
-		//toolBar.add(new IconToggleButton(wmsServerAction));
 		toolBar.addSeparator();
 		toolBar.add(openAction);
 		toolBar.add(saveAction);
@@ -173,224 +174,165 @@ public class Main extends JFrame {
 		toolBar.add(redoAction);
 		toolBar.addSeparator();
 		toolBar.add(preferencesAction);
+		contentPane.add(toolBar, BorderLayout.NORTH);
 
-		getContentPane().add(toolBar, BorderLayout.NORTH);
-
-		addWindowListener(new WindowAdapter(){
-			@Override public void windowClosing(WindowEvent arg0) {
-				if (mapFrame != null) {
-					boolean modified = false;
-					boolean uploadedModified = false;
-					for (Layer l : mapFrame.mapView.getAllLayers()) {
-						if (l instanceof OsmDataLayer && ((OsmDataLayer)l).isModified()) {
-							modified = true;
-							uploadedModified = ((OsmDataLayer)l).uploadedModified;
-							break;
-						}
-					}
-					if (modified) {
-						String msg = uploadedModified ? "\nHint: Some changes came from uploading new data to the server." : "";
-						int answer = JOptionPane.showConfirmDialog(
-								Main.this, "There are unsaved changes. Really quit?"+msg,
-								"Unsaved Changes", JOptionPane.YES_NO_OPTION);
-						if (answer != JOptionPane.YES_OPTION)
-							return;
-					}
-				}
-				System.exit(0);
-			}
-		});
-		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		contentPane.updateUI();
+	}
+	/**
+	 * Add a new layer to the map. If no map exist, create one.
+	 */
+	public final void addLayer(final Layer layer) {
+		if (map == null) {
+			final MapFrame mapFrame = new MapFrame(layer);
+			setMapFrame(mapFrame);
+			mapFrame.setVisible(true);
+			mapFrame.setVisibleDialogs();
+		} else
+			map.mapView.addLayer(layer);
+	}
+	/**
+	 * @return The edit osm layer. If none exist, it will be created.
+	 */
+	public final OsmDataLayer editLayer() {
+		if (map == null || map.mapView.editLayer == null)
+			addLayer(new OsmDataLayer(ds, "unnamed", false));
+		return map.mapView.editLayer;
 	}
 
+
+
+
 	/**
-	 * Main application Startup
-	 * @param args	No parameters accepted.
+	 * Use this to register shortcuts to
 	 */
-	public static void main(String[] args) {
-		setupExceptionHandler();
-		setupUiDefaults();
+	public static JPanel panel = new JPanel(new BorderLayout());
 
-		LinkedList<String> arguments = new LinkedList<String>(Arrays.asList(args));
 
-		if (arguments.contains("--help") || arguments.contains("-?") || arguments.contains("-h")) {
-			System.out.println("Java OpenStreetMap Editor");
-			System.out.println();
-			System.out.println("usage:");
-			System.out.println("\tjava -jar josm.jar <option> <option> <option>...");
-			System.out.println();
-			System.out.println("options:");
-			System.out.println("\t--help|-?|-h                              Show this help");
-			System.out.println("\t--geometry=widthxheight(+|-)x(+|-)y       Standard unix geometry argument");
-			System.out.println("\t--download=minlat,minlon,maxlat,maxlon    Download the bounding box");
-			System.out.println("\t--downloadgps=minlat,minlon,maxlat,maxlon Download the bounding box");
-			System.out.println("\t--selection=<searchstring>                Select with the given search");
-			System.out.println("\t--no-fullscreen                           Don't launch in fullscreen mode");
-			System.out.println("\t--reset-preferences                       Reset the preferences to default");
-			System.out.println("\tURL|filename(.osm|.xml|.gpx|.txt|.csv)    Open file / Download url");
-			System.out.println();
-			System.out.println("examples:");
-			System.out.println("\tjava -jar josm.jar track1.gpx track2.gpx london.osm");
-			System.out.println("\tjava -jar josm.jar http://www.openstreetmap.org/index.html?lat=43.2&lon=11.1&zoom=13");
-			System.out.println("\tjava -jar josm.jar london.osm --selection=http://www.ostertag.name/osm/OSM_errors_node-duplicate.xml");
-			System.out.println("\tjava -jar josm.jar osm://43.2,11.1,43.4,11.4");
-			System.out.println();
-			System.out.println("Parameters are read in the order they are specified, so make sure you load");
-			System.out.println("some data before --selection");
-			System.out.println();
-			System.out.println("Instead of --download=<bbox> you may specify osm://<bbox>");
-			System.exit(0);
+	////////////////////////////////////////////////////////////////////////////////////////
+	//  Implementation part
+	////////////////////////////////////////////////////////////////////////////////////////
+
+
+	protected final JMenuBar mainMenu = new JMenuBar();
+	protected static final JPanel contentPane = new JPanel(new BorderLayout());
+	protected static Rectangle bounds;
+
+	private final UndoAction undoAction = new UndoAction();
+	private final RedoAction redoAction = new RedoAction();
+	private final OpenAction openAction = new OpenAction();
+	private final DownloadAction downloadAction = new DownloadAction();
+
+	private final CommandQueueListener redoUndoListener = new CommandQueueListener(){
+		public void commandChanged(final int queueSize, final int redoSize) {
+			undoAction.setEnabled(queueSize > 0);
+			redoAction.setEnabled(redoSize > 0);
 		}
+	};
 
-		File prefDir = new File(Preferences.getPreferencesDir());
-		if (prefDir.exists() && !prefDir.isDirectory()) {
-			JOptionPane.showMessageDialog(null, "Cannot open preferences directory: "+Preferences.getPreferencesDir());
-			return;
-		}
-		if (!prefDir.exists())
-			prefDir.mkdirs();
-
+	/**
+	 * Should be called before the main constructor to setup some parameter stuff
+	 * @param args The parsed argument list.
+	 */
+	public static void preConstructorInit(Map<String, Collection<String>> args) {
 		// load preferences
 		String errMsg = null;
 		try {
-			if (arguments.remove("--reset-preferences")) {
-				pref.resetToDefault();
+			if (args.containsKey("reset-preferences")) {
+				Main.pref.resetToDefault();
 			} else
-				pref.load();
-		} catch (IOException e1) {
+				Main.pref.load();
+		} catch (final IOException e1) {
 			e1.printStackTrace();
-			errMsg = "Preferences could not be loaded. Write default preference file to '"+Preferences.getPreferencesDir()+"preferences'.";
-			pref.resetToDefault();
+			errMsg = "Preferences could not be loaded. Write default preference file to '"+pref.getPreferencesDir()+"preferences'.";
+			Main.pref.resetToDefault();
 		}
 		if (errMsg != null)
 			JOptionPane.showMessageDialog(null, errMsg);
 
 		try {
-			proj = (Projection)Class.forName(pref.get("projection")).newInstance();
-		} catch (Exception e) {
+			Main.proj = (Projection)Class.forName(Main.pref.get("projection")).newInstance();
+		} catch (final Exception e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "The projection could not be read from preferences. Using EPSG:4263.");
-			proj = new Epsg4326();
+			Main.proj = new Epsg4326();
 		}
 
 		try {
-			UIManager.setLookAndFeel(pref.get("laf"));
-		} catch (Exception e) {
+			UIManager.setLookAndFeel(Main.pref.get("laf"));
+			contentPane.updateUI();
+			panel.updateUI();
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
-
-		new Main();
-		main.setVisible(true);
-
-		if (!arguments.remove("--no-fullscreen")) {
-			if (Toolkit.getDefaultToolkit().isFrameStateSupported(MAXIMIZED_BOTH))
-				main.setExtendedState(MAXIMIZED_BOTH); // some platform are able to maximize
-			else {
-				Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-				main.setSize(d);
-			}
-		}
-
-		boolean showModifiers = false;
-
-		for (String s : arguments) {
-			if (s.startsWith("--download=") || s.startsWith("osm:")) {
-				downloadFromParamString(false, s);
-			} else if (s.startsWith("--downloadgps=")) {
-				downloadFromParamString(true, s);
-			} else if (s.startsWith("--geometry=")) {
-				Matcher m = Pattern.compile("(\\d+)x(\\d+)(([+-])(\\d+)([+-])(\\d+))?").matcher(s.substring(11));
-				if (m.matches()) {
-					main.setExtendedState(NORMAL);
-					Integer w = Integer.valueOf(m.group(1));
-					Integer h = Integer.valueOf(m.group(2));
-					main.setSize(w, h);
-					if (m.group(3) != null) {
-						int x = Integer.valueOf(m.group(5));
-						int y = Integer.valueOf(m.group(7));
-						if (m.group(4).equals("-"))
-							x = Toolkit.getDefaultToolkit().getScreenSize().width - x - w;
-						if (m.group(6).equals("-"))
-							y = Toolkit.getDefaultToolkit().getScreenSize().height - y - h;
-						main.setLocation(x,y);
-					}
-				} else
-					System.out.println("Ignoring malformed geometry: "+s.substring(11));
-			} else if (s.equals("--show-modifiers")) {
-				showModifiers = true;
-			} else if (s.startsWith("--selection=")) {
-				SelectionListDialog.search(s.substring(12), SelectionListDialog.SearchMode.add);
-			} else if (s.startsWith("http:")) {
-				Bounds b = DownloadAction.osmurl2bounds(s);
-				if (b == null)
-					JOptionPane.showMessageDialog(main, "Ignoring malformed url: "+s);
-				else
-					main.downloadAction.download(false, b.min.lat(), b.min.lon(), b.max.lat(), b.max.lon());
-			} else {
-				main.openAction.openFile(new File(s));
-			}
-		}
-
-		if (showModifiers) {
-			Point p = main.getLocationOnScreen();
-			Dimension s = main.getSize();
-			new ShowModifiers(p.x + s.width - 3, p.y + s.height - 32);
-			main.setVisible(true);
-		}
-	}
-
-
-	private static void downloadFromParamString(boolean rawGps, String s) {
-		s = s.replaceAll("^(osm:/?/?)|(--download(gps)?=)", "");
-		StringTokenizer st = new StringTokenizer(s, ",");
-		if (st.countTokens() != 4) {
-			JOptionPane.showMessageDialog(main, "Malformed bounding box: "+s);
-			return;
-		}
-
-		try {
-			main.downloadAction.download(rawGps, Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()));
-		} catch (NumberFormatException e) {
-			JOptionPane.showMessageDialog(main, "Could not parse the Coordinates: "+s);
-		}
-	}
-
-	//TODO: should be solved better.
-	public void setMapFrame(MapFrame mapFrame) {
-		if (this.mapFrame != null)
-			this.mapFrame.setVisible(false);
-		this.mapFrame = mapFrame;
-		panel.setVisible(false);
-		panel.removeAll();
-		if (mapFrame != null) {
-			mapFrame.fillPanel(panel);
-			panel.setVisible(true);
-			mapFrame.setVisible(true);
-		}
-	}
-	/**
-	 * @return Returns the mapFrame.
-	 */
-	public MapFrame getMapFrame() {
-		return mapFrame;
-	}
-
-
-	/**
-	 * Sets some icons to the ui.
-	 */
-	private static void setupUiDefaults() {
 		UIManager.put("OptionPane.okIcon", ImageProvider.get("ok"));
 		UIManager.put("OptionPane.yesIcon", UIManager.get("OptionPane.okIcon"));
 		UIManager.put("OptionPane.cancelIcon", ImageProvider.get("cancel"));
 		UIManager.put("OptionPane.noIcon", UIManager.get("OptionPane.cancelIcon"));
+
+		Dimension screenDimension = Toolkit.getDefaultToolkit().getScreenSize();
+		if (args.containsKey("geometry")) {
+			String geometry = args.get("geometry").iterator().next();
+			final Matcher m = Pattern.compile("(\\d+)x(\\d+)(([+-])(\\d+)([+-])(\\d+))?").matcher(geometry);
+			if (m.matches()) {
+				int w = Integer.valueOf(m.group(1));
+				int h = Integer.valueOf(m.group(2));
+				int x = 0, y = 0;
+				if (m.group(3) != null) {
+					x = Integer.valueOf(m.group(5));
+					y = Integer.valueOf(m.group(7));
+					if (m.group(4).equals("-"))
+						x = screenDimension.width - x - w;
+					if (m.group(6).equals("-"))
+						y = screenDimension.height - y - h;
+				}
+				bounds = new Rectangle(x,y,w,h);
+			} else
+				System.out.println("Ignoring malformed geometry: "+geometry);
+		}
+		if (bounds == null)
+			bounds = !args.containsKey("no-fullscreen") ? new Rectangle(0,0,screenDimension.width,screenDimension.height) : new Rectangle(1000,740);
 	}
 
-	/**
-	 * Setup an exception handler that displays a sorry message and the possibility
-	 * to do a bug report.
-	 */
-	private static void setupExceptionHandler() {
-		Thread.setDefaultUncaughtExceptionHandler(new BugReportExceptionHandler());
+	public void postConstructorProcessCmdLine(Map<String, Collection<String>> args) {
+		if (args.containsKey("download"))
+			for (String s : args.get("download"))
+				downloadFromParamString(false, s);
+		if (args.containsKey("downloadgps"))
+			for (String s : args.get("downloadgps"))
+				downloadFromParamString(true, s);
+		if (args.containsKey("selection"))
+			for (String s : args.get("selection"))
+				SelectionListDialog.search(s, SelectionListDialog.SearchMode.add);
+	}
+
+	private static void downloadFromParamString(final boolean rawGps, String s) {
+		if (s.startsWith("http:")) {
+			final Bounds b = DownloadAction.osmurl2bounds(s);
+			if (b == null)
+				JOptionPane.showMessageDialog(Main.parent, "Ignoring malformed url: '"+s+"'");
+			else
+				main.downloadAction.download(false, b.min.lat(), b.min.lon(), b.max.lat(), b.max.lon());
+			return;
+		}
+
+		if (s.startsWith("file:")) {
+			try {
+				main.openAction.openFile(new File(new URI(s)));
+			} catch (URISyntaxException e) {
+				JOptionPane.showMessageDialog(Main.parent, "Ignoring malformed file url: '"+s+"'");
+			}
+			return;
+		}
+
+		final StringTokenizer st = new StringTokenizer(s, ",");
+		if (st.countTokens() == 4) {
+			try {
+				main.downloadAction.download(rawGps, Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()));
+				return;
+			} catch (final NumberFormatException e) {
+			}
+		}
+
+		main.openAction.openFile(new File(s));
 	}
 }

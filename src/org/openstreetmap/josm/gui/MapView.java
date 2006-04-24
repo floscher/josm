@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 
+import javax.swing.JOptionPane;
+
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.AutoScaleAction;
 import org.openstreetmap.josm.data.Bounds;
@@ -61,7 +63,7 @@ public class MapView extends NavigatableComponent {
 	/**
 	 * Direct link to the edit layer (if any) in the layers list.
 	 */
-	private OsmDataLayer editLayer;
+	public OsmDataLayer editLayer;
 	/**
 	 * The layer from the layers list that is currently active.
 	 */
@@ -107,7 +109,7 @@ public class MapView extends NavigatableComponent {
 			Main.ds = dataLayer.data;
 			dataLayer.listenerModified.add(new ModifiedChangedListener(){
             	public void modifiedChanged(boolean value, OsmDataLayer source) {
-            		Main.main.setTitle((value?"*":"")+"Java Open Street Map - Editor");
+            		JOptionPane.getFrameForComponent(Main.parent).setTitle((value?"*":"")+"Java Open Street Map - Editor");
             	}
             });
 		}
@@ -286,16 +288,6 @@ public class MapView extends NavigatableComponent {
 	 */
 	public Layer getActiveLayer() {
 		return activeLayer;
-	}
-
-	/**
-	 * @return The current edit layer. If no edit layer exist, one is created.
-	 * 		So editLayer does never return <code>null</code>.
-	 */
-	public OsmDataLayer editLayer() {
-		if (editLayer == null)
-			addLayer(new OsmDataLayer(Main.ds, "unnamed", false));
-		return editLayer;
 	}
 
 	/**

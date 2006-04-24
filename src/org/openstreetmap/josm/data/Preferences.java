@@ -30,56 +30,47 @@ public class Preferences {
 		void preferenceChanged(String key, String newValue);
 	}
 	
-	ArrayList<PreferenceChangedListener> listener = new ArrayList<PreferenceChangedListener>();
+	public final ArrayList<PreferenceChangedListener> listener = new ArrayList<PreferenceChangedListener>();
 	
 	/**
 	 * Map the property name to the property object.
 	 */
-	private SortedMap<String, String> properties = new TreeMap<String, String>();
+	private final SortedMap<String, String> properties = new TreeMap<String, String>();
 	
 	/**
 	 * Return the location of the preferences file
 	 */
-	public static String getPreferencesDir() {
+	public String getPreferencesDir() {
 		return System.getProperty("user.home")+"/.josm/";
 	}
 
-
-	public void addPreferenceChangedListener(PreferenceChangedListener listener) {
-		this.listener.add(listener);
-	}
-	public void removePreferenceChangedListener(PreferenceChangedListener listener) {
-		this.listener.remove(listener);
-	}
-
-
-	synchronized public String get(String key) {
+	synchronized final public String get(final String key) {
 		if (!properties.containsKey(key))
 			return "";
 		return properties.get(key);
 	}
-	synchronized public String get(String key, String def) {
-		String prop = properties.get(key);
+	synchronized final public String get(final String key, final String def) {
+		final String prop = properties.get(key);
 		if (prop == null || prop.equals(""))
 			return def;
 		return prop;
 	}
-	synchronized public Map<String, String> getAllPrefix(String prefix) {
-		Map<String,String> all = new TreeMap<String,String>();
-		for (Entry<String,String> e : properties.entrySet())
+	synchronized final public Map<String, String> getAllPrefix(final String prefix) {
+		final Map<String,String> all = new TreeMap<String,String>();
+		for (final Entry<String,String> e : properties.entrySet())
 			if (e.getKey().startsWith(prefix))
 				all.put(e.getKey(), e.getValue());
 		return all;
 	}
-	synchronized public boolean getBoolean(String key) {
+	synchronized final public boolean getBoolean(final String key) {
 		return getBoolean(key, false);
 	}
-	synchronized public boolean getBoolean(String key, boolean def) {
+	synchronized final public boolean getBoolean(final String key, final boolean def) {
 		return properties.containsKey(key) ? Boolean.parseBoolean(properties.get(key)) : def;
 	}
 
 
-	synchronized public void put(String key, String value) {
+	synchronized final public void put(final String key, final String value) {
 		if (value == null)
 			properties.remove(key);
 		else
@@ -87,14 +78,14 @@ public class Preferences {
 		save();
 		firePreferenceChanged(key, value);
 	}
-	synchronized public void put(String key, boolean value) {
+	synchronized final public void put(final String key, final boolean value) {
 		properties.put(key, Boolean.toString(value));
 		save();
 		firePreferenceChanged(key, Boolean.toString(value));
 	}
 
-	private void firePreferenceChanged(String key, String value) {
-		for (PreferenceChangedListener l : listener)
+	private final void firePreferenceChanged(final String key, final String value) {
+		for (final PreferenceChangedListener l : listener)
 			l.preferenceChanged(key, value);
 	}
 
@@ -103,15 +94,15 @@ public class Preferences {
 	 * Called after every put. In case of a problem, do nothing but output the error
 	 * in log.
 	 */
-	private void save() {
+	protected void save() {
 		try {
-			PrintWriter out = new PrintWriter(new FileWriter(
+			final PrintWriter out = new PrintWriter(new FileWriter(
 					getPreferencesDir() + "preferences"));
-			for (Entry<String, String> e : properties.entrySet())
+			for (final Entry<String, String> e : properties.entrySet())
 				if (!e.getValue().equals(""))
 					out.println(e.getKey() + "=" + e.getValue());
 			out.close();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			// do not message anything, since this can be called from strange
 			// places.
@@ -121,17 +112,17 @@ public class Preferences {
 
 	public void load() throws IOException {
 		properties.clear();
-		BufferedReader in = new BufferedReader(new FileReader(getPreferencesDir()+"preferences"));
+		final BufferedReader in = new BufferedReader(new FileReader(getPreferencesDir()+"preferences"));
 		int lineNumber = 0;
 		for (String line = in.readLine(); line != null; line = in.readLine(), lineNumber++) {
-			int i = line.indexOf('=');
+			final int i = line.indexOf('=');
 			if (i == -1 || i == 0)
 				throw new IOException("Malformed config file at line "+lineNumber);
 			properties.put(line.substring(0,i), line.substring(i+1));
 		}
 	}
 
-	public void resetToDefault() {
+	public final void resetToDefault() {
 		properties.clear();
 		properties.put("laf", "javax.swing.plaf.metal.MetalLookAndFeel");
 		properties.put("projection", "org.openstreetmap.josm.data.projection.Epsg4326");
