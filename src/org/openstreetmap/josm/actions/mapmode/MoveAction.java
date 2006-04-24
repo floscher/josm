@@ -52,14 +52,14 @@ public class MoveAction extends MapMode {
 
 	@Override public void enterMode() {
 		super.enterMode();
-		mv.addMouseListener(this);
-		mv.addMouseMotionListener(this);
+		Main.map.mapView.addMouseListener(this);
+		Main.map.mapView.addMouseMotionListener(this);
 	}
 
 	@Override public void exitMode() {
 		super.exitMode();
-		mv.removeMouseListener(this);
-		mv.removeMouseMotionListener(this);
+		Main.map.mapView.removeMouseListener(this);
+		Main.map.mapView.removeMouseMotionListener(this);
 	}
 
 	
@@ -76,8 +76,8 @@ public class MoveAction extends MapMode {
 			singleOsmPrimitive = null;
 		}
 
-		EastNorth mouseGeo = mv.getEastNorth(e.getX(), e.getY());
-		EastNorth mouseStartGeo = mv.getEastNorth(mousePos.x, mousePos.y);
+		EastNorth mouseGeo = Main.map.mapView.getEastNorth(e.getX(), e.getY());
+		EastNorth mouseStartGeo = Main.map.mapView.getEastNorth(mousePos.x, mousePos.y);
 		double dx = mouseGeo.east() - mouseStartGeo.east();
 		double dy = mouseGeo.north() - mouseStartGeo.north();
 		if (dx == 0 && dy == 0)
@@ -89,18 +89,18 @@ public class MoveAction extends MapMode {
 		// check if any coordinate would be outside the world
 		for (OsmPrimitive osm : affectedNodes) {
 			if (osm instanceof Node && ((Node)osm).coor.isOutSideWorld()) {
-				JOptionPane.showMessageDialog(Main.main, "Cannot move objects outside of the world.");
+				JOptionPane.showMessageDialog(Main.parent, "Cannot move objects outside of the world.");
 				return;
 			}
 		}
 		
-		Command c = !mv.editLayer().commands.isEmpty() ? mv.editLayer().commands.getLast() : null;
+		Command c = !Main.main.editLayer().commands.isEmpty() ? Main.main.editLayer().commands.getLast() : null;
 		if (c instanceof MoveCommand && affectedNodes.equals(((MoveCommand)c).objects))
 			((MoveCommand)c).moveAgain(dx,dy);
 		else
-			mv.editLayer().add(new MoveCommand(selection, dx, dy));
+			Main.main.editLayer().add(new MoveCommand(selection, dx, dy));
 		
-		mv.repaint();
+		Main.map.mapView.repaint();
 		mousePos = e.getPoint();
 	}
 
@@ -118,27 +118,27 @@ public class MoveAction extends MapMode {
 			return;
 
 		if (Main.ds.getSelected().size() == 0) {
-			OsmPrimitive osm = mv.getNearest(e.getPoint(), (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0);
+			OsmPrimitive osm = Main.map.mapView.getNearest(e.getPoint(), (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0);
 			if (osm != null)
 				Main.ds.setSelected(osm);
 			singleOsmPrimitive = osm;
-			mv.repaint();
+			Main.map.mapView.repaint();
 		} else
 			singleOsmPrimitive = null;
 		
 		mousePos = e.getPoint();
-		oldCursor = mv.getCursor();
-		mv.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+		oldCursor = Main.map.mapView.getCursor();
+		Main.map.mapView.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
 	}
 	
 	/**
 	 * Restore the old mouse cursor.
 	 */
 	@Override public void mouseReleased(MouseEvent e) {
-		mv.setCursor(oldCursor);
+		Main.map.mapView.setCursor(oldCursor);
 		if (singleOsmPrimitive != null) {
 			Main.ds.clearSelection();
-			mv.repaint();
+			Main.map.mapView.repaint();
 		}
 	}
 }

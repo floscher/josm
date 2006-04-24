@@ -32,12 +32,10 @@ import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.gui.BookmarkList;
-import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.PleaseWaitRunnable;
 import org.openstreetmap.josm.gui.WorldChooser;
 import org.openstreetmap.josm.gui.BookmarkList.Bookmark;
-import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.RawGpsDataLayer;
 import org.openstreetmap.josm.gui.layer.RawGpsDataLayer.GpsPoint;
@@ -78,11 +76,7 @@ public class DownloadAction extends JosmAction {
 				return; // user cancelled download or error occoured
 			if (dataSet.nodes.isEmpty())
 				errorMessage = "No data imported.";
-			Layer layer = new OsmDataLayer(dataSet, "Data Layer", false);
-			if (Main.main.getMapFrame() == null)
-				Main.main.setMapFrame(new MapFrame(layer));
-			else
-				Main.main.getMapFrame().mapView.addLayer(layer);
+			Main.main.addLayer(new OsmDataLayer(dataSet, "Data Layer", false));
 		}
 
 		@Override protected void cancel() {
@@ -109,11 +103,7 @@ public class DownloadAction extends JosmAction {
 			if (rawData == null)
 				return;
 			String name = latlon[0].getText() + " " + latlon[1].getText() + " x " + latlon[2].getText() + " " + latlon[3].getText();
-			Layer layer = new RawGpsDataLayer(rawData, name);
-			if (Main.main.getMapFrame() == null)
-				Main.main.setMapFrame(new MapFrame(layer));
-			else
-				Main.main.getMapFrame().mapView.addLayer(layer);
+			Main.main.addLayer(new RawGpsDataLayer(rawData, name));
 		}
 
 		@Override protected void cancel() {
@@ -144,7 +134,7 @@ public class DownloadAction extends JosmAction {
 		String osmDataServer = Main.pref.get("osm-server.url");
 		//TODO: Remove this in later versions (temporary only)
 		if (osmDataServer.endsWith("/0.2") || osmDataServer.endsWith("/0.2/")) {
-			int answer = JOptionPane.showConfirmDialog(Main.main, 
+			int answer = JOptionPane.showConfirmDialog(Main.parent, 
 					"You seem to have an outdated server entry in your preferences.\n" +
 					"\n" +
 					"As of JOSM Release 1.2, you must no longer specify the API version in\n" +
@@ -174,8 +164,8 @@ public class DownloadAction extends JosmAction {
 		dlg.add(latlon[2], GBC.std());
 		dlg.add(new JLabel("max lon"), GBC.std().insets(10,0,5,0));
 		dlg.add(latlon[3], GBC.eol());
-		if (Main.main.getMapFrame() != null) {
-			MapView mv = Main.main.getMapFrame().mapView;
+		if (Main.map != null) {
+			MapView mv = Main.map.mapView;
 			setEditBounds(new Bounds(
 					mv.getLatLon(0, mv.getHeight()),
 					mv.getLatLon(mv.getWidth(), 0)));
@@ -259,10 +249,10 @@ public class DownloadAction extends JosmAction {
 			public void actionPerformed(ActionEvent e) {
 				Bookmark b = readBookmark();
 				if (b == null) {
-					JOptionPane.showMessageDialog(Main.main, "Please enter the desired coordinates first.");
+					JOptionPane.showMessageDialog(Main.parent, "Please enter the desired coordinates first.");
 					return;
 				}
-				b.name = JOptionPane.showInputDialog(Main.main, "Please enter a name for the location.");
+				b.name = JOptionPane.showInputDialog(Main.parent, "Please enter a name for the location.");
 				if (b.name != null && !b.name.equals("")) {
 					((DefaultListModel)bookmarks.getModel()).addElement(b);
 					bookmarks.save();
@@ -275,7 +265,7 @@ public class DownloadAction extends JosmAction {
 			public void actionPerformed(ActionEvent e) {
 				Object sel = bookmarks.getSelectedValue();
 				if (sel == null) {
-					JOptionPane.showMessageDialog(Main.main, "Select a bookmark first.");
+					JOptionPane.showMessageDialog(Main.parent, "Select a bookmark first.");
 					return;
 				}
 				((DefaultListModel)bookmarks.getModel()).removeElement(sel);
@@ -292,13 +282,13 @@ public class DownloadAction extends JosmAction {
 		// Finally: the dialog
 		Bookmark b;
 		do {
-			int r = JOptionPane.showConfirmDialog(Main.main, dlg, "Choose an area", 
+			int r = JOptionPane.showConfirmDialog(Main.parent, dlg, "Choose an area", 
 					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 			if (r != JOptionPane.OK_OPTION)
 				return;
 			b = readBookmark();
 			if (b == null)
-				JOptionPane.showMessageDialog(Main.main, "Please enter the desired coordinates or click on a bookmark.");
+				JOptionPane.showMessageDialog(Main.parent, "Please enter the desired coordinates or click on a bookmark.");
 		} while (b == null);
 
 		double minlon = b.latlon[0];

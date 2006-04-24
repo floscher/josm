@@ -25,9 +25,9 @@ public class UndoAction extends JosmAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		if (Main.main.getMapFrame() == null)
+		if (Main.map == null)
 			return;
-		Main.main.getMapFrame().repaint();
-		Main.main.getMapFrame().mapView.editLayer().undo();
+		Main.map.repaint();
+		Main.main.editLayer().undo();
 	}
 }

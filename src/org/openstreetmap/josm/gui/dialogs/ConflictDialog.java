@@ -35,7 +35,6 @@ import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.SimplePaintVisitor;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
 import org.openstreetmap.josm.gui.ConflictResolver;
-import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.NavigatableComponent;
 import org.openstreetmap.josm.gui.OsmPrimitivRenderer;
 import org.openstreetmap.josm.tools.ImageProvider;
@@ -95,14 +94,14 @@ public final class ConflictDialog extends ToggleDialog {
 		});
 		displaylist.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
 			public void valueChanged(ListSelectionEvent e) {
-				Main.main.getMapFrame().mapView.repaint();
+				Main.map.mapView.repaint();
 			}
 		});
 	}
 
 	private final void resolve() {
 		if (displaylist.getSelectedIndex() == -1) {
-			JOptionPane.showMessageDialog(Main.main, "Please select something from the conflict list.");
+			JOptionPane.showMessageDialog(Main.parent, "Please select something from the conflict list.");
 			return;
 		}
 		Map<OsmPrimitive, OsmPrimitive> sel = new HashMap<OsmPrimitive, OsmPrimitive>();
@@ -111,12 +110,11 @@ public final class ConflictDialog extends ToggleDialog {
 			sel.put(s, conflicts.get(s));
 		}
 		ConflictResolver resolver = new ConflictResolver(sel);
-		int answer = JOptionPane.showConfirmDialog(Main.main, resolver, "Resolve Conflicts", JOptionPane.OK_CANCEL_OPTION);
+		int answer = JOptionPane.showConfirmDialog(Main.parent, resolver, "Resolve Conflicts", JOptionPane.OK_CANCEL_OPTION);
 		if (answer != JOptionPane.OK_OPTION)
 			return;
-		MapView mv = Main.main.getMapFrame().mapView;
-		mv.editLayer().add(new ConflictResolveCommand(resolver.conflicts, sel));
-		mv.repaint();
+		Main.main.editLayer().add(new ConflictResolveCommand(resolver.conflicts, sel));
+		Main.map.mapView.repaint();
 	}
 
 	public final void rebuildList() {

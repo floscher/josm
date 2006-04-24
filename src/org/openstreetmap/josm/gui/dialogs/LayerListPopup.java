@@ -23,7 +23,7 @@ public class LayerListPopup extends JPopupMenu {
 		    this.layer = layer;
 	    }
 	    public void actionPerformed(ActionEvent e) {
-	    	JOptionPane.showMessageDialog(Main.main, layer.getInfoComponent());
+	    	JOptionPane.showMessageDialog(Main.parent, layer.getInfoComponent());
 	    }
     }
 

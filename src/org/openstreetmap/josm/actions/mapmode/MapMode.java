@@ -7,9 +7,9 @@ import java.awt.event.MouseMotionListener;
 
 import javax.swing.KeyStroke;
 
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.JosmAction;
 import org.openstreetmap.josm.gui.MapFrame;
-import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
@@ -23,21 +23,10 @@ import org.openstreetmap.josm.tools.ImageProvider;
 abstract public class MapMode extends JosmAction implements MouseListener, MouseMotionListener {
 
 	/**
-	 * The parent mapframe this mode belongs to.
-	 */
-	protected final MapFrame mapFrame;
-	/**
-	 * Shortcut to the MapView.
-	 */
-	protected final MapView mv;
-
-	/**
 	 * Constructor for mapmodes without an menu
 	 */
 	public MapMode(String name, String iconName, String tooltip, String keyname, int keystroke, MapFrame mapFrame) {
 		super(name, "mapmode/"+iconName, tooltip, keyname, KeyStroke.getKeyStroke(keystroke, 0));
-		this.mapFrame = mapFrame;
-		mv = mapFrame.mapView;
 		putValue("active", false);
 	}
 
@@ -48,8 +37,6 @@ abstract public class MapMode extends JosmAction implements MouseListener, Mouse
 		putValue(NAME, name);
 		putValue(SMALL_ICON, ImageProvider.get("mapmode", iconName));
 		putValue(SHORT_DESCRIPTION, tooltip);
-		this.mapFrame = mapFrame;
-		mv = mapFrame.mapView;
 	}
 
 	public void enterMode() {
@@ -63,7 +50,7 @@ abstract public class MapMode extends JosmAction implements MouseListener, Mouse
 	 * Call selectMapMode(this) on the parent mapFrame.
 	 */
 	public void actionPerformed(ActionEvent e) {
-		mapFrame.selectMapMode(this);
+		Main.map.selectMapMode(this);
 	}
 
 	public void mouseReleased(MouseEvent e) {}

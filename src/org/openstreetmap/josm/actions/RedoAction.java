@@ -25,9 +25,9 @@ public class RedoAction extends JosmAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		if (Main.main.getMapFrame() == null)
+		if (Main.map == null)
 			return;
-		Main.main.getMapFrame().repaint();
-		Main.main.getMapFrame().mapView.editLayer().redo();
+		Main.map.repaint();
+		Main.main.editLayer().redo();
 	}
 }

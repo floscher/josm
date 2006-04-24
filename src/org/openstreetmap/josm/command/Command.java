@@ -15,7 +15,7 @@ import org.openstreetmap.josm.data.osm.visitor.CloneVisitor;
  * one atomic action on a specific dataset, such as move or delete.
  *
  * Remember, that the command must be executable and undoable, even if the 
- * Main.main.ds has changed, so the command must save the dataset it operates on
+ * Main.ds has changed, so the command must save the dataset it operates on
  * if necessary.
  *
  * @author imi

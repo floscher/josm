@@ -9,10 +9,12 @@ import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.Icon;
+import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.gui.IconToggleButton;
 import org.openstreetmap.josm.tools.ImageProvider;
 import org.openstreetmap.josm.tools.ShortCutLabel;
@@ -48,7 +50,9 @@ public class GroupAction extends JosmAction {
 	}
 
 	public GroupAction(int shortCut, int modifiers) {
-		registerShortCut(getClass().getName(), KeyStroke.getKeyStroke(shortCut, modifiers));
+		String idName = getClass().getName();
+		Main.panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(shortCut, modifiers), idName);
+        Main.panel.getActionMap().put(idName, this);
 		shortCutName = ShortCutLabel.name(shortCut, modifiers);
 		addPropertyChangeListener(new PropertyChangeListener(){
 			public void propertyChange(PropertyChangeEvent evt) {

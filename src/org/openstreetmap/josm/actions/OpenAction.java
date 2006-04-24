@@ -16,8 +16,6 @@ import javax.swing.KeyStroke;
 import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.gui.MapFrame;
-import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.RawGpsDataLayer;
 import org.openstreetmap.josm.gui.layer.RawGpsDataLayer.GpsPoint;
@@ -58,8 +56,6 @@ public class OpenAction extends DiskAccessAction {
 	public void openFile(File filename) {
 		String fn = filename.getName();
 		try {
-			Layer layer;
-
 			if (asRawData(fn)) {
 				Collection<Collection<GpsPoint>> data;
 				if (ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn)) {
@@ -69,11 +65,11 @@ public class OpenAction extends DiskAccessAction {
 					data.add(new RawCsvReader(new FileReader(filename)).parse());
 				} else
 					throw new IllegalStateException();
-				layer = new RawGpsDataLayer(data, filename.getName());
+				Main.main.addLayer(new RawGpsDataLayer(data, filename.getName()));
 			} else {
 				DataSet dataSet;
 				if (ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn)) {
-					JOptionPane.showMessageDialog(Main.main, "Warning: Soon, it will be no longer possible to open GPX files as osm data. Please convert your files to .osm format.");
+					JOptionPane.showMessageDialog(Main.parent, "Warning: Soon, it will be no longer possible to open GPX files as osm data. Please convert your files to .osm format.");
 					dataSet = new GpxReader(new FileReader(filename)).parse();
 				} else if (ExtensionFileFilter.filters[ExtensionFileFilter.OSM].acceptName(fn)) {
 					try {
@@ -81,7 +77,7 @@ public class OpenAction extends DiskAccessAction {
 						dataSet = OsmReader.parseDataSet(new FileReader(filename));
 					} catch (SAXException x) {
 						if (x.getMessage().equals("Unknown version null")) {
-							int answer = JOptionPane.showConfirmDialog(Main.main, 
+							int answer = JOptionPane.showConfirmDialog(Main.parent, 
 									fn+" seems to be an old 0.2 API XML file.\n" +
 									"JOSM can try to open it with the old parser. This option\n" +
 									"will not be available in future JOSM version. You should\n" +
@@ -95,29 +91,23 @@ public class OpenAction extends DiskAccessAction {
 							throw x;
 					}					
 				} else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
-					JOptionPane.showMessageDialog(Main.main, fn+": CSV Data import for non-GPS data is not implemented yet.");
+					JOptionPane.showMessageDialog(Main.parent, fn+": CSV Data import for non-GPS data is not implemented yet.");
 					return;
 				} else {
-					JOptionPane.showMessageDialog(Main.main, fn+": Unknown file extension: "+fn.substring(filename.getName().lastIndexOf('.')+1));
+					JOptionPane.showMessageDialog(Main.parent, fn+": Unknown file extension: "+fn.substring(filename.getName().lastIndexOf('.')+1));
 					return;
 				}
-				layer = new OsmDataLayer(dataSet, "Data Layer", true);
+				Main.main.addLayer(new OsmDataLayer(dataSet, "Data Layer", true));
 			}
-			
-			if (Main.main.getMapFrame() == null)
-				Main.main.setMapFrame(new MapFrame(layer));
-			else
-				Main.main.getMapFrame().mapView.addLayer(layer);
-
 		} catch (SAXException x) {
 			x.printStackTrace();
-			JOptionPane.showMessageDialog(Main.main, "Error while parsing: "+x.getMessage());
+			JOptionPane.showMessageDialog(Main.parent, "Error while parsing: "+x.getMessage());
 		} catch (JDOMException x) {
 			x.printStackTrace();
-			JOptionPane.showMessageDialog(Main.main, "Error while parsing: "+x.getMessage());
+			JOptionPane.showMessageDialog(Main.parent, "Error while parsing: "+x.getMessage());
 		} catch (IOException x) {
 			x.printStackTrace();
-			JOptionPane.showMessageDialog(Main.main, "Could not read '"+fn+"'\n"+x.getMessage());
+			JOptionPane.showMessageDialog(Main.parent, "Could not read '"+fn+"'\n"+x.getMessage());
 		}
 	}
 
@@ -131,7 +121,7 @@ public class OpenAction extends DiskAccessAction {
 		if (!ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn))
 			return false;
 		return JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
-				Main.main, "Do you want to open "+fn+" as raw gps data?",
+				Main.parent, "Do you want to open "+fn+" as raw gps data?",
 				"Open as raw data?", JOptionPane.YES_NO_OPTION);
 	}
 }

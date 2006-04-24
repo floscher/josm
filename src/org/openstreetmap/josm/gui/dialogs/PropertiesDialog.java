@@ -39,7 +39,6 @@ import org.openstreetmap.josm.command.ChangePropertyCommand;
 import org.openstreetmap.josm.data.SelectionChangedListener;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.MapFrame;
-import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
@@ -94,7 +93,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		p.add(combo, BorderLayout.CENTER);
 
 		final JOptionPane optionPane = new JOptionPane(p, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
-		final JDialog dlg = optionPane.createDialog(Main.main, "Change values?");
+		final JDialog dlg = optionPane.createDialog(Main.parent, "Change values?");
 		dlg.addWindowFocusListener(new WindowFocusListener(){
 			public void windowGainedFocus(WindowEvent e) {
 				combo.requestFocusInWindow();
@@ -123,7 +122,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 			return;
 		if (value.equals(""))
 			value = null; // delete the key
-		mv.editLayer().add(new ChangePropertyCommand(sel, key, value));
+		Main.main.editLayer().add(new ChangePropertyCommand(sel, key, value));
 
 		if (value == null)
 			selectionChanged(sel); // update whole table
@@ -162,7 +161,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		p2.add(new JLabel("Please select a value"), BorderLayout.NORTH);
 		JTextField values = new JTextField();
 		p2.add(values, BorderLayout.CENTER);
-		int answer = JOptionPane.showConfirmDialog(Main.main, p, 
+		int answer = JOptionPane.showConfirmDialog(Main.parent, p, 
 				"Change values?", JOptionPane.OK_CANCEL_OPTION); 
 		if (answer != JOptionPane.OK_OPTION)
 			return;
@@ -170,7 +169,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		String value = values.getText();
 		if (value.equals(""))
 			return;
-		mv.editLayer().add(new ChangePropertyCommand(sel, key, value));
+		Main.main.editLayer().add(new ChangePropertyCommand(sel, key, value));
 		selectionChanged(sel); // update table
 	}
 
@@ -181,7 +180,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	private void delete(int row) {
 		String key = data.getValueAt(row, 0).toString();
 		Collection<OsmPrimitive> sel = Main.ds.getSelected();
-		mv.editLayer().add(new ChangePropertyCommand(sel, key, null));
+		Main.main.editLayer().add(new ChangePropertyCommand(sel, key, null));
 		selectionChanged(sel); // update table
 	}
 	
@@ -200,17 +199,12 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	 * The properties list.
 	 */
 	private final JTable propertyTable = new JTable(data);
-	/**
-	 * The map view this dialog operates on.
-	 */
-	private final MapView mv;
 	
 	/**
 	 * Create a new PropertiesDialog
 	 */
 	public PropertiesDialog(MapFrame mapFrame) {
 		super("Properties", "propertiesdialog", "Property for selected objects.", KeyEvent.VK_P);
-		mv = mapFrame.mapView;
 
 		setPreferredSize(new Dimension(320,150));
 		
@@ -247,12 +241,12 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 					add();
 				else if (e.getActionCommand().equals("Edit")) {
 					if (sel == -1)
-						JOptionPane.showMessageDialog(Main.main, "Please select the row to edit.");
+						JOptionPane.showMessageDialog(Main.parent, "Please select the row to edit.");
 					else
 						edit(sel);
 				} else if (e.getActionCommand().equals("Delete")) {
 					if (sel == -1)
-						JOptionPane.showMessageDialog(Main.main, "Please select the row to delete.");
+						JOptionPane.showMessageDialog(Main.parent, "Please select the row to delete.");
 					else
 						delete(sel);
 				}

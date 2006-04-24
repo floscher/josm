@@ -64,17 +64,17 @@ public class SelectionAction extends MapMode implements SelectionEnded {
 	 */
 	public SelectionAction(MapFrame mapFrame) {
 		super("Selection", "selection", "Select objects by dragging or clicking.", "S", KeyEvent.VK_S, mapFrame);
-		this.selectionManager = new SelectionManager(this, false, mv);
+		this.selectionManager = new SelectionManager(this, false, mapFrame.mapView);
 	}
 
 	@Override public void enterMode() {
 		super.enterMode();
-		selectionManager.register(mv);
+		selectionManager.register(Main.map.mapView);
 	}
 
 	@Override public void exitMode() {
 		super.exitMode();
-		selectionManager.unregister(mv);
+		selectionManager.unregister(Main.map.mapView);
 	}
 
 
@@ -98,6 +98,6 @@ public class SelectionAction extends MapMode implements SelectionEnded {
 			else
 				curSel.add(osm);
 		Main.ds.setSelected(curSel);
-		mv.repaint();
+		Main.map.mapView.repaint();
 	}
 }

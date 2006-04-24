@@ -65,7 +65,7 @@ public class OsmConnection {
     			JLabel warning = new JLabel("Warning: The password is transferred unencrypted.");
     			warning.setFont(warning.getFont().deriveFont(Font.ITALIC));
     			p.add(warning, GBC.eol());
-    			int choice = JOptionPane.showConfirmDialog(Main.main, p, "Enter Password", JOptionPane.OK_CANCEL_OPTION);
+    			int choice = JOptionPane.showConfirmDialog(Main.parent, p, "Enter Password", JOptionPane.OK_CANCEL_OPTION);
     			if (choice == JOptionPane.CANCEL_OPTION) {
     				authCancelled = true;
     				return null;

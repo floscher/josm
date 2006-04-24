@@ -27,7 +27,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
@@ -56,20 +55,15 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
         }
 
         public void actionPerformed(ActionEvent e) {
-        	if (layers.getModel().getSize() == 1) {
-        		Main.main.setMapFrame(null);
-        		Main.ds = new DataSet();
-        	} else {
-        	    int sel = layers.getSelectedIndex();
-                if (layer != null)
-                    Main.main.getMapFrame().mapView.removeLayer(layer);
-                else
-                    Main.main.getMapFrame().mapView.removeLayer((Layer)layers.getSelectedValue());
-                if (sel >= layers.getModel().getSize())
-                    sel = layers.getModel().getSize()-1;
-                if (layers.getSelectedValue() == null)
-                    layers.setSelectedIndex(sel);
-        	}
+    	    int sel = layers.getSelectedIndex();
+            if (layer != null)
+                Main.main.removeLayer(layer);
+            else
+                Main.main.removeLayer((Layer)layers.getSelectedValue());
+            if (sel >= layers.getModel().getSize())
+                sel = layers.getModel().getSize()-1;
+            if (layers.getSelectedValue() == null)
+                layers.setSelectedIndex(sel);
         }
     }
 
@@ -87,7 +81,7 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
         public void actionPerformed(ActionEvent e) {
             Layer l = layer == null ? (Layer)layers.getSelectedValue() : layer;
             l.visible = !l.visible;
-        	Main.main.getMapFrame().mapView.repaint();
+        	Main.map.mapView.repaint();
         	layers.repaint();
         }
     }

@@ -14,7 +14,6 @@ import java.util.Vector;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.Bounds;
-import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.coor.LatLon;
 
@@ -152,7 +151,7 @@ public class TileCache {
      * Get the image for the specified tile.
      */
     public synchronized Image get(final int tileId, final int zoom) {
-        final File cacheDir = new File(Main.pref.get("cache.directory", Preferences.getPreferencesDir()+"cache")+"/"+Main.proj.getCacheDirectoryName()+"/"+zoom);
+        final File cacheDir = new File(Main.pref.get("cache.directory", Main.pref.getPreferencesDir()+"cache")+"/"+Main.proj.getCacheDirectoryName()+"/"+zoom);
         if (!cache.containsKey(zoom)) {
             HashMap<Integer, Image> map = new HashMap<Integer, Image>();
             if (!cacheDir.exists())
@@ -188,7 +187,7 @@ public class TileCache {
                             out.close();
                             map.put(tileId, loading);
                             currentlyLoading.remove(tileId*256+zoom);
-                            Main.main.repaint();
+                            Main.map.repaint();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }        

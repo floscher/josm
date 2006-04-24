@@ -27,9 +27,9 @@ import org.openstreetmap.josm.Main;
 public final class BugReportExceptionHandler implements Thread.UncaughtExceptionHandler {
 	public void uncaughtException(Thread t, Throwable e) {
 		e.printStackTrace();
-		if (Main.main != null) {
+		if (Main.parent != null) {
 			Object[] options = new String[]{"Do nothing", "Report Bug"};
-			int answer = JOptionPane.showOptionDialog(Main.main, "An unexpected exception occoured.\n\n" +
+			int answer = JOptionPane.showOptionDialog(Main.parent, "An unexpected exception occoured.\n\n" +
 					"This is always a coding error. If you are running the latest\n" +
 					"version of JOSM, please consider be kind and file a bug report.",
 					"Unexpected Exception", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE,
@@ -68,7 +68,7 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 					info.setEditable(false);
 					p.add(new JScrollPane(info), GBC.eop());
 
-					JOptionPane.showMessageDialog(Main.main, p);
+					JOptionPane.showMessageDialog(Main.parent, p);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}

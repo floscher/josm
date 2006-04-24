@@ -49,21 +49,21 @@ public class OsmDataLayer extends Layer {
 		public final int[] deleted = new int[3];
 		public final String[] names = {"node", "segment", "way"};
 
-		private void inc(OsmPrimitive osm, int i) {
+		private void inc(final OsmPrimitive osm, final int i) {
 			normal[i]++;
 			if (osm.deleted)
 				deleted[i]++;
 		}
 
-		public void visit(Node n) {
+		public void visit(final Node n) {
 			inc(n, 0);
 		}
 
-		public void visit(Segment ls) {
+		public void visit(final Segment ls) {
 			inc(ls, 1);
 		}
 
-		public void visit(Way w) {
+		public void visit(final Way w) {
 			inc(w, 2);
 		}
 	}
@@ -72,7 +72,7 @@ public class OsmDataLayer extends Layer {
 		void modifiedChanged(boolean value, OsmDataLayer source);
 	}
 	public interface CommandQueueListener {
-		void commandChanged();
+		void commandChanged(int queueSize, int redoSize);
 	}
 
 	private static Icon icon;
@@ -102,7 +102,7 @@ public class OsmDataLayer extends Layer {
 	/**
 	 * The stack for redoing commands
 	 */
-	private Stack<Command> redoCommands = new Stack<Command>();
+	private final Stack<Command> redoCommands = new Stack<Command>();
 
 	public final LinkedList<ModifiedChangedListener> listenerModified = new LinkedList<ModifiedChangedListener>();
 	public final LinkedList<CommandQueueListener> listenerCommands = new LinkedList<CommandQueueListener>();
@@ -111,7 +111,7 @@ public class OsmDataLayer extends Layer {
 	/**
 	 * Construct a OsmDataLayer.
 	 */
-	public OsmDataLayer(DataSet data, String name, boolean fromDisk) {
+	public OsmDataLayer(final DataSet data, final String name, final boolean fromDisk) {
 		super(name);
 		this.data = data;
 		this.fromDisk = fromDisk;
@@ -132,21 +132,21 @@ public class OsmDataLayer extends Layer {
 	 * are drawn by the edit layer).
 	 * Draw nodes last to overlap the segments they belong to.
 	 */
-	@Override public void paint(Graphics g, MapView mv) {
-		SimplePaintVisitor visitor = new SimplePaintVisitor(g, mv);
-		for (OsmPrimitive osm : data.segments)
+	@Override public void paint(final Graphics g, final MapView mv) {
+		final SimplePaintVisitor visitor = new SimplePaintVisitor(g, mv);
+		for (final OsmPrimitive osm : data.segments)
 			if (!osm.deleted)
 				osm.visit(visitor);
-		for (OsmPrimitive osm : data.ways)
+		for (final OsmPrimitive osm : data.ways)
 			if (!osm.deleted)
 				osm.visit(visitor);
-		for (OsmPrimitive osm : data.nodes)
+		for (final OsmPrimitive osm : data.nodes)
 			if (!osm.deleted)
 				osm.visit(visitor);
-		for (OsmPrimitive osm : data.getSelected())
+		for (final OsmPrimitive osm : data.getSelected())
 			if (!osm.deleted)
 				osm.visit(visitor);
-		Main.main.getMapFrame().conflictDialog.paintConflicts(g, mv);
+		Main.map.conflictDialog.paintConflicts(g, mv);
 	}
 
 	@Override public String getToolTipText() {
@@ -155,26 +155,26 @@ public class OsmDataLayer extends Layer {
 		undeletedSize(data.ways)+" streets.";
 	}
 
-	@Override public void mergeFrom(Layer from) {
+	@Override public void mergeFrom(final Layer from) {
 		final MergeVisitor visitor = new MergeVisitor(data);
-		for (OsmPrimitive osm : ((OsmDataLayer)from).data.allPrimitives())
+		for (final OsmPrimitive osm : ((OsmDataLayer)from).data.allPrimitives())
 			osm.visit(visitor);
 		visitor.fixReferences();
 		if (visitor.conflicts.isEmpty())
 			return;
-		ConflictDialog dlg = Main.main.getMapFrame().conflictDialog;
+		final ConflictDialog dlg = Main.map.conflictDialog;
 		dlg.add(visitor.conflicts);
-		JOptionPane.showMessageDialog(Main.main, "There were conflicts during import.");
+		JOptionPane.showMessageDialog(Main.parent, "There were conflicts during import.");
 		if (!dlg.isVisible())
 			dlg.action.actionPerformed(new ActionEvent(this, 0, ""));
 	}
 
-	@Override public boolean isMergable(Layer other) {
+	@Override public boolean isMergable(final Layer other) {
 		return other instanceof OsmDataLayer;
 	}
 
-	@Override public void visitBoundingBox(BoundingXYVisitor v) {
-		for (Node n : data.nodes)
+	@Override public void visitBoundingBox(final BoundingXYVisitor v) {
+		for (final Node n : data.nodes)
 			if (!n.deleted)
 				v.visit(n);
 	}
@@ -183,16 +183,12 @@ public class OsmDataLayer extends Layer {
 	 * Execute the command and add it to the intern command queue. Also mark all
 	 * primitives in the command as modified.
 	 */
-	public void add(Command c) {
+	public void add(final Command c) {
 		c.executeCommand();
 		commands.add(c);
 		redoCommands.clear();
-		// TODO: Replace with listener scheme
-		Main.main.undoAction.setEnabled(true);
-		Main.main.redoAction.setEnabled(false);
 		setModified(true);
-		for (CommandQueueListener l : listenerCommands)
-			l.commandChanged();
+		fireCommandsChanged();
 	}
 
 	/**
@@ -201,17 +197,13 @@ public class OsmDataLayer extends Layer {
 	public void undo() {
 		if (commands.isEmpty())
 			return;
-		Command c = commands.removeLast();
+		final Command c = commands.removeLast();
 		c.undoCommand();
 		redoCommands.push(c);
 		//TODO: Replace with listener scheme
-		Main.main.undoAction.setEnabled(!commands.isEmpty());
-		Main.main.redoAction.setEnabled(true);
-		if (commands.isEmpty())
 			setModified(uploadedModified);
 		Main.ds.clearSelection();
-		for (CommandQueueListener l : listenerCommands)
-			l.commandChanged();
+		fireCommandsChanged();
 	}
 	/**
 	 * Redoes the last undoed command.
@@ -219,15 +211,11 @@ public class OsmDataLayer extends Layer {
 	public void redo() {
 		if (redoCommands.isEmpty())
 			return;
-		Command c = redoCommands.pop();
+		final Command c = redoCommands.pop();
 		c.executeCommand();
 		commands.add(c);
-		//TODO: Replace with listener scheme
-		Main.main.undoAction.setEnabled(true);
-		Main.main.redoAction.setEnabled(!redoCommands.isEmpty());
 		setModified(true);
-		for (CommandQueueListener l : listenerCommands)
-			l.commandChanged();
+		fireCommandsChanged();
 	}
 
 	/**
@@ -239,18 +227,18 @@ public class OsmDataLayer extends Layer {
 	 * 		May be <code>null</code>, which means nothing has been uploaded but 
 	 * 		saved to disk instead.
 	 */
-	public void cleanData(Collection<OsmPrimitive> processed, boolean dataAdded) {
+	public void cleanData(final Collection<OsmPrimitive> processed, boolean dataAdded) {
 		redoCommands.clear();
 		commands.clear();
 
 		// if uploaded, clean the modified flags as well
 		if (processed != null) {
-			Set<OsmPrimitive> processedSet = new HashSet<OsmPrimitive>(processed);
-			for (Iterator<Node> it = data.nodes.iterator(); it.hasNext();)
+			final Set<OsmPrimitive> processedSet = new HashSet<OsmPrimitive>(processed);
+			for (final Iterator<Node> it = data.nodes.iterator(); it.hasNext();)
 				cleanIterator(it, processedSet);
-			for (Iterator<Segment> it = data.segments.iterator(); it.hasNext();)
+			for (final Iterator<Segment> it = data.segments.iterator(); it.hasNext();)
 				cleanIterator(it, processedSet);
-			for (Iterator<Way> it = data.ways.iterator(); it.hasNext();)
+			for (final Iterator<Way> it = data.ways.iterator(); it.hasNext();)
 				cleanIterator(it, processedSet);
 		}
 
@@ -262,10 +250,13 @@ public class OsmDataLayer extends Layer {
 		// modified if server changed the data (esp. the id).
 		uploadedModified = fromDisk && processed != null && dataAdded;
 		setModified(uploadedModified);
-		//TODO: Replace with listener scheme
-		Main.main.undoAction.setEnabled(false);
-		Main.main.redoAction.setEnabled(false);
+		fireCommandsChanged();
 	}
+
+	public void fireCommandsChanged() {
+	    for (final CommandQueueListener l : listenerCommands)
+			l.commandChanged(commands.size(), redoCommands.size());
+    }
 
 	/**
 	 * Clean the modified flag for the given iterator over a collection if it is in the
@@ -275,8 +266,8 @@ public class OsmDataLayer extends Layer {
 	 * @param processed A list of all objects that have been successfully progressed.
 	 * 		If the object in the iterator is not in the list, nothing will be changed on it.
 	 */
-	private void cleanIterator(Iterator<? extends OsmPrimitive> it, Collection<OsmPrimitive> processed) {
-		OsmPrimitive osm = it.next();
+	private void cleanIterator(final Iterator<? extends OsmPrimitive> it, final Collection<OsmPrimitive> processed) {
+		final OsmPrimitive osm = it.next();
 		if (!processed.remove(osm))
 			return;
 		osm.modified = false;
@@ -288,30 +279,30 @@ public class OsmDataLayer extends Layer {
 		return modified;
 	}
 
-	public void setModified(boolean modified) {
+	public void setModified(final boolean modified) {
 		if (modified == this.modified)
 			return;
 		this.modified = modified;
-		for (ModifiedChangedListener l : listenerModified)
+		for (final ModifiedChangedListener l : listenerModified)
 			l.modifiedChanged(modified, this);
 	}
 
 	/**
 	 * @return The number of not-deleted primitives in the list.
 	 */
-	private int undeletedSize(Collection<? extends OsmPrimitive> list) {
+	private int undeletedSize(final Collection<? extends OsmPrimitive> list) {
 		int size = 0;
-		for (OsmPrimitive osm : list)
+		for (final OsmPrimitive osm : list)
 			if (!osm.deleted)
 				size++;
 		return size;
 	}
 
 	@Override public Object getInfoComponent() {
-		DataCountVisitor counter = new DataCountVisitor();
-		for (OsmPrimitive osm : data.allPrimitives())
+		final DataCountVisitor counter = new DataCountVisitor();
+		for (final OsmPrimitive osm : data.allPrimitives())
 			osm.visit(counter);
-		JPanel p = new JPanel(new GridBagLayout());
+		final JPanel p = new JPanel(new GridBagLayout());
 		p.add(new JLabel(name+" consists of:"), GBC.eol());
 		for (int i = 0; i < counter.normal.length; ++i) {
 			String s = counter.normal[i]+" "+counter.names[i]+(counter.normal[i] != 1 ?"s":"");
@@ -322,7 +313,7 @@ public class OsmDataLayer extends Layer {
 		return p;
 	}
 
-	@Override public void addMenuEntries(JPopupMenu menu) {
+	@Override public void addMenuEntries(final JPopupMenu menu) {
 		menu.add(new JMenuItem(new SaveAction()));
 		menu.add(new JMenuItem(new GpxExportAction(this)));
 		menu.addSeparator();

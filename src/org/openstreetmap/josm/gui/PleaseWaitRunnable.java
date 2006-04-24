@@ -43,7 +43,7 @@ public abstract class PleaseWaitRunnable implements Runnable {
 	 * Create the runnable object with a given message for the user.
 	 */
 	public PleaseWaitRunnable(String msg) {
-		pleaseWaitDlg = new JDialog(Main.main, msg, true);
+		pleaseWaitDlg = new JDialog(JOptionPane.getFrameForComponent(Main.parent), msg, true);
 		pleaseWaitDlg.setLayout(new GridBagLayout());
 		JPanel pane = new JPanel(new GridBagLayout());
 		pane.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
@@ -53,7 +53,7 @@ public abstract class PleaseWaitRunnable implements Runnable {
 		pane.add(cancel, GBC.eol().anchor(GBC.CENTER));
 		pleaseWaitDlg.setContentPane(pane);
 		pleaseWaitDlg.setSize(350,100);
-		pleaseWaitDlg.setLocationRelativeTo(Main.main);
+		pleaseWaitDlg.setLocationRelativeTo(Main.parent);
 
 		cancel.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
@@ -121,7 +121,7 @@ public abstract class PleaseWaitRunnable implements Runnable {
 				pleaseWaitDlg.setVisible(false);
 				pleaseWaitDlg.dispose();
 				if (errorMessage != null)
-					JOptionPane.showMessageDialog(Main.main, errorMessage);
+					JOptionPane.showMessageDialog(Main.parent, errorMessage);
 			}
 		});
 	}

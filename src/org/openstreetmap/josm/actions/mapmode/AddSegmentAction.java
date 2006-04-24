@@ -50,14 +50,14 @@ public class AddSegmentAction extends MapMode implements MouseListener {
 
 	@Override public void enterMode() {
 		super.enterMode();
-		mv.addMouseListener(this);
-		mv.addMouseMotionListener(this);
+		Main.map.mapView.addMouseListener(this);
+		Main.map.mapView.addMouseMotionListener(this);
 	}
 
 	@Override public void exitMode() {
 		super.exitMode();
-		mv.removeMouseListener(this);
-		mv.removeMouseMotionListener(this);
+		Main.map.mapView.removeMouseListener(this);
+		Main.map.mapView.removeMouseMotionListener(this);
 		drawHint(false);
 	}
 
@@ -74,7 +74,7 @@ public class AddSegmentAction extends MapMode implements MouseListener {
 		if (e.getButton() != MouseEvent.BUTTON1)
 			return;
 
-		OsmPrimitive clicked = mv.getNearest(e.getPoint(), true);
+		OsmPrimitive clicked = Main.map.mapView.getNearest(e.getPoint(), true);
 		if (clicked == null || !(clicked instanceof Node))
 			return;
 
@@ -90,7 +90,7 @@ public class AddSegmentAction extends MapMode implements MouseListener {
 		if ((e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) == 0)
 			return;
 
-		OsmPrimitive clicked = mv.getNearest(e.getPoint(), (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0);
+		OsmPrimitive clicked = Main.map.mapView.getNearest(e.getPoint(), (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0);
 		if (clicked == null || clicked == second || !(clicked instanceof Node))
 			return;
 
@@ -135,10 +135,10 @@ public class AddSegmentAction extends MapMode implements MouseListener {
 					return; // already a segment here - be happy, do nothing.
 
 			Segment ls = new Segment(start, end);
-			mv.editLayer().add(new AddCommand(ls));
+			Main.main.editLayer().add(new AddCommand(ls));
 		}
 
-		mv.repaint();
+		Main.map.mapView.repaint();
 	}
 
 	/**
@@ -152,11 +152,11 @@ public class AddSegmentAction extends MapMode implements MouseListener {
 		if (second == first)
 			return;
 
-		Graphics g = mv.getGraphics();
+		Graphics g = Main.map.mapView.getGraphics();
 		g.setColor(Color.BLACK);
 		g.setXORMode(Color.WHITE);
-		Point firstDrawn = mv.getPoint(first.eastNorth);
-		Point secondDrawn = mv.getPoint(second.eastNorth);
+		Point firstDrawn = Main.map.mapView.getPoint(first.eastNorth);
+		Point secondDrawn = Main.map.mapView.getPoint(second.eastNorth);
 		g.drawLine(firstDrawn.x, firstDrawn.y, secondDrawn.x, secondDrawn.y);
 		hintDrawn = !hintDrawn;
 	}

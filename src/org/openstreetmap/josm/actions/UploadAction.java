@@ -42,7 +42,7 @@ public class UploadAction extends JosmAction {
 		String osmDataServer = Main.pref.get("osm-server.url");
 		//TODO: Remove this in later versions (temporary only)
 		if (osmDataServer.endsWith("/0.2") || osmDataServer.endsWith("/0.2/")) {
-			int answer = JOptionPane.showConfirmDialog(Main.main, 
+			int answer = JOptionPane.showConfirmDialog(Main.parent, 
 					"You seem to have an outdated server entry in your preferences.\n" +
 					"\n" +
 					"As of JOSM Release 1.2, you must no longer specify the API version in\n" +
@@ -55,10 +55,10 @@ public class UploadAction extends JosmAction {
 			Main.pref.put("osm-server.url", osmDataServer.substring(0, osmDataServer.length()-cutPos));
 		}
 
-		if (!Main.main.getMapFrame().conflictDialog.conflicts.isEmpty()) {
-			JOptionPane.showMessageDialog(Main.main, "There are unresolved conflicts. You have to resolve these first.");
-			Main.main.getMapFrame().conflictDialog.action.button.setSelected(true);
-			Main.main.getMapFrame().conflictDialog.action.actionPerformed(null);
+		if (!Main.map.conflictDialog.conflicts.isEmpty()) {
+			JOptionPane.showMessageDialog(Main.parent, "There are unresolved conflicts. You have to resolve these first.");
+			Main.map.conflictDialog.action.button.setSelected(true);
+			Main.map.conflictDialog.action.actionPerformed(null);
 			return;
 		}
 
@@ -89,7 +89,7 @@ public class UploadAction extends JosmAction {
 				server.uploadOsm(all);
 			}
 			@Override protected void finish() {
-				Main.main.getMapFrame().mapView.editLayer().cleanData(server.processed, !add.isEmpty());
+				Main.main.editLayer().cleanData(server.processed, !add.isEmpty());
 			}
 			@Override protected void cancel() {
 				server.cancel();
@@ -107,7 +107,7 @@ public class UploadAction extends JosmAction {
 	 */
 	private boolean displayUploadScreen(Collection<OsmPrimitive> add, Collection<OsmPrimitive> update, Collection<OsmPrimitive> delete) {
 		if (add.isEmpty() && update.isEmpty() && delete.isEmpty()) {
-			JOptionPane.showMessageDialog(Main.main, "No changes to upload.");
+			JOptionPane.showMessageDialog(Main.parent, "No changes to upload.");
 			return false;
 		}
 
@@ -139,7 +139,7 @@ public class UploadAction extends JosmAction {
 			p.add(new JScrollPane(l), GBC.eol().fill());
 		}
 
-		return JOptionPane.showConfirmDialog(Main.main, p, "Upload this changes?", 
+		return JOptionPane.showConfirmDialog(Main.parent, p, "Upload this changes?", 
 				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
 	}
 }

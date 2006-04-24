@@ -86,10 +86,10 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 				}
 	        } catch (IOException e) {
 		        e.printStackTrace();
-		        JOptionPane.showMessageDialog(Main.main, "Could not read from url: '"+url+"'");
+		        JOptionPane.showMessageDialog(Main.parent, "Could not read from url: '"+url+"'");
 	        } catch (SAXException e) {
 		        e.printStackTrace();
-		        JOptionPane.showMessageDialog(Main.main, "Parsing error in url: '"+url+"'");
+		        JOptionPane.showMessageDialog(Main.parent, "Parsing error in url: '"+url+"'");
 	        }
         }
 		@Override protected void cancel() {
@@ -184,7 +184,7 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 						input.requestFocusInWindow();
                     }
 				};
-				pane.createDialog(Main.main, "Search").setVisible(true);
+				pane.createDialog(Main.parent, "Search").setVisible(true);
 				if (!Integer.valueOf(JOptionPane.OK_OPTION).equals(pane.getValue()))
 					return;
 				lastSearch = input.getText();
