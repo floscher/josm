@@ -39,7 +39,9 @@ public class IconToggleButton extends JToggleButton implements PropertyChangeLis
 	}
 
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt.getPropertyName().equals("active"))
+		if (evt.getPropertyName().equals("active")) {
 			setSelected((Boolean)evt.getNewValue());
+			requestFocusInWindow();
+		}
 	}
 }

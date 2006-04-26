@@ -5,12 +5,19 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 
 import javax.swing.JOptionPane;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.AutoScaleAction;
@@ -75,6 +82,39 @@ public class MapView extends NavigatableComponent {
 
 	private final AutoScaleAction autoScaleAction;
 
+	
+	private final class Scaler extends JSlider implements PropertyChangeListener, ChangeListener {
+		boolean hovered = false;
+		public Scaler() {
+			super(0, 20);
+			addMouseListener(new MouseAdapter(){
+				@Override public void mouseEntered(MouseEvent e) {
+	                hovered = true;
+                }
+				@Override public void mouseExited(MouseEvent e) {
+	                hovered = false;
+                }
+			});
+			MapView.this.addPropertyChangeListener(this);
+			addChangeListener(this);
+        }
+		public void propertyChange(PropertyChangeEvent evt) {
+			if (evt.getPropertyName().equals("scale") && !getModel().getValueIsAdjusting())
+				setValue(zoom());
+        }
+		public void stateChanged(ChangeEvent e) {
+			if (!hovered)
+				return;
+			EastNorth pos = world;
+			for (int zoom = 0; zoom < getValue(); ++zoom)
+				pos = new EastNorth(pos.east()/2, pos.north()/2);
+			if (MapView.this.getWidth() < MapView.this.getHeight())
+				zoomTo(center, pos.east()*2/(MapView.this.getWidth()-20));
+			else
+				zoomTo(center, pos.north()*2/(MapView.this.getHeight()-20));
+        }
+	}
+	
 	public MapView(AutoScaleAction autoScaleAction) {
 		this.autoScaleAction = autoScaleAction;
 		addComponentListener(new ComponentAdapter(){
@@ -90,6 +130,10 @@ public class MapView extends NavigatableComponent {
 				repaint();
 			}
 		});
+		Scaler zoomScaler = new Scaler();
+		zoomScaler.setOpaque(false);
+		add(zoomScaler);
+		zoomScaler.setBounds(0,0, 100, 30);
 	}
 
 	/**
@@ -181,6 +225,7 @@ public class MapView extends NavigatableComponent {
 		int y2 = Math.max(min.y, max.y);
 		if (x1 > 0 || y1 > 0 || x2 < getWidth() || y2 < getHeight())
 			g.drawRect(x1, y1, x2-x1+1, y2-y1+1);
+		super.paint(g);
 	}
 
 	/**

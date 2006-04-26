@@ -32,8 +32,10 @@ abstract public class JosmAction extends AbstractAction {
 	public JosmAction(String name, String iconName, String tooltip, String shortCutName, KeyStroke shortCut) {
 		super(name, ImageProvider.get(iconName));
 		putValue(SHORT_DESCRIPTION, "<html>"+tooltip+" <font size='-2'>"+shortCutName+"</font>&nbsp;</html>");
-		Main.panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(shortCut, name);
-        Main.panel.getActionMap().put(name, this);
+		//Main.panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(shortCut, name);
+        //Main.panel.getActionMap().put(name, this);
+        Main.contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(shortCut, name);
+        Main.contentPane.getActionMap().put(name, this);
 	}
 
 	public JosmAction() {

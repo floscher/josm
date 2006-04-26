@@ -7,11 +7,11 @@ import java.util.HashSet;
 import javax.swing.JComponent;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.coor.EastNorth;
-import org.openstreetmap.josm.data.osm.Segment;
+import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.projection.Projection;
 
@@ -22,6 +22,8 @@ import org.openstreetmap.josm.data.projection.Projection;
  * @author imi
  */
 public class NavigatableComponent extends JComponent {
+
+	public static final EastNorth world = Main.proj.latlon2eastNorth(new LatLon(Projection.MAX_LAT, Projection.MAX_LON));
 
 	/**
 	 * The scale factor in x or y-units per pixel. This means, if scale = 10,
@@ -34,6 +36,22 @@ public class NavigatableComponent extends JComponent {
 	 */
 	protected EastNorth center;
 
+	public NavigatableComponent() {
+		setLayout(null);
+    }
+
+	/**
+	 * Return the OSM-conform zoom factor (0 for whole world, 1 for half, 2 for quarter...)
+	 */
+	public int zoom() {
+		double sizex = scale * getWidth();
+		double sizey = scale * getHeight();
+		for (int zoom = 0; zoom <= 32; zoom++, sizex *= 2, sizey *= 2)
+			if (sizex > world.east() || sizey > world.north())
+				return zoom;
+		return 32;
+	}
+	
 	/**
 	 * Return the current scale value.
 	 * @return The scale value currently used in display

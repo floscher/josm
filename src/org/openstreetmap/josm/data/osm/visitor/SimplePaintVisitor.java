@@ -87,7 +87,7 @@ public class SimplePaintVisitor implements Visitor {
 	 * @param n		The node to draw.
 	 * @param color The color of the node.
 	 */
-	private void drawNode(Node n, Color color) {
+	public void drawNode(Node n, Color color) {
 		Point p = nc.getPoint(n.eastNorth);
 		g.setColor(color);
 		g.drawRect(p.x-1, p.y-1, 2, 2);

@@ -38,7 +38,11 @@ public class UploadAction extends JosmAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-
+		if (Main.map == null) {
+			JOptionPane.showMessageDialog(Main.parent, "Nothing to upload. Get some data first.");
+			return;
+		}
+		
 		String osmDataServer = Main.pref.get("osm-server.url");
 		//TODO: Remove this in later versions (temporary only)
 		if (osmDataServer.endsWith("/0.2") || osmDataServer.endsWith("/0.2/")) {

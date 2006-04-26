@@ -1,5 +1,6 @@
 package org.openstreetmap.josm.actions.mapmode;
 
+import java.awt.Cursor;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -52,11 +53,13 @@ public class AddNodeAction extends MapMode {
 	@Override public void enterMode() {
 		super.enterMode();
 		Main.map.mapView.addMouseListener(this);
+		Main.map.mapView.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
 	}
 
 	@Override public void exitMode() {
 		super.exitMode();
 		Main.map.mapView.removeMouseListener(this);
+		Main.map.mapView.setCursor(Cursor.getDefaultCursor());
 	}
 
 	/**

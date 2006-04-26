@@ -5,13 +5,17 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.Collection;
+import java.util.LinkedList;
 
 import javax.swing.Icon;
 import javax.swing.JColorChooser;
+import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.filechooser.FileFilter;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.GpxExportAction;
@@ -30,7 +34,7 @@ import org.openstreetmap.josm.tools.ImageProvider;
  * 
  * @author imi
  */
-public class RawGpsDataLayer extends Layer {
+public class RawGpsLayer extends Layer {
 
 	private static Icon icon;
 	
@@ -50,7 +54,7 @@ public class RawGpsDataLayer extends Layer {
 	 */
 	public final Collection<Collection<GpsPoint>> data;
 
-	public RawGpsDataLayer(Collection<Collection<GpsPoint>> data, String name) {
+	public RawGpsLayer(Collection<Collection<GpsPoint>> data, String name) {
 		super(name);
 		this.data = data;
 		Main.pref.listener.add(new PreferenceChangedListener(){
@@ -102,12 +106,12 @@ public class RawGpsDataLayer extends Layer {
 	}
 
 	@Override public void mergeFrom(Layer from) {
-		RawGpsDataLayer layer = (RawGpsDataLayer)from;
+		RawGpsLayer layer = (RawGpsLayer)from;
 		data.addAll(layer.data);
 	}
 
 	@Override public boolean isMergable(Layer other) {
-		return other instanceof RawGpsDataLayer;
+		return other instanceof RawGpsLayer;
 	}
 
 	@Override public void visitBoundingBox(BoundingXYVisitor v) {
@@ -151,6 +155,42 @@ public class RawGpsDataLayer extends Layer {
 			}
 		});
 		menu.add(color);
+		
+		JMenuItem tagimage = new JMenuItem("Import images", ImageProvider.get("tagimages"));
+		tagimage.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser fc = new JFileChooser(Main.pref.get("tagimages.lastdirectory"));
+				fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+				fc.setMultiSelectionEnabled(true);
+				fc.setAcceptAllFileFilterUsed(false);
+				fc.setFileFilter(new FileFilter(){
+					@Override public boolean accept(File f) {
+						return f.isDirectory() || f.getName().toLowerCase().endsWith(".jpg");
+					}
+					@Override public String getDescription() {
+						return "JPEG images (*.jpg)";
+					}
+				});
+				fc.showOpenDialog(Main.parent);
+				File[] sel = fc.getSelectedFiles();
+				if (sel == null || sel.length == 0)
+					return;
+				LinkedList<File> files = new LinkedList<File>();
+				addRecursiveFiles(files, sel);
+				Main.pref.put("tagimages.lastdirectory", fc.getCurrentDirectory().getPath());
+				GeoImageLayer.create(files, RawGpsLayer.this);
+            }
+
+			private void addRecursiveFiles(LinkedList<File> files, File[] sel) {
+				for (File f : sel) {
+					if (f.isDirectory())
+						addRecursiveFiles(files, f.listFiles());
+					else if (f.getName().toLowerCase().endsWith(".jpg"))
+						files.add(f);
+				}
+            }
+		});
+		menu.add(tagimage);
 		
 		menu.addSeparator();
 		menu.add(new LayerListPopup.InfoAction(this));

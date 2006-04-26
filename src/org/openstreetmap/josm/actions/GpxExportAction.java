@@ -26,7 +26,7 @@ import javax.swing.ListSelectionModel;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.gui.layer.Layer;
-import org.openstreetmap.josm.gui.layer.RawGpsDataLayer;
+import org.openstreetmap.josm.gui.layer.RawGpsLayer;
 import org.openstreetmap.josm.io.GpxWriter;
 import org.openstreetmap.josm.tools.GBC;
 
@@ -117,8 +117,8 @@ public class GpxExportAction extends DiskAccessAction {
 			GpxWriter w = new GpxWriter(out, layer.name, desc.getText(),
 					authorName.getText(), email.getText(), copyright.getText(),
 					copyrightYear.getText(), keywords.getText());
-			if (layer instanceof RawGpsDataLayer)
-				w.output(((RawGpsDataLayer)layer).data);
+			if (layer instanceof RawGpsLayer)
+				w.output(((RawGpsLayer)layer).data);
 			else
 				w.output(Main.ds);
 			out.close();

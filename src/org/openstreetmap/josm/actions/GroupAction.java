@@ -51,8 +51,8 @@ public class GroupAction extends JosmAction {
 
 	public GroupAction(int shortCut, int modifiers) {
 		String idName = getClass().getName();
-		Main.panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(shortCut, modifiers), idName);
-        Main.panel.getActionMap().put(idName, this);
+		Main.contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(shortCut, modifiers), idName);
+        Main.contentPane.getActionMap().put(idName, this);
 		shortCutName = ShortCutLabel.name(shortCut, modifiers);
 		addPropertyChangeListener(new PropertyChangeListener(){
 			public void propertyChange(PropertyChangeEvent evt) {

@@ -37,8 +37,8 @@ import org.openstreetmap.josm.gui.PleaseWaitRunnable;
 import org.openstreetmap.josm.gui.WorldChooser;
 import org.openstreetmap.josm.gui.BookmarkList.Bookmark;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
-import org.openstreetmap.josm.gui.layer.RawGpsDataLayer;
-import org.openstreetmap.josm.gui.layer.RawGpsDataLayer.GpsPoint;
+import org.openstreetmap.josm.gui.layer.RawGpsLayer;
+import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
 import org.openstreetmap.josm.io.OsmServerReader;
 import org.openstreetmap.josm.tools.GBC;
 import org.xml.sax.SAXException;
@@ -103,7 +103,7 @@ public class DownloadAction extends JosmAction {
 			if (rawData == null)
 				return;
 			String name = latlon[0].getText() + " " + latlon[1].getText() + " x " + latlon[2].getText() + " " + latlon[3].getText();
-			Main.main.addLayer(new RawGpsDataLayer(rawData, name));
+			Main.main.addLayer(new RawGpsLayer(rawData, name));
 		}
 
 		@Override protected void cancel() {
@@ -169,7 +169,7 @@ public class DownloadAction extends JosmAction {
 			setEditBounds(new Bounds(
 					mv.getLatLon(0, mv.getHeight()),
 					mv.getLatLon(mv.getWidth(), 0)));
-			rawGps.setSelected(mv.getActiveLayer() instanceof RawGpsDataLayer);
+			rawGps.setSelected(mv.getActiveLayer() instanceof RawGpsLayer);
 		}
 		dlg.add(rawGps, GBC.eop());
 

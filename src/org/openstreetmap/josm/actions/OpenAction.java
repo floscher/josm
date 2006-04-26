@@ -17,8 +17,8 @@ import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
-import org.openstreetmap.josm.gui.layer.RawGpsDataLayer;
-import org.openstreetmap.josm.gui.layer.RawGpsDataLayer.GpsPoint;
+import org.openstreetmap.josm.gui.layer.RawGpsLayer;
+import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
 import org.openstreetmap.josm.io.GpxReader;
 import org.openstreetmap.josm.io.OsmReader;
 import org.openstreetmap.josm.io.OsmReaderOld;
@@ -65,7 +65,7 @@ public class OpenAction extends DiskAccessAction {
 					data.add(new RawCsvReader(new FileReader(filename)).parse());
 				} else
 					throw new IllegalStateException();
-				Main.main.addLayer(new RawGpsDataLayer(data, filename.getName()));
+				Main.main.addLayer(new RawGpsLayer(data, filename.getName()));
 			} else {
 				DataSet dataSet;
 				if (ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn)) {
@@ -101,10 +101,10 @@ public class OpenAction extends DiskAccessAction {
 			}
 		} catch (SAXException x) {
 			x.printStackTrace();
-			JOptionPane.showMessageDialog(Main.parent, "Error while parsing: "+x.getMessage());
+			JOptionPane.showMessageDialog(Main.parent, "Error while parsing "+fn+": "+x.getMessage());
 		} catch (JDOMException x) {
 			x.printStackTrace();
-			JOptionPane.showMessageDialog(Main.parent, "Error while parsing: "+x.getMessage());
+			JOptionPane.showMessageDialog(Main.parent, "Error while parsing "+fn+": "+x.getMessage());
 		} catch (IOException x) {
 			x.printStackTrace();
 			JOptionPane.showMessageDialog(Main.parent, "Could not read '"+fn+"'\n"+x.getMessage());

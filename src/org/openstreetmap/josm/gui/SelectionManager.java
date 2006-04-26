@@ -5,7 +5,9 @@ import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -14,10 +16,14 @@ import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import javax.swing.AbstractAction;
+import javax.swing.JComponent;
+import javax.swing.KeyStroke;
+
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 
 /**
@@ -120,6 +126,15 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 		eventSource.addMouseListener(this);
 		eventSource.addMouseMotionListener(this);
 		selectionEndedListener.addPropertyChangeListener(this);
+		Main.contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "SelectionManager");
+        Main.contentPane.getActionMap().put("SelectionManager", new AbstractAction(){
+			public void actionPerformed(ActionEvent e) {
+				if (mousePos != null && mousePosStart != null)
+					paintRect();
+				mousePosStart = null;
+				mousePos = null;
+            }
+        });
 	}
 	/**
 	 * Unregister itself from the given event source. If a selection rectangle is
@@ -131,6 +146,8 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 		eventSource.removeMouseListener(this);
 		eventSource.removeMouseMotionListener(this);
 		selectionEndedListener.removePropertyChangeListener(this);
+		Main.contentPane.getInputMap().remove(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
+		Main.contentPane.getActionMap().remove("SelectionManager");
 	}
 
 	/**
@@ -326,22 +343,8 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 		return false;
 	}
 	
-	
-	/**
-	 * Does nothing. Only to satisfy MouseListener
-	 */
 	public void mouseClicked(MouseEvent e) {}
-	/**
-	 * Does nothing. Only to satisfy MouseListener
-	 */
 	public void mouseEntered(MouseEvent e) {}
-	/**
-	 * Does nothing. Only to satisfy MouseListener
-	 */
 	public void mouseExited(MouseEvent e) {}
-	/**
-	 * Does nothing. Only to satisfy MouseMotionListener
-	 */
 	public void mouseMoved(MouseEvent e) {}
-
 }

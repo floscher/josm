@@ -81,7 +81,7 @@ public abstract class PleaseWaitRunnable implements Runnable {
 			errorMessage = "Error while parsing: "+x.getMessage();
 		} catch (FileNotFoundException x) {
 			x.printStackTrace();
-			errorMessage = "URL not found: " + x.getMessage();
+			errorMessage = "Not found: " + x.getMessage();
 		} catch (IOException x) {
 			x.printStackTrace();
 			errorMessage = x.getMessage();
