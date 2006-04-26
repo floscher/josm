@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.gui.layer.RawGpsDataLayer.GpsPoint;
+import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
 import org.xml.sax.SAXException;
 
 /**

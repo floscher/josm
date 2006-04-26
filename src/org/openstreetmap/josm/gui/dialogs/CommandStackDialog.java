@@ -37,6 +37,9 @@ public class CommandStackDialog extends ToggleDialog implements CommandQueueList
 			}
 			public void layerRemoved(Layer oldLayer) {}
 		});
+		if (mapFrame.mapView.editLayer != null)
+			mapFrame.mapView.editLayer.listenerCommands.add(this);
+			
 		tree.setRootVisible(false);
 		tree.setShowsRootHandles(true);
 		tree.expandRow(0);

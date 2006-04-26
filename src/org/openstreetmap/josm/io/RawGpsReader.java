@@ -10,7 +10,7 @@ import org.jdom.JDOMException;
 import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 import org.openstreetmap.josm.data.coor.LatLon;
-import org.openstreetmap.josm.gui.layer.RawGpsDataLayer.GpsPoint;
+import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
 
 /**
  * Read raw gps data from a gpx file. Only way points with their ways segments

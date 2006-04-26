@@ -99,6 +99,8 @@ abstract public class Main {
 				}
 				public void layerRemoved(final Layer oldLayer) {}
 			});
+			if (map.mapView.editLayer != null)
+				map.mapView.editLayer.listenerCommands.add(redoUndoListener);
 		}
 		redoUndoListener.commandChanged(0,0);
 	}
@@ -205,7 +207,7 @@ abstract public class Main {
 	/**
 	 * Use this to register shortcuts to
 	 */
-	public static JPanel panel = new JPanel(new BorderLayout());
+	public static final JPanel contentPane = new JPanel(new BorderLayout());
 
 
 	////////////////////////////////////////////////////////////////////////////////////////
@@ -213,8 +215,9 @@ abstract public class Main {
 	////////////////////////////////////////////////////////////////////////////////////////
 
 
+	private static JPanel panel = new JPanel(new BorderLayout());
+
 	protected final JMenuBar mainMenu = new JMenuBar();
-	protected static final JPanel contentPane = new JPanel(new BorderLayout());
 	protected static Rectangle bounds;
 
 	private final UndoAction undoAction = new UndoAction();

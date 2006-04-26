@@ -7,6 +7,7 @@ import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
 
 import javax.swing.BoundedRangeModel;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -28,7 +29,7 @@ public class OsmConnection {
 	protected HttpURLConnection activeConnection;
 	protected JLabel currentAction;
 	protected BoundedRangeModel progress;
-	
+
 	private static OsmAuth authentication;
 	/**
 	 * Initialize the http defaults and the authenticator.
@@ -37,48 +38,58 @@ public class OsmConnection {
 		HttpURLConnection.setFollowRedirects(true);
 		Authenticator.setDefault(authentication = new OsmAuth());
 	}
-	
+
 	/**
-     * The authentication class handling the login requests.
-     */
-    private static class OsmAuth extends Authenticator {
-    	/**
-    	 * Set to true, when the autenticator tried the password once.
-    	 */
-    	boolean passwordtried = false;
-    	/**
-    	 * Whether the user cancelled the password dialog
-    	 */
-    	boolean authCancelled = false;
-    
-    	@Override protected PasswordAuthentication getPasswordAuthentication() {
-    		String username = Main.pref.get("osm-server.username");
-    		String password = Main.pref.get("osm-server.password");
-    		if (passwordtried || username.equals("") || password.equals("")) {
-    			JPanel p = new JPanel(new GridBagLayout());
-    			p.add(new JLabel("Username"), GBC.std().insets(0,0,10,0));
-    			JTextField usernameField = new JTextField(username, 20);
-    			p.add(usernameField, GBC.eol());
-    			p.add(new JLabel("Password"), GBC.std().insets(0,0,10,0));
-    			JPasswordField passwordField = new JPasswordField(password, 20);
-    			p.add(passwordField, GBC.eol());
-    			JLabel warning = new JLabel("Warning: The password is transferred unencrypted.");
-    			warning.setFont(warning.getFont().deriveFont(Font.ITALIC));
-    			p.add(warning, GBC.eol());
-    			int choice = JOptionPane.showConfirmDialog(Main.parent, p, "Enter Password", JOptionPane.OK_CANCEL_OPTION);
-    			if (choice == JOptionPane.CANCEL_OPTION) {
-    				authCancelled = true;
-    				return null;
-    			}
-    			username = usernameField.getText();
-    			password = String.valueOf(passwordField.getPassword());
-    			if (username.equals(""))
-    				return null;
-    		}
-    		passwordtried = true;
-    		return new PasswordAuthentication(username, password.toCharArray());
-    	}
-    }
+	 * The authentication class handling the login requests.
+	 */
+	private static class OsmAuth extends Authenticator {
+		/**
+		 * Set to true, when the autenticator tried the password once.
+		 */
+		boolean passwordtried = false;
+		/**
+		 * Whether the user cancelled the password dialog
+		 */
+		boolean authCancelled = false;
+
+		@Override protected PasswordAuthentication getPasswordAuthentication() {
+			String username = Main.pref.get("osm-server.username");
+			String password = Main.pref.get("osm-server.password");
+			if (passwordtried || username.equals("") || password.equals("")) {
+				JPanel p = new JPanel(new GridBagLayout());
+				if (!username.equals("") && !password.equals(""))
+					p.add(new JLabel("Incorrect password or username."), GBC.eop());
+				p.add(new JLabel("Username"), GBC.std().insets(0,0,10,0));
+				JTextField usernameField = new JTextField(username, 20);
+				p.add(usernameField, GBC.eol());
+				p.add(new JLabel("Password"), GBC.std().insets(0,0,10,0));
+				JPasswordField passwordField = new JPasswordField(password, 20);
+				p.add(passwordField, GBC.eol());
+				JLabel warning = new JLabel("Warning: The password is transferred unencrypted.");
+				warning.setFont(warning.getFont().deriveFont(Font.ITALIC));
+				p.add(warning, GBC.eop());
+
+				JCheckBox savePassword = new JCheckBox("Save user and password (unencrypted)", !username.equals("") && !password.equals(""));
+				p.add(savePassword, GBC.eop());
+
+				int choice = JOptionPane.showConfirmDialog(Main.parent, p, "Enter Password", JOptionPane.OK_CANCEL_OPTION);
+				if (choice == JOptionPane.CANCEL_OPTION) {
+					authCancelled = true;
+					return null;
+				}
+				username = usernameField.getText();
+				password = String.valueOf(passwordField.getPassword());
+				if (savePassword.isSelected()) {
+					Main.pref.put("osm-server.username", username);
+					Main.pref.put("osm-server.password", password);
+				}
+				if (username.equals(""))
+					return null;
+			}
+			passwordtried = true;
+			return new PasswordAuthentication(username, password.toCharArray());
+		}
+	}
 
 	/**
 	 * Must be called before each connection attemp to initialize the authentication.
@@ -87,7 +98,7 @@ public class OsmConnection {
 		authentication.authCancelled = false;
 		authentication.passwordtried = false;
 	}
-	
+
 	/**
 	 * @return Whether the connection was cancelled.
 	 */
@@ -98,15 +109,15 @@ public class OsmConnection {
 	public void setProgressInformation(JLabel currentAction, BoundedRangeModel progress) {
 		this.currentAction = currentAction;
 		this.progress = progress;
-    }
+	}
 
 	public void cancel() {
 		currentAction.setText("Aborting...");
-    	cancel = true;
-    	if (activeConnection != null) {
-    		activeConnection.setConnectTimeout(1);
-    		activeConnection.setReadTimeout(1);
-    		activeConnection.disconnect();
-    	}
-    }
+		cancel = true;
+		if (activeConnection != null) {
+			activeConnection.setConnectTimeout(1);
+			activeConnection.setReadTimeout(1);
+			activeConnection.disconnect();
+		}
+	}
 }

@@ -1,7 +1,7 @@
 package org.openstreetmap.josm.data.projection;
 
-import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.coor.EastNorth;
+import org.openstreetmap.josm.data.coor.LatLon;
 
 /**
  * Classes subclass this are able to convert lat/lon values to 

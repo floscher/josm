@@ -132,9 +132,13 @@ public class MapFrame extends JPanel {
 	 * Open all ToggleDialogs that have their preferences property set. Close all others.
 	 */
 	public void setVisibleDialogs() {
-		for (Component c : toggleDialogs.getComponents())
-			if (c instanceof ToggleDialog)
-				c.setVisible(Main.pref.getBoolean(((ToggleDialog)c).prefName+".visible"));
+		for (Component c : toggleDialogs.getComponents()) {
+			if (c instanceof ToggleDialog) {
+				boolean sel = Main.pref.getBoolean(((ToggleDialog)c).prefName+".visible");
+				((ToggleDialog)c).action.button.setSelected(sel);
+				c.setVisible(sel);
+			}
+		}
 	}
 
 	private void addIconToggle(JPanel toggleDialogs, ToggleDialog dlg) {

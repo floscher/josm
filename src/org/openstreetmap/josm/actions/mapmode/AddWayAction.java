@@ -13,7 +13,6 @@ import javax.swing.JOptionPane;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.AddCommand;
 import org.openstreetmap.josm.command.ChangeCommand;
-import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.DeleteCommand;
 import org.openstreetmap.josm.data.SelectionChangedListener;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -63,14 +62,8 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 
 	@Override public void enterMode() {
 		super.enterMode();
-		Command c = null;
 		way = makeWay();
-		if (way != null) {
-			c = new AddCommand(way);
-			Main.ds.setSelected(way);
-			Main.main.editLayer().add(c);
-		} else
-			Main.ds.clearSelection();
+		Main.ds.setSelected(way);
 		Main.map.mapView.addMouseListener(this);
 	}
 
@@ -146,6 +139,8 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 				segmentSet.add((Segment)osm);
 		}
 
+		Way wayToAdd = null;
+		boolean reordered = false;
 		if (numberOfSelectedWays > 0) {
 			String ways = "way" + (numberOfSelectedWays==1?" has":"s have");
 			int answer = JOptionPane.showConfirmDialog(Main.parent, numberOfSelectedWays+" "+ways+" been selected.\n" +
@@ -154,6 +149,24 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 				for (OsmPrimitive osm : selection)
 					if (osm instanceof Way)
 						segmentSet.addAll(((Way)osm).segments);
+			} else if (numberOfSelectedWays == 1) {
+				answer = JOptionPane.showConfirmDialog(Main.parent, "Do you want to add all other selected segments to the one selected way?", "Add segments to way?", JOptionPane.YES_NO_OPTION);
+				if (answer == JOptionPane.YES_OPTION) {
+					for (OsmPrimitive osm : selection) {
+						if (osm instanceof Way) {
+							wayToAdd = (Way)osm;
+							answer = JOptionPane.showConfirmDialog(Main.parent, "Reorder all line segments?", "Reorder?", JOptionPane.YES_NO_CANCEL_OPTION);
+							if (answer == JOptionPane.CANCEL_OPTION)
+								return wayToAdd;
+							if (answer == JOptionPane.YES_OPTION) {
+								segmentSet.addAll(wayToAdd.segments);
+								reordered = true;
+							} else
+								segmentSet.removeAll(wayToAdd.segments);
+							break;
+						}
+					}
+				}
 			}
 		}
 
@@ -192,11 +205,23 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 			sortedSegments.addAll(pivotList);
 		}
 
+		if (wayToAdd != null) {
+			Way w = new Way(wayToAdd);
+			if (reordered)
+				w.segments.clear();
+			w.segments.addAll(sortedSegments);
+			Main.main.editLayer().add(new ChangeCommand(wayToAdd, w));
+			return wayToAdd;
+		}
+
 		if (JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(Main.parent, "Create a new way out of "+sortedSegments.size()+" segments?", "Create new way", JOptionPane.YES_NO_OPTION))
 			return null;
 
 		Way w = new Way();
 		w.segments.addAll(sortedSegments);
+
+		if (way != null)
+			Main.main.editLayer().add(new AddCommand(way));
 		return w;
 	}
 

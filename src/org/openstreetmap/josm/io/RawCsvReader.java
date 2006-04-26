@@ -11,7 +11,7 @@ import java.util.StringTokenizer;
 import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.coor.LatLon;
-import org.openstreetmap.josm.gui.layer.RawGpsDataLayer.GpsPoint;
+import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
 
 /**
  * Read raw information from a csv style file (as defined in the preferences).
@@ -27,7 +27,7 @@ public class RawCsvReader {
 	public RawCsvReader(Reader in) {
 		this.in = new BufferedReader(in);
 	}
-	
+
 	public Collection<GpsPoint> parse() throws JDOMException, IOException {
 		Collection<GpsPoint> data = new LinkedList<GpsPoint>();
 		String formatStr = Main.pref.get("csv.importstring");
@@ -35,7 +35,7 @@ public class RawCsvReader {
 			formatStr = in.readLine();
 		if (formatStr == null)
 			throw new JDOMException("Could not detect data format string.");
-		
+
 		// get delimiter
 		String delim = ",";
 		for (int i = 0; i < formatStr.length(); ++i) {
@@ -44,11 +44,15 @@ public class RawCsvReader {
 				break;
 			}
 		}
-		
+
 		// convert format string
 		ArrayList<String> format = new ArrayList<String>();
-		for (StringTokenizer st = new StringTokenizer(formatStr, delim); st.hasMoreTokens();)
-			format.add(st.nextToken());
+		for (StringTokenizer st = new StringTokenizer(formatStr, delim); st.hasMoreTokens();) {
+			String token = st.nextToken();
+			if (!token.equals("lat") && !token.equals("lon") && !token.equals("time"))
+				token = "ignore";
+			format.add(token);
+		}
 
 		// test for completness
 		if (!format.contains("lat") || !format.contains("lon")) {
@@ -56,7 +60,7 @@ public class RawCsvReader {
 				throw new JDOMException("Format string in data is incomplete or not found. Try setting an manual format string in Preferences.");
 			throw new JDOMException("Format string is incomplete. Need at least 'lat' and 'lon' specification");
 		}
-		
+
 		int lineNo = 0;
 		try {
 			for (String line = in.readLine(); line != null; line = in.readLine()) {
