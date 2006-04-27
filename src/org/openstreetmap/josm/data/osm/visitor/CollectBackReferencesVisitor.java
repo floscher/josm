@@ -20,7 +20,7 @@ import org.openstreetmap.josm.data.osm.Way;
 public class CollectBackReferencesVisitor implements Visitor {
 
 	private final DataSet ds;
-	
+
 	/**
 	 * The result list of primitives stored here.
 	 */
@@ -34,16 +34,16 @@ public class CollectBackReferencesVisitor implements Visitor {
 	public CollectBackReferencesVisitor(DataSet ds) {
 		this.ds = ds;
 	}
-	
+
 	public void visit(Node n) {
-		for (Way t : ds.ways) {
-			if (t.deleted)
+		for (Way w : ds.ways) {
+			if (w.deleted)
 				continue;
-			for (Segment ls : t.segments) {
+			for (Segment ls : w.segments) {
 				if (ls.incomplete)
 					continue;
 				if (ls.from == n || ls.to == n) {
-					data.add(t);
+					data.add(w);
 					break;
 				}
 			}

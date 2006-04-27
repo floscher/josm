@@ -10,11 +10,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -92,15 +89,13 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		p.add(new JLabel(msg+"</html>"), BorderLayout.NORTH);
 		p.add(combo, BorderLayout.CENTER);
 
-		final JOptionPane optionPane = new JOptionPane(p, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
-		final JDialog dlg = optionPane.createDialog(Main.parent, "Change values?");
-		dlg.addWindowFocusListener(new WindowFocusListener(){
-			public void windowGainedFocus(WindowEvent e) {
+		final JOptionPane optionPane = new JOptionPane(p, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION){
+			@Override public void selectInitialValue() {
 				combo.requestFocusInWindow();
+				combo.getEditor().selectAll();
 			}
-			public void windowLostFocus(WindowEvent e) {
-			}
-		});
+		};
+		final JDialog dlg = optionPane.createDialog(Main.parent, "Change values?");
 		combo.getEditor().addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				optionPane.setValue(JOptionPane.OK_OPTION);
@@ -129,41 +124,39 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		else
 			PropertiesDialog.this.repaint(); // repaint is enough 
 	}
-	
+
 	/**
 	 * Open the add selection dialog and add a new key/value to the table (and to the
 	 * dataset, of course).
 	 */
 	void add() {
 		Collection<OsmPrimitive> sel = Main.ds.getSelected();
-		
+
 		JPanel p = new JPanel(new BorderLayout());
 		p.add(new JLabel("<html>This will change "+sel.size()+" object"+(sel.size()==1?"":"s")+".<br><br>"+
 		"Please select a key"), BorderLayout.NORTH);
-		Vector<String> allKeys = new Vector<String>();
+		TreeSet<String> allKeys = new TreeSet<String>();
 		for (OsmPrimitive osm : Main.ds.allNonDeletedPrimitives())
 			allKeys.addAll(osm.keySet());
-		for (Iterator<String> it = allKeys.iterator(); it.hasNext();) {
-			String s = it.next();
-			for (int i = 0; i < data.getRowCount(); ++i) {
-				if (s.equals(data.getValueAt(i, 0))) {
-					it.remove();
-					break;
-				}
-			}
-		}
-		JComboBox keys = new JComboBox(allKeys);
+		for (int i = 0; i < data.getRowCount(); ++i)
+			allKeys.remove(data.getValueAt(i, 0));
+		final JComboBox keys = new JComboBox(new Vector<String>(allKeys));
 		keys.setEditable(true);
 		p.add(keys, BorderLayout.CENTER);
-		
+
 		JPanel p2 = new JPanel(new BorderLayout());
 		p.add(p2, BorderLayout.SOUTH);
 		p2.add(new JLabel("Please select a value"), BorderLayout.NORTH);
-		JTextField values = new JTextField();
+		final JTextField values = new JTextField();
 		p2.add(values, BorderLayout.CENTER);
-		int answer = JOptionPane.showConfirmDialog(Main.parent, p, 
-				"Change values?", JOptionPane.OK_CANCEL_OPTION); 
-		if (answer != JOptionPane.OK_OPTION)
+		JOptionPane pane = new JOptionPane(p, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION){
+			@Override public void selectInitialValue() {
+				keys.requestFocusInWindow();
+				keys.getEditor().selectAll();
+			}
+		};
+		pane.createDialog(Main.parent, "Change values?").setVisible(true);
+		if (!Integer.valueOf(JOptionPane.OK_OPTION).equals(pane.getValue()))
 			return;
 		String key = keys.getEditor().getItem().toString();
 		String value = values.getText();
@@ -183,7 +176,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		Main.main.editLayer().add(new ChangePropertyCommand(sel, key, null));
 		selectionChanged(sel); // update table
 	}
-	
+
 	/**
 	 * The property data.
 	 */
@@ -199,7 +192,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	 * The properties list.
 	 */
 	private final JTable propertyTable = new JTable(data);
-	
+
 	/**
 	 * Create a new PropertiesDialog
 	 */
@@ -207,7 +200,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		super("Properties", "propertiesdialog", "Property for selected objects.", KeyEvent.VK_P);
 
 		setPreferredSize(new Dimension(320,150));
-		
+
 		data.setColumnIdentifiers(new String[]{"Key", "Value"});
 		propertyTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		propertyTable.setDefaultRenderer(JComboBox.class, new DefaultTableCellRenderer(){
@@ -227,12 +220,12 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 				return super.getTableCellRendererComponent(table, value, isSelected, false, row, column);
 			}
 		});
-		//propertyTable.addMouseListener(new DblClickWatch());
-
+		DblClickWatch dblClickWatch = new DblClickWatch();
+		propertyTable.addMouseListener(dblClickWatch);
 		JScrollPane scrollPane = new JScrollPane(propertyTable);
-		scrollPane.addMouseListener(new DblClickWatch());
+		scrollPane.addMouseListener(dblClickWatch);
 		add(scrollPane, BorderLayout.CENTER);
-		
+
 		JPanel buttonPanel = new JPanel(new GridLayout(1,3));
 		ActionListener buttonAction = new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
@@ -257,7 +250,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		buttonPanel.add(createButton("Delete", "Delete the selected key in all objects", KeyEvent.VK_D, buttonAction));
 		add(buttonPanel, BorderLayout.SOUTH);
 	}
-	
+
 	private JButton createButton(String name, String tooltip, int mnemonic, ActionListener actionListener) {
 		JButton b = new JButton(name, ImageProvider.get("dialogs", name.toLowerCase()));
 		b.setActionCommand(name);
@@ -283,7 +276,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		if (propertyTable.getCellEditor() != null)
 			propertyTable.getCellEditor().cancelCellEditing();
 		data.setRowCount(0);
-		
+
 		Map<String, Integer> valueCount = new HashMap<String, Integer>();
 		TreeMap<String, Collection<String>> props = new TreeMap<String, Collection<String>>();
 		for (OsmPrimitive osm : newSelection) {

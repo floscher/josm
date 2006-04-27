@@ -34,10 +34,8 @@ import org.openstreetmap.josm.tools.ImageProvider;
  * 
  * @author imi
  */
-public class RawGpsLayer extends Layer {
+public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 
-	private static Icon icon;
-	
 	public static class GpsPoint {
 		public final LatLon latlon;
 		public final EastNorth eastNorth;
@@ -57,21 +55,14 @@ public class RawGpsLayer extends Layer {
 	public RawGpsLayer(Collection<Collection<GpsPoint>> data, String name) {
 		super(name);
 		this.data = data;
-		Main.pref.listener.add(new PreferenceChangedListener(){
-        	public void preferenceChanged(String key, String newValue) {
-        		if (Main.map != null && (key.equals("drawRawGpsLines") || key.equals("forceRawGpsLines")))
-        			Main.map.repaint();
-        	}
-        });
+		Main.pref.listener.add(this);
 	}
 
 	/**
 	 * Return a static icon.
 	 */
 	@Override public Icon getIcon() {
-		if (icon == null)
-			icon = ImageProvider.get("layer", "rawgps");
-		return icon;
+		return ImageProvider.get("layer", "rawgps");
 	}
 
 	@Override public void paint(Graphics g, MapView mv) {
@@ -85,11 +76,11 @@ public class RawGpsLayer extends Layer {
 			g.setColor(Color.GRAY);
 		Point old = null;
 		for (Collection<GpsPoint> c : data) {
-			if (!Main.pref.getBoolean("forceRawGpsLines"))
+			if (!Main.pref.getBoolean("draw.rawgps.lines.force"))
 				old = null;
 			for (GpsPoint p : c) {
 				Point screen = mv.getPoint(p.eastNorth);
-				if (Main.pref.getBoolean("drawRawGpsLines") && old != null)
+				if (Main.pref.getBoolean("draw.rawgps.lines") && old != null)
 					g.drawLine(old.x, old.y, screen.x, screen.y);
 				else
 					g.drawRect(screen.x, screen.y, 0, 0);
@@ -194,5 +185,14 @@ public class RawGpsLayer extends Layer {
 		
 		menu.addSeparator();
 		menu.add(new LayerListPopup.InfoAction(this));
+    }
+
+	public void preferenceChanged(String key, String newValue) {
+		if (Main.map != null && (key.equals("draw.rawgps.lines") || key.equals("draw.rawgps.lines.force")))
+			Main.map.repaint();
+	}
+
+	@Override public void layerRemoved() {
+		Main.pref.listener.remove(this);
     }
 }

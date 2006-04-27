@@ -111,13 +111,13 @@ public class GpxWriter {
 		LinkedList<Segment> unrefLs = new LinkedList<Segment>(ds.segments);
 
 		// ways
-		for (Way t : ds.ways) {
-			if (t.deleted && t.id == 0)
+		for (Way w : ds.ways) {
+			if (w.deleted && w.id == 0)
 				continue;
 			Element tElem = new Element("trk", GPX);
 			HashMap<String, String> keys = null;
-			if (t.keys != null) {
-				keys = new HashMap<String, String>(t.keys);
+			if (w.keys != null) {
+				keys = new HashMap<String, String>(w.keys);
 				addAndRemovePropertyTag("name", tElem, keys);
 				addAndRemovePropertyTag("cmt", tElem, keys);
 				addAndRemovePropertyTag("desc", tElem, keys);
@@ -126,10 +126,12 @@ public class GpxWriter {
 				addAndRemovePropertyTag("number", tElem, keys);
 				addAndRemovePropertyTag("type", tElem, keys);
 			}
-			addPropertyExtensions(tElem, keys, t);
+			addPropertyExtensions(tElem, keys, w);
 
 			// segments
-			for (Segment ls : t.segments) {
+			for (Segment ls : w.segments) {
+				if (ls.incomplete)
+					continue;
 				tElem.getChildren().add(parseSegment(ls));
 				unrefNodes.remove(ls.from);
 				unrefNodes.remove(ls.to);
@@ -378,6 +380,8 @@ public class GpxWriter {
 			out.println("  <trk>");
 			Segment oldLs = null;
 			for (Segment ls : w.segments) {
+				if (ls.incomplete)
+					continue;
 				// end old segemnt, if no longer match a chain
 				if (oldLs != null && !oldLs.to.coor.equals(ls.from.coor)) {
 					out.println("    </trkseg>");
@@ -406,7 +410,7 @@ public class GpxWriter {
 		// add remaining segments
 		Collection<Segment> segments = new LinkedList<Segment>();
 		for (OsmPrimitive osm : all)
-			if (osm instanceof Segment)
+			if (osm instanceof Segment && !((Segment)osm).incomplete)
 				segments.add((Segment)osm);
 		if (!segments.isEmpty()) {
 			out.println("  <trk>");
@@ -423,9 +427,9 @@ public class GpxWriter {
 		}
 		
 		// finally add the remaining nodes
-		for (OsmPrimitive osm : all) {
-			outputNode((Node)osm, true);
-		}
+		for (OsmPrimitive osm : all)
+			if (osm instanceof Node)
+				outputNode((Node)osm, true);
 		
 		out.println("</gpx>");
 	}

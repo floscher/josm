@@ -42,7 +42,7 @@ public class NameVisitor implements Visitor {
 		name = ls.get("name");
 		if (name == null) {
 			if (ls.incomplete)
-				name = ls.id == 0 ? "new" : ""+ls.id;
+				name = ls.id == 0 ? "new" : ""+ls.id+" (unknown)";
 			else
 				name = (ls.id==0?"":ls.id+" ")+"("+ls.from.coor.lat()+","+ls.from.coor.lon()+") -> ("+ls.to.coor.lat()+","+ls.to.coor.lon()+")";
 		}
@@ -70,14 +70,18 @@ public class NameVisitor implements Visitor {
 		name = w.get("name");
 		if (name == null) {
 			AllNodesVisitor.getAllNodes(w.segments);
+			boolean incomplete = false;
 			Set<Node> nodes = new HashSet<Node>();
 			for (Segment ls : w.segments) {
 				if (!ls.incomplete) {
 					nodes.add(ls.from);
 					nodes.add(ls.to);
-				}
+				} else
+					incomplete = true;
 			}
-			name = "("+nodes.size()+" nodes)";
+			name = nodes.size()+" nodes";
+			if (incomplete)
+				name += " (incomplete)";
 		}
 		icon = ImageProvider.get("data", "way");
 		className = "way";

@@ -18,12 +18,14 @@ public class SequenceCommand extends Command {
 	 * The command sequenz to be executed.
 	 */
 	private Command[] sequence;
+	private final String name;
 
 	/**
 	 * Create the command by specifying the list of commands to execute.
 	 * @param sequenz The sequenz that should be executed.
 	 */
-	public SequenceCommand(Collection<Command> sequenz) {
+	public SequenceCommand(String name, Collection<Command> sequenz) {
+		this.name = name;
 		this.sequence = new Command[sequenz.size()];
 		this.sequence = sequenz.toArray(this.sequence);
 	}
@@ -44,7 +46,7 @@ public class SequenceCommand extends Command {
 	}
 
 	@Override public MutableTreeNode description() {
-		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Sequence");
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Sequence: "+name);
 		for (Command c : sequence)
 			root.add(c.description());
 	    return root;

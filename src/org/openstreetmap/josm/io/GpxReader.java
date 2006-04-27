@@ -1,6 +1,5 @@
 package org.openstreetmap.josm.io;
 
-import static org.openstreetmap.josm.io.GpxWriter.GPX;
 import static org.openstreetmap.josm.io.GpxWriter.JOSM;
 import static org.openstreetmap.josm.io.GpxWriter.OSM;
 
@@ -11,12 +10,13 @@ import java.util.Iterator;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
+import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 
 /**
@@ -42,6 +42,8 @@ public class GpxReader {
 	 */
 	private boolean mergeNodes = false;
 
+	private Namespace gpx;
+	
 	/**
 	 * Construct a parser from a specific data source.
 	 * @param source The data source, as example a FileReader to read from a file.
@@ -49,7 +51,7 @@ public class GpxReader {
 	public GpxReader(Reader source) {
 		this.source = source;
 	}
-	
+
 	/**
 	 * Read the input stream and return a DataSet from the stream.
 	 */
@@ -57,6 +59,7 @@ public class GpxReader {
 		try {
 			final SAXBuilder builder = new SAXBuilder();
 			Element root = builder.build(source).getRootElement();
+			gpx = root.getNamespace();
 			mergeNodes = !root.getAdditionalNamespaces().contains(JOSM);
 			return parseDataSet(root);
 		} catch (NullPointerException npe) {
@@ -74,9 +77,9 @@ public class GpxReader {
 	 */
 	private Node parseWaypoint(Element e) {
 		Node data = new Node(new LatLon(
-			Double.parseDouble(e.getAttributeValue("lat")),
-			Double.parseDouble(e.getAttributeValue("lon"))));
-		
+				Double.parseDouble(e.getAttributeValue("lat")),
+				Double.parseDouble(e.getAttributeValue("lon"))));
+
 		for (Object o : e.getChildren()) {
 			Element child = (Element)o;
 			if (child.getName().equals("extensions"))
@@ -98,20 +101,20 @@ public class GpxReader {
 	private DataSet parseDataSet(Element e) {
 		DataSet data = new DataSet();
 		// read waypoints not contained in ways or areas
-		for (Object o : e.getChildren("wpt", GPX)) {
+		for (Object o : e.getChildren("wpt", gpx)) {
 			Node node = parseWaypoint((Element)o);
 			addNode(data, node);
 		}
 
 		// read ways (and segments)
-		for (Object wayElement : e.getChildren("trk", GPX))
+		for (Object wayElement : e.getChildren("trk", gpx))
 			parseWay((Element)wayElement, data);
 
 		// reset new created ids to zero
 		for (OsmPrimitive osm : data.allPrimitives())
 			if (osm.id < 0)
 				osm.id = 0;
-		
+
 		// clean up the data a bit (remove broken stuff)
 		// remove segments with from==to
 		for (Iterator<Segment> it = data.segments.iterator(); it.hasNext();) {
@@ -156,13 +159,13 @@ public class GpxReader {
 
 			if (child.getName().equals("trkseg")) {
 				Node start = null;
-				for (Object w : child.getChildren("trkpt", GPX)) {
+				for (Object w : child.getChildren("trkpt", gpx)) {
 					Node node = addNode(ds, parseWaypoint((Element)w));
 					if (start == null)
 						start = node;
 					else {
 						Segment segment = new Segment(start, node);
-						parseKeyValueExtensions(segment, child.getChild("extensions", GPX));
+						parseKeyValueExtensions(segment, child.getChild("extensions", gpx));
 						segment = (Segment)getNewIfSeenBefore(segment);
 						way.segments.add(segment);
 						start = node;
@@ -200,7 +203,7 @@ public class GpxReader {
 		data.nodes.add(node);
 		return node;
 	}
-	
+
 
 	/**
 	 * @return Either the parameter or an index from the newCreatedPrimitives map

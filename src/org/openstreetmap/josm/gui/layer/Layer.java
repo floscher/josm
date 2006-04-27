@@ -82,4 +82,9 @@ abstract public class Layer {
 	abstract public Object getInfoComponent();
 	
 	abstract public void addMenuEntries(JPopupMenu menu);
+	
+	/**
+	 * Called, when the layer is removed from the list. (See it as an destructor)
+	 */
+	public void layerRemoved() {}
 }

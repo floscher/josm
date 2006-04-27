@@ -144,6 +144,8 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 		layers.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		layers.addListSelectionListener(new ListSelectionListener(){
 			public void valueChanged(ListSelectionEvent e) {
+				if (layers.getModel().getSize() == 0)
+					return;
 				if (layers.getSelectedIndex() == -1)
 					layers.setSelectedIndex(e.getFirstIndex());
 				mapView.setActiveLayer((Layer)layers.getSelectedValue());

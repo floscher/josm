@@ -8,9 +8,9 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 
 /**
@@ -115,6 +115,28 @@ public class MergeVisitor implements Visitor {
 		}
 	}
 
+	private <T extends OsmPrimitive> void cloneFromExceptIncomplete(T myOsm, T otherOsm) {
+		if (!(myOsm instanceof Way))
+			myOsm.cloneFrom(otherOsm);
+		else {
+			Way my = (Way)myOsm;
+			Way other = (Way)otherOsm;
+			HashMap<Long, Segment> copy = new HashMap<Long, Segment>();
+			for (Segment s : my.segments)
+				copy.put(s.id, s);
+			my.cloneFrom(other);
+			my.segments.clear();
+			for (Segment s : other.segments) {
+				Segment myS = copy.get(s.id);
+				if (s.incomplete && myS != null && !myS.incomplete) {
+					mergedSegments.put(s, myS);
+					my.segments.add(myS);
+				} else
+					my.segments.add(s);
+			}
+		}
+    }
+
 	/**
 	 * Merge the way if id matches or if all segments matches and the
 	 * id is zero of either way.
@@ -143,8 +165,18 @@ public class MergeVisitor implements Visitor {
 					same = false;
 			}
 			if (!same) {
+				HashMap<Long, Segment> copy = new HashMap<Long, Segment>();
+				for (Segment s : my.segments)
+					copy.put(s.id, s);
 				my.segments.clear();
-				my.segments.addAll(other.segments);
+				for (Segment s : other.segments) {
+					Segment myS = copy.get(s.id);
+					if (s.incomplete && myS != null && !myS.incomplete) {
+						mergedSegments.put(s, myS);
+						my.segments.add(myS);
+					} else
+						my.segments.add(s);
+				}
 				my.modified = other.modified;
 			}
 		}
@@ -272,7 +304,7 @@ public class MergeVisitor implements Visitor {
 						merged.put(other, my);
 				} else if (!my.modified && !other.modified) {
 					if (d1.before(d2)) {
-						my.cloneFrom(other);
+						cloneFromExceptIncomplete(my, other);
 						if (merged != null)
 							merged.put(other, my);
 					}
@@ -282,7 +314,7 @@ public class MergeVisitor implements Visitor {
 						if (merged != null)
 							merged.put(other, my);
 					} else {
-						my.cloneFrom(other);
+						cloneFromExceptIncomplete(my, other);
 						if (merged != null)
 							merged.put(other, my);
 					}

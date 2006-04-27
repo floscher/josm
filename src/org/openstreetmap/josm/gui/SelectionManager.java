@@ -122,7 +122,7 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 	 * Register itself at the given event source.
 	 * @param eventSource The emitter of the mouse events.
 	 */
-	public void register(Component eventSource) {
+	public void register(NavigatableComponent eventSource) {
 		eventSource.addMouseListener(this);
 		eventSource.addMouseMotionListener(this);
 		selectionEndedListener.addPropertyChangeListener(this);
@@ -133,6 +133,14 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 					paintRect();
 				mousePosStart = null;
 				mousePos = null;
+            }
+        });
+        eventSource.addPropertyChangeListener("scale", new PropertyChangeListener(){
+			public void propertyChange(PropertyChangeEvent evt) {
+				if (mousePosStart != null) {
+					paintRect();
+					mousePos = mousePosStart = null;
+				}
             }
         });
 	}

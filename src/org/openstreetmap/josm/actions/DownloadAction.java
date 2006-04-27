@@ -9,6 +9,8 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -16,6 +18,7 @@ import java.util.HashMap;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -282,9 +285,19 @@ public class DownloadAction extends JosmAction {
 		// Finally: the dialog
 		Bookmark b;
 		do {
-			int r = JOptionPane.showConfirmDialog(Main.parent, dlg, "Choose an area", 
-					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-			if (r != JOptionPane.OK_OPTION)
+			final JOptionPane pane = new JOptionPane(dlg, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+			final JDialog panedlg = pane.createDialog(Main.parent, "Choose an area");
+			bookmarks.addMouseListener(new MouseAdapter(){
+				@Override public void mouseClicked(MouseEvent e) {
+	                if (e.getClickCount() >= 2) {
+	    				pane.setValue(JOptionPane.OK_OPTION);
+	    				panedlg.setVisible(false);
+	                }
+                }
+			});
+			panedlg.setVisible(true);
+			Object answer = pane.getValue();
+			if (answer == null || answer == JOptionPane.UNINITIALIZED_VALUE || (answer instanceof Integer && (Integer)answer != JOptionPane.OK_OPTION))
 				return;
 			b = readBookmark();
 			if (b == null)

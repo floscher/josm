@@ -314,9 +314,9 @@ public class PreferenceDialog extends JDialog {
 		"<b>Do not use a valuable Password.</b></html>");
 		warning.setFont(warning.getFont().deriveFont(Font.ITALIC));
 		con.add(warning, GBC.eop().fill(GBC.HORIZONTAL));
-		con.add(new JLabel("WMS server base url (everything except bbox-parameter)"), GBC.eol());
-		con.add(wmsServerBaseUrl, GBC.eop().fill(GBC.HORIZONTAL));
-		con.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
+		//con.add(new JLabel("WMS server base url (everything except bbox-parameter)"), GBC.eol());
+		//con.add(wmsServerBaseUrl, GBC.eop().fill(GBC.HORIZONTAL));
+		//con.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
 		con.add(new JLabel("CSV import specification (empty: read from first line in data)"), GBC.eol());
 		con.add(csvImportString, GBC.eop().fill(GBC.HORIZONTAL));
 		con.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));

@@ -31,6 +31,7 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 	 */
 	private Cursor oldCursor;
 
+	private boolean movementInPlace = false;
 	
 	/**
 	 * Create a new MapMover
@@ -83,6 +84,9 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 	 * @param e The mouse event that leat to the movement from.
 	 */
 	private void startMovement(MouseEvent e) {
+		if (movementInPlace)
+			return;
+		movementInPlace = true;
 		mousePosMove = nc.getEastNorth(e.getX(), e.getY());
 		oldCursor = nc.getCursor();
 		nc.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
@@ -92,6 +96,9 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 	 * End the movement. Setting back the cursor and clear the movement variables
 	 */
 	private void endMovement() {
+		if (!movementInPlace)
+			return;
+		movementInPlace = false;
 		if (oldCursor != null)
 			nc.setCursor(oldCursor);
 		else

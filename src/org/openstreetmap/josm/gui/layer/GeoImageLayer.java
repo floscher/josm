@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridBagLayout;
 import java.awt.Image;
@@ -23,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,13 +79,13 @@ public class GeoImageLayer extends Layer {
 		private final Collection<File> files;
 		private final RawGpsLayer gpsLayer;
 		public Loader(Collection<File> files, RawGpsLayer gpsLayer) {
-	        super("Images");
-	        this.files = files;
+			super("Images");
+			this.files = files;
 			this.gpsLayer = gpsLayer;
-        }
+		}
 		@Override protected void realRun() throws SAXException, JDOMException, IOException {
 			currentAction.setText("Read GPS...");
-			layer = new GeoImageLayer();
+			LinkedList<TimedPoint> gps = new LinkedList<TimedPoint>();
 
 			// check the gps layer for time loops (and process it on the way)
 			Date last = null;
@@ -101,7 +99,7 @@ public class GeoImageLayer extends Layer {
 						if (!m.matches())
 							throw new IOException("Cannot read time from point "+p.latlon.lat()+","+p.latlon.lon());
 						Date d = dateFormat.parse(m.group(1)+" "+m.group(2));
-						layer.gps.add(new TimedPoint(d, p.eastNorth));
+						gps.add(new TimedPoint(d, p.eastNorth));
 						if (last != null && last.after(d))
 							throw new IOException("Time loop in gps data.");
 					}
@@ -111,13 +109,13 @@ public class GeoImageLayer extends Layer {
 				throw new IOException("Incorrect date information");
 			}
 
-			if (layer.gps.isEmpty()) {
-				layer.data = new ArrayList<ImageEntry>();
+			if (gps.isEmpty()) {
+				errorMessage = "No images with readable timestamps found.";
 				return;
 			}
 
 			// read the image files
-			layer.data = new ArrayList<ImageEntry>(files.size());
+			ArrayList<ImageEntry> data = new ArrayList<ImageEntry>(files.size());
 			int i = 0;
 			progress.setMaximum(files.size());
 			for (File f : files) {
@@ -133,20 +131,21 @@ public class GeoImageLayer extends Layer {
 				e.image = f;
 				e.icon = loadScaledImage(f, 16);
 
-				layer.data.add(e);
+				data.add(e);
 			}
+			layer = new GeoImageLayer(data, gps);
 			layer.calculatePosition();
-        }
+		}
 		@Override protected void finish() {
 			if (layer != null)
 				Main.main.addLayer(layer);
 		}
 		@Override protected void cancel() {cancelled = true;}
 	}
-	
-	public List<ImageEntry> data;
+
+	public ArrayList<ImageEntry> data;
 	private LinkedList<TimedPoint> gps = new LinkedList<TimedPoint>();
-	
+
 	/**
 	 * The delta added to all timestamps in files from the camera 
 	 * to match to the timestamp from the gps receivers tracklog.
@@ -155,6 +154,7 @@ public class GeoImageLayer extends Layer {
 	private long gpstimezone = Long.parseLong(Main.pref.get("tagimages.gpstimezone", "0"))*60*60*1000;
 	private boolean mousePressed = false;
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+	private MouseAdapter mouseAdapter;
 
 	public static final class GpsTimeIncorrect extends Exception {
 		public GpsTimeIncorrect(String message, Throwable cause) {
@@ -179,24 +179,27 @@ public class GeoImageLayer extends Layer {
 		new Thread(loader).start();
 		loader.pleaseWaitDlg.setVisible(true);
 	}
-	
-	private GeoImageLayer() {
+
+	private GeoImageLayer(final ArrayList<ImageEntry> data, LinkedList<TimedPoint> gps) {
 		super("Geotagged Images");
-		Main.map.mapView.addMouseListener(new MouseAdapter(){
+		this.data = data;
+		this.gps = gps;
+		mouseAdapter = new MouseAdapter(){
 			@Override public void mousePressed(MouseEvent e) {
 				if (e.getButton() != MouseEvent.BUTTON1)
 					return;
 				mousePressed  = true;
 				if (visible)
 					Main.map.mapView.repaint();
-            }
+			}
 			@Override public void mouseReleased(MouseEvent ev) {
 				if (ev.getButton() != MouseEvent.BUTTON1)
 					return;
 				mousePressed = false;
 				if (!visible)
 					return;
-				for (ImageEntry e : data) {
+				for (int i = data.size(); i > 0; --i) {
+					ImageEntry e = data.get(i-1);
 					if (e.pos == null)
 						continue;
 					Point p = Main.map.mapView.getPoint(e.pos);
@@ -207,33 +210,35 @@ public class GeoImageLayer extends Layer {
 					}
 				}
 				Main.map.mapView.repaint();
-            }
-		});
+			}
+		};
+		Main.map.mapView.addMouseListener(mouseAdapter);
 	}
 
 	private void showImage(final ImageEntry e) {
 		final JPanel p = new JPanel(new BorderLayout());
-		final JScrollPane scroll = new JScrollPane(new JLabel(new ImageIcon(e.image.getPath())));
-		scroll.setPreferredSize(new Dimension(800,600));
+		final JScrollPane scroll = new JScrollPane(new JLabel(loadScaledImage(e.image, 580)));
+		//scroll.setPreferredSize(new Dimension(800,600));
+		final JViewport vp = scroll.getViewport();
 		p.add(scroll, BorderLayout.CENTER);
-		
+
 		final JToggleButton scale = new JToggleButton(ImageProvider.get("misc", "rectangle"));
 		JPanel p2 = new JPanel();
 		p2.add(scale);
 		p.add(p2, BorderLayout.SOUTH);
 		scale.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent ev) {
-				JViewport vp = scroll.getViewport();
 				p.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				if (scale.getModel().isSelected())
-					vp.setView(new JLabel(loadScaledImage(e.image, Math.max(vp.getWidth(), vp.getHeight()))));
+					((JLabel)vp.getView()).setIcon(loadScaledImage(e.image, Math.max(vp.getWidth(), vp.getHeight())));
 				else
-					vp.setView(new JLabel(new ImageIcon(e.image.getPath())));
+					((JLabel)vp.getView()).setIcon(new ImageIcon(e.image.getPath()));
 				p.setCursor(Cursor.getDefaultCursor());
-            }
+			}
 		});
+		scale.setSelected(true);
 		JOptionPane.showMessageDialog(Main.parent, p, e.image+" ("+e.coor.lat()+","+e.coor.lon()+")", JOptionPane.PLAIN_MESSAGE);
-    }
+	}
 
 	@Override public Icon getIcon() {
 		return ImageProvider.get("layer", "tagimages");
@@ -245,10 +250,10 @@ public class GeoImageLayer extends Layer {
 
 		p.add(new JLabel("GPS start: "+dateFormat.format(gps.getFirst().time)), GBC.eol());
 		p.add(new JLabel("GPS end: "+dateFormat.format(gps.getLast().time)), GBC.eop());
-		
+
 		p.add(new JLabel("current delta: "+(delta/1000.0)+"s"), GBC.eol());
 		p.add(new JLabel("timezone difference: "+(gpstimezone>0?"+":"")+(gpstimezone/1000/60/60)), GBC.eop());
-		
+
 		JList img = new JList(data.toArray());
 		img.setCellRenderer(new DefaultListCellRenderer(){
 			@Override public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -290,9 +295,14 @@ public class GeoImageLayer extends Layer {
 				Point p = mv.getPoint(e.pos);
 				Rectangle r = new Rectangle(p.x-e.icon.getIconWidth()/2, p.y-e.icon.getIconHeight()/2, e.icon.getIconWidth(), e.icon.getIconHeight());
 				e.icon.paintIcon(mv, g, r.x, r.y);
-				Border b = BorderFactory.createBevelBorder(!clickedFound && mousePressed && r.contains(mv.getMousePosition()) ? BevelBorder.LOWERED : BevelBorder.RAISED);
-				Insets i = b.getBorderInsets(mv);
-				r.grow((i.top+i.bottom)/2, (i.left+i.right)/2);
+				Border b = null;
+				if (!clickedFound && mousePressed && r.contains(mv.getMousePosition())) {
+					b = BorderFactory.createBevelBorder(BevelBorder.LOWERED);
+					clickedFound = true;
+				} else
+					b = BorderFactory.createBevelBorder(BevelBorder.RAISED);
+				Insets inset = b.getBorderInsets(mv);
+				r.grow((inset.top+inset.bottom)/2, (inset.left+inset.right)/2);
 				b.paintBorder(mv, g, r.x, r.y, r.width, r.height);
 			}
 		}
@@ -401,4 +411,8 @@ public class GeoImageLayer extends Layer {
 		}
 		return new ImageIcon(img.getScaledInstance(w, h, Image.SCALE_SMOOTH));
 	}
+
+	@Override public void layerRemoved() {
+		Main.map.mapView.removeMouseListener(mouseAdapter);
+    }
 }

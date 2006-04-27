@@ -11,8 +11,6 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.Map.Entry;
@@ -78,10 +76,12 @@ public class MapStatus extends JPanel {
 		 * The popup displayed to show additional information
 		 */
 		private Popup popup;
-		/**
-		 * Signals the collector to shut down on next event.
-		 */
-		boolean exitCollector = false;
+		
+		private MapFrame parent;
+		
+		public Collector(MapFrame parent) {
+			this.parent = parent;
+		}
 		
 		/**
 		 * Execution function for the Collector.
@@ -94,8 +94,8 @@ public class MapStatus extends JPanel {
 					ms.modifiers = mouseState.modifiers;
 					ms.mousePos = mouseState.mousePos;
 				}
-				if (exitCollector)
-					return;
+				if (parent != Main.map)
+					return; // exit, if new parent.
 				if ((ms.modifiers & MouseEvent.CTRL_DOWN_MASK) != 0 || ms.mousePos == null)
 					continue; // freeze display when holding down ctrl
 
@@ -217,7 +217,7 @@ public class MapStatus extends JPanel {
 		add(nameText);
 		
 		// The background thread
-		final Collector collector = new Collector();
+		final Collector collector = new Collector(mapFrame);
 		new Thread(collector).start();
 		
 		// Listen to keyboard/mouse events for pressing/releasing alt key and
@@ -232,17 +232,5 @@ public class MapStatus extends JPanel {
 				}
 			}
 		}, AWTEvent.KEY_EVENT_MASK | AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
-		
-		// listen for shutdowns to cancel the background thread
-		mapFrame.addPropertyChangeListener("visible", new PropertyChangeListener(){
-			public void propertyChange(PropertyChangeEvent evt) {
-				if (evt.getNewValue() == Boolean.FALSE) {
-					collector.exitCollector = true;
-					synchronized (collector) {
-						collector.notify();
-					}
-				}
-			}
-		});
 	}
 }

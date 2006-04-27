@@ -27,6 +27,7 @@ import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
+import org.openstreetmap.josm.data.osm.visitor.SimplePaintVisitor;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
@@ -84,15 +85,15 @@ public class MapView extends NavigatableComponent {
 
 	
 	private final class Scaler extends JSlider implements PropertyChangeListener, ChangeListener {
-		boolean hovered = false;
+		boolean clicked = false;
 		public Scaler() {
 			super(0, 20);
 			addMouseListener(new MouseAdapter(){
-				@Override public void mouseEntered(MouseEvent e) {
-	                hovered = true;
+				@Override public void mousePressed(MouseEvent e) {
+	                clicked = true;
                 }
-				@Override public void mouseExited(MouseEvent e) {
-	                hovered = false;
+				@Override public void mouseReleased(MouseEvent e) {
+	                clicked = false;
                 }
 			});
 			MapView.this.addPropertyChangeListener(this);
@@ -103,7 +104,7 @@ public class MapView extends NavigatableComponent {
 				setValue(zoom());
         }
 		public void stateChanged(ChangeEvent e) {
-			if (!hovered)
+			if (!clicked)
 				return;
 			EastNorth pos = world;
 			for (int zoom = 0; zoom < getValue(); ++zoom)
@@ -205,7 +206,7 @@ public class MapView extends NavigatableComponent {
 	 * Draw the component.
 	 */
 	@Override public void paint(Graphics g) {
-		g.setColor(Color.BLACK);
+		g.setColor(SimplePaintVisitor.getPreferencesColor("background", Color.BLACK));
 		g.fillRect(0, 0, getWidth(), getHeight());
 
 		for (int i = layers.size()-1; i >= 0; --i) {
