@@ -75,8 +75,6 @@ public class OsmDataLayer extends Layer {
 		void commandChanged(int queueSize, int redoSize);
 	}
 
-	private static Icon icon;
-
 	/**
 	 * The data behind this layer.
 	 */
@@ -107,7 +105,6 @@ public class OsmDataLayer extends Layer {
 	public final LinkedList<ModifiedChangedListener> listenerModified = new LinkedList<ModifiedChangedListener>();
 	public final LinkedList<CommandQueueListener> listenerCommands = new LinkedList<CommandQueueListener>();
 
-
 	/**
 	 * Construct a OsmDataLayer.
 	 */
@@ -122,9 +119,7 @@ public class OsmDataLayer extends Layer {
 	 * 		updated by a background thread to not disturb the running programm.
 	 */
 	@Override public Icon getIcon() {
-		if (icon == null)
-			icon = ImageProvider.get("layer", "osmdata");
-		return icon;
+		return ImageProvider.get("layer", "osmdata");
 	}
 
 	/**
@@ -201,7 +196,7 @@ public class OsmDataLayer extends Layer {
 		c.undoCommand();
 		redoCommands.push(c);
 		//TODO: Replace with listener scheme
-			setModified(uploadedModified);
+		setModified(uploadedModified);
 		Main.ds.clearSelection();
 		fireCommandsChanged();
 	}
@@ -254,9 +249,9 @@ public class OsmDataLayer extends Layer {
 	}
 
 	public void fireCommandsChanged() {
-	    for (final CommandQueueListener l : listenerCommands)
+		for (final CommandQueueListener l : listenerCommands)
 			l.commandChanged(commands.size(), redoCommands.size());
-    }
+	}
 
 	/**
 	 * Clean the modified flag for the given iterator over a collection if it is in the

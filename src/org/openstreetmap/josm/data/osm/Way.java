@@ -47,6 +47,6 @@ public class Way extends OsmPrimitive {
     }
 
 	public int compareTo(OsmPrimitive o) {
-	    return o instanceof Way ? Long.valueOf(id).compareTo(o.id) : 1;
+	    return o instanceof Way ? Long.valueOf(id).compareTo(o.id) : -1;
     }
 }

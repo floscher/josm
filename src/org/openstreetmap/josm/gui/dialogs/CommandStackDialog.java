@@ -35,7 +35,10 @@ public class CommandStackDialog extends ToggleDialog implements CommandQueueList
 				if (newLayer instanceof OsmDataLayer)
 					Main.main.editLayer().listenerCommands.add(CommandStackDialog.this);
 			}
-			public void layerRemoved(Layer oldLayer) {}
+			public void layerRemoved(Layer oldLayer) {
+				if (oldLayer instanceof OsmDataLayer)
+					Main.main.editLayer().listenerCommands.remove(CommandStackDialog.this);
+			}
 		});
 		if (mapFrame.mapView.editLayer != null)
 			mapFrame.mapView.editLayer.listenerCommands.add(this);
@@ -68,11 +71,14 @@ public class CommandStackDialog extends ToggleDialog implements CommandQueueList
 	}
 
 	private void buildList() {
+		if (Main.map == null || Main.map.mapView == null || Main.map.mapView.editLayer == null)
+			return;
 		Collection<Command> commands = Main.main.editLayer().commands;
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode();
 		for (Command c : commands)
 			root.add(c.description());
 		treeModel.setRoot(root);
+		tree.scrollRowToVisible(treeModel.getChildCount(root)-1);
 	}
 
 	public void commandChanged(int queueSize, int redoSize) {

@@ -3,15 +3,24 @@ package org.openstreetmap.josm.actions.mapmode;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map.Entry;
 
 import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.command.ChangeCommand;
+import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.DeleteCommand;
+import org.openstreetmap.josm.command.SequenceCommand;
+import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.data.osm.Segment;
+import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.CollectBackReferencesVisitor;
 import org.openstreetmap.josm.gui.MapFrame;
 
@@ -114,6 +123,9 @@ public class DeleteAction extends MapMode {
 	 * used somewhere and that "somewhere" is not going to be deleted,
 	 * inform the user and do not delete.
 	 * 
+	 * If deleting a node which is part of exactly two segments, and both segments
+	 * have no conflicting keys, join them and remove the node.
+	 * 
 	 * @param selection The objects to delete.
 	 * @param msgBox Whether a message box for errors should be shown
 	 */
@@ -123,7 +135,13 @@ public class DeleteAction extends MapMode {
 			CollectBackReferencesVisitor v = new CollectBackReferencesVisitor(Main.ds);
 			osm.visit(v);
 			if (!selection.containsAll(v.data)) {
-				if (msgBox) {
+				if (osm instanceof Node) {
+					String reason = deleteNodeAndJoinSegment((Node)osm);
+					if (reason != null && msgBox) {
+						JOptionPane.showMessageDialog(Main.parent, "Cannot delete node. "+reason);
+						return;
+					}
+				} else if (msgBox) {
 					JOptionPane.showMessageDialog(Main.parent, "This object is in use.");
 					return;
 				}
@@ -135,4 +153,43 @@ public class DeleteAction extends MapMode {
 		if (!del.isEmpty())
 			Main.main.editLayer().add(new DeleteCommand(del));
 	}
+
+	private String deleteNodeAndJoinSegment(Node n) {
+		ArrayList<Segment> segs = new ArrayList<Segment>(2);
+		for (Segment s : Main.ds.segments) {
+			if (!s.deleted && (s.from == n || s.to == n)) {
+				if (segs.size() > 1)
+					return "Used by more than two segments.";
+				segs.add(s);
+			}
+		}
+		if (segs.size() != 2)
+			return "Used by only one segment.";
+		Segment seg1 = segs.get(0);
+		Segment seg2 = segs.get(1);
+		if (seg1.from == seg2.to) {
+			Segment s = seg1;
+			seg1 = seg2;
+			seg2 = s;
+		}
+		for (Way w : Main.ds.ways)
+			if (!w.deleted && (w.segments.contains(seg1) || w.segments.contains(seg2)))
+				return "Used in a way.";
+		if (seg1.from == seg2.from || seg1.to == seg2.to)
+			return "Wrong direction of segments.";
+		for (Entry<String, String> e : seg1.entrySet())
+			if (seg2.keySet().contains(e.getKey()) && !seg2.get(e.getKey()).equals(e.getValue()))
+				return "Conflicting keys";
+		Segment s = new Segment(seg1);
+		s.to = seg2.to;
+		if (s.keys == null)
+			s.keys = seg2.keys;
+		else if (seg2.keys != null)
+			s.keys.putAll(seg2.keys);
+		Command[] cmds = new Command[]{
+			new ChangeCommand(seg1, s), 
+			new DeleteCommand(Arrays.asList(new OsmPrimitive[]{n, seg2}))};
+		Main.main.editLayer().add(new SequenceCommand("Delete Node", Arrays.asList(cmds)));
+		return null;
+    }
 }

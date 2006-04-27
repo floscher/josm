@@ -9,6 +9,7 @@ import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Segment;
+import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.MergeVisitor;
 import org.openstreetmap.josm.test.framework.Bug;
 import org.openstreetmap.josm.test.framework.DataSetTestCaseHelper;
@@ -177,6 +178,26 @@ public class MergeVisitorTest extends TestCase {
 	}
 
 
+	public void testCloneWayNotIncomplete() {
+		DataSet ds = new DataSet();
+		Node[] n = createNodes(ds, 2);
+		Segment s = DataSetTestCaseHelper.createSegment(ds, n[0], n[1]);
+		Way w = DataSetTestCaseHelper.createWay(ds, s);
+		MergeVisitor v = new MergeVisitor(ds);
+		v.visit(n[0]);
+		v.visit(n[1]);
+		v.visit(s);
+		v.visit(w);
+		Way w2 = new Way(w);
+		w2.timestamp = new Date();
+		Segment s2 = new Segment(s);
+		s2.incomplete = true;
+		w2.segments.clear();
+		w2.segments.add(s2);
+		v.visit(w2);
+		assertSame("Do not import incomplete segments when merging ways.", s, w.segments.iterator().next());
+	}
+	
 	/**
 	 * Create that amount of nodes and add them to the dataset. The id will be 1,2,3,4...
 	 * @param amount Number of nodes to create.

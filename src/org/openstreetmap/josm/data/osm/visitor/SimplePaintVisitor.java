@@ -115,8 +115,10 @@ public class SimplePaintVisitor implements Visitor {
 
 	public static Color getPreferencesColor(String colName, Color def) {
 		String colStr = Main.pref.get("color."+colName);
-		if (colStr.equals(""))
+		if (colStr.equals("")) {
+			Main.pref.put("color."+colName, ColorHelper.color2html(def));
 			return def;
+		}
 		return ColorHelper.html2color(colStr);
 	}
 }

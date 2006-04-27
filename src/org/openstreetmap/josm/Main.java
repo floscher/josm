@@ -97,7 +97,10 @@ abstract public class Main {
 					if (newLayer instanceof OsmDataLayer)
 						Main.main.editLayer().listenerCommands.add(redoUndoListener);
 				}
-				public void layerRemoved(final Layer oldLayer) {}
+				public void layerRemoved(final Layer oldLayer) {
+					if (oldLayer instanceof OsmDataLayer)
+						Main.main.editLayer().listenerCommands.add(redoUndoListener);
+				}
 			});
 			if (map.mapView.editLayer != null)
 				map.mapView.editLayer.listenerCommands.add(redoUndoListener);
@@ -109,16 +112,11 @@ abstract public class Main {
 	 * Remove the specified layer from the map. If it is the last layer, remove the map as well.
 	 */
 	public final void removeLayer(final Layer layer) {
-		final Collection<Layer> allLayers = map.mapView.getAllLayers();
-		if (allLayers.size() == 1 && allLayers.iterator().next() == layer) {
-			Main.map.setVisible(false);
-			setMapFrame(null);
+		map.mapView.removeLayer(layer);
+		if (layer instanceof OsmDataLayer)
 			ds = new DataSet();
-		} else {
-			map.mapView.removeLayer(layer);
-			if (layer instanceof OsmDataLayer)
-				ds = new DataSet();
-		}
+		if (map.mapView.getAllLayers().isEmpty())
+			setMapFrame(null);
 	}
 	public Main() {
 		main = this;

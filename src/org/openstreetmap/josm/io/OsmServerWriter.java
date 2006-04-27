@@ -67,7 +67,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 				if (cancel)
 					return;
 				osm.visit(v);
-				currentAction.setText("Upload "+v.className+" "+osm.id+"...");
+				currentAction.setText("Upload "+v.className+" "+v.name+" ("+osm.id+")...");
 				osm.visit(this);
 				progress.setValue(progress.getValue()+1);
 			}
@@ -183,10 +183,11 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 		} catch (UnknownHostException e) {
 			throw new RuntimeException("Unknown host: "+e.getMessage(), e);
 		} catch (Exception e) {
+			if (cancel)
+				return; // assume cancel
 			if (e instanceof RuntimeException)
 				throw (RuntimeException)e;
-			if (!cancel)
-				throw new RuntimeException(e.getMessage(), e);
+			throw new RuntimeException(e.getMessage(), e);
 		}
 	}
 }

@@ -47,6 +47,6 @@ public class Node extends OsmPrimitive {
     }
 
 	public int compareTo(OsmPrimitive o) {
-	    return o instanceof Node ? Long.valueOf(id).compareTo(o.id) : -1;
+	    return o instanceof Node ? Long.valueOf(id).compareTo(o.id) : 1;
     }
 }
