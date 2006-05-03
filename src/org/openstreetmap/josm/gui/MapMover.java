@@ -1,12 +1,19 @@
 package org.openstreetmap.josm.gui;
 
 import java.awt.Cursor;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
+import javax.swing.AbstractAction;
+import javax.swing.JComponent;
+import javax.swing.KeyStroke;
+
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.coor.EastNorth;
 
 /**
@@ -16,6 +23,30 @@ import org.openstreetmap.josm.data.coor.EastNorth;
  * @author imi
  */
 class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelListener {
+
+	private final class ZoomerAction extends AbstractAction {
+		private final String action;
+		public ZoomerAction(String action) {
+			this.action = action;
+        }
+	    public void actionPerformed(ActionEvent e) {
+	    	if (action.equals("+") || action.equals("-")) {
+	    		MouseWheelEvent we = new MouseWheelEvent(nc, e.getID(), e.getWhen(), e.getModifiers(), nc.getMousePosition().x, nc.getMousePosition().y, 0, false, MouseWheelEvent.WHEEL_UNIT_SCROLL, 1, action.equals("+") ? -1 : 1);
+	    		mouseWheelMoved(we);
+	    	} else {
+	    		EastNorth center = nc.getCenter();
+	    		EastNorth newcenter = nc.getEastNorth(nc.getWidth()/2+nc.getWidth()/5, nc.getHeight()/2+nc.getHeight()/5);
+	    		if (action.equals("left"))
+	    			nc.zoomTo(new EastNorth(2*center.east()-newcenter.east(), center.north()), nc.getScale());
+	    		else if (action.equals("right"))
+	    			nc.zoomTo(new EastNorth(newcenter.east(), center.north()), nc.getScale());
+	    		else if (action.equals("up"))
+	    			nc.zoomTo(new EastNorth(center.east(), 2*center.north()-newcenter.north()), nc.getScale());
+	    		else if (action.equals("down"))
+	    			nc.zoomTo(new EastNorth(center.east(), newcenter.north()), nc.getScale());
+	    	}
+	    }
+    }
 
 	/**
 	 * The point in the map that was the under the mouse point
@@ -32,7 +63,7 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 	private Cursor oldCursor;
 
 	private boolean movementInPlace = false;
-	
+
 	/**
 	 * Create a new MapMover
 	 */
@@ -41,8 +72,16 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 		nc.addMouseListener(this);
 		nc.addMouseMotionListener(this);
 		nc.addMouseWheelListener(this);
+		
+		String[] n = {"+","-","up","right","down","left"};
+		int[] k = {KeyEvent.VK_PLUS, KeyEvent.VK_MINUS, KeyEvent.VK_UP, KeyEvent.VK_RIGHT, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT};
+
+		for (int i = 0; i < n.length; ++i) {
+			Main.contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(k[i], KeyEvent.CTRL_DOWN_MASK), "MapMover.Zoomer."+n[i]);
+			Main.contentPane.getActionMap().put("MapMover.Zoomer."+n[i], new ZoomerAction(n[i]));
+		}
 	}
-	
+
 	/**
 	 * If the right (and only the right) mouse button is pressed, move the map
 	 */
@@ -91,7 +130,7 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 		oldCursor = nc.getCursor();
 		nc.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
 	}
-	
+
 	/**
 	 * End the movement. Setting back the cursor and clear the movement variables
 	 */
@@ -123,7 +162,7 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 		double centerx = e.getX() - (e.getX()-w/2)*newHalfWidth*2/w;
 		double centery = e.getY() - (e.getY()-h/2)*newHalfHeight*2/h;
 		EastNorth newCenter = nc.getEastNorth((int)centerx, (int)centery); 
-		
+
 		nc.zoomTo(newCenter, nc.getScale()*zoom);
 	}
 

@@ -9,6 +9,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.AbstractButton;
+import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
@@ -91,7 +92,6 @@ public class MapFrame extends JPanel {
 		for (Component c : toolBarActions.getComponents())
 			toolGroup.add((AbstractButton)c);
 		toolGroup.setSelected(((AbstractButton)toolBarActions.getComponent(0)).getModel(), true);
-		selectMapMode((MapMode)((AbstractButton)toolBarActions.getComponent(0)).getAction());
 
 		// autoScale
 		toolBarActions.addSeparator();
@@ -127,6 +127,10 @@ public class MapFrame extends JPanel {
 		// status line below the map
 		statusLine = new MapStatus(this);
 	}
+
+	public Action getDefaultButtonAction() {
+	    return ((AbstractButton)toolBarActions.getComponent(0)).getAction();
+    }
 
 	/**
 	 * Open all ToggleDialogs that have their preferences property set. Close all others.

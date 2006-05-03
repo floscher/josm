@@ -23,6 +23,7 @@ import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.CollectBackReferencesVisitor;
 import org.openstreetmap.josm.gui.MapFrame;
+import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * An action that enables the user to delete nodes and other objects.
@@ -49,7 +50,13 @@ public class DeleteAction extends MapMode {
 	 * @param mapFrame The frame this action belongs to.
 	 */
 	public DeleteAction(MapFrame mapFrame) {
-		super("Delete", "delete", "Delete nodes, streets or segments.", "Delete", KeyEvent.VK_DELETE, mapFrame);
+		super("Delete", 
+				"delete", 
+				"Delete nodes, streets or segments.", 
+				"D", 
+				KeyEvent.VK_D, 
+				mapFrame, 
+				ImageProvider.getCursor("normal", "delete"));
 	}
 
 	@Override public void enterMode() {

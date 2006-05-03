@@ -99,7 +99,7 @@ public class OsmServerReader extends OsmConnection {
 			if (r == null)
 				return null;
 			currentAction.setText("Downloading OSM data...");
-			final DataSet data = OsmReader.parseDataSet(r);
+			final DataSet data = OsmReader.parseDataSet(r, currentAction, progress);
 			r.close();
 			activeConnection = null;
 			return data;
@@ -133,6 +133,6 @@ public class OsmServerReader extends OsmConnection {
 		activeConnection.setConnectTimeout(15000);
 		if (isAuthCancelled() && activeConnection.getResponseCode() == 401)
 			return null;
-		return new ProgressReader(activeConnection, progress);
+		return new ProgressReader(activeConnection, progress, currentAction);
 	}
 }

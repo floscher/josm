@@ -14,6 +14,7 @@ import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.MapFrame;
+import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * The user can add a new segment between two nodes by pressing on the 
@@ -45,7 +46,13 @@ public class AddSegmentAction extends MapMode implements MouseListener {
 	 * @param mapFrame The MapFrame this action belongs to.
 	 */
 	public AddSegmentAction(MapFrame mapFrame) {
-		super("Add segment", "addsegment", "Add a segment between two nodes.", "G", KeyEvent.VK_G, mapFrame);
+		super("Add segment", 
+				"addsegment", 
+				"Add a segment between two nodes.", 
+				"G", 
+				KeyEvent.VK_G, 
+				mapFrame, 
+				ImageProvider.getCursor("normal", "segment"));
 	}
 
 	@Override public void enterMode() {

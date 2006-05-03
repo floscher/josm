@@ -10,6 +10,7 @@ import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.SelectionManager;
 import org.openstreetmap.josm.gui.SelectionManager.SelectionEnded;
+import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * This MapMode enables the user to easy make a selection of different objects.
@@ -63,7 +64,13 @@ public class SelectionAction extends MapMode implements SelectionEnded {
 	 * @param mapFrame The frame this action belongs to
 	 */
 	public SelectionAction(MapFrame mapFrame) {
-		super("Selection", "selection", "Select objects by dragging or clicking.", "S", KeyEvent.VK_S, mapFrame);
+		super("Selection", 
+				"selection", 
+				"Select objects by dragging or clicking.", 
+				"S", 
+				KeyEvent.VK_S, 
+				mapFrame,
+				ImageProvider.getCursor("normal", "selection"));
 		this.selectionManager = new SelectionManager(this, false, mapFrame.mapView);
 	}
 

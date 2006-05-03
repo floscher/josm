@@ -36,6 +36,7 @@ import org.openstreetmap.josm.actions.RedoAction;
 import org.openstreetmap.josm.actions.SaveAction;
 import org.openstreetmap.josm.actions.UndoAction;
 import org.openstreetmap.josm.actions.UploadAction;
+import org.openstreetmap.josm.actions.mapmode.MapMode;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.osm.DataSet;
@@ -185,6 +186,7 @@ abstract public class Main {
 		if (map == null) {
 			final MapFrame mapFrame = new MapFrame(layer);
 			setMapFrame(mapFrame);
+			mapFrame.selectMapMode((MapMode)mapFrame.getDefaultButtonAction());
 			mapFrame.setVisible(true);
 			mapFrame.setVisibleDialogs();
 		} else

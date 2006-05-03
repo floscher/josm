@@ -44,7 +44,7 @@ public class GroupAction extends JosmAction {
 		actions.get(current).addPropertyChangeListener(forwardActiveListener);
 
 		this.current = current;
-		putValue(SMALL_ICON, ImageProvider.overlay((Icon)actions.get(current).getValue(SMALL_ICON), "right", OverlayPosition.SOUTHEAST));
+		putValue(SMALL_ICON, ImageProvider.overlay((Icon)actions.get(current).getValue(SMALL_ICON), "overlay/right", OverlayPosition.SOUTHEAST));
 		Object tooltip = actions.get(current).getValue(SHORT_DESCRIPTION);
 		putValue(SHORT_DESCRIPTION, "<html>"+tooltip+" <font size='-2'>"+shortCutName+"</font>&nbsp;</html>");
 	}

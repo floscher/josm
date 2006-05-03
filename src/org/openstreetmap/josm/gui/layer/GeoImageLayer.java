@@ -44,7 +44,6 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.filechooser.FileFilter;
 
-import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.coor.LatLon;
@@ -56,7 +55,6 @@ import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
 import org.openstreetmap.josm.tools.ExifReader;
 import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.ImageProvider;
-import org.xml.sax.SAXException;
 
 /**
  * A layer which imports several photos from disk and read EXIF time information from them.
@@ -83,7 +81,7 @@ public class GeoImageLayer extends Layer {
 			this.files = files;
 			this.gpsLayer = gpsLayer;
 		}
-		@Override protected void realRun() throws SAXException, JDOMException, IOException {
+		@Override protected void realRun() throws IOException {
 			currentAction.setText("Read GPS...");
 			LinkedList<TimedPoint> gps = new LinkedList<TimedPoint>();
 
@@ -102,6 +100,7 @@ public class GeoImageLayer extends Layer {
 						gps.add(new TimedPoint(d, p.eastNorth));
 						if (last != null && last.after(d))
 							throw new IOException("Time loop in gps data.");
+						last = d;
 					}
 				}
 			} catch (ParseException e) {

@@ -83,26 +83,26 @@ public class MapView extends NavigatableComponent {
 
 	private final AutoScaleAction autoScaleAction;
 
-	
+
 	private final class Scaler extends JSlider implements PropertyChangeListener, ChangeListener {
 		boolean clicked = false;
 		public Scaler() {
 			super(0, 20);
 			addMouseListener(new MouseAdapter(){
 				@Override public void mousePressed(MouseEvent e) {
-	                clicked = true;
-                }
+					clicked = true;
+				}
 				@Override public void mouseReleased(MouseEvent e) {
-	                clicked = false;
-                }
+					clicked = false;
+				}
 			});
-			MapView.this.addPropertyChangeListener(this);
+			MapView.this.addPropertyChangeListener("scale", this);
 			addChangeListener(this);
-        }
+		}
 		public void propertyChange(PropertyChangeEvent evt) {
-			if (evt.getPropertyName().equals("scale") && !getModel().getValueIsAdjusting())
+			if (!getModel().getValueIsAdjusting())
 				setValue(zoom());
-        }
+		}
 		public void stateChanged(ChangeEvent e) {
 			if (!clicked)
 				return;
@@ -113,9 +113,9 @@ public class MapView extends NavigatableComponent {
 				zoomTo(center, pos.east()*2/(MapView.this.getWidth()-20));
 			else
 				zoomTo(center, pos.north()*2/(MapView.this.getHeight()-20));
-        }
+		}
 	}
-	
+
 	public MapView(AutoScaleAction autoScaleAction) {
 		this.autoScaleAction = autoScaleAction;
 		addComponentListener(new ComponentAdapter(){
@@ -153,10 +153,10 @@ public class MapView extends NavigatableComponent {
 			dataLayer.data.addAllSelectionListener(Main.ds);
 			Main.ds = dataLayer.data;
 			dataLayer.listenerModified.add(new ModifiedChangedListener(){
-            	public void modifiedChanged(boolean value, OsmDataLayer source) {
-            		JOptionPane.getFrameForComponent(Main.parent).setTitle((value?"*":"")+"Java Open Street Map - Editor");
-            	}
-            });
+				public void modifiedChanged(boolean value, OsmDataLayer source) {
+					JOptionPane.getFrameForComponent(Main.parent).setTitle((value?"*":"")+"Java Open Street Map - Editor");
+				}
+			});
 		}
 
 		// add as a new layer
