@@ -16,6 +16,7 @@ import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.visitor.AllNodesVisitor;
 import org.openstreetmap.josm.gui.MapFrame;
+import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * Move is an action that can move all kind of OsmPrimitives (except Keys for now).
@@ -47,7 +48,13 @@ public class MoveAction extends MapMode {
 	 * @param mapFrame The MapFrame, this action belongs to.
 	 */
 	public MoveAction(MapFrame mapFrame) {
-		super("Move", "move", "Move selected objects around.", "M", KeyEvent.VK_M, mapFrame);
+		super("Move", 
+				"move", 
+				"Move selected objects around.", 
+				"M", 
+				KeyEvent.VK_M, 
+				mapFrame, 
+				ImageProvider.getCursor("normal", "move"));
 	}
 
 	@Override public void enterMode() {

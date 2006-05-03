@@ -29,10 +29,12 @@ You have to add the following line to your /etc/apt/sources.list
 
 deb http://ftp.debian-unofficial.org/debian/ stable non-free
 
-The package is called sun-j2se5.0-jdk-binary.
+The package is called sun-j2se5.0-jre-binary.
 
 For MacOS user: There is an installer for Mac OS X 10.4:
 http://www.apple.com/support/downloads/java2se50release1.html
+
+Sorry, there is no Version of Java5 for Mac OS X 10.3 available :-(
 
 
 How to launch
@@ -63,10 +65,8 @@ subverion client, type
 svn co http://www.eigenheimstrasse.de/svn/josm
 
 
-
 And gimme feedback: josm@eigenheimstrasse.de (start your mail subject 
 with "JOSM", so my spam filter will not eat you)
-
 
 
 Ciao, Imi.

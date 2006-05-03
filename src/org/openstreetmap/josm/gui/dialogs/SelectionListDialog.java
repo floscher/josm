@@ -31,7 +31,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
-import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.SelectionChangedListener;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -68,12 +67,12 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 			try {u = new URL(urlStr);} catch (MalformedURLException e) {}
             this.url = u;
         }
-		@Override protected void realRun() throws SAXException, JDOMException, IOException {
+		@Override protected void realRun() {
 			currentAction.setText("Contact "+url.getHost()+"...");
 			sel = mode != SearchMode.remove ? new LinkedList<OsmPrimitive>() : Main.ds.allNonDeletedPrimitives();
 			try {
 		        URLConnection con = url.openConnection();
-		        Reader in = new ProgressReader(con, progress);
+		        Reader in = new ProgressReader(con, progress, currentAction);
 				currentAction.setText("Downloading...");
 				Map<Long, String> ids = idReader.parseIds(in);
 		        for (OsmPrimitive osm : Main.ds.allNonDeletedPrimitives()) {

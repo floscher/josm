@@ -6,6 +6,7 @@ import java.io.Reader;
 import java.net.URLConnection;
 
 import javax.swing.BoundedRangeModel;
+import javax.swing.JLabel;
 
 /**
  * Read from an other reader and increment an progress counter while on the way.
@@ -15,13 +16,18 @@ public class ProgressReader extends Reader {
 
 	private final Reader in;
 	private final BoundedRangeModel progress;
+	private final JLabel currentAction;
+	private int readSoFar = 0;
 
-	public ProgressReader(URLConnection con, BoundedRangeModel progress) throws IOException {
+	public ProgressReader(URLConnection con, BoundedRangeModel progress, JLabel currentAction) throws IOException {
 		this.in = new InputStreamReader(con.getInputStream());
 		this.progress = progress;
+		this.currentAction = currentAction;
 		int contentLength = con.getContentLength();
 		if (contentLength > 0)
 			progress.setMaximum(contentLength);
+		else
+			progress.setMaximum(0);
 		progress.setValue(0);
     }
 
@@ -31,7 +37,22 @@ public class ProgressReader extends Reader {
 
 	@Override public int read(char[] cbuf, int off, int len) throws IOException {
 		int read = in.read(cbuf, off, len);
-		progress.setValue(progress.getValue()+read);
+		readSoFar += read;
+
+		String progStr = " ("+readSoFar+"/";
+		if (progress.getMaximum() == 0)
+			progStr += "???)";
+		else
+			progStr += progress.getMaximum()+")";
+		
+		String cur = currentAction.getText();
+		int i = cur.indexOf(' ');
+		if (i != -1)
+			cur = cur.substring(0, i) + progStr;
+		else
+			cur += progStr;
+		currentAction.setText(cur);
+		progress.setValue(readSoFar);
 		return read;
 	}
 

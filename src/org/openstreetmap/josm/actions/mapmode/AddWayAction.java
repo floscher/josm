@@ -19,6 +19,7 @@ import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.gui.MapFrame;
+import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * Add a new way. The action is split into the first phase, where a new way get
@@ -55,7 +56,7 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 	 * @param followMode The mode to go into when finished creating a way.
 	 */
 	public AddWayAction(MapFrame mapFrame) {
-		super("Add Way", "addway", "Add a new way to the data.", "W", KeyEvent.VK_W, mapFrame);
+		super("Add Way", "addway", "Add a new way to the data.", "W", KeyEvent.VK_W, mapFrame, ImageProvider.getCursor("normal", "way"));
 		
 		Main.ds.addSelectionChangedListener(this);
 	}

@@ -127,7 +127,7 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 						layer.name, index, isSelected, cellHasFocus);
 				Icon icon = layer.getIcon();
 				if (!layer.visible)
-					icon = ImageProvider.overlay(icon, "invisible", OverlayPosition.SOUTHEAST);
+					icon = ImageProvider.overlay(icon, "overlay/invisible", OverlayPosition.SOUTHEAST);
 				label.setIcon(icon);
 				label.setToolTipText(layer.getToolTipText());
 				return label;

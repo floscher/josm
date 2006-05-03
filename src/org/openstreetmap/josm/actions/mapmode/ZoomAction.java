@@ -8,6 +8,7 @@ import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.SelectionManager;
 import org.openstreetmap.josm.gui.SelectionManager.SelectionEnded;
+import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * Enable the zoom mode within the MapFrame. 
@@ -40,7 +41,7 @@ public class ZoomAction extends MapMode implements SelectionEnded {
 	 * @param mapFrame The MapFrame, whose zoom mode should be enabled.
 	 */
 	public ZoomAction(MapFrame mapFrame) {
-		super("Zoom", "zoom", "Zoom in by dragging.", "Z", KeyEvent.VK_Z, mapFrame);
+		super("Zoom", "zoom", "Zoom in by dragging. (Ctrl+up,left,down,right,+,-)", "Z", KeyEvent.VK_Z, mapFrame, ImageProvider.getCursor("normal", "zoom"));
 		mv = mapFrame.mapView;
 		selectionManager = new SelectionManager(this, true, mv);
 	}

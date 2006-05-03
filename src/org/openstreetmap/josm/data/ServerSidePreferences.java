@@ -1,6 +1,5 @@
 package org.openstreetmap.josm.data;
 
-import java.io.IOException;
 import java.net.URL;
 
 /**
@@ -23,7 +22,7 @@ public class ServerSidePreferences extends Preferences {
 	    return serverUrl+"/user/"+userName+"/preferences";
     }
 
-	@Override public void load() throws IOException {
+	@Override public void load() {
 		resetToDefault();
     }
 

@@ -20,6 +20,7 @@ import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.gui.MapFrame;
+import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * This mode adds a new node to the dataset. The user clicks on a place to add
@@ -46,7 +47,7 @@ public class AddNodeAction extends MapMode {
 	}
 
 	public AddNodeAction(MapFrame mapFrame, String name, Mode mode, String desc) {
-		super(name, "node/"+mode, desc, mapFrame);
+		super(name, "node/"+mode, desc, mapFrame, ImageProvider.getCursor("crosshair", "node"));
 		this.mode = mode;
 	}
 

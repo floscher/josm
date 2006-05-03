@@ -74,7 +74,7 @@ public class OpenAction extends DiskAccessAction {
 				} else if (ExtensionFileFilter.filters[ExtensionFileFilter.OSM].acceptName(fn)) {
 					try {
 						// temporary allow loading of old xml format.
-						dataSet = OsmReader.parseDataSet(new FileReader(filename));
+						dataSet = OsmReader.parseDataSet(new FileReader(filename), null, null);
 					} catch (SAXException x) {
 						if (x.getMessage().equals("Unknown version null")) {
 							int answer = JOptionPane.showConfirmDialog(Main.parent, 

@@ -1,18 +1,20 @@
 One XML Parser is JDOM 1.0 which comes from www.jdom.org and
 is licensed under "JDOM license", a modified Apache License
-with Aknowledgement removed. The other is MinML2 from
-http://www.wilson.co.uk/xml/minml2.htm. The license is 
+with Aknowledgement removed. The other XML Parser is MinML2
+from http://www.wilson.co.uk/xml/minml2.htm. The license is 
 attached below.
 
-The icons are inspired and stolen from gnome-media package 
+The jpeg metadata extraction code is from Drew Noakes
+(http://drewnoakes.com/code/exif).
+
+Most icons are inspired and stolen from gnome-media package 
 of my local linux installation. The images are licensed 
-under LGPL but redistributed by me under the terms of GPL 2.0.
+under LGPL but redistributed by me under the terms of GPL
+2.0. The world image is from onearth.pl.
 
-The UTM - code is a rewritten version from Ben who had it from 
-some old C code. Aknowledgments are in the UTM.java file of 
-the source distribution.
 
-All the rest are belongs to me.
+All the rest are belong to me.
+
 
 Imi.
 

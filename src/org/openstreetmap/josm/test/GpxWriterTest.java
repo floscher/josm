@@ -35,7 +35,7 @@ public class GpxWriterTest extends TestCase {
 		assertEquals("way has vanished and 3 trk (segments) left", 3, root.getChildren("trk", GPX).size());
 	}
 
-	
+
 	/**
 	 * Verify, that new created elements, if and only if they occoure more than once in
 	 * the file, have a negative id attached.
@@ -54,7 +54,7 @@ public class GpxWriterTest extends TestCase {
 			realWay = e;
 		}
 		assertNotNull("way not found in GPX file", realWay);
-		
+
 		// the second point of the first segment of the ways has an id
 		Element trkseg = (Element)realWay.getChildren("trkseg", GPX).get(0);
 		Element trkpt = (Element)trkseg.getChildren("trkpt", GPX).get(1);

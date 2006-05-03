@@ -1,9 +1,11 @@
 package org.openstreetmap.josm.tools;
 
+import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
@@ -62,15 +64,22 @@ public class ImageProvider {
 		return get("", name);
 	}
 
+	public static Cursor getCursor(String name, String overlay) {
+		ImageIcon img = overlay(get("cursor/"+name), "cursor/modifier/"+overlay, OverlayPosition.SOUTHEAST);
+		Cursor c = Toolkit.getDefaultToolkit().createCustomCursor(img.getImage(),
+				name.equals("crosshair") ? new Point(10,10) : new Point(3,2), "Cursor");
+		return c;
+	}
+
 	/**
 	 * @return an icon that represent the overlay of the two given icons. The
 	 * second icon is layed on the first relative to the given position.
 	 */
-	public static Icon overlay(Icon ground, String overlayImage, OverlayPosition pos) {
+	public static ImageIcon overlay(Icon ground, String overlayImage, OverlayPosition pos) {
 		GraphicsConfiguration conf = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
 		int w = ground.getIconWidth();
 		int h = ground.getIconHeight();
-		ImageIcon overlay = ImageProvider.get("overlay",overlayImage);
+		ImageIcon overlay = ImageProvider.get(overlayImage);
 		int wo = overlay.getIconWidth();
 		int ho = overlay.getIconHeight();
 		BufferedImage img = conf.createCompatibleImage(w,h, Transparency.TRANSLUCENT);

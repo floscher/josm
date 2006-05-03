@@ -1,5 +1,6 @@
 package org.openstreetmap.josm.actions.mapmode;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -22,28 +23,37 @@ import org.openstreetmap.josm.tools.ImageProvider;
  */
 abstract public class MapMode extends JosmAction implements MouseListener, MouseMotionListener {
 
+//	private final Cursor cursor;
+//	private Cursor oldCursor;
+
 	/**
 	 * Constructor for mapmodes without an menu
 	 */
-	public MapMode(String name, String iconName, String tooltip, String keyname, int keystroke, MapFrame mapFrame) {
+	public MapMode(String name, String iconName, String tooltip, String keyname, int keystroke, MapFrame mapFrame, Cursor cursor) {
 		super(name, "mapmode/"+iconName, tooltip, keyname, KeyStroke.getKeyStroke(keystroke, 0));
+//		this.cursor = cursor;
 		putValue("active", false);
 	}
 
 	/**
 	 * Constructor for mapmodes with an menu (no shortcut will be registered)
 	 */
-	public MapMode(String name, String iconName, String tooltip, MapFrame mapFrame) {
+	public MapMode(String name, String iconName, String tooltip, MapFrame mapFrame, Cursor cursor) {
 		putValue(NAME, name);
 		putValue(SMALL_ICON, ImageProvider.get("mapmode", iconName));
 		putValue(SHORT_DESCRIPTION, tooltip);
+//		this.cursor = cursor;
 	}
 
 	public void enterMode() {
 		putValue("active", true);
+//		oldCursor = Main.map.mapView.getCursor();
+//		Main.map.mapView.setCursor(cursor);
+		
 	}
 	public void exitMode() {
 		putValue("active", false);
+//		Main.map.mapView.setCursor(oldCursor);
 	}
 
 	/**

@@ -43,22 +43,6 @@ public class UploadAction extends JosmAction {
 			return;
 		}
 		
-		String osmDataServer = Main.pref.get("osm-server.url");
-		//TODO: Remove this in later versions (temporary only)
-		if (osmDataServer.endsWith("/0.2") || osmDataServer.endsWith("/0.2/")) {
-			int answer = JOptionPane.showConfirmDialog(Main.parent, 
-					"You seem to have an outdated server entry in your preferences.\n" +
-					"\n" +
-					"As of JOSM Release 1.2, you must no longer specify the API version in\n" +
-					"the osm url. For the OSM standard server, use http://www.openstreetmap.org/api" +
-					"\n" +
-					"Fix settings and continue?", "Outdated server url detected.", JOptionPane.YES_NO_OPTION);
-			if (answer != JOptionPane.YES_OPTION)
-				return;
-			int cutPos = osmDataServer.endsWith("/0.2") ? 4 : 5;
-			Main.pref.put("osm-server.url", osmDataServer.substring(0, osmDataServer.length()-cutPos));
-		}
-
 		if (!Main.map.conflictDialog.conflicts.isEmpty()) {
 			JOptionPane.showMessageDialog(Main.parent, "There are unresolved conflicts. You have to resolve these first.");
 			Main.map.conflictDialog.action.button.setSelected(true);
