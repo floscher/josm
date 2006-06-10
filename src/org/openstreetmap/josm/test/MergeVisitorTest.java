@@ -47,9 +47,10 @@ public class MergeVisitorTest extends TestCase {
 	public void testNodesConflictBothModified() {
 		n.modified = true;
 		dsNode.modified = true;
+		n.id = 1;
+		dsNode.id = 1;
 		v.visit(n);
 		assertEquals(1, v.conflicts.size());
-		assertFalse(n.equals(dsNode));
 	}
 	public void testNodesConflict() {
 		dsNode.id = 1;
@@ -90,6 +91,29 @@ public class MergeVisitorTest extends TestCase {
 		assertFalse("updating a new node clear the modified state", dsNode.modified);
 	}
 
+	public void testNoConflictNewNodesMerged() {
+		assertEquals(0, n.id);
+		assertEquals(0, dsNode.id);
+		v.visit(n);
+		v.fixReferences();
+		assertEquals(0,v.conflicts.size());
+		assertTrue(ds.nodes.contains(n));
+		assertEquals(2, ds.nodes.size());
+	}
+
+	/**
+	 * Test that two new segments that have different from/to are not merged
+	 */
+	@Bug(101)
+	public void testNewSegmentNotMerged() {
+		v.visit(n);
+		Segment s1 = new Segment(n, dsNode);
+		v.visit(s1);
+		Segment s2 = new Segment(dsNode, n);
+		v.visit(s2);
+		assertEquals(2, ds.segments.size());
+	}
+	
 	public void testFixReferencesConflicts() {
 		// make two nodes mergable
 		dsNode.id = 1;
@@ -197,7 +221,7 @@ public class MergeVisitorTest extends TestCase {
 		v.visit(w2);
 		assertSame("Do not import incomplete segments when merging ways.", s, w.segments.iterator().next());
 	}
-	
+		
 	/**
 	 * Create that amount of nodes and add them to the dataset. The id will be 1,2,3,4...
 	 * @param amount Number of nodes to create.

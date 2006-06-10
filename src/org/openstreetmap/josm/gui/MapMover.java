@@ -1,6 +1,7 @@
 package org.openstreetmap.josm.gui;
 
 import java.awt.Cursor;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -31,7 +32,10 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
         }
 	    public void actionPerformed(ActionEvent e) {
 	    	if (action.equals("+") || action.equals("-")) {
-	    		MouseWheelEvent we = new MouseWheelEvent(nc, e.getID(), e.getWhen(), e.getModifiers(), nc.getMousePosition().x, nc.getMousePosition().y, 0, false, MouseWheelEvent.WHEEL_UNIT_SCROLL, 1, action.equals("+") ? -1 : 1);
+	    		Point mouse = nc.getMousePosition();
+	    		if (mouse == null)
+	    			mouse = new Point((int)nc.getBounds().getCenterX(), (int)nc.getBounds().getCenterY());
+	    		MouseWheelEvent we = new MouseWheelEvent(nc, e.getID(), e.getWhen(), e.getModifiers(), mouse.x, mouse.y, 0, false, MouseWheelEvent.WHEEL_UNIT_SCROLL, 1, action.equals("+") ? -1 : 1);
 	    		mouseWheelMoved(we);
 	    	} else {
 	    		EastNorth center = nc.getCenter();

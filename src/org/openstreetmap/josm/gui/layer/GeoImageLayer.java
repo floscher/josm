@@ -52,6 +52,7 @@ import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.PleaseWaitRunnable;
 import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
 import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
+import org.openstreetmap.josm.tools.DateParser;
 import org.openstreetmap.josm.tools.ExifReader;
 import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.ImageProvider;
@@ -96,7 +97,7 @@ public class GeoImageLayer extends Layer {
 						Matcher m = reg.matcher(p.time);
 						if (!m.matches())
 							throw new IOException("Cannot read time from point "+p.latlon.lat()+","+p.latlon.lon());
-						Date d = dateFormat.parse(m.group(1)+" "+m.group(2));
+						Date d = DateParser.parse(m.group(1)+" "+m.group(2));
 						gps.add(new TimedPoint(d, p.eastNorth));
 						if (last != null && last.after(d))
 							throw new IOException("Time loop in gps data.");
@@ -380,7 +381,7 @@ public class GeoImageLayer extends Layer {
 			if (answer != JOptionPane.OK_OPTION || gpsText.getText().equals(""))
 				return;
 			try {
-				delta = dateFormat.parse(gpsText.getText()).getTime() - exifDate.getTime();
+				delta = DateParser.parse(gpsText.getText()).getTime() - exifDate.getTime();
 				Main.pref.put("tagimages.delta", ""+delta);
 				String time = gpsTimezone.getText();
 				if (!time.equals("") && time.charAt(0) == '+')

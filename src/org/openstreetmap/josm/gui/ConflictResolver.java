@@ -119,19 +119,18 @@ public class ConflictResolver extends JPanel {
 		}
 	}
 
-	public final List<ConflictItem> conflicts;
+	public final List<ConflictItem> conflicts = new ArrayList<ConflictItem>();
 
 	private final ConflictTableModel my = new ConflictTableModel(Resolution.MY);
-	private final JTable myTable = new JTable(my);
+	private final JTable myTable;
 	private final ConflictTableModel their = new ConflictTableModel(Resolution.THEIR);
-	private final JTable theirTable = new JTable(their);
+	private final JTable theirTable;
 	private final ConflictTableModel resolve = new ConflictTableModel(null);
-	private final JTable resolveTable = new JTable(resolve);
+	private final JTable resolveTable;
 
 	
 	public ConflictResolver(Map<OsmPrimitive, OsmPrimitive> conflicts) {
 		super(new GridBagLayout());
-		this.conflicts = new ArrayList<ConflictItem>();
 		Collection<ConflictItem> possibleConflicts = new ArrayList<ConflictItem>();
 		possibleConflicts.add(new DeleteConflict());
 		possibleConflicts.add(new PositionConflict());
@@ -160,6 +159,12 @@ public class ConflictResolver extends JPanel {
 		if (this.conflicts.isEmpty())
 			throw new RuntimeException("No conflicts but in conflict list:\n" + Arrays.toString(conflicts.entrySet().toArray()));
 
+		// have to initialize the JTables here and not in the declaration, because its constructor
+		// may access this.conflicts (indirectly)
+		myTable = new JTable(my);
+		theirTable = new JTable(their);
+		resolveTable = new JTable(resolve);
+		
 		myTable.setPreferredScrollableViewportSize(new Dimension(250,70));
 		theirTable.setPreferredScrollableViewportSize(new Dimension(250,70));
 		resolveTable.setPreferredScrollableViewportSize(new Dimension(250,70));

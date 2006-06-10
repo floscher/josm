@@ -19,7 +19,7 @@ public class SearchCompiler {
 	abstract public static class Match {
 		abstract public boolean match(OsmPrimitive osm);
 	}
-	
+
 	private static class Always extends Match {
 		@Override public boolean match(OsmPrimitive osm) {
 			return true;
@@ -34,7 +34,7 @@ public class SearchCompiler {
 		}
 		@Override public String toString() {return "!"+match;}
 	}
-	
+
 	private static class And extends Match {
 		private Match lhs;
 		private Match rhs;
@@ -44,7 +44,7 @@ public class SearchCompiler {
 		}
 		@Override public String toString() {return lhs+" && "+rhs;}
 	}
-	
+
 	private static class Or extends Match {
 		private Match lhs;
 		private Match rhs;
@@ -54,7 +54,7 @@ public class SearchCompiler {
 		}
 		@Override public String toString() {return lhs+" || "+rhs;}
 	}
-	
+
 	private static class Id extends Match {
 		private long id;
 		public Id(long id) {this.id = id;}
@@ -63,7 +63,7 @@ public class SearchCompiler {
 		}
 		@Override public String toString() {return "id="+id;}
 	}
-	
+
 	private static class KeyValue extends Match {
 		private String key;
 		private String value;
@@ -110,8 +110,14 @@ public class SearchCompiler {
 		}
 		@Override public String toString() {return "type="+type;}
 	}
-
 	
+	private static class Modified extends Match {
+		@Override public boolean match(OsmPrimitive osm) {
+			return osm.modified;
+		}
+		@Override public String toString() {return "modified";}
+	}
+
 	public static Match compile(String searchStr) {
 		return new SearchCompiler().parse(new PushbackReader(new StringReader(searchStr)));
 	}
@@ -151,31 +157,31 @@ public class SearchCompiler {
 				return s.toString();
 			default:
 				s = new StringBuilder();
-				for (;;) {
-					s.append(c);
-					next = search.read();
-					if (next == -1) {
-						if (s.toString().equals("OR"))
-							return "|";
-						return " "+s.toString();
-					}
-					c = (char)next;
-					if (c == ' ' || c == '\t' || c == ':' || c == '"') {
-						if (c == ':')
-							return ":"+s.toString();
-						search.unread(next);
-						if (s.toString().equals("OR"))
-							return "|";
-						return " "+s.toString();
-					}
+			for (;;) {
+				s.append(c);
+				next = search.read();
+				if (next == -1) {
+					if (s.toString().equals("OR"))
+						return "|";
+					return " "+s.toString();
 				}
+				c = (char)next;
+				if (c == ' ' || c == '\t' || c == ':' || c == '"') {
+					if (c == ':')
+						return ":"+s.toString();
+					search.unread(next);
+					if (s.toString().equals("OR"))
+						return "|";
+					return " "+s.toString();
+				}
+			}
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e.getMessage(), e);
 		}		
 	}
-	
-	
+
+
 	private boolean notKey = false;
 	private boolean notValue = false;
 	private boolean or = false;
@@ -184,7 +190,11 @@ public class SearchCompiler {
 	private Match build() {
 		String value = token.substring(1);
 		if (key == null) {
-			Match c = new Any(value);
+			Match c = null;
+			if (value.equals("modified"))
+				c = new Modified();
+			else
+				c = new Any(value);
 			if (notValue)
 				return new Not(c);
 			return c;
@@ -206,7 +216,7 @@ public class SearchCompiler {
 			return new Not(c);
 		return c;
 	}
-	
+
 	private Match parse(PushbackReader search) {
 		Match result = null;
 		for (token = nextToken(search); token != null; token = nextToken(search)) {
@@ -230,10 +240,10 @@ public class SearchCompiler {
 					result = current;
 				else
 					result = or ? new Or(result, current) : new And(result, current);
-				key = null;
-				notKey = false;
-				notValue = false;
-				or = false;
+					key = null;
+					notKey = false;
+					notValue = false;
+					or = false;
 			}
 		}
 		// if "key:" was the last search

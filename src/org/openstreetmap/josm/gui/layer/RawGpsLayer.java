@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
@@ -22,6 +23,10 @@ import org.openstreetmap.josm.actions.GpxExportAction;
 import org.openstreetmap.josm.data.Preferences.PreferenceChangedListener;
 import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.coor.LatLon;
+import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.data.osm.Node;
+import org.openstreetmap.josm.data.osm.Segment;
+import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
@@ -35,6 +40,32 @@ import org.openstreetmap.josm.tools.ImageProvider;
  * @author imi
  */
 public class RawGpsLayer extends Layer implements PreferenceChangedListener {
+
+	public class ConvertToOsmAction extends AbstractAction {
+		public ConvertToOsmAction() {
+			super("Convert layer to OSM");
+        }
+		public void actionPerformed(ActionEvent e) {
+			DataSet ds = new DataSet();
+			for (Collection<GpsPoint> c : data) {
+				Way w = new Way();
+				Node start = null;
+				for (GpsPoint p : c) {
+					Node end = new Node(p.latlon);
+					ds.nodes.add(end);
+					if (start != null) {
+						Segment segment = new Segment(start,end);
+						w.segments.add(segment);
+						ds.segments.add(segment);
+					}
+					start = end;
+				}
+				ds.ways.add(w);
+			}
+			Main.main.addLayer(new OsmDataLayer(ds, "Data Layer", true));
+			Main.main.removeLayer(RawGpsLayer.this);
+        }
+    }
 
 	public static class GpsPoint {
 		public final LatLon latlon;
@@ -182,6 +213,8 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
             }
 		});
 		menu.add(tagimage);
+		
+		menu.add(new JMenuItem(new ConvertToOsmAction()));
 		
 		menu.addSeparator();
 		menu.add(new LayerListPopup.InfoAction(this));
