@@ -16,6 +16,7 @@ import org.openstreetmap.josm.command.AddCommand;
 import org.openstreetmap.josm.command.ChangeCommand;
 import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.SequenceCommand;
+import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
@@ -87,6 +88,18 @@ public class AddNodeAction extends MapMode {
 			if (s == null)
 				return;
 
+			if ((e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) == 0) {
+				// moving the new point to the perpendicular point
+				EastNorth A = s.from.eastNorth;
+				EastNorth B = s.to.eastNorth;
+				double ab = A.distance(B);
+				double nb = n.eastNorth.distance(B);
+				double na = n.eastNorth.distance(A);
+				double q = (nb-na+ab)/ab/2;
+				n.eastNorth = new EastNorth(B.east() + q*(A.east()-B.east()), B.north() + q*(A.north()-B.north()));
+				n.coor = Main.proj.eastNorth2latlon(n.eastNorth);
+			}
+			
 			Collection<Command> cmds = new LinkedList<Command>();
 			cmds.add(c);
 			Segment s1 = new Segment(s);

@@ -237,7 +237,7 @@ public class MergeVisitor implements Visitor {
 	 * @return Whether the segments matches (in sense of "be mergable").
 	 */
 	private boolean match(Segment ls1, Segment ls2) {
-		if (ls1.id == ls2.id)
+		if (ls1.id == ls2.id && ls1.id != 0)
 			return true;
 		if (ls1.incomplete || ls2.incomplete)
 			return false;
@@ -293,7 +293,7 @@ public class MergeVisitor implements Visitor {
 		for (P my : primitives) {
 			if (my.realEqual(other))
 				return true; // no merge needed.
-			if (my.id == other.id) {
+			if (my.id == other.id && my.id != 0) {
 				if (my instanceof Segment && ((Segment)my).incomplete)
 					return false; // merge always over an incomplete
 				Date d1 = my.timestamp == null ? new Date(0) : my.timestamp;
