@@ -1,16 +1,17 @@
 package org.openstreetmap.josm.io;
 
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.Namespace;
-import org.jdom.input.SAXBuilder;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+
+import uk.co.wilson.xml.MinML2;
 
 /**
  * Read raw gps data from a gpx file. Only way points with their ways segments
@@ -19,81 +20,61 @@ import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
  */
 public class RawGpsReader {
 
-	/**
-	 * The data source from this reader.
-	 */
-	public Reader source;
-	
-	/**
-	 * Construct a gps reader from an input reader source.
-	 * @param source The source to read the raw gps data from. The data must be
-	 * 		in GPX format.
-	 */
-	public RawGpsReader(Reader source) {
-		this.source = source;
+	private static class Parser extends MinML2 {
+		/**
+		 * Current track to be read. The last entry is the current trkpt.
+		 * If in wpt-mode, it contain only one GpsPoint.
+		 */
+		private Collection<GpsPoint> current = new LinkedList<GpsPoint>();
+		public Collection<Collection<GpsPoint>> data = new LinkedList<Collection<GpsPoint>>();
+		private LatLon currentLatLon;
+		private String currentTime;
+
+		@Override public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
+			if (qName.equals("wpt") || qName.equals("trkpt")) {
+				try {
+	                double lat = Double.parseDouble(atts.getValue("lat"));
+	                double lon = Double.parseDouble(atts.getValue("lon"));
+	        		if (Math.abs(lat) > 90)
+	        			throw new SAXException("Data error: lat value '"+lat+"' is out of bound.");
+	        		if (Math.abs(lon) > 180)
+	        			throw new SAXException("Data error: lon value '"+lon+"' is out of bound.");
+	                currentLatLon = new LatLon(lat, lon);
+                } catch (NumberFormatException e) {
+                	e.printStackTrace();
+	                throw new SAXException(e);
+                }
+			} else if (qName.equals("time")) {
+				currentTime = "";
+			}
+		}
+
+		@Override public void characters(char[] ch, int start, int length) {
+			if (currentTime != null && currentTime.equals(""))
+				currentTime = new String(ch, start, length);
+		}
+
+		@Override public void endElement(String namespaceURI, String localName, String qName) {
+			if (qName.equals("wpt") || qName.equals("trkpt")) {
+				current.add(new GpsPoint(currentLatLon, currentTime));
+			} else if (qName.equals("trkseg") || qName.equals("trk") || qName.equals("gpx"))
+				newTrack();
+        }
+
+		private void newTrack() {
+			if (!current.isEmpty()) {
+				data.add(current);
+				current = new LinkedList<GpsPoint>();
+			}
+		}
 	}
 
-	/**
-	 * The gpx namespace.
-	 */
-	private Namespace GPX = Namespace.getNamespace("http://www.topografix.com/GPX/1/0");
-	
 	/**
 	 * Parse and return the read data
 	 */
-	public Collection<Collection<GpsPoint>> parse() throws JDOMException, IOException {
-		final SAXBuilder builder = new SAXBuilder();
-		builder.setValidation(false);
-		Element root = builder.build(source).getRootElement();
-		return parseData(root);
-	}
-
-	/**
-	 * Parse and return the whole data thing.
-	 * @param root
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	private Collection<Collection<GpsPoint>> parseData(Element root) throws JDOMException {
-		Collection<Collection<GpsPoint>> data = new LinkedList<Collection<GpsPoint>>();
-
-		// workaround for bug where the server adds /gpx.asd to the namespace
-		GPX = Namespace.getNamespace(root.getNamespaceURI());
-		
-		for (Object o : root.getChildren("wpt", GPX)) {
-			Collection<GpsPoint> line = new LinkedList<GpsPoint>();
-			line.add(new GpsPoint(
-					new LatLon(parseDouble((Element)o, LatLonAttr.lat), parseDouble((Element)o, LatLonAttr.lon)),
-					((Element)o).getChildText("time", GPX)));
-			data.add(line);
-		}
-		for (Object o : root.getChildren("trk", GPX)) {
-			for (Object seg : ((Element)o).getChildren("trkseg", GPX)) {
-				Collection<GpsPoint> data1 = new LinkedList<GpsPoint>();
-				for (Object trkObj : ((Element)seg).getChildren("trkpt", GPX)) {
-					data1.add(new GpsPoint(
-							new LatLon(parseDouble((Element)trkObj, LatLonAttr.lat), parseDouble((Element)trkObj, LatLonAttr.lon)),
-							((Element)trkObj).getChildText("time", GPX)));
-				}
-				Collection<GpsPoint> line = data1;
-				if (!line.isEmpty())
-					data.add(line);
-			}
-		}
-		return data;
-	}
-
-	private enum LatLonAttr {lat, lon}
-	/**
-	 * Return a parsed float value from the element behind the object o.
-	 * @param o An object of dynamic type org.jdom.Element (will be casted).
-	 * @param attr The name of the attribute.
-	 * @throws JDOMException If the absolute of the value is out of bound.
-	 */
-	private double parseDouble(Element e, LatLonAttr attr) throws JDOMException {
-		double d = Double.parseDouble(e.getAttributeValue(attr.toString()));
-		if (Math.abs(d) > (attr == LatLonAttr.lat ? 90 : 180))
-			throw new JDOMException("Data error: "+attr+" value '"+d+"' is out of bound.");
-		return d;
+	public static Collection<Collection<GpsPoint>> parse(InputStream source) throws SAXException, IOException {
+		Parser parser = new Parser();
+		parser.parse(new InputStreamReader(source, "UTF-8"));
+		return parser.data;
 	}
 }

@@ -1,7 +1,5 @@
-One XML Parser is JDOM 1.0 which comes from www.jdom.org and
-is licensed under "JDOM license", a modified Apache License
-with Aknowledgement removed. The other XML Parser is MinML2
-from http://www.wilson.co.uk/xml/minml2.htm. The license is 
+The XML Parser is MinML2 from 
+http://www.wilson.co.uk/xml/minml2.htm. The license is 
 attached below.
 
 The jpeg metadata extraction code is from Drew Noakes

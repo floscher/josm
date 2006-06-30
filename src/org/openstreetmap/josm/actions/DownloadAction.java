@@ -29,7 +29,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.coor.LatLon;
@@ -98,7 +97,7 @@ public class DownloadAction extends JosmAction {
 			reader.setProgressInformation(currentAction, progress);
 		}
 
-		@Override public void realRun() throws IOException, JDOMException {
+		@Override public void realRun() throws IOException, SAXException {
 			rawData = reader.parseRawGps();
 		}
 

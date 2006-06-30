@@ -14,13 +14,13 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 
-import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.OsmPrimitivRenderer;
 import org.openstreetmap.josm.gui.PleaseWaitRunnable;
 import org.openstreetmap.josm.io.OsmServerWriter;
 import org.openstreetmap.josm.tools.GBC;
+import org.xml.sax.SAXException;
 
 /**
  * Action that opens a connection to the osm server and upload all changes.
@@ -72,7 +72,7 @@ public class UploadAction extends JosmAction {
 		all.addAll(delete);
 
 		PleaseWaitRunnable uploadTask = new PleaseWaitRunnable("Uploading data"){
-			@Override protected void realRun() throws JDOMException {
+			@Override protected void realRun() throws SAXException {
 				server.setProgressInformation(currentAction, progress);
 				server.uploadOsm(all);
 			}

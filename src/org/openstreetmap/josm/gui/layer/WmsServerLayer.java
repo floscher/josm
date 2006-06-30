@@ -1,11 +1,13 @@
 package org.openstreetmap.josm.gui.layer;
 
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 
 import javax.swing.Icon;
-import javax.swing.JPopupMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JSeparator;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.coor.EastNorth;
@@ -13,6 +15,7 @@ import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.MapView;
+import org.openstreetmap.josm.gui.dialogs.LayerList;
 import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
 import org.openstreetmap.josm.tools.ImageProvider;
 import org.openstreetmap.josm.tools.TileCache;
@@ -94,8 +97,11 @@ public class WmsServerLayer extends Layer {
 		return getToolTipText();
 	}
 
-	@Override public void addMenuEntries(JPopupMenu menu) {
-		menu.addSeparator();
-		menu.add(new LayerListPopup.InfoAction(this));
+	@Override public Component[] getMenuEntries() {
+		return new Component[]{
+				new JMenuItem(new LayerList.ShowHideLayerAction(this)),
+				new JMenuItem(new LayerList.DeleteLayerAction(this)),
+				new JSeparator(),
+				new JMenuItem(new LayerListPopup.InfoAction(this))};
     }
 }

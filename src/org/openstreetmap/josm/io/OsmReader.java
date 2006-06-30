@@ -1,7 +1,8 @@
 package org.openstreetmap.josm.io;
 
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -55,7 +56,7 @@ public class OsmReader {
 	 * All read nodes after phase 1.
 	 */
 	private Map<Long, Node> nodes = new HashMap<Long, Node>();
-	
+
 	private static class OsmPrimitiveData extends OsmPrimitive {
 		@Override public void visit(Visitor visitor) {}
 		public int compareTo(OsmPrimitive o) {return 0;}
@@ -67,9 +68,9 @@ public class OsmReader {
 			osm.selected = selected;
 			osm.deleted = deleted;
 			osm.timestamp = timestamp;
-        }
+		}
 	}
-	
+
 	/**
 	 * Data structure for the remaining segment objects
 	 * Maps the raw attributes to key/value pairs.
@@ -199,11 +200,11 @@ public class OsmReader {
 	/**
 	 * Parse the given input source and return the dataset.
 	 */
-	public static DataSet parseDataSet(Reader source, JLabel currentAction, BoundedRangeModel progress) throws SAXException, IOException {
+	public static DataSet parseDataSet(InputStream source, JLabel currentAction, BoundedRangeModel progress) throws SAXException, IOException {
 		OsmReader osm = new OsmReader();
 
 		// phase 1: Parse nodes and read in raw segments and ways
-		osm.new Parser().parse(source);
+		osm.new Parser().parse(new InputStreamReader(source, "UTF-8"));
 		if (progress != null)
 			progress.setValue(0);
 		if (currentAction != null)

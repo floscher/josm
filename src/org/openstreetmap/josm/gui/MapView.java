@@ -206,6 +206,8 @@ public class MapView extends NavigatableComponent {
 	 * Draw the component.
 	 */
 	@Override public void paint(Graphics g) {
+		if (center == null)
+			return; // no data loaded yet.
 		g.setColor(SimplePaintVisitor.getPreferencesColor("background", Color.BLACK));
 		g.fillRect(0, 0, getWidth(), getHeight());
 

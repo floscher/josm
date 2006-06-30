@@ -1,19 +1,17 @@
 package org.openstreetmap.josm.io;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -21,6 +19,7 @@ import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.NameVisitor;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
+import org.xml.sax.SAXException;
 
 /**
  * Class that uploades all changes to the osm server.
@@ -54,7 +53,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 	 * Send the dataset to the server. Ask the user first and does nothing if he
 	 * does not want to send the data.
 	 */
-	public void uploadOsm(Collection<OsmPrimitive> list) throws JDOMException {
+	public void uploadOsm(Collection<OsmPrimitive> list) throws SAXException {
 		processed = new LinkedList<OsmPrimitive>();
 		initAuthentication();
 
@@ -72,7 +71,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 				progress.setValue(progress.getValue()+1);
 			}
 		} catch (RuntimeException e) {
-			throw new JDOMException("An error occoured: ", e);
+			throw new SAXException("An error occoured: ", e);
 		}
 	}
 
@@ -161,7 +160,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 			activeConnection.connect();
 
 			if (addBody) {
-				Writer out = new OutputStreamWriter(activeConnection.getOutputStream());
+				OutputStream out = activeConnection.getOutputStream();
 				OsmWriter.outputSingle(out, osm, true);
 				out.close();
 			}
@@ -175,9 +174,9 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 			if (retCode == 410 && requestMethod.equals("DELETE"))
 				return; // everything fine.. was already deleted.
 			if (retCode != 200) {
-				StringWriter o = new StringWriter();
+				ByteArrayOutputStream o = new ByteArrayOutputStream();
 				OsmWriter.outputSingle(o, osm, true);
-				System.out.println(o.getBuffer().toString());
+				System.out.println(new String(o.toByteArray(), "UTF-8").toString());
 				throw new RuntimeException(retCode+" "+retMsg);
 			}
 		} catch (UnknownHostException e) {

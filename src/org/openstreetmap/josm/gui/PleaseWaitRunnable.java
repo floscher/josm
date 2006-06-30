@@ -18,7 +18,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
-import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.tools.GBC;
 import org.xml.sax.SAXException;
@@ -76,9 +75,6 @@ public abstract class PleaseWaitRunnable implements Runnable {
 		} catch (SAXException x) {
 			x.printStackTrace();
 			errorMessage = "Error while parsing: "+x.getMessage();
-		} catch (JDOMException x) {
-			x.printStackTrace();
-			errorMessage = "Error while parsing: "+x.getMessage();
 		} catch (FileNotFoundException x) {
 			x.printStackTrace();
 			errorMessage = "Not found: " + x.getMessage();
@@ -100,7 +96,7 @@ public abstract class PleaseWaitRunnable implements Runnable {
 	 * exception is thrown, a message box will be displayed and closeDialog
 	 * is called. finish() is called in any case.
 	 */
-	protected abstract void realRun() throws SAXException, JDOMException, IOException;
+	protected abstract void realRun() throws SAXException, IOException;
 
 	/**
 	 * Finish up the data work. Is guaranteed to be called if realRun is called.

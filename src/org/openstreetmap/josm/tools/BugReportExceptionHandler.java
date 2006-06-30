@@ -28,6 +28,11 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 	public void uncaughtException(Thread t, Throwable e) {
 		e.printStackTrace();
 		if (Main.parent != null) {
+			if (e instanceof OutOfMemoryError) {
+				JOptionPane.showMessageDialog(Main.parent, "You are out of memory. Strange things may happen.\nPlease restart JOSM and load smaller data sets.");
+				return;
+			}
+			
 			Object[] options = new String[]{"Do nothing", "Report Bug"};
 			int answer = JOptionPane.showOptionDialog(Main.parent, "An unexpected exception occoured.\n\n" +
 					"This is always a coding error. If you are running the latest\n" +

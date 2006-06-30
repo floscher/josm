@@ -31,7 +31,6 @@ import org.openstreetmap.josm.gui.dialogs.LayerList;
 import org.openstreetmap.josm.gui.dialogs.PropertiesDialog;
 import org.openstreetmap.josm.gui.dialogs.SelectionListDialog;
 import org.openstreetmap.josm.gui.dialogs.ToggleDialog;
-import org.openstreetmap.josm.gui.layer.Layer;
 
 /**
  * One Map frame with one dataset behind. This is the container gui class whose
@@ -68,13 +67,12 @@ public class MapFrame extends JPanel {
 	 * 
 	 * @param layer The first layer in the mapView. 
 	 */
-	public MapFrame(Layer layer) {
+	public MapFrame() {
 		setSize(400,400);
 		setLayout(new BorderLayout());
 
 		final AutoScaleAction autoScaleAction = new AutoScaleAction(this);
 		add(mapView = new MapView(autoScaleAction), BorderLayout.CENTER);
-		mapView.addLayer(layer);
 
 		// toolbar
 		toolBarActions.setFloatable(false);

@@ -1,5 +1,6 @@
 package org.openstreetmap.josm.gui.layer;
 
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -15,7 +16,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.GpxExportAction;
@@ -32,6 +33,7 @@ import org.openstreetmap.josm.data.osm.visitor.SimplePaintVisitor;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.dialogs.ConflictDialog;
+import org.openstreetmap.josm.gui.dialogs.LayerList;
 import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
 import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.ImageProvider;
@@ -308,10 +310,14 @@ public class OsmDataLayer extends Layer {
 		return p;
 	}
 
-	@Override public void addMenuEntries(final JPopupMenu menu) {
-		menu.add(new JMenuItem(new SaveAction()));
-		menu.add(new JMenuItem(new GpxExportAction(this)));
-		menu.addSeparator();
-		menu.add(new LayerListPopup.InfoAction(this));
+	@Override public Component[] getMenuEntries() {
+		return new Component[]{
+				new JMenuItem(new LayerList.ShowHideLayerAction(this)),
+				new JMenuItem(new LayerList.DeleteLayerAction(this)),
+				new JSeparator(),
+				new JMenuItem(new SaveAction()),
+				new JMenuItem(new GpxExportAction(this)),
+				new JSeparator(),
+				new JMenuItem(new LayerListPopup.InfoAction(this))};
 	}
 }

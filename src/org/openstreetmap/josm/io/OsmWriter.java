@@ -1,7 +1,9 @@
 package org.openstreetmap.josm.io;
 
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.Writer;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -43,7 +45,7 @@ public class OsmWriter implements Visitor {
 	 * 		case, not all information can be retrieved later (as example, modified state
 	 * 		is lost and id's remain 0 instead of decrementing from -1)
 	 */
-	public static void output(Writer out, DataSet ds, boolean osmConform) {
+	public static void output(OutputStream out, DataSet ds, boolean osmConform) {
 		OsmWriter writer = new OsmWriter(out, osmConform);
 		writer.out.println("<?xml version='1.0' encoding='UTF-8'?>");
 		writer.out.println("<osm version='0.3' generator='JOSM'>");
@@ -54,21 +56,24 @@ public class OsmWriter implements Visitor {
 		for (Way w : ds.ways)
 			writer.visit(w);
 		writer.out.println("</osm>");
+		writer.close();
 	}
 
-	public static void outputSingle(Writer out, OsmPrimitive osm, boolean osmConform) {
+	public static void outputSingle(OutputStream out, OsmPrimitive osm, boolean osmConform) {
 		OsmWriter writer = new OsmWriter(out, osmConform);
 		writer.out.println(XmlWriter.header());
 		writer.out.println("<osm version='0.3' generator='JOSM'>");
 		osm.visit(writer);
 		writer.out.println("</osm>");
+		writer.close();
 	}
 
-	private OsmWriter(Writer out, boolean osmConform) {
-		if (out instanceof PrintWriter)
-			this.out = (PrintWriter)out;
-		else
-			this.out = new PrintWriter(out);
+	private OsmWriter(OutputStream out, boolean osmConform) {
+		try {
+	        this.out = new PrintWriter(new OutputStreamWriter(out, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+        	throw new RuntimeException(e);
+        }
 		this.osmConform = osmConform;
 	}
 
@@ -140,4 +145,8 @@ public class OsmWriter implements Visitor {
 			out.print(" timestamp='"+time+"'");
 		}
 	}
+
+	public void close() {
+	    out.close();
+    }
 }

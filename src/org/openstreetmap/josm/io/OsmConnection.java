@@ -25,6 +25,13 @@ import org.openstreetmap.josm.tools.GBC;
  */
 public class OsmConnection {
 
+	public static class OsmParseException extends Exception {
+		public OsmParseException() {super();}
+		public OsmParseException(String message, Throwable cause) {super(message, cause);}
+		public OsmParseException(String message) {super(message);}
+		public OsmParseException(Throwable cause) {super(cause);}
+	}
+	
 	protected boolean cancel = false;
 	protected HttpURLConnection activeConnection;
 	protected JLabel currentAction;

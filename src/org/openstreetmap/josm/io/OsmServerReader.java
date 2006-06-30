@@ -1,13 +1,12 @@
 package org.openstreetmap.josm.io;
 
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
@@ -45,7 +44,7 @@ public class OsmServerReader extends OsmConnection {
 	 * 		contain only one list, since the server cannot distinguish between
 	 * 		ways.
 	 */
-	public Collection<Collection<GpsPoint>> parseRawGps() throws IOException, JDOMException {
+	public Collection<Collection<GpsPoint>> parseRawGps() throws IOException, SAXException {
 		try {
 			String url = Main.pref.get("osm-server.url")+"/0.3/trackpoints?bbox="+lon1+","+lat1+","+lon2+","+lat2+"&page=";
 			Collection<Collection<GpsPoint>> data = new LinkedList<Collection<GpsPoint>>();
@@ -53,11 +52,10 @@ public class OsmServerReader extends OsmConnection {
 
 			for (int i = 0;;++i) {
 				currentAction.setText("Downloading points "+(i*5000)+" to "+((i+1)*5000)+"...");
-				Reader r = getReader(url+i);
-				if (r == null)
+				InputStream in = getInputStream(url+i);
+				if (in == null)
 					break;
-				RawGpsReader gpsReader = new RawGpsReader(r);
-				Collection<Collection<GpsPoint>> allWays = gpsReader.parse();
+				Collection<Collection<GpsPoint>> allWays = RawGpsReader.parse(in);
 				boolean foundSomething = false;
 				for (Collection<GpsPoint> t : allWays) {
 					if (!t.isEmpty()) {
@@ -67,7 +65,7 @@ public class OsmServerReader extends OsmConnection {
 				}
 				if (!foundSomething)
 					break;
-				r.close();
+				in.close();
 				activeConnection = null;
 			}
 
@@ -77,7 +75,7 @@ public class OsmServerReader extends OsmConnection {
 			if (cancel)
 				return null;
 			throw e;
-		} catch (JDOMException e) {
+		} catch (SAXException e) {
 			throw e;
 		} catch (Exception e) {
 			if (cancel)
@@ -95,12 +93,12 @@ public class OsmServerReader extends OsmConnection {
 	 */
 	public DataSet parseOsm() throws SAXException, IOException {
 		try {
-			final Reader r = getReader(Main.pref.get("osm-server.url")+"/0.3/map?bbox="+lon1+","+lat1+","+lon2+","+lat2);
-			if (r == null)
+			final InputStream in = getInputStream(Main.pref.get("osm-server.url")+"/0.3/map?bbox="+lon1+","+lat1+","+lon2+","+lat2);
+			if (in == null)
 				return null;
 			currentAction.setText("Downloading OSM data...");
-			final DataSet data = OsmReader.parseDataSet(r, currentAction, progress);
-			r.close();
+			final DataSet data = OsmReader.parseDataSet(in, currentAction, progress);
+			in.close();
 			activeConnection = null;
 			return data;
 		} catch (IOException e) {
@@ -125,7 +123,7 @@ public class OsmServerReader extends OsmConnection {
 	 * @param url The exact url to connect to.
 	 * @return An reader reading the input stream (servers answer) or <code>null</code>.
 	 */
-	private Reader getReader(String urlStr) throws IOException {
+	private InputStream getInputStream(String urlStr) throws IOException {
 		System.out.println("download: "+urlStr);
 		initAuthentication();
 		URL url = new URL(urlStr);

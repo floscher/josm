@@ -1,6 +1,7 @@
 package org.openstreetmap.josm.io;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URLConnection;
@@ -12,7 +13,7 @@ import javax.swing.JLabel;
  * Read from an other reader and increment an progress counter while on the way.
  * @author Imi
  */
-public class ProgressReader extends Reader {
+public class ProgressReader extends InputStream {
 
 	private final Reader in;
 	private final BoundedRangeModel progress;
@@ -35,9 +36,9 @@ public class ProgressReader extends Reader {
 		in.close();
 	}
 
-	@Override public int read(char[] cbuf, int off, int len) throws IOException {
-		int read = in.read(cbuf, off, len);
-		readSoFar += read;
+	@Override public int read() throws IOException {
+		int read = in.read();
+		readSoFar++;
 
 		String progStr = " ("+readSoFar+"/";
 		if (progress.getMaximum() == 0)
@@ -54,6 +55,5 @@ public class ProgressReader extends Reader {
 		currentAction.setText(cur);
 		progress.setValue(readSoFar);
 		return read;
-	}
-
+    }
 }
