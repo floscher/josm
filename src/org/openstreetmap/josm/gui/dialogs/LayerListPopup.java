@@ -1,5 +1,6 @@
 package org.openstreetmap.josm.gui.dialogs;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
@@ -28,10 +29,7 @@ public class LayerListPopup extends JPopupMenu {
     }
 
 	public LayerListPopup(final JList layers, final Layer layer) {
-		add(new LayerList.ShowHideLayerAction(layers, layer));
-		add(new LayerList.DeleteLayerAction(layers, layer));
-		addSeparator();
-
-		layer.addMenuEntries(this);
+		for (Component c : layer.getMenuEntries())
+			add(c);
 	}
 }

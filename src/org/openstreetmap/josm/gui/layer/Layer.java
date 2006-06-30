@@ -1,9 +1,9 @@
 package org.openstreetmap.josm.gui.layer;
 
+import java.awt.Component;
 import java.awt.Graphics;
 
 import javax.swing.Icon;
-import javax.swing.JPopupMenu;
 
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.gui.MapView;
@@ -81,7 +81,7 @@ abstract public class Layer {
 
 	abstract public Object getInfoComponent();
 	
-	abstract public void addMenuEntries(JPopupMenu menu);
+	abstract public Component[] getMenuEntries();
 	
 	/**
 	 * Called, when the layer is removed from the list. (See it as an destructor)

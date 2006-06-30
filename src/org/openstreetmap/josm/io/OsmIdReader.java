@@ -1,6 +1,8 @@
 package org.openstreetmap.josm.io;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,10 +34,10 @@ public class OsmIdReader extends MinML2 {
 		}
     }
 
-	public Map<Long, String> parseIds(Reader in) throws IOException, SAXException {
-        this.in = in;
+	public Map<Long, String> parseIds(InputStream in) throws IOException, SAXException {
+        this.in = new InputStreamReader(in, "UTF-8");
 		try {
-	        parse(in);
+	        parse(this.in);
         } catch (SAXException e) {
         	if (!cancel)
         		throw e;

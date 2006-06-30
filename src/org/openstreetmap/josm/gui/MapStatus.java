@@ -43,7 +43,7 @@ import org.openstreetmap.josm.tools.GBC;
  * @author imi
  */
 public class MapStatus extends JPanel {
-	
+
 	/**
 	 * The MapView this status belongs. 
 	 */
@@ -56,7 +56,7 @@ public class MapStatus extends JPanel {
 	 * The field holding the name of the object under the mouse.
 	 */
 	JTextField nameText = new JTextField(30);
-	
+
 	/**
 	 * The collector class that waits for notification and then update
 	 * the display objects.
@@ -76,13 +76,13 @@ public class MapStatus extends JPanel {
 		 * The popup displayed to show additional information
 		 */
 		private Popup popup;
-		
+
 		private MapFrame parent;
-		
+
 		public Collector(MapFrame parent) {
 			this.parent = parent;
 		}
-		
+
 		/**
 		 * Execution function for the Collector.
 		 */
@@ -99,21 +99,24 @@ public class MapStatus extends JPanel {
 				if ((ms.modifiers & MouseEvent.CTRL_DOWN_MASK) != 0 || ms.mousePos == null)
 					continue; // freeze display when holding down ctrl
 
+				if (mv.center == null)
+					continue;
+
 				// This try/catch is a hack to stop the flooding bug reports about this.
 				// The exception needed to handle with in the first place, means that this
 				// access to the data need to be restarted, if the main thread modifies 
 				// the data.
 				try {
 					Collection<OsmPrimitive> osms = mv.getAllNearest(ms.mousePos);
-					
+
 					if (osms == null && osmStatus == null && ms.modifiers == oldModifiers)
 						continue;
 					if (osms != null && osms.equals(osmStatus) && ms.modifiers == oldModifiers)
 						continue;
-					
+
 					osmStatus = osms;
 					oldModifiers = ms.modifiers;
-					
+
 					OsmPrimitive osmNearest = null;
 					// Set the text label in the bottom status bar
 					osmNearest = mv.getNearest(ms.mousePos, (ms.modifiers & MouseEvent.ALT_DOWN_MASK) != 0);
@@ -123,12 +126,12 @@ public class MapStatus extends JPanel {
 						nameText.setText(visitor.name);
 					} else
 						nameText.setText("");
-					
+
 					// Popup Information
 					if ((ms.modifiers & MouseEvent.BUTTON2_DOWN_MASK) != 0 && osms != null) {
 						if (popup != null)
 							popup.hide();
-						
+
 						JPanel c = new JPanel(new GridBagLayout());
 						for (final OsmPrimitive osm : osms) {
 							NameVisitor visitor = new NameVisitor();
@@ -159,7 +162,7 @@ public class MapStatus extends JPanel {
 							});
 							c.add(l, GBC.eol());
 						}
-						
+
 						Point p = mv.getLocationOnScreen();
 						popup = PopupFactory.getSharedInstance().getPopup(mv, c, p.x+ms.mousePos.x+16, p.y+ms.mousePos.y+16);
 						popup.show();
@@ -172,7 +175,7 @@ public class MapStatus extends JPanel {
 			}
 		}
 	}
-	
+
 	/**
 	 * Everything, the collector is interested of. Access must be synchronized.
 	 * @author imi
@@ -185,14 +188,14 @@ public class MapStatus extends JPanel {
 	 * The last sent mouse movement event.
 	 */
 	MouseState mouseState = new MouseState();
-	
+
 	/**
 	 * Construct a new MapStatus and attach it to the map view.
 	 * @param mv The MapView the status line is part of.
 	 */
 	public MapStatus(final MapFrame mapFrame) {
 		this.mv = mapFrame.mapView;
-		
+
 		// Listen for mouse movements and set the position text field
 		mv.addMouseMotionListener(new MouseMotionListener(){
 			public void mouseDragged(MouseEvent e) {
@@ -206,7 +209,7 @@ public class MapStatus extends JPanel {
 				}
 			}
 		});
-		
+
 		positionText.setEditable(false);
 		nameText.setEditable(false);
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -215,11 +218,11 @@ public class MapStatus extends JPanel {
 		add(positionText);
 		add(new JLabel(" Object "));
 		add(nameText);
-		
+
 		// The background thread
 		final Collector collector = new Collector(mapFrame);
 		new Thread(collector).start();
-		
+
 		// Listen to keyboard/mouse events for pressing/releasing alt key and
 		// inform the collector.
 		Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener(){

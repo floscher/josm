@@ -163,6 +163,6 @@ abstract public class OsmPrimitive implements Comparable<OsmPrimitive> {
 	}
 	
 	public String getTimeStr() {
-		return timestamp == null ? null : new SimpleDateFormat("y-M-d H:m:s").format(timestamp);
+		return timestamp == null ? null : new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(timestamp);
 	}
 }

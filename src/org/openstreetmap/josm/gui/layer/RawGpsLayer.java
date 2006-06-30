@@ -1,6 +1,7 @@
 package org.openstreetmap.josm.gui.layer;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -15,7 +16,7 @@ import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
 import javax.swing.filechooser.FileFilter;
 
 import org.openstreetmap.josm.Main;
@@ -29,6 +30,7 @@ import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.gui.MapView;
+import org.openstreetmap.josm.gui.dialogs.LayerList;
 import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
 import org.openstreetmap.josm.tools.ColorHelper;
 import org.openstreetmap.josm.tools.ImageProvider;
@@ -41,9 +43,9 @@ import org.openstreetmap.josm.tools.ImageProvider;
  */
 public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 
-	public class ConvertToOsmAction extends AbstractAction {
-		public ConvertToOsmAction() {
-			super("Convert layer to OSM");
+	public class ConvertToDataLayerAction extends AbstractAction {
+		public ConvertToDataLayerAction() {
+			super("Convert to data layer", ImageProvider.get("converttoosm"));
         }
 		public void actionPerformed(ActionEvent e) {
 			DataSet ds = new DataSet();
@@ -153,9 +155,7 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 		return "<html>"+name+" consists of "+data.size()+" tracks ("+points+" points)<br>"+b.toString();
 	}
 
-	@Override public void addMenuEntries(JPopupMenu menu) {
-		menu.add(new JMenuItem(new GpxExportAction(this)));
-		
+	@Override public Component[] getMenuEntries() {
 		JMenuItem color = new JMenuItem("Customize Color", ImageProvider.get("colorchooser"));
 		color.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
@@ -176,7 +176,6 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 				Main.map.repaint();
 			}
 		});
-		menu.add(color);
 		
 		JMenuItem tagimage = new JMenuItem("Import images", ImageProvider.get("tagimages"));
 		tagimage.addActionListener(new ActionListener(){
@@ -212,12 +211,16 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 				}
             }
 		});
-		menu.add(tagimage);
-		
-		menu.add(new JMenuItem(new ConvertToOsmAction()));
-		
-		menu.addSeparator();
-		menu.add(new LayerListPopup.InfoAction(this));
+		return new Component[]{
+				new JMenuItem(new LayerList.ShowHideLayerAction(this)),
+				new JMenuItem(new LayerList.DeleteLayerAction(this)),
+				new JSeparator(),
+				new JMenuItem(new GpxExportAction(this)),
+				color,
+				tagimage,
+				new JMenuItem(new ConvertToDataLayerAction()),
+				new JSeparator(),
+				new JMenuItem(new LayerListPopup.InfoAction(this))};
     }
 
 	public void preferenceChanged(String key, String newValue) {

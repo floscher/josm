@@ -10,7 +10,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -72,7 +72,7 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 			sel = mode != SearchMode.remove ? new LinkedList<OsmPrimitive>() : Main.ds.allNonDeletedPrimitives();
 			try {
 		        URLConnection con = url.openConnection();
-		        Reader in = new ProgressReader(con, progress, currentAction);
+		        InputStream in = new ProgressReader(con, progress, currentAction);
 				currentAction.setText("Downloading...");
 				Map<Long, String> ids = idReader.parseIds(in);
 		        for (OsmPrimitive osm : Main.ds.allNonDeletedPrimitives()) {

@@ -8,10 +8,10 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
 
-import org.jdom.JDOMException;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
+import org.xml.sax.SAXException;
 
 /**
  * Read raw information from a csv style file (as defined in the preferences).
@@ -28,13 +28,13 @@ public class RawCsvReader {
 		this.in = new BufferedReader(in);
 	}
 
-	public Collection<GpsPoint> parse() throws JDOMException, IOException {
+	public Collection<GpsPoint> parse() throws SAXException, IOException {
 		Collection<GpsPoint> data = new LinkedList<GpsPoint>();
 		String formatStr = Main.pref.get("csv.importstring");
 		if (formatStr == null)
 			formatStr = in.readLine();
 		if (formatStr == null)
-			throw new JDOMException("Could not detect data format string.");
+			throw new SAXException("Could not detect data format string.");
 
 		// get delimiter
 		String delim = ",";
@@ -57,8 +57,8 @@ public class RawCsvReader {
 		// test for completness
 		if (!format.contains("lat") || !format.contains("lon")) {
 			if (Main.pref.get("csv.importstring").equals(""))
-				throw new JDOMException("Format string in data is incomplete or not found. Try setting an manual format string in Preferences.");
-			throw new JDOMException("Format string is incomplete. Need at least 'lat' and 'lon' specification");
+				throw new SAXException("Format string in data is incomplete or not found. Try setting an manual format string in Preferences.");
+			throw new SAXException("Format string is incomplete. Need at least 'lat' and 'lon' specification");
 		}
 
 		int lineNo = 0;
@@ -78,12 +78,12 @@ public class RawCsvReader {
 					else if (token.equals("ignore"))
 						st.nextToken();
 					else
-						throw new JDOMException("Unknown data type: '"+token+"'."+(Main.pref.get("csv.importstring").equals("") ? " Maybe add an format string in preferences." : ""));
+						throw new SAXException("Unknown data type: '"+token+"'."+(Main.pref.get("csv.importstring").equals("") ? " Maybe add an format string in preferences." : ""));
 				}
 				data.add(new GpsPoint(new LatLon(lat, lon), time));
 			}
 		} catch (RuntimeException e) {
-			throw new JDOMException("Parsing error in line "+lineNo, e);
+			throw new SAXException("Parsing error in line "+lineNo, e);
 		}
 		return data;
 	}

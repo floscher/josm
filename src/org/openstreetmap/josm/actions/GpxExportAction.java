@@ -7,7 +7,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
 
@@ -57,6 +57,10 @@ public class GpxExportAction extends DiskAccessAction {
 		if (file == null)
 			return;
 
+		exportGpx(file, this.layer == null ? Main.main.editLayer() : this.layer);
+	}
+
+	public static void exportGpx(File file, Layer layer) {
 		String fn = file.getPath();
 		if (fn.indexOf('.') == -1) {
 			fn += ".gpx";
@@ -112,22 +116,20 @@ public class GpxExportAction extends DiskAccessAction {
 			Main.pref.put("lastCopyright", copyright.getText());
 		
 		try {
-			Layer layer = this.layer == null ? Main.main.editLayer() : this.layer;
-			FileWriter out = new FileWriter(file);
-			GpxWriter w = new GpxWriter(out, layer.name, desc.getText(),
+			GpxWriter w = new GpxWriter(new FileOutputStream(file), layer.name, desc.getText(),
 					authorName.getText(), email.getText(), copyright.getText(),
 					copyrightYear.getText(), keywords.getText());
 			if (layer instanceof RawGpsLayer)
 				w.output(((RawGpsLayer)layer).data);
 			else
 				w.output(Main.ds);
-			out.close();
+			w.close();
 		} catch (IOException x) {
 			x.printStackTrace();
 			JOptionPane.showMessageDialog(Main.parent, "Error while exporting "+fn+":\n"+x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		}		
 	}
-
+	
 	/**
 	 * Add all those listeners to handle the enable state of the fields.
 	 * @param copyrightYearLabel 
@@ -136,7 +138,7 @@ public class GpxExportAction extends DiskAccessAction {
 	 * @param nameLabel 
 	 * @param warning 
 	 */
-	private void addDependencies(
+	private static void addDependencies(
 			final JCheckBox author, 
 			final JTextField authorName,
 			final JTextField email,
@@ -203,7 +205,7 @@ public class GpxExportAction extends DiskAccessAction {
 		authorNameListener.keyReleased(null);
 	}
 
-	private void enableCopyright(final JTextField copyright, final JButton predefined, final JTextField copyrightYear, final JLabel copyrightLabel, final JLabel copyrightYearLabel, final JLabel warning, boolean enable) {
+	private static void enableCopyright(final JTextField copyright, final JButton predefined, final JTextField copyrightYear, final JLabel copyrightLabel, final JLabel copyrightYearLabel, final JLabel warning, boolean enable) {
 		copyright.setEnabled(enable);
 		predefined.setEnabled(enable);
 		copyrightYear.setEnabled(enable);

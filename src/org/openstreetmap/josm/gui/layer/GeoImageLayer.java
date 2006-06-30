@@ -35,8 +35,8 @@ import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JViewport;
@@ -50,6 +50,7 @@ import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.PleaseWaitRunnable;
+import org.openstreetmap.josm.gui.dialogs.LayerList;
 import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
 import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
 import org.openstreetmap.josm.tools.DateParser;
@@ -313,7 +314,7 @@ public class GeoImageLayer extends Layer {
 			v.visit(e.pos);
 	}
 
-	@Override public void addMenuEntries(JPopupMenu menu) {
+	@Override public Component[] getMenuEntries() {
 		JMenuItem sync = new JMenuItem("Sync clock", ImageProvider.get("clock"));
 		sync.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
@@ -337,10 +338,13 @@ public class GeoImageLayer extends Layer {
 				Main.map.repaint();
 			}
 		});
-		menu.add(sync);
-
-		menu.addSeparator();
-		menu.add(new LayerListPopup.InfoAction(this));
+		return new Component[]{
+				new JMenuItem(new LayerList.ShowHideLayerAction(this)),
+				new JMenuItem(new LayerList.DeleteLayerAction(this)),
+				new JSeparator(),
+				sync,
+				new JSeparator(), 
+				new JMenuItem(new LayerListPopup.InfoAction(this))};
 	}
 
 	private void calculatePosition() {

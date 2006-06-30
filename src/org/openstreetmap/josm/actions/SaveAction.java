@@ -4,7 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import javax.swing.JFileChooser;
@@ -13,8 +13,6 @@ import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.osm.Segment;
-import org.openstreetmap.josm.io.GpxWriter;
 import org.openstreetmap.josm.io.OsmWriter;
 
 /**
@@ -63,26 +61,20 @@ public class SaveAction extends DiskAccessAction {
 					fn += ".osm";
 				file = new File(fn);
 			}
-			FileWriter fileWriter;
 			if (ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn)) {
-				for (Segment ls : Main.ds.segments) {
-					if (ls.incomplete) {
-						JOptionPane.showMessageDialog(Main.parent, "Export of data containing incomplete ways to GPX is not implemented.\nBe aware, that in future versions of JOSM, GPX support will be kept at a minimum.\nPlease use .osm or .xml as extension for the better OSM support.");
-						return;
-					}
-				}
-				new GpxWriter(fileWriter = new FileWriter(file), Main.ds).output();
-			} else if (ExtensionFileFilter.filters[ExtensionFileFilter.OSM].acceptName(fn))
-				OsmWriter.output(fileWriter = new FileWriter(file), Main.ds, false);
-			else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
+				GpxExportAction.exportGpx(file, Main.main.editLayer());
+				Main.main.editLayer().cleanData(null, false);
+				return;
+			} else if (ExtensionFileFilter.filters[ExtensionFileFilter.OSM].acceptName(fn)) {
+				OsmWriter.output(new FileOutputStream(file), Main.ds, false);
+				Main.main.editLayer().cleanData(null, false);
+			} else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
 				JOptionPane.showMessageDialog(Main.parent, "CSV output not supported yet.");
 				return;
 			} else {
 				JOptionPane.showMessageDialog(Main.parent, "Unknown file extension.");
 				return;
 			}
-			fileWriter.close();
-			Main.main.editLayer().cleanData(null, false);
 		} catch (IOException e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(Main.parent, "An error occoured while saving.\n"+e.getMessage());

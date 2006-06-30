@@ -93,7 +93,9 @@ abstract public class Main {
 			map.fillPanel(panel);
 			panel.setVisible(true);
 			map.mapView.addLayerChangeListener(new LayerChangeListener(){
-				public void activeLayerChange(final Layer oldLayer, final Layer newLayer) {}
+				public void activeLayerChange(final Layer oldLayer, final Layer newLayer) {
+					setLayerMenu(newLayer.getMenuEntries());
+				}
 				public void layerAdded(final Layer newLayer) {
 					if (newLayer instanceof OsmDataLayer)
 						Main.main.editLayer().listenerCommands.add(redoUndoListener);
@@ -101,6 +103,8 @@ abstract public class Main {
 				public void layerRemoved(final Layer oldLayer) {
 					if (oldLayer instanceof OsmDataLayer)
 						Main.main.editLayer().listenerCommands.add(redoUndoListener);
+					if (map.mapView.getAllLayers().isEmpty())
+						setLayerMenu(null);
 				}
 			});
 			if (map.mapView.editLayer != null)
@@ -109,6 +113,20 @@ abstract public class Main {
 		redoUndoListener.commandChanged(0,0);
 	}
 
+	/**
+	 * Set the layer menu (changed when active layer changes).
+	 */
+	public final void setLayerMenu(Component[] entries) {
+		if (entries == null || entries.length == 0)
+			layerMenu.setVisible(false);
+		else {
+			layerMenu.removeAll();
+			for (Component c : entries)
+				layerMenu.add(c);
+			layerMenu.setVisible(true);
+		}
+	}
+	
 	/**
 	 * Remove the specified layer from the map. If it is the last layer, remove the map as well.
 	 */
@@ -140,13 +158,17 @@ abstract public class Main {
 		mainMenu.add(fileMenu);
 
 
-		final JMenu layerMenu = new JMenu("Layer");
-		layerMenu.setMnemonic('L');
-		layerMenu.add(downloadAction);
-		layerMenu.add(uploadAction);
-		layerMenu.addSeparator();
-		mainMenu.add(layerMenu);
+		final JMenu connectionMenu = new JMenu("Connection");
+		connectionMenu.setMnemonic('C');
+		connectionMenu.add(downloadAction);
+		connectionMenu.add(uploadAction);
+		mainMenu.add(connectionMenu);
 
+		layerMenu = new JMenu("Layer");
+		layerMenu.setMnemonic('L');
+		mainMenu.add(layerMenu);
+		layerMenu.setVisible(false);
+		
 		final JMenu editMenu = new JMenu("Edit");
 		editMenu.setMnemonic('E');
 		editMenu.add(undoAction);
@@ -184,13 +206,13 @@ abstract public class Main {
 	 */
 	public final void addLayer(final Layer layer) {
 		if (map == null) {
-			final MapFrame mapFrame = new MapFrame(layer);
+			final MapFrame mapFrame = new MapFrame();
 			setMapFrame(mapFrame);
 			mapFrame.selectMapMode((MapMode)mapFrame.getDefaultButtonAction());
 			mapFrame.setVisible(true);
 			mapFrame.setVisibleDialogs();
-		} else
-			map.mapView.addLayer(layer);
+		}
+		map.mapView.addLayer(layer);
 	}
 	/**
 	 * @return The edit osm layer. If none exist, it will be created.
@@ -231,6 +253,7 @@ abstract public class Main {
 			redoAction.setEnabled(redoSize > 0);
 		}
 	};
+	private JMenu layerMenu;
 
 	/**
 	 * Should be called before the main constructor to setup some parameter stuff
