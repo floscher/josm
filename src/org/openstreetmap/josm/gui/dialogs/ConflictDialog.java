@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.gui.dialogs;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -46,7 +48,7 @@ public final class ConflictDialog extends ToggleDialog {
 	private final JList displaylist = new JList(model);
 
 	public ConflictDialog() {
-		super("Conflict", "conflict", "Merging conflicts.", KeyEvent.VK_C);
+		super(tr("Conflict"), "conflict", tr("Merging conflicts."), KeyEvent.VK_C);
 		displaylist.setCellRenderer(new OsmPrimitivRenderer());
 		displaylist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		displaylist.addMouseListener(new MouseAdapter(){
@@ -58,8 +60,8 @@ public final class ConflictDialog extends ToggleDialog {
 		add(new JScrollPane(displaylist), BorderLayout.CENTER);
 
 		JPanel buttonPanel = new JPanel(new GridLayout(1,2));
-		JButton button = new JButton("Resolve", ImageProvider.get("dialogs", "conflict"));
-		button.setToolTipText("Open a merge dialog of all selected items in the list above.");
+		JButton button = new JButton(tr("Resolve"), ImageProvider.get("dialogs", "conflict"));
+		button.setToolTipText(tr("Open a merge dialog of all selected items in the list above."));
 		button.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				resolve();
@@ -67,8 +69,8 @@ public final class ConflictDialog extends ToggleDialog {
 		});
 		buttonPanel.add(button);
 
-		button = new JButton("Select", ImageProvider.get("mapmode", "selection"));
-		button.setToolTipText("Set the selected elements on the map to the selected items in the list above.");
+		button = new JButton(tr("Select"), ImageProvider.get("mapmode/selection/select"));
+		button.setToolTipText(tr("Set the selected elements on the map to the selected items in the list above."));
 		button.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				Collection<OsmPrimitive> sel = new LinkedList<OsmPrimitive>();
@@ -101,7 +103,7 @@ public final class ConflictDialog extends ToggleDialog {
 
 	private final void resolve() {
 		if (displaylist.getSelectedIndex() == -1) {
-			JOptionPane.showMessageDialog(Main.parent, "Please select something from the conflict list.");
+			JOptionPane.showMessageDialog(Main.parent,tr("Please select something from the conflict list."));
 			return;
 		}
 		Map<OsmPrimitive, OsmPrimitive> sel = new HashMap<OsmPrimitive, OsmPrimitive>();
@@ -110,7 +112,7 @@ public final class ConflictDialog extends ToggleDialog {
 			sel.put(s, conflicts.get(s));
 		}
 		ConflictResolver resolver = new ConflictResolver(sel);
-		int answer = JOptionPane.showConfirmDialog(Main.parent, resolver, "Resolve Conflicts", JOptionPane.OK_CANCEL_OPTION);
+		int answer = JOptionPane.showConfirmDialog(Main.parent, resolver, tr("Resolve Conflicts"), JOptionPane.OK_CANCEL_OPTION);
 		if (answer != JOptionPane.OK_OPTION)
 			return;
 		Main.main.editLayer().add(new ConflictResolveCommand(resolver.conflicts, sel));

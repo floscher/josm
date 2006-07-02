@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.io;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -34,7 +36,7 @@ public class RawCsvReader {
 		if (formatStr == null)
 			formatStr = in.readLine();
 		if (formatStr == null)
-			throw new SAXException("Could not detect data format string.");
+			throw new SAXException(tr("Could not detect data format string."));
 
 		// get delimiter
 		String delim = ",";
@@ -57,8 +59,8 @@ public class RawCsvReader {
 		// test for completness
 		if (!format.contains("lat") || !format.contains("lon")) {
 			if (Main.pref.get("csv.importstring").equals(""))
-				throw new SAXException("Format string in data is incomplete or not found. Try setting an manual format string in Preferences.");
-			throw new SAXException("Format string is incomplete. Need at least 'lat' and 'lon' specification");
+				throw new SAXException(tr("Format string in data is incomplete or not found. Try setting an manual format string in Preferences."));
+			throw new SAXException(tr("Format string is incomplete. Need at least 'lat' and 'lon' specification"));
 		}
 
 		int lineNo = 0;
@@ -78,12 +80,12 @@ public class RawCsvReader {
 					else if (token.equals("ignore"))
 						st.nextToken();
 					else
-						throw new SAXException("Unknown data type: '"+token+"'."+(Main.pref.get("csv.importstring").equals("") ? " Maybe add an format string in preferences." : ""));
+						throw new SAXException(tr("Unknown data type: '{0}'.{1}",token,(Main.pref.get("csv.importstring").equals("") ? (" "+tr("Maybe add an format string in preferences.")) : "")));
 				}
 				data.add(new GpsPoint(new LatLon(lat, lon), time));
 			}
 		} catch (RuntimeException e) {
-			throw new SAXException("Parsing error in line "+lineNo, e);
+			throw new SAXException(tr("Parsing error in line {0}",lineNo), e);
 		}
 		return data;
 	}

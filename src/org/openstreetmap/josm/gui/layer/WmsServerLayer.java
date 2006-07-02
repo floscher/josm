@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.gui.layer;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -41,7 +43,7 @@ public class WmsServerLayer extends Layer {
 		// Next to that, the projection must be linear dependend on the lat/lon
 		// unprojected scale.
 		if (Projection.MAX_LON != 180)
-			throw new IllegalArgumentException("Wrong longitude transformation for tile cache. Can't operate on "+Main.proj);
+			throw new IllegalArgumentException(tr("Wrong longitude transformation for tile cache. Can't operate on {0}",Main.proj));
 
 		this.url = url;
 		cache = new TileCache(url);
@@ -52,7 +54,7 @@ public class WmsServerLayer extends Layer {
 	}
 
 	@Override public String getToolTipText() {
-		return "WMS layer: "+url;
+		return tr("WMS layer: {0}", url);
 	}
 
 	@Override public boolean isMergable(Layer other) {

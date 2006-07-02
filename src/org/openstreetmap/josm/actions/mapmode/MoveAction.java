@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.actions.mapmode;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
@@ -17,7 +19,6 @@ import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.visitor.AllNodesVisitor;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.tools.ImageProvider;
-
 /**
  * Move is an action that can move all kind of OsmPrimitives (except Keys for now).
  * 
@@ -28,7 +29,6 @@ import org.openstreetmap.josm.tools.ImageProvider;
  * @author imi
  */
 public class MoveAction extends MapMode {
-
 	/**
 	 * The old cursor before the user pressed the mouse button.
 	 */
@@ -48,9 +48,9 @@ public class MoveAction extends MapMode {
 	 * @param mapFrame The MapFrame, this action belongs to.
 	 */
 	public MoveAction(MapFrame mapFrame) {
-		super("Move", 
+		super(tr("Move"), 
 				"move", 
-				"Move selected objects around.", 
+				tr("Move selected objects around."), 
 				"M", 
 				KeyEvent.VK_M, 
 				mapFrame, 
@@ -96,7 +96,7 @@ public class MoveAction extends MapMode {
 		// check if any coordinate would be outside the world
 		for (OsmPrimitive osm : affectedNodes) {
 			if (osm instanceof Node && ((Node)osm).coor.isOutSideWorld()) {
-				JOptionPane.showMessageDialog(Main.parent, "Cannot move objects outside of the world.");
+				JOptionPane.showMessageDialog(Main.parent,tr("Cannot move objects outside of the world."));
 				return;
 			}
 		}

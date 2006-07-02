@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.actions.mapmode;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
@@ -10,9 +12,9 @@ import java.awt.event.MouseListener;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.AddCommand;
-import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.tools.ImageProvider;
 
@@ -46,9 +48,9 @@ public class AddSegmentAction extends MapMode implements MouseListener {
 	 * @param mapFrame The MapFrame this action belongs to.
 	 */
 	public AddSegmentAction(MapFrame mapFrame) {
-		super("Add segment", 
+		super(tr("Add segment"), 
 				"addsegment", 
-				"Add a segment between two nodes.", 
+				tr("Add a segment between two nodes."), 
 				"G", 
 				KeyEvent.VK_G, 
 				mapFrame, 

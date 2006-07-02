@@ -1,5 +1,8 @@
 package org.openstreetmap.josm.gui.layer;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+import static org.openstreetmap.josm.tools.I18n.trn;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
@@ -45,7 +48,7 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 
 	public class ConvertToDataLayerAction extends AbstractAction {
 		public ConvertToDataLayerAction() {
-			super("Convert to data layer", ImageProvider.get("converttoosm"));
+			super(tr("Convert to data layer"), ImageProvider.get("converttoosm"));
         }
 		public void actionPerformed(ActionEvent e) {
 			DataSet ds = new DataSet();
@@ -64,7 +67,7 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 				}
 				ds.ways.add(w);
 			}
-			Main.main.addLayer(new OsmDataLayer(ds, "Data Layer", true));
+			Main.main.addLayer(new OsmDataLayer(ds, tr("Data Layer"), true));
 			Main.main.removeLayer(RawGpsLayer.this);
         }
     }
@@ -126,7 +129,8 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 		int points = 0;
 		for (Collection<GpsPoint> c : data)
 			points += c.size();
-		return data.size()+" tracks, "+points+" points.";
+		return trn("{0} track", "{0} tracks", data.size(), data.size())
+		+" "+trn("{0} point", "{0} points", points, points);
 	}
 
 	@Override public void mergeFrom(Layer from) {
@@ -148,21 +152,21 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 		StringBuilder b = new StringBuilder();
 		int points = 0;
 		for (Collection<GpsPoint> c : data) {
-			b.append("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a track with "+c.size()+" points<br>");
+			b.append("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+trn("a track with {0} point","a track with {0} points", c.size(), c.size())+"<br>");
 			points += c.size();
 		}
 		b.append("</html>");
-		return "<html>"+name+" consists of "+data.size()+" tracks ("+points+" points)<br>"+b.toString();
+		return "<html>"+tr("{0} consists of ")+trn("{0} track", "{0} tracks", data.size(), data.size())+" ("+trn("{0} point", "{0} points", points, points)+")<br>"+b.toString();
 	}
 
 	@Override public Component[] getMenuEntries() {
-		JMenuItem color = new JMenuItem("Customize Color", ImageProvider.get("colorchooser"));
+		JMenuItem color = new JMenuItem(tr("Customize Color"), ImageProvider.get("colorchooser"));
 		color.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				String col = Main.pref.get("color.layer "+name, Main.pref.get("color.gps point", ColorHelper.color2html(Color.gray)));
 				JColorChooser c = new JColorChooser(ColorHelper.html2color(col));
-				Object[] options = new Object[]{"OK", "Cancel", "Default"};
-				int answer = JOptionPane.showOptionDialog(Main.parent, c, "Choose a color", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+				Object[] options = new Object[]{tr("OK"), tr("Cancel"), tr("Default")};
+				int answer = JOptionPane.showOptionDialog(Main.parent, c, tr("Choose a color"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 				switch (answer) {
 				case 0:
 					Main.pref.put("color.layer "+name, ColorHelper.color2html(c.getColor()));
@@ -177,7 +181,7 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 			}
 		});
 		
-		JMenuItem tagimage = new JMenuItem("Import images", ImageProvider.get("tagimages"));
+		JMenuItem tagimage = new JMenuItem(tr("Import images"), ImageProvider.get("tagimages"));
 		tagimage.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser fc = new JFileChooser(Main.pref.get("tagimages.lastdirectory"));
@@ -189,7 +193,7 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 						return f.isDirectory() || f.getName().toLowerCase().endsWith(".jpg");
 					}
 					@Override public String getDescription() {
-						return "JPEG images (*.jpg)";
+						return tr("JPEG images (*.jpg)");
 					}
 				});
 				fc.showOpenDialog(Main.parent);

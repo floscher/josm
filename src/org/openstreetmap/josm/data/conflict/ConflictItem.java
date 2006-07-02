@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.data.conflict;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.util.Collection;
 import java.util.Map;
 
@@ -28,7 +30,7 @@ public abstract class ConflictItem {
 			if (value == null)
 				value = v;
 			else if (!value.equals(v)) {
-				value = "<html><i>&lt;different&gt;</i></html>";
+				value = "<html><i>&lt;"+tr("different")+"&gt;</i></html>";
 				break;
 			}
 		}

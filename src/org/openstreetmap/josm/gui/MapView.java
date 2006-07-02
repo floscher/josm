@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.gui;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
@@ -154,7 +156,7 @@ public class MapView extends NavigatableComponent {
 			Main.ds = dataLayer.data;
 			dataLayer.listenerModified.add(new ModifiedChangedListener(){
 				public void modifiedChanged(boolean value, OsmDataLayer source) {
-					JOptionPane.getFrameForComponent(Main.parent).setTitle((value?"*":"")+"Java Open Street Map - Editor");
+					JOptionPane.getFrameForComponent(Main.parent).setTitle(tr("{0}Java Open Street Map - Editor",(value?"*":"")));
 				}
 			});
 		}
@@ -192,7 +194,7 @@ public class MapView extends NavigatableComponent {
 	public void moveLayer(Layer layer, int pos) {
 		int curLayerPos = layers.indexOf(layer);
 		if (curLayerPos == -1)
-			throw new IllegalArgumentException("layer not in list.");
+			throw new IllegalArgumentException(tr("layer not in list."));
 		if (pos == curLayerPos)
 			return; // already in place.
 		layers.remove(curLayerPos);
@@ -321,7 +323,7 @@ public class MapView extends NavigatableComponent {
 	 */
 	public void setActiveLayer(Layer layer) {
 		if (!layers.contains(layer))
-			throw new IllegalArgumentException("layer must be in layerlist");
+			throw new IllegalArgumentException(tr("layer must be in layerlist"));
 		Layer old = activeLayer;
 		activeLayer = layer;
 		if (old != layer) {

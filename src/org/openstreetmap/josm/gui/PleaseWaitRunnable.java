@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.gui;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.EventQueue;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -29,13 +31,14 @@ import org.xml.sax.SAXException;
  * @author Imi
  */
 public abstract class PleaseWaitRunnable implements Runnable {
+
 	public final JDialog pleaseWaitDlg;
 	public String errorMessage;
 
 	private final JProgressBar progressBar = new JProgressBar();
 	private boolean closeDialogCalled = false;
 
-	protected final JLabel currentAction = new JLabel("Contact OSM server...");
+	protected final JLabel currentAction = new JLabel(tr("Contact OSM server..."));
 	protected final BoundedRangeModel progress = progressBar.getModel();
 
 	/**
@@ -48,7 +51,7 @@ public abstract class PleaseWaitRunnable implements Runnable {
 		pane.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 		pane.add(currentAction, GBC.eol().fill(GBC.HORIZONTAL));
 		pane.add(progressBar, GBC.eop().fill(GBC.HORIZONTAL));
-		JButton cancel = new JButton("Cancel");
+		JButton cancel = new JButton(tr(tr("Cancel")));
 		pane.add(cancel, GBC.eol().anchor(GBC.CENTER));
 		pleaseWaitDlg.setContentPane(pane);
 		pleaseWaitDlg.setSize(350,100);
@@ -74,10 +77,10 @@ public abstract class PleaseWaitRunnable implements Runnable {
 			realRun();
 		} catch (SAXException x) {
 			x.printStackTrace();
-			errorMessage = "Error while parsing: "+x.getMessage();
+			errorMessage = tr("Error while parsing: ")+x.getMessage();
 		} catch (FileNotFoundException x) {
 			x.printStackTrace();
-			errorMessage = "Not found: " + x.getMessage();
+			errorMessage = tr("Not found: ") + x.getMessage();
 		} catch (IOException x) {
 			x.printStackTrace();
 			errorMessage = x.getMessage();

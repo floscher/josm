@@ -1,7 +1,6 @@
-/**
- * 
- */
 package org.openstreetmap.josm.data.conflict;
+
+import static org.openstreetmap.josm.tools.I18n.tr;
 
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Segment;
@@ -17,7 +16,7 @@ public class ToConflict extends ConflictItem {
 	}
 
 	@Override public String key() {
-		return "segment|to";
+		return "segment|"+tr("to");
 	}
 	
 	@Override public void apply(OsmPrimitive target, OsmPrimitive other) {

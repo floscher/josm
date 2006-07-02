@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.gui.dialogs;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -54,7 +56,7 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 
 		public DeleteLayerAction(Layer layer) {
 			super("Delete", ImageProvider.get("dialogs", "delete"));
-			putValue(SHORT_DESCRIPTION, "Delete the selected layer.");
+			putValue(SHORT_DESCRIPTION, tr("Delete the selected layer."));
 			this.layer = layer;
 		}
 
@@ -75,8 +77,8 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 		private final Layer layer;
 
 		public ShowHideLayerAction(Layer layer) {
-			super("Show/Hide", ImageProvider.get("dialogs", "showhide"));
-			putValue(SHORT_DESCRIPTION, "Toggle visible state of the selected layer.");
+			super(tr("Show/Hide"), ImageProvider.get("dialogs", "showhide"));
+			putValue(SHORT_DESCRIPTION, tr("Toggle visible state of the selected layer."));
 			this.layer = layer;
 		}
 
@@ -114,7 +116,7 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 	 * Create an layerlist and attach it to the given mapView.
 	 */
 	public LayerList(MapFrame mapFrame) {
-		super("Layers", "layerlist", "Open a list of all loaded layers.", KeyEvent.VK_L);
+		super(tr("Layers"), "layerlist", tr("Open a list of all loaded layers."), KeyEvent.VK_L);
 		instance = new JList(model);
 		setPreferredSize(new Dimension(320,100));
 		add(new JScrollPane(instance), BorderLayout.CENTER);
@@ -187,12 +189,12 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 			}
 		};
 
-		upButton.setToolTipText("Move the selected layer one row up.");
+		upButton.setToolTipText(tr("Move the selected layer one row up."));
 		upButton.addActionListener(upDown);
 		upButton.setActionCommand("up");
 		buttonPanel.add(upButton);
 
-		downButton.setToolTipText("Move the selected layer one row down.");
+		downButton.setToolTipText(tr("Move the selected layer one row down."));
 		downButton.addActionListener(upDown);
 		downButton.setActionCommand("down");
 		buttonPanel.add(downButton);
@@ -205,7 +207,7 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 		deleteButton.setText("");
 		buttonPanel.add(deleteButton);
 
-		mergeButton.setToolTipText("Merge the selected layer into the layer directly below.");
+		mergeButton.setToolTipText(tr("Merge the selected layer into the layer directly below."));
 		mergeButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				Layer lFrom = (Layer)instance.getSelectedValue();

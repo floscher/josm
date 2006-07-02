@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.data.conflict;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
@@ -16,11 +18,11 @@ public class SegmentConflict extends ConflictItem {
 		String s = "";
 		for (Segment ls : ((Way)osm).segments)
 			s += ls.id + ",";
-		return s.equals("") ? "<html><i>&lt;none&gt;</i></html>" : s.substring(0, s.length()-1);
+		return s.equals("") ? "<html><i>&lt;"+tr("none")+"&gt;</i></html>" : s.substring(0, s.length()-1);
 	}
 	
 	@Override public String key() {
-		return "way|segments";
+		return "way|"+tr("segments");
 	}
 	
 	@Override public void apply(OsmPrimitive target, OsmPrimitive other) {

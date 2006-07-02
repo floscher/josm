@@ -1,5 +1,8 @@
 package org.openstreetmap.josm.gui.layer;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+import static org.openstreetmap.josm.tools.I18n.trn;
+
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.GridBagLayout;
@@ -147,9 +150,9 @@ public class OsmDataLayer extends Layer {
 	}
 
 	@Override public String getToolTipText() {
-		return undeletedSize(data.nodes)+" nodes, "+
-		undeletedSize(data.segments)+" segments, "+
-		undeletedSize(data.ways)+" streets.";
+		return trn("{0} node", "{0} nodes", undeletedSize(data.nodes), undeletedSize(data.nodes))
+		+trn("{0} segment", "{0} segments", undeletedSize(data.segments), undeletedSize(data.segments))
+		+trn("{0} way", "{0} ways", undeletedSize(data.ways), undeletedSize(data.ways));
 	}
 
 	@Override public void mergeFrom(final Layer from) {
@@ -161,7 +164,7 @@ public class OsmDataLayer extends Layer {
 			return;
 		final ConflictDialog dlg = Main.map.conflictDialog;
 		dlg.add(visitor.conflicts);
-		JOptionPane.showMessageDialog(Main.parent, "There were conflicts during import.");
+		JOptionPane.showMessageDialog(Main.parent,tr("There were conflicts during import."));
 		if (!dlg.isVisible())
 			dlg.action.actionPerformed(new ActionEvent(this, 0, ""));
 	}
@@ -300,11 +303,11 @@ public class OsmDataLayer extends Layer {
 		for (final OsmPrimitive osm : data.allPrimitives())
 			osm.visit(counter);
 		final JPanel p = new JPanel(new GridBagLayout());
-		p.add(new JLabel(name+" consists of:"), GBC.eol());
+		p.add(new JLabel(tr("{0} consists of:", name)), GBC.eol());
 		for (int i = 0; i < counter.normal.length; ++i) {
-			String s = counter.normal[i]+" "+counter.names[i]+(counter.normal[i] != 1 ?"s":"");
+			String s = counter.normal[i]+" "+trn(counter.names[i],counter.names[i]+"s",counter.normal[i]);
 			if (counter.deleted[i] > 0)
-				s += " ("+counter.deleted[i]+" deleted)";
+				s += tr(" ({0} deleted.)",counter.deleted[i]);
 			p.add(new JLabel(s, ImageProvider.get("data", counter.names[i]), JLabel.HORIZONTAL), GBC.eop().insets(15,0,0,0));
 		}
 		return p;

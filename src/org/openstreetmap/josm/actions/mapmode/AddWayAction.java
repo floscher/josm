@@ -1,5 +1,8 @@
 package org.openstreetmap.josm.actions.mapmode;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+import static org.openstreetmap.josm.tools.I18n.trn;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
@@ -47,7 +50,6 @@ import org.openstreetmap.josm.tools.ImageProvider;
  * @author imi
  */
 public class AddWayAction extends MapMode implements SelectionChangedListener {
-
 	private Way way;
 
 	/**
@@ -56,7 +58,7 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 	 * @param followMode The mode to go into when finished creating a way.
 	 */
 	public AddWayAction(MapFrame mapFrame) {
-		super("Add Way", "addway", "Add a new way to the data.", "W", KeyEvent.VK_W, mapFrame, ImageProvider.getCursor("normal", "way"));
+		super(tr("Add Way"), "addway", tr("Add a new way to the data."), "W", KeyEvent.VK_W, mapFrame, ImageProvider.getCursor("normal", "way"));
 		
 		Main.ds.addSelectionChangedListener(this);
 	}
@@ -90,7 +92,7 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 				Main.ds.setSelected(way);
 				for (Segment seg : way.segments) {
 					if (seg.incomplete) {
-						JOptionPane.showMessageDialog(Main.parent, "Warning: This way is incomplete. Try to download it, before adding segments.");
+						JOptionPane.showMessageDialog(Main.parent,tr("Warning: This way is incomplete. Try to download it, before adding segments."));
 						return;
 					}
 				}
@@ -138,7 +140,7 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 			Way way = (Way)selection.iterator().next();
 			for (Segment seg : way.segments) {
 				if (seg.incomplete) {
-					JOptionPane.showMessageDialog(Main.parent, "Warning: This way is incomplete. Try to download it, before adding segments.");
+					JOptionPane.showMessageDialog(Main.parent, tr("Warning: This way is incomplete. Try to download it, before adding segments."));
 					break;
 				}
 			}
@@ -157,20 +159,18 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 		Way wayToAdd = null;
 		boolean reordered = false;
 		if (numberOfSelectedWays > 0) {
-			String ways = "way" + (numberOfSelectedWays==1?" has":"s have");
-			int answer = JOptionPane.showConfirmDialog(Main.parent, numberOfSelectedWays+" "+ways+" been selected.\n" +
-					"Do you wish to select all segments belonging to the "+ways+" instead?", "Add segments from ways", JOptionPane.YES_NO_OPTION);
+			int answer = JOptionPane.showConfirmDialog(Main.parent,trn("{0} way has been selected.\nDo you wish to select all segments belonging to the way instead?","{0} ways have been selected.\nDo you wish to select all segments belonging to the ways instead?",numberOfSelectedWays,numberOfSelectedWays),tr("Add segments from ways"), JOptionPane.YES_NO_OPTION);
 			if (answer == JOptionPane.YES_OPTION) {
 				for (OsmPrimitive osm : selection)
 					if (osm instanceof Way)
 						segmentSet.addAll(((Way)osm).segments);
 			} else if (numberOfSelectedWays == 1) {
-				answer = JOptionPane.showConfirmDialog(Main.parent, "Do you want to add all other selected segments to the one selected way?", "Add segments to way?", JOptionPane.YES_NO_OPTION);
+				answer = JOptionPane.showConfirmDialog(Main.parent,tr("Do you want to add all other selected segments to the one selected way?"),tr("Add segments to way?"), JOptionPane.YES_NO_OPTION);
 				if (answer == JOptionPane.YES_OPTION) {
 					for (OsmPrimitive osm : selection) {
 						if (osm instanceof Way) {
 							wayToAdd = (Way)osm;
-							answer = JOptionPane.showConfirmDialog(Main.parent, "Reorder all line segments?", "Reorder?", JOptionPane.YES_NO_CANCEL_OPTION);
+							answer = JOptionPane.showConfirmDialog(Main.parent,tr("Reorder all line segments?"), tr("Reorder?"), JOptionPane.YES_NO_CANCEL_OPTION);
 							if (answer == JOptionPane.CANCEL_OPTION)
 								return wayToAdd;
 							if (answer == JOptionPane.YES_OPTION) {
@@ -229,7 +229,7 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 			return wayToAdd;
 		}
 
-		if (JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(Main.parent, "Create a new way out of "+sortedSegments.size()+" segments?", "Create new way", JOptionPane.YES_NO_OPTION))
+		if (JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(Main.parent,trn("Create a new way out of {0} segment?","Create a new way out of {0} segments?",sortedSegments.size(),sortedSegments.size()), tr("Create new way"), JOptionPane.YES_NO_OPTION))
 			return null;
 
 		Way w = new Way();

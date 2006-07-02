@@ -1,5 +1,8 @@
 package org.openstreetmap.josm.command;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+import static org.openstreetmap.josm.tools.I18n.trn;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -24,7 +27,6 @@ import org.openstreetmap.josm.tools.ImageProvider;
  * @author imi
  */
 public class MoveCommand extends Command {
-
 	/**
 	 * The objects that should be moved.
 	 */
@@ -112,6 +114,6 @@ public class MoveCommand extends Command {
 	}
 
 	@Override public MutableTreeNode description() {
-		return new DefaultMutableTreeNode(new JLabel("Move "+objects.size()+" Node"+(objects.size()==1?"":"s"), ImageProvider.get("data", "node"), JLabel.HORIZONTAL));
+		return new DefaultMutableTreeNode(new JLabel(tr("Move")+" "+objects.size()+" "+trn("node","nodes",objects.size()), ImageProvider.get("data", "node"), JLabel.HORIZONTAL));
     }
 }

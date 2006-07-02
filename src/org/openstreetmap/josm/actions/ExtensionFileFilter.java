@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.actions;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.io.File;
 
 import javax.swing.filechooser.FileFilter;
@@ -11,7 +13,6 @@ import javax.swing.filechooser.FileFilter;
  * @author imi
  */
 public class ExtensionFileFilter extends FileFilter {
-	
 	private final String extension;
 	private final String description;
 	public final String defaultExtension;
@@ -21,9 +22,9 @@ public class ExtensionFileFilter extends FileFilter {
 	public static final int CSV = 2;
 	
 	public static ExtensionFileFilter[] filters = {
-		new ExtensionFileFilter("osm,xml", "osm", "OSM Server Version 0.2 (.osm .xml)"),
-		new ExtensionFileFilter("gpx", "gpx", "GPX Files Version 0.1 (.gpx)"),
-		new ExtensionFileFilter("csv,txt", "csv", "CSV Files Version 0.1 (.csv .txt)"),
+		new ExtensionFileFilter("osm,xml", "osm", tr("OSM Server Files (.osm .xml)")),
+		new ExtensionFileFilter("gpx", "gpx", tr("GPX Files (.gpx)")),
+		new ExtensionFileFilter("csv,txt", "csv", tr("CSV Files (.csv .txt)")),
 	};
 
 	/**

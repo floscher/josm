@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.actions;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
@@ -31,20 +33,19 @@ import org.xml.sax.SAXException;
  * @author imi
  */
 public class UploadAction extends JosmAction {
-
 	public UploadAction() {
-		super("Upload to OSM", "upload", "Upload all changes to the OSM server.", "Ctrl-Shift-U", 
+		super(tr("Upload to OSM"), "upload", tr("Upload all changes to the OSM server."), tr("Ctrl-Shift-U"), 
 				KeyStroke.getKeyStroke(KeyEvent.VK_U, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
 	}
 
 	public void actionPerformed(ActionEvent e) {
 		if (Main.map == null) {
-			JOptionPane.showMessageDialog(Main.parent, "Nothing to upload. Get some data first.");
+			JOptionPane.showMessageDialog(Main.parent,tr("Nothing to upload. Get some data first."));
 			return;
 		}
 		
 		if (!Main.map.conflictDialog.conflicts.isEmpty()) {
-			JOptionPane.showMessageDialog(Main.parent, "There are unresolved conflicts. You have to resolve these first.");
+			JOptionPane.showMessageDialog(Main.parent,tr("There are unresolved conflicts. You have to resolve these first."));
 			Main.map.conflictDialog.action.button.setSelected(true);
 			Main.map.conflictDialog.action.actionPerformed(null);
 			return;
@@ -71,7 +72,7 @@ public class UploadAction extends JosmAction {
 		all.addAll(update);
 		all.addAll(delete);
 
-		PleaseWaitRunnable uploadTask = new PleaseWaitRunnable("Uploading data"){
+		PleaseWaitRunnable uploadTask = new PleaseWaitRunnable(tr("Uploading data")){
 			@Override protected void realRun() throws SAXException {
 				server.setProgressInformation(currentAction, progress);
 				server.uploadOsm(all);
@@ -95,7 +96,7 @@ public class UploadAction extends JosmAction {
 	 */
 	private boolean displayUploadScreen(Collection<OsmPrimitive> add, Collection<OsmPrimitive> update, Collection<OsmPrimitive> delete) {
 		if (add.isEmpty() && update.isEmpty() && delete.isEmpty()) {
-			JOptionPane.showMessageDialog(Main.parent, "No changes to upload.");
+			JOptionPane.showMessageDialog(Main.parent,tr("No changes to upload."));
 			return false;
 		}
 
@@ -104,7 +105,7 @@ public class UploadAction extends JosmAction {
 		OsmPrimitivRenderer renderer = new OsmPrimitivRenderer();
 
 		if (!add.isEmpty()) {
-			p.add(new JLabel("Objects to add:"), GBC.eol());
+			p.add(new JLabel(tr("Objects to add:")), GBC.eol());
 			JList l = new JList(add.toArray());
 			l.setCellRenderer(renderer);
 			l.setVisibleRowCount(l.getModel().getSize() < 6 ? l.getModel().getSize() : 10);
@@ -112,7 +113,7 @@ public class UploadAction extends JosmAction {
 		}
 
 		if (!update.isEmpty()) {
-			p.add(new JLabel("Objects to modify:"), GBC.eol());
+			p.add(new JLabel(tr("Objects to modify:")), GBC.eol());
 			JList l = new JList(update.toArray());
 			l.setCellRenderer(renderer);
 			l.setVisibleRowCount(l.getModel().getSize() < 6 ? l.getModel().getSize() : 10);
@@ -120,14 +121,14 @@ public class UploadAction extends JosmAction {
 		}
 
 		if (!delete.isEmpty()) {
-			p.add(new JLabel("Objects to delete:"), GBC.eol());
+			p.add(new JLabel(tr("Objects to delete:")), GBC.eol());
 			JList l = new JList(delete.toArray());
 			l.setCellRenderer(renderer);
 			l.setVisibleRowCount(l.getModel().getSize() < 6 ? l.getModel().getSize() : 10);
 			p.add(new JScrollPane(l), GBC.eol().fill());
 		}
 
-		return JOptionPane.showConfirmDialog(Main.parent, p, "Upload this changes?", 
+		return JOptionPane.showConfirmDialog(Main.parent, p, tr("Upload this changes?"), 
 				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
 	}
 }

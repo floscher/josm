@@ -1,12 +1,21 @@
 package org.openstreetmap.josm.actions.mapmode;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.actions.GroupAction;
+import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.SelectionManager;
 import org.openstreetmap.josm.gui.SelectionManager.SelectionEnded;
@@ -54,34 +63,73 @@ import org.openstreetmap.josm.tools.ImageProvider;
  */
 public class SelectionAction extends MapMode implements SelectionEnded {
 
+	enum Mode {select, straight}
+	private final Mode mode;
+
+	public static class Group extends GroupAction {
+		public Group(MapFrame mf) {
+			super(KeyEvent.VK_S,0);
+			actions.add(new SelectionAction(mf, tr("Selection"), Mode.select, tr("Select objects by dragging or clicking.")));
+			actions.add(new SelectionAction(mf, tr("Straight line"), Mode.straight, tr("Select objects in a straight line.")));
+			setCurrent(0);
+		}
+	}
+
+
 	/**
 	 * The SelectionManager that manages the selection rectangle.
 	 */
 	private SelectionManager selectionManager;
 
+	private Node straightStart = null;
+	private Node lastEnd = null;
+	private Collection<OsmPrimitive> oldSelection = null;
+
+	//TODO: Implement reverse references into data objects and remove this
+	private final Map<Node, Collection<Segment>> reverseSegmentMap = new HashMap<Node, Collection<Segment>>();
+
 	/**
 	 * Create a new SelectionAction in the given frame.
 	 * @param mapFrame The frame this action belongs to
 	 */
-	public SelectionAction(MapFrame mapFrame) {
-		super("Selection", 
-				"selection", 
-				"Select objects by dragging or clicking.", 
-				"S", 
-				KeyEvent.VK_S, 
-				mapFrame,
-				ImageProvider.getCursor("normal", "selection"));
+	public SelectionAction(MapFrame mapFrame, String name, Mode mode, String desc) {
+		super(name, "selection/"+mode, desc, "S", KeyEvent.VK_S, mapFrame, ImageProvider.getCursor("normal", "selection"));
+		this.mode = mode;
 		this.selectionManager = new SelectionManager(this, false, mapFrame.mapView);
 	}
 
 	@Override public void enterMode() {
 		super.enterMode();
-		selectionManager.register(Main.map.mapView);
+		if (mode == Mode.select)
+			selectionManager.register(Main.map.mapView);
+		else {
+			Main.map.mapView.addMouseMotionListener(this);
+			Main.map.mapView.addMouseListener(this);
+			for (Segment s : Main.ds.segments) {
+				addBackReference(s.from, s);
+				addBackReference(s.to, s);
+			}
+		}
+	}
+
+	private void addBackReference(Node n, Segment s) {
+		Collection<Segment> c = reverseSegmentMap.get(n);
+		if (c == null) {
+			c = new HashSet<Segment>();
+			reverseSegmentMap.put(n, c);
+		}
+		c.add(s);
 	}
 
 	@Override public void exitMode() {
 		super.exitMode();
-		selectionManager.unregister(Main.map.mapView);
+		if (mode == Mode.select)
+			selectionManager.unregister(Main.map.mapView);
+		else {
+			Main.map.mapView.removeMouseMotionListener(this);
+			Main.map.mapView.removeMouseListener(this);
+			reverseSegmentMap.clear();
+		}
 	}
 
 
@@ -106,5 +154,76 @@ public class SelectionAction extends MapMode implements SelectionEnded {
 				curSel.add(osm);
 		Main.ds.setSelected(curSel);
 		Main.map.mapView.repaint();
+	}
+
+	@Override public void mouseDragged(MouseEvent e) {
+		Node old = lastEnd;
+		lastEnd = Main.map.mapView.getNearestNode(e.getPoint());
+		if (straightStart == null)
+			straightStart = lastEnd;
+		if (straightStart != null && lastEnd != null && straightStart != lastEnd && old != lastEnd) {
+			Collection<OsmPrimitive> path = new HashSet<OsmPrimitive>();
+			Collection<OsmPrimitive> sel = new HashSet<OsmPrimitive>();
+			path.add(straightStart);
+			calculateShortestPath(path, straightStart, lastEnd);
+			if ((e.getModifiers() & MouseEvent.CTRL_MASK) != 0) {
+				sel.addAll(oldSelection);
+				sel.removeAll(path);
+			} else if ((e.getModifiers() & MouseEvent.SHIFT_MASK) != 0) {
+				sel = path;
+				sel.addAll(oldSelection);
+			} else
+				sel = path;
+			Main.ds.setSelected(sel);
+		}
+	}
+
+	@Override public void mousePressed(MouseEvent e) {
+		straightStart = Main.map.mapView.getNearestNode(e.getPoint());
+		lastEnd = null;
+		oldSelection = Main.ds.getSelected();
+	}
+
+	@Override public void mouseReleased(MouseEvent e) {
+		straightStart = null;
+		lastEnd = null;
+		oldSelection = null;
+	}
+
+	/**
+	 * Get the shortest path by stepping through the node with a common segment with start 
+	 * and nearest to the end (greedy algorithm).
+	 */
+	private void calculateShortestPath(Collection<OsmPrimitive> path, Node start, Node end) {
+		for (Node pivot = start; pivot != null;)
+			pivot = addNearest(path, pivot, end);
+	}
+
+	private Node addNearest(Collection<OsmPrimitive> path, Node start, Node end) {
+		Collection<Segment> c = reverseSegmentMap.get(start);
+		double min = Double.MAX_VALUE;
+		Node next = null;
+		Segment seg = null;
+		for (Segment s : c) {
+			Node other = s.from == start ? s.to : s.from;
+			if (other == end) {
+				next = other;
+				seg = s;
+				min = 0;
+				break;
+			}
+			double distance = other.eastNorth.distance(end.eastNorth);
+			if (distance < min) {
+				min = distance;
+				next = other;
+				seg = s;
+			}
+		}
+		if (min < start.eastNorth.distance(end.eastNorth) && next != null) {
+			path.add(next);
+			path.add(seg);
+			return next;
+		}
+		return null;
 	}
 }

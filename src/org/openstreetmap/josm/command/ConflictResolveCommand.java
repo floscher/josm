@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.command;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -72,6 +74,6 @@ public class ConflictResolveCommand extends Command {
 		for (ConflictItem c : conflicts)
 			if (c.resolution != null)
 				i++;
-		return new DefaultMutableTreeNode(new JLabel("Resolve "+i+" conflicts in "+resolved.size()+" objects", ImageProvider.get("data", "primitive"), JLabel.HORIZONTAL));
+		return new DefaultMutableTreeNode(new JLabel(tr("Resolve {0} conflicts in {1} objects",i,resolved.size()), ImageProvider.get("data", "primitive"), JLabel.HORIZONTAL));
     }
 }

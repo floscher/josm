@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.tools;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.GridBagLayout;
 import java.io.BufferedReader;
 import java.io.File;
@@ -24,7 +26,8 @@ import org.openstreetmap.josm.Main;
  * 
  * @author imi
  */
-public final class BugReportExceptionHandler implements Thread.UncaughtExceptionHandler {
+public final class BugReportExceptionHandler implements Thread.UncaughtExceptionHandler {        
+
 	public void uncaughtException(Thread t, Throwable e) {
 		e.printStackTrace();
 		if (Main.parent != null) {
@@ -33,11 +36,11 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 				return;
 			}
 			
-			Object[] options = new String[]{"Do nothing", "Report Bug"};
-			int answer = JOptionPane.showOptionDialog(Main.parent, "An unexpected exception occoured.\n\n" +
+			Object[] options = new String[]{tr("Do nothing"), tr("Report Bug")};
+			int answer = JOptionPane.showOptionDialog(Main.parent, tr("An unexpected exception occoured.\n\n" +
 					"This is always a coding error. If you are running the latest\n" +
-					"version of JOSM, please consider be kind and file a bug report.",
-					"Unexpected Exception", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE,
+					"version of JOSM, please consider be kind and file a bug report."),
+					tr("Unexpected Exception"), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE,
 					null, options, options[0]);
 			if (answer == 1) {
 				try {

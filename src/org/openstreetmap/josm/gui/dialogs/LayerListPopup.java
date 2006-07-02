@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.gui.dialogs;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 
@@ -20,7 +22,7 @@ public class LayerListPopup extends JPopupMenu {
 	public final static class InfoAction extends AbstractAction {
 	    private final Layer layer;
 	    public InfoAction(Layer layer) {
-	    	super("Info", ImageProvider.get("info"));
+	    	super(tr("Info"), ImageProvider.get("info"));
 		    this.layer = layer;
 	    }
 	    public void actionPerformed(ActionEvent e) {

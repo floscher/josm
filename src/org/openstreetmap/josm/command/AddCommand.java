@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.command;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.util.Collection;
 
 import javax.swing.JLabel;
@@ -47,6 +49,6 @@ public class AddCommand extends Command {
 	@Override public MutableTreeNode description() {
 		NameVisitor v = new NameVisitor();
 		osm.visit(v);
-		return new DefaultMutableTreeNode(new JLabel("Add "+v.className+" "+v.name, v.icon, JLabel.HORIZONTAL));
+		return new DefaultMutableTreeNode(new JLabel(tr("Add")+" "+v.className+" "+v.name, v.icon, JLabel.HORIZONTAL));
     }
 }

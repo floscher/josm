@@ -49,4 +49,11 @@ public class Way extends OsmPrimitive {
 	public int compareTo(OsmPrimitive o) {
 	    return o instanceof Way ? Long.valueOf(id).compareTo(o.id) : -1;
     }
+	
+	public boolean isIncomplete() {
+		for (Segment s : segments)
+			if (s.incomplete)
+				return true;
+		return false;
+	}
 }

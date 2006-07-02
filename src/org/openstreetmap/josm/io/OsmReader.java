@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.io;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -92,9 +94,9 @@ public class OsmReader {
 			try {
 				if (qName.equals("osm")) {
 					if (atts == null)
-						throw new SAXException("Unknown version.");
+						throw new SAXException(tr("Unknown version."));
 					if (!"0.3".equals(atts.getValue("version")))
-						throw new SAXException("Unknown version "+atts.getValue("version"));
+						throw new SAXException(tr("Unknown version {0}",atts.getValue("version")));
 				} else if (qName.equals("node")) {
 					current = new Node(new LatLon(getDouble(atts, "lat"), getDouble(atts, "lon")));
 					readCommon(atts, current);
@@ -110,10 +112,10 @@ public class OsmReader {
 				} else if (qName.equals("seg")) {
 					Collection<Long> list = ways.get(current);
 					if (list == null)
-						throw new SAXException("Found <seg> tag on non-way.");
+						throw new SAXException(tr("Found <seg> tag on non-way."));
 					long id = getLong(atts, "id");
 					if (id == 0)
-						throw new SAXException("Incomplete segment with id=0");
+						throw new SAXException(tr("Incomplete segment with id=0"));
 					list.add(id);
 				} else if (qName.equals("tag"))
 					current.put(atts.getValue("k"), atts.getValue("v"));
@@ -122,7 +124,7 @@ public class OsmReader {
 				throw new SAXException(x.getMessage(), x);
 			} catch (NullPointerException x) {
 				x.printStackTrace(); // SAXException does not chain correctly
-				throw new SAXException("NullPointerException. Possible some missing tags.", x);
+				throw new SAXException(tr("NullPointerException. Possible some missing tags."), x);
 			}
 		}
 
@@ -137,7 +139,7 @@ public class OsmReader {
 	void readCommon(Attributes atts, OsmPrimitive current) throws SAXException {
 		current.id = getLong(atts, "id");
 		if (current.id == 0)
-			throw new SAXException("Illegal object with id=0");
+			throw new SAXException(tr("Illegal object with id=0"));
 
 		String time = atts.getValue("timestamp");
 		if (time != null && time.length() != 0) {
@@ -146,7 +148,7 @@ public class OsmReader {
 				current.timestamp = df.parse(time);
 			} catch (ParseException e) {
 				e.printStackTrace();
-				throw new SAXException("Couldn't read time format '"+time+"'.");
+				throw new SAXException(tr("Couldn't read time format '{0}'.",time));
 			}
 		}
 
@@ -161,7 +163,7 @@ public class OsmReader {
 	private long getLong(Attributes atts, String value) throws SAXException {
 		String s = atts.getValue(value);
 		if (s == null)
-			throw new SAXException("Missing required attirbute '"+value+"'");
+			throw new SAXException(tr("Missing required attirbute '{0}'.",value));
 		return Long.parseLong(s);
 	}
 
@@ -208,7 +210,7 @@ public class OsmReader {
 		if (progress != null)
 			progress.setValue(0);
 		if (currentAction != null)
-			currentAction.setText("Preparing data...");
+			currentAction.setText(tr("Preparing data..."));
 		for (Node n : osm.nodes.values())
 			osm.adder.visit(n);
 
@@ -217,7 +219,7 @@ public class OsmReader {
 			osm.createWays();
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
-			throw new SAXException("Illformed Node id");
+			throw new SAXException(tr("Illformed Node id"));
 		}
 
 		// clear all negative ids (new to this file)

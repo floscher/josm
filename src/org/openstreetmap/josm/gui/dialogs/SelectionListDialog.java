@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.gui.dialogs;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
@@ -52,7 +54,6 @@ import org.xml.sax.SAXException;
  * @author imi
  */
 public class SelectionListDialog extends ToggleDialog implements SelectionChangedListener {
-
 	public static enum SearchMode {replace, add, remove}
 
 	private static class SelectionWebsiteLoader extends PleaseWaitRunnable {
@@ -61,19 +62,19 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 		private final SearchMode mode;
 		private OsmIdReader idReader = new OsmIdReader();
 		public SelectionWebsiteLoader(String urlStr, SearchMode mode) {
-	        super("Load Selection");
+	        super(tr("Load Selection"));
 	        this.mode = mode;
 	        URL u = null;
 			try {u = new URL(urlStr);} catch (MalformedURLException e) {}
             this.url = u;
         }
 		@Override protected void realRun() {
-			currentAction.setText("Contact "+url.getHost()+"...");
+			currentAction.setText(tr("Contact {0}...", url.getHost()));
 			sel = mode != SearchMode.remove ? new LinkedList<OsmPrimitive>() : Main.ds.allNonDeletedPrimitives();
 			try {
 		        URLConnection con = url.openConnection();
 		        InputStream in = new ProgressReader(con, progress, currentAction);
-				currentAction.setText("Downloading...");
+				currentAction.setText(tr("Downloading..."));
 				Map<Long, String> ids = idReader.parseIds(in);
 		        for (OsmPrimitive osm : Main.ds.allNonDeletedPrimitives()) {
 		        	if (ids.containsKey(osm.id) && osm.getClass().getName().toLowerCase().endsWith(ids.get(osm.id))) {
@@ -85,10 +86,10 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 				}
 	        } catch (IOException e) {
 		        e.printStackTrace();
-		        JOptionPane.showMessageDialog(Main.parent, "Could not read from url: '"+url+"'");
+		        JOptionPane.showMessageDialog(Main.parent, tr("Could not read from url: '{0}'",url));
 	        } catch (SAXException e) {
 		        e.printStackTrace();
-		        JOptionPane.showMessageDialog(Main.parent, "Parsing error in url: '"+url+"'");
+		        JOptionPane.showMessageDialog(Main.parent,tr("Parsing error in url: '{0}'",url));
 	        }
         }
 		@Override protected void cancel() {
@@ -115,7 +116,7 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 	 * @param mapView The mapView to get the dataset from.
 	 */
 	public SelectionListDialog(MapFrame mapFrame) {
-		super("Current Selection", "selectionlist", "Open a selection list window.", KeyEvent.VK_E);
+		super(tr("Current Selection"), "selectionlist", tr("Open a selection list window."), KeyEvent.VK_E);
 		setPreferredSize(new Dimension(320,150));
 		displaylist.setCellRenderer(new OsmPrimitivRenderer());
 		displaylist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -131,8 +132,8 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 
 		JPanel buttonPanel = new JPanel(new GridLayout(1,2));
 		
-		JButton button = new JButton("Select", ImageProvider.get("mapmode", "selection"));
-		button.setToolTipText("Set the selected elements on the map to the selected items in the list above.");
+		JButton button = new JButton(tr("Select"), ImageProvider.get("mapmode/selection/select"));
+		button.setToolTipText(tr("Set the selected elements on the map to the selected items in the list above."));
 		button.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				updateMap();
@@ -140,8 +141,8 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 		});
 		buttonPanel.add(button);
 
-		button = new JButton("Reload", ImageProvider.get("dialogs", "refresh"));
-		button.setToolTipText("Refresh the selection list.");
+		button = new JButton(tr("Reload"), ImageProvider.get("dialogs", "refresh"));
+		button.setToolTipText(tr("Refresh the selection list."));
 		button.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				selectionChanged(Main.ds.getSelected());
@@ -149,24 +150,24 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 		});
 		buttonPanel.add(button);
 		
-		button = new JButton("Search", ImageProvider.get("dialogs", "search"));
-		button.setToolTipText("Search for objects.");
+		button = new JButton(tr("Search"), ImageProvider.get("dialogs", "search"));
+		button.setToolTipText(tr("Search for objects."));
 		button.addActionListener(new ActionListener(){
 			private String lastSearch = "";
 			public void actionPerformed(ActionEvent e) {
-				JLabel label = new JLabel("Please enter a search string.");
+				JLabel label = new JLabel(tr("Please enter a search string."));
 				final JTextField input = new JTextField(lastSearch);
-				input.setToolTipText("<html>Fulltext search.<ul>" +
+				input.setToolTipText(tr("<html>Fulltext search.<ul>" +
 						"<li><code>Baker Street</code>  - 'Baker' and 'Street' in any key or name.</li>" +
 						"<li><code>\"Baker Street\"</code>  - 'Baker Street' in any key or name.</li>" +
 						"<li><code>name:Bak</code>  - 'Bak' anywhere in the name.</li>" +
 						"<li><code>-name:Bak</code>  - not 'Bak' in the name.</li>" +
 						"<li><code>foot:</code>  - key=foot set to any value." +
-						"</ul></html>");
+						"</ul></html>"));
 
-				JRadioButton replace = new JRadioButton("replace selection", true);
-				JRadioButton add = new JRadioButton("add to selection", false);
-				JRadioButton remove = new JRadioButton("remove from selection", false);
+				JRadioButton replace = new JRadioButton(tr("replace selection"), true);
+				JRadioButton add = new JRadioButton(tr("add to selection"), false);
+				JRadioButton remove = new JRadioButton(tr("remove from selection"), false);
 				ButtonGroup bg = new ButtonGroup();
 				bg.add(replace);
 				bg.add(add);
@@ -183,7 +184,7 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 						input.requestFocusInWindow();
                     }
 				};
-				pane.createDialog(Main.parent, "Search").setVisible(true);
+				pane.createDialog(Main.parent,tr("Search")).setVisible(true);
 				if (!Integer.valueOf(JOptionPane.OK_OPTION).equals(pane.getValue()))
 					return;
 				lastSearch = input.getText();

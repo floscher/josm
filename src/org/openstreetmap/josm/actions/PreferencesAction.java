@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.actions;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
@@ -18,7 +20,7 @@ public class PreferencesAction extends JosmAction {
 	 * Create the preference action with "&Preferences" as label.
 	 */
 	public PreferencesAction() {
-		super("Preferences", "preference", "Open a preferences page for global settings.", "F12", KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0));
+		super(tr("Preferences"), "preference", tr("Open a preferences page for global settings."), tr("F12"), KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0));
 	}
 
 	/**
