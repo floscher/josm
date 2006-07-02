@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.actions;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagLayout;
@@ -33,9 +35,9 @@ import org.openstreetmap.josm.tools.UrlLabel;
  * @author imi
  */
 public class AboutAction extends JosmAction {
-	
+
 	public AboutAction() {
-		super("About", "about", "Display the about screen.", KeyEvent.VK_A);
+		super(tr("About"), "about",tr("Display the about screen."), KeyEvent.VK_A);
 	}
 	
 	public void actionPerformed(ActionEvent e) {
@@ -53,20 +55,22 @@ public class AboutAction extends JosmAction {
 		String time = match.matches() ? match.group(1) : "UNKNOWN";
 		
 		JPanel info = new JPanel(new GridBagLayout());
-		info.add(new JLabel("Java OpenStreetMap Editor Version "+version), GBC.eop());
-		info.add(new JLabel("last change at "+time), GBC.eop());
-		info.add(new JLabel("Homepage"), GBC.std().insets(0,0,10,0));
+		info.add(new JLabel(tr("Java OpenStreetMap Editor Version {0}",version)), GBC.eop());
+		info.add(new JLabel(tr("last change at {0}",time)), GBC.eop());
+		info.add(new JLabel(tr("Homepage")), GBC.std().insets(0,0,10,0));
 		info.add(new UrlLabel("http://wiki.eigenheimstrasse.de/wiki/JOSM"), GBC.eol());
+		info.add(new JLabel(tr("Bug Reports")), GBC.std().insets(0,0,10,0));
+		info.add(new UrlLabel("http://trac.openstreetmap.org"), GBC.eol());
 		
 		
 		
-		about.addTab("Info", info);
-		about.addTab("Readme", new JScrollPane(readme));
-		about.addTab("Revision", new JScrollPane(revision));
+		about.addTab(tr("Info"), info);
+		about.addTab(tr("Readme"), new JScrollPane(readme));
+		about.addTab(tr("Revision"), new JScrollPane(revision));
 		
 		about.setPreferredSize(new Dimension(500,300));
 		
-		JOptionPane.showMessageDialog(Main.parent, about, "About JOSM...",
+		JOptionPane.showMessageDialog(Main.parent, about, tr("About JOSM..."),
 				JOptionPane.INFORMATION_MESSAGE, ImageProvider.get("logo"));
 	}
 	
@@ -76,7 +80,7 @@ public class AboutAction extends JosmAction {
 	 * @return	An read-only text area with the content of "resource"
 	 */
 	private JTextArea loadFile(URL resource) {
-		JTextArea area = new JTextArea("File could not be found.");
+		JTextArea area = new JTextArea(tr("File could not be found."));
 		area.setEditable(false);
 		Font font = Font.getFont("monospaced");
 		if (font != null)

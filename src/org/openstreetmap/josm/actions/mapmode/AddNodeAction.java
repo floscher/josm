@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.actions.mapmode;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.Cursor;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -41,8 +43,8 @@ public class AddNodeAction extends MapMode {
 	public static class AddNodeGroup extends GroupAction {
 		public AddNodeGroup(MapFrame mf) {
 			super(KeyEvent.VK_N,0);
-			actions.add(new AddNodeAction(mf, "Add node", Mode.node, "Add a new node to the map"));
-			actions.add(new AddNodeAction(mf, "Add node into segment", Mode.nodesegment, "Add a node into an existing segment"));
+			actions.add(new AddNodeAction(mf,tr("Add node"), Mode.node, tr("Add a new node to the map")));
+			actions.add(new AddNodeAction(mf, tr("Add node into segment"), Mode.nodesegment,tr( "Add a node into an existing segment")));
 			setCurrent(0);
 		}
 	}
@@ -78,7 +80,7 @@ public class AddNodeAction extends MapMode {
 
 		Node n = new Node(Main.map.mapView.getLatLon(e.getX(), e.getY()));
 		if (n.coor.isOutSideWorld()) {
-			JOptionPane.showMessageDialog(Main.parent, "Can not add a node outside of the world.");
+			JOptionPane.showMessageDialog(Main.parent,tr("Can not add a node outside of the world."));
 			return;
 		}
 
@@ -127,7 +129,7 @@ public class AddNodeAction extends MapMode {
 				}
 			}
 
-			c = new SequenceCommand("Add Node into Segment", cmds);
+			c = new SequenceCommand(tr("Add Node into Segment"), cmds);
 		}
 		Main.main.editLayer().add(c);
 		Main.map.mapView.repaint();

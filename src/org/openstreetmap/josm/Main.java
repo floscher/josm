@@ -1,4 +1,5 @@
 package org.openstreetmap.josm;
+import static org.openstreetmap.josm.tools.I18n.tr;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -148,7 +149,7 @@ abstract public class Main {
 		final Action preferencesAction = new PreferencesAction();
 		final Action aboutAction = new AboutAction();
 
-		final JMenu fileMenu = new JMenu("Files");
+		final JMenu fileMenu = new JMenu(tr("Files"));
 		fileMenu.setMnemonic('F');
 		fileMenu.add(openAction);
 		fileMenu.add(saveAction);
@@ -158,18 +159,19 @@ abstract public class Main {
 		mainMenu.add(fileMenu);
 
 
-		final JMenu connectionMenu = new JMenu("Connection");
+		final JMenu connectionMenu = new JMenu(tr("Connection"));
 		connectionMenu.setMnemonic('C');
 		connectionMenu.add(downloadAction);
+		//connectionMenu.add(new DownloadIncompleteAction());
 		connectionMenu.add(uploadAction);
 		mainMenu.add(connectionMenu);
 
-		layerMenu = new JMenu("Layer");
+		layerMenu = new JMenu(tr("Layer"));
 		layerMenu.setMnemonic('L');
 		mainMenu.add(layerMenu);
 		layerMenu.setVisible(false);
 		
-		final JMenu editMenu = new JMenu("Edit");
+		final JMenu editMenu = new JMenu(tr("Edit"));
 		editMenu.setMnemonic('E');
 		editMenu.add(undoAction);
 		editMenu.add(redoAction);
@@ -178,7 +180,7 @@ abstract public class Main {
 		mainMenu.add(editMenu);
 
 		mainMenu.add(new JSeparator());
-		final JMenu helpMenu = new JMenu("Help");
+		final JMenu helpMenu = new JMenu(tr("Help"));
 		helpMenu.setMnemonic('H');
 		helpMenu.add(aboutAction);
 		mainMenu.add(helpMenu);
@@ -219,7 +221,7 @@ abstract public class Main {
 	 */
 	public final OsmDataLayer editLayer() {
 		if (map == null || map.mapView.editLayer == null)
-			addLayer(new OsmDataLayer(ds, "unnamed", false));
+			addLayer(new OsmDataLayer(ds, tr("unnamed"), false));
 		return map.mapView.editLayer;
 	}
 
@@ -269,7 +271,8 @@ abstract public class Main {
 				Main.pref.load();
 		} catch (final IOException e1) {
 			e1.printStackTrace();
-			errMsg = "Preferences could not be loaded. Write default preference file to '"+pref.getPreferencesDir()+"preferences'.";
+			errMsg = tr("Preferences could not be loaded. Write default preference file to '{0}'.",
+                    pref.getPreferencesDir() + "preferences");
 			Main.pref.resetToDefault();
 		}
 		if (errMsg != null)
@@ -279,7 +282,7 @@ abstract public class Main {
 			Main.proj = (Projection)Class.forName(Main.pref.get("projection")).newInstance();
 		} catch (final Exception e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(null, "The projection could not be read from preferences. Using EPSG:4263.");
+			JOptionPane.showMessageDialog(null, tr("The projection could not be read from preferences. Using EPSG:4263."));
 			Main.proj = new Epsg4326();
 		}
 
@@ -335,7 +338,7 @@ abstract public class Main {
 		if (s.startsWith("http:")) {
 			final Bounds b = DownloadAction.osmurl2bounds(s);
 			if (b == null)
-				JOptionPane.showMessageDialog(Main.parent, "Ignoring malformed url: '"+s+"'");
+				JOptionPane.showMessageDialog(Main.parent, tr("Ignoring malformed url: '{0}'", s));
 			else
 				main.downloadAction.download(false, b.min.lat(), b.min.lon(), b.max.lat(), b.max.lon());
 			return;
@@ -345,7 +348,7 @@ abstract public class Main {
 			try {
 				main.openAction.openFile(new File(new URI(s)));
 			} catch (URISyntaxException e) {
-				JOptionPane.showMessageDialog(Main.parent, "Ignoring malformed file url: '"+s+"'");
+				JOptionPane.showMessageDialog(Main.parent, tr("Ignoring malformed file url: '{0}", s));
 			}
 			return;
 		}

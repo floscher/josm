@@ -22,7 +22,6 @@ import org.openstreetmap.josm.tools.ImageProvider;
  * control. 
  */
 abstract public class MapMode extends JosmAction implements MouseListener, MouseMotionListener {
-
 //	private final Cursor cursor;
 //	private Cursor oldCursor;
 

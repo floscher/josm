@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.gui;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.AWTEvent;
 import java.awt.Cursor;
 import java.awt.Font;
@@ -202,6 +204,8 @@ public class MapStatus extends JPanel {
 				mouseMoved(e);
 			}
 			public void mouseMoved(MouseEvent e) {
+				if (mv.center == null)
+					return;
 				// Do not update the view, if ctrl is pressed.
 				if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == 0) {
 					LatLon p = mv.getLatLon(e.getX(),e.getY());
@@ -214,9 +218,9 @@ public class MapStatus extends JPanel {
 		nameText.setEditable(false);
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-		add(new JLabel("Lat/Lon "));
+		add(new JLabel(tr("Lat/Lon ")));
 		add(positionText);
-		add(new JLabel(" Object "));
+		add(new JLabel(tr(" Object ")));
 		add(nameText);
 
 		// The background thread

@@ -23,6 +23,7 @@ import org.openstreetmap.josm.data.projection.Projection;
  */
 public class NavigatableComponent extends JComponent {
 
+
 	public static final EastNorth world = Main.proj.latlon2eastNorth(new LatLon(Projection.MAX_LAT, Projection.MAX_LON));
 
 	/**

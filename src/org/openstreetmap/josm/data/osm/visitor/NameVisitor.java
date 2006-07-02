@@ -1,14 +1,17 @@
 
 package org.openstreetmap.josm.data.osm.visitor;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+import static org.openstreetmap.josm.tools.I18n.trn;
+
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
 
-import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.tools.ImageProvider;
 
@@ -42,7 +45,7 @@ public class NameVisitor implements Visitor {
 		name = ls.get("name");
 		if (name == null) {
 			if (ls.incomplete)
-				name = ls.id == 0 ? "new" : ""+ls.id+" (unknown)";
+				name = ls.id == 0 ? tr("new") : tr("{0} (unknown)", ls.id);
 			else
 				name = (ls.id==0?"":ls.id+" ")+"("+ls.from.coor.lat()+","+ls.from.coor.lon()+") -> ("+ls.to.coor.lat()+","+ls.to.coor.lon()+")";
 		}
@@ -79,9 +82,9 @@ public class NameVisitor implements Visitor {
 				} else
 					incomplete = true;
 			}
-			name = nodes.size()+" nodes";
+			name = trn("{0} node", "{0} nodes", nodes.size(), nodes.size());
 			if (incomplete)
-				name += " (incomplete)";
+				name += " ("+tr("incomplete")+")";
 		}
 		icon = ImageProvider.get("data", "way");
 		className = "way";

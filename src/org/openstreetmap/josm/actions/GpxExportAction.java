@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.actions;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -35,18 +37,18 @@ import org.openstreetmap.josm.tools.GBC;
  */
 public class GpxExportAction extends DiskAccessAction {
 
-	private final static String warningGpl = "<html><font color='red' size='-2'>Note: GPL is not compatible to the OSM license. Do not upload GPL licensed tracks</html>";
+	private final static String warningGpl = tr("<html><font color='red' size='-2'>Note: GPL is not compatible to the OSM license. Do not upload GPL licensed tracks</html>");
 
 	private final Layer layer;
 
 	public GpxExportAction(Layer layer) {
-		super("Export to GPX", "exportgpx", "Export the data to GPX file.", "Ctrl-E", KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK));
+		super(tr("Export to GPX"), "exportgpx", tr("Export the data to GPX file."), tr("Ctrl-E"), KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK));
 		this.layer = layer;
 	}
 
 	public void actionPerformed(ActionEvent e) {
 		if (layer == null && Main.map == null) {
-			JOptionPane.showMessageDialog(Main.parent, "Nothing to export. Get some data first.");
+			JOptionPane.showMessageDialog(Main.parent, tr("Nothing to export. Get some data first."));
 			return;
 		}
 
@@ -70,30 +72,30 @@ public class GpxExportAction extends DiskAccessAction {
 		// open the dialog asking for options
 		JPanel p = new JPanel(new GridBagLayout());
 
-		p.add(new JLabel("gps track description"), GBC.eol());
+		p.add(new JLabel(tr("gps track description")), GBC.eol());
 		JTextArea desc = new JTextArea(3,40);
 		desc.setWrapStyleWord(true);
 		desc.setLineWrap(true);
 		p.add(new JScrollPane(desc), GBC.eop().fill(GBC.BOTH));
 		
-		JCheckBox author = new JCheckBox("Add author information", Main.pref.getBoolean("lastAddAuthor", true));
+		JCheckBox author = new JCheckBox(tr("Add author information"), Main.pref.getBoolean("lastAddAuthor", true));
 		author.setSelected(true);
 		p.add(author, GBC.eol());
-		JLabel nameLabel = new JLabel("Real name");
+		JLabel nameLabel = new JLabel(tr("Real name"));
 		p.add(nameLabel, GBC.std().insets(10,0,5,0));
 		JTextField authorName = new JTextField(Main.pref.get("lastAuthorName"));
 		p.add(authorName, GBC.eol().fill(GBC.HORIZONTAL));
-		JLabel emailLabel = new JLabel("Email");
+		JLabel emailLabel = new JLabel(tr("Email"));
 		p.add(emailLabel, GBC.std().insets(10,0,5,0));
 		JTextField email = new JTextField(Main.pref.get("osm-server.username"));
 		p.add(email, GBC.eol().fill(GBC.HORIZONTAL));
-		JLabel copyrightLabel = new JLabel("Copyright (URL)");
+		JLabel copyrightLabel = new JLabel(tr("Copyright (URL)"));
 		p.add(copyrightLabel, GBC.std().insets(10,0,5,0));
 		JTextField copyright = new JTextField();
 		p.add(copyright, GBC.std().fill(GBC.HORIZONTAL));
-		JButton predefined = new JButton("Predefined");
+		JButton predefined = new JButton(tr("Predefined"));
 		p.add(predefined, GBC.eol().insets(5,0,0,0));
-		JLabel copyrightYearLabel = new JLabel("Copyright year");
+		JLabel copyrightYearLabel = new JLabel(tr("Copyright year"));
 		p.add(copyrightYearLabel, GBC.std().insets(10,0,5,5));
 		JTextField copyrightYear = new JTextField("");
 		p.add(copyrightYear, GBC.eol().fill(GBC.HORIZONTAL));
@@ -101,11 +103,11 @@ public class GpxExportAction extends DiskAccessAction {
 		p.add(warning, GBC.eol().fill(GBC.HORIZONTAL).insets(15,0,0,0));
 		addDependencies(author, authorName, email, copyright, predefined, copyrightYear, nameLabel, emailLabel, copyrightLabel, copyrightYearLabel, warning);
 		
-		p.add(new JLabel("Keywords"), GBC.eol());
+		p.add(new JLabel(tr("Keywords")), GBC.eol());
 		JTextField keywords = new JTextField();
 		p.add(keywords, GBC.eop().fill(GBC.HORIZONTAL));
 
-		int answer = JOptionPane.showConfirmDialog(Main.parent, p, "Export options", JOptionPane.OK_CANCEL_OPTION);
+		int answer = JOptionPane.showConfirmDialog(Main.parent, p, tr("Export options"), JOptionPane.OK_CANCEL_OPTION);
 		if (answer != JOptionPane.OK_OPTION)
 			return;
 		
@@ -126,7 +128,7 @@ public class GpxExportAction extends DiskAccessAction {
 			w.close();
 		} catch (IOException x) {
 			x.printStackTrace();
-			JOptionPane.showMessageDialog(Main.parent, "Error while exporting "+fn+":\n"+x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(Main.parent, tr("Error while exporting {0}", fn)+":\n"+x.getMessage(), tr("Error"), JOptionPane.ERROR_MESSAGE);
 		}		
 	}
 	
@@ -177,10 +179,10 @@ public class GpxExportAction extends DiskAccessAction {
 		
 		predefined.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
-				JList l = new JList(new String[]{"Creative Commons By-SA", "public domain", "GNU Lesser Public License (LGPL)", "BSD License (same as MIT/X11)"});
+				JList l = new JList(new String[]{"Creative Commons By-SA", "public domain", "GNU Lesser Public License (LGPL)", "BSD License (MIT/X11)"});
 				l.setVisibleRowCount(4);
 				l.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-				int answer = JOptionPane.showConfirmDialog(Main.parent, new JScrollPane(l), "Choose a predefined license", JOptionPane.OK_CANCEL_OPTION);
+				int answer = JOptionPane.showConfirmDialog(Main.parent, new JScrollPane(l),tr("Choose a predefined license"), JOptionPane.OK_CANCEL_OPTION);
 				if (answer != JOptionPane.OK_OPTION || l.getSelectedIndex() == -1)
 					return;
 				final String[] urls = {

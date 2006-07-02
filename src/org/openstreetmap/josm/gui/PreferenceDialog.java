@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.gui;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -80,11 +82,11 @@ public class PreferenceDialog extends JDialog {
 			for (int i = 0; i < colors.getRowCount(); ++i) {
 				String name = (String)colors.getValueAt(i, 0);
 				Color col = (Color)colors.getValueAt(i, 1);
-				Main.pref.put("color."+name, ColorHelper.color2html(col));
+				Main.pref.put("color."+tr(name), ColorHelper.color2html(col));
 			}
 
 			if (requiresRestart)
-				JOptionPane.showMessageDialog(PreferenceDialog.this, "You have to restart JOSM for some settings to take effect.");
+				JOptionPane.showMessageDialog(PreferenceDialog.this,tr("You have to restart JOSM for some settings to take effect."));
 			Main.parent.repaint();
 			setVisible(false);
 		}
@@ -149,12 +151,12 @@ public class PreferenceDialog extends JDialog {
 	/**
 	 * The checkbox stating whether nodes should be merged together.
 	 */
-	private JCheckBox drawRawGpsLines = new JCheckBox("Draw lines between raw gps points.");
+	private JCheckBox drawRawGpsLines = new JCheckBox(tr("Draw lines between raw gps points."));
 	/**
 	 * The checkbox stating whether raw gps lines should be forced.
 	 */
-	private JCheckBox forceRawGpsLines = new JCheckBox("Force lines if no segments imported.");
-	private JCheckBox directionHint = new JCheckBox("Draw Direction Arrows");
+	private JCheckBox forceRawGpsLines = new JCheckBox(tr("Force lines if no segments imported."));
+	private JCheckBox directionHint = new JCheckBox(tr("Draw Direction Arrows"));
 	private JTable colors;
 
 
@@ -165,7 +167,7 @@ public class PreferenceDialog extends JDialog {
 	 * file, otherwise no change of the file happens.
 	 */
 	public PreferenceDialog() {
-		super(JOptionPane.getFrameForComponent(Main.parent), "Preferences");
+		super(JOptionPane.getFrameForComponent(Main.parent), tr("Preferences"));
 
 		// look and feel combo box
 		String laf = Main.pref.get("laf");
@@ -214,10 +216,10 @@ public class PreferenceDialog extends JDialog {
 		wmsServerBaseUrl.setText(Main.pref.get("wms.baseurl", "http://wms.jpl.nasa.gov/wms.cgi?request=GetMap&width=512&height=512&layers=global_mosaic&styles=&srs=EPSG:4326&format=image/jpeg&"));
 		csvImportString.setText(Main.pref.get("csv.importstring"));
 		drawRawGpsLines.setSelected(Main.pref.getBoolean("draw.rawgps.lines"));
-		forceRawGpsLines.setToolTipText("Force drawing of lines if the imported data contain no line information.");
+		forceRawGpsLines.setToolTipText(tr("Force drawing of lines if the imported data contain no line information."));
 		forceRawGpsLines.setSelected(Main.pref.getBoolean("draw.rawgps.lines.force"));
 		forceRawGpsLines.setEnabled(drawRawGpsLines.isSelected());
-		directionHint.setToolTipText("Draw direction hints for all segments.");
+		directionHint.setToolTipText(tr("Draw direction hints for all segments."));
 		directionHint.setSelected(Main.pref.getBoolean("draw.segment.direction"));
 
 
@@ -254,76 +256,76 @@ public class PreferenceDialog extends JDialog {
 		});
 		colors.getColumnModel().getColumn(1).setWidth(100);
 
-		JButton colorEdit = new JButton("Choose");
+		JButton colorEdit = new JButton(tr("Choose"));
 		colorEdit.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				if (colors.getSelectedRowCount() == 0) {
-					JOptionPane.showMessageDialog(PreferenceDialog.this, "Please select a color.");
+					JOptionPane.showMessageDialog(PreferenceDialog.this, tr("Please select a color."));
 					return;
 				}
 				int sel = colors.getSelectedRow();
 				JColorChooser chooser = new JColorChooser((Color)colors.getValueAt(sel, 1));
-				int answer = JOptionPane.showConfirmDialog(PreferenceDialog.this, chooser, "Choose a color for "+colors.getValueAt(sel, 0), JOptionPane.OK_CANCEL_OPTION);
+				int answer = JOptionPane.showConfirmDialog(PreferenceDialog.this, chooser, tr("Choose a color for {0}", colors.getValueAt(sel, 0)), JOptionPane.OK_CANCEL_OPTION);
 				if (answer == JOptionPane.OK_OPTION)
 					colors.setValueAt(chooser.getColor(), sel, 1);
 			}
 		});
 
 		// setting tooltips
-		osmDataServer.setToolTipText("The base URL to the OSM server (REST API)");
-		osmDataUsername.setToolTipText("Login name (email) to the OSM account.");
-		osmDataPassword.setToolTipText("Login password to the OSM account. Leave blank to not store any password.");
-		wmsServerBaseUrl.setToolTipText("The base URL to the server retrieving WMS background pictures from.");
-		csvImportString.setToolTipText("<html>Import string specification. lat/lon and time are imported.<br>" +
+		osmDataServer.setToolTipText(tr("The base URL to the OSM server (REST API)"));
+		osmDataUsername.setToolTipText(tr("Login name (email) to the OSM account."));
+		osmDataPassword.setToolTipText(tr("Login password to the OSM account. Leave blank to not store any password."));
+		wmsServerBaseUrl.setToolTipText(tr("The base URL to the server retrieving WMS background pictures from."));
+		csvImportString.setToolTipText(tr("<html>Import string specification. lat/lon and time are imported.<br>" +
 				"<b>lat</b>: The latitude coordinate<br>" +
 				"<b>lon</b>: The longitude coordinate<br>" +
 				"<b>time</b>: The measured time as string<br>" +
 				"<b>ignore</b>: Skip this field<br>" +
 				"An example: \"ignore ignore lat lon\" will use ' ' as delimiter, skip the first two values and read then lat/lon.<br>" +
-		"Other example: \"lat,lon\" will just read lat/lon values comma seperated.</html>");
-		drawRawGpsLines.setToolTipText("If your gps device draw to few lines, select this to draw lines along your way.");
-		colors.setToolTipText("Colors used by different objects in JOSM.");
+		"Other example: \"lat,lon\" will just read lat/lon values comma seperated.</html>"));
+		drawRawGpsLines.setToolTipText(tr("If your gps device draw to few lines, select this to draw lines along your way."));
+		colors.setToolTipText(tr("Colors used by different objects in JOSM."));
 
 		// creating the gui
 
 		// Display tab
-		JPanel display = createPreferenceTab("display", "Display Settings", "Various settings that influence the visual representation of the whole program.");
-		display.add(new JLabel("Look and Feel"), GBC.std());
+		JPanel display = createPreferenceTab("display", tr("Display Settings"), tr("Various settings that influence the visual representation of the whole program."));
+		display.add(new JLabel(tr("Look and Feel")), GBC.std());
 		display.add(GBC.glue(5,0), GBC.std().fill(GBC.HORIZONTAL));
 		display.add(lafCombo, GBC.eol().fill(GBC.HORIZONTAL));
 		display.add(drawRawGpsLines, GBC.eol().insets(20,0,0,0));
 		display.add(forceRawGpsLines, GBC.eop().insets(40,0,0,0));
 		display.add(directionHint, GBC.eop().insets(20,0,0,0));
-		display.add(new JLabel("Colors"), GBC.eol());
+		display.add(new JLabel(tr("Colors")), GBC.eol());
 		colors.setPreferredScrollableViewportSize(new Dimension(100,112));
 		display.add(new JScrollPane(colors), GBC.eol().fill(GBC.BOTH));
 		display.add(colorEdit, GBC.eol().anchor(GBC.EAST));
 		//display.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
 
 		// Connection tab
-		JPanel con = createPreferenceTab("connection", "Connection Settings", "Connection Settings to the OSM server.");
-		con.add(new JLabel("Base Server URL"), GBC.std());
+		JPanel con = createPreferenceTab("connection", tr("Connection Settings"), tr("Connection Settings to the OSM server."));
+		con.add(new JLabel(tr("Base Server URL")), GBC.std());
 		con.add(osmDataServer, GBC.eol().fill(GBC.HORIZONTAL).insets(5,0,0,5));
-		con.add(new JLabel("OSM username (email)"), GBC.std());
+		con.add(new JLabel(tr("OSM username (email)")), GBC.std());
 		con.add(osmDataUsername, GBC.eol().fill(GBC.HORIZONTAL).insets(5,0,0,5));
-		con.add(new JLabel("OSM password"), GBC.std());
+		con.add(new JLabel(tr("OSM password")), GBC.std());
 		con.add(osmDataPassword, GBC.eol().fill(GBC.HORIZONTAL).insets(5,0,0,0));
-		JLabel warning = new JLabel("<html>" +
+		JLabel warning = new JLabel(tr("<html>" +
 				"WARNING: The password is stored in plain text in the preferences file.<br>" +
 				"The password is transfered in plain text to the server, encoded in the url.<br>" +
-		"<b>Do not use a valuable Password.</b></html>");
+		"<b>Do not use a valuable Password.</b></html>"));
 		warning.setFont(warning.getFont().deriveFont(Font.ITALIC));
 		con.add(warning, GBC.eop().fill(GBC.HORIZONTAL));
 		//con.add(new JLabel("WMS server base url (everything except bbox-parameter)"), GBC.eol());
 		//con.add(wmsServerBaseUrl, GBC.eop().fill(GBC.HORIZONTAL));
 		//con.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
-		con.add(new JLabel("CSV import specification (empty: read from first line in data)"), GBC.eol());
+		con.add(new JLabel(tr("CSV import specification (empty: read from first line in data)")), GBC.eol());
 		con.add(csvImportString, GBC.eop().fill(GBC.HORIZONTAL));
 		con.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
 
 		// Map tab
-		JPanel map = createPreferenceTab("map", "Map Settings", "Settings for the map projection and data interpretation.");
-		map.add(new JLabel("Projection method"), GBC.std());
+		JPanel map = createPreferenceTab("map", tr("Map Settings"), tr("Settings for the map projection and data interpretation."));
+		map.add(new JLabel(tr("Projection method")), GBC.std());
 		map.add(GBC.glue(5,0), GBC.std().fill(GBC.HORIZONTAL));
 		map.add(projectionCombo, GBC.eol().fill(GBC.HORIZONTAL).insets(0,0,0,5));
 		map.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));

@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.actions;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.Collection;
@@ -29,8 +31,8 @@ public class AutoScaleAction extends GroupAction {
 	private class Action extends AbstractAction {
 		private final AutoScaleMode mode;
 		public Action(AutoScaleMode mode) {
-			super("Auto Scale: "+mode, ImageProvider.get("dialogs/autoscale/"+mode));
-			putValue(SHORT_DESCRIPTION, "Auto zoom the view to "+mode+". Disabled if the view is moved.");
+			super(tr("Auto Scale"+": "+tr(mode.toString())), ImageProvider.get("dialogs/autoscale/"+mode));
+			putValue(SHORT_DESCRIPTION, tr("Auto zoom the view")+tr("(to "+mode+")")+tr(". Disabled if the view is moved."));
 			this.mode = mode;
 		}
 		public void actionPerformed(ActionEvent e) {

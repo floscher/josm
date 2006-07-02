@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.actions;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -21,26 +23,26 @@ import org.openstreetmap.josm.io.OsmWriter;
  * @author imi
  */
 public class SaveAction extends DiskAccessAction {
-
+    
 	/**
 	 * Construct the action with "Save" as label.
 	 * @param layer Save only this layer. If <code>null</code>, save the whole Main 
 	 * 		data set.
 	 */
 	public SaveAction() {
-		super("Save", "save", "Save the current data.", "Ctrl-S", KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
+		super(tr("Save"), "save", tr("Save the current data."), tr("Ctrl-S"), KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
 	}
 	
 	public void actionPerformed(ActionEvent event) {
 		if (Main.map == null) {
-			JOptionPane.showMessageDialog(Main.parent, "No document open so nothing to save.");
+			JOptionPane.showMessageDialog(Main.parent, tr("No document open so nothing to save."));
 			return;
 		}
-		if (isDataSetEmpty() && JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(Main.parent, "The document contains no data. Save anyway?", "Empty document", JOptionPane.YES_NO_OPTION))
+		if (isDataSetEmpty() && JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(Main.parent,tr("The document contains no data. Save anyway?"), tr("Empty document"), JOptionPane.YES_NO_OPTION))
 			return;
 		if (!Main.map.conflictDialog.conflicts.isEmpty()) {
 			int answer = JOptionPane.showConfirmDialog(Main.parent, 
-					"There are unresolved conflicts. Conflicts will not be saved and handled as if you rejected all. Continue?", "Conflicts", JOptionPane.YES_NO_OPTION);
+					tr("There are unresolved conflicts. Conflicts will not be saved and handled as if you rejected all. Continue?"),tr("Conflicts"), JOptionPane.YES_NO_OPTION);
 			if (answer != JOptionPane.YES_OPTION)
 				return;
 		}
@@ -69,15 +71,15 @@ public class SaveAction extends DiskAccessAction {
 				OsmWriter.output(new FileOutputStream(file), Main.ds, false);
 				Main.main.editLayer().cleanData(null, false);
 			} else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
-				JOptionPane.showMessageDialog(Main.parent, "CSV output not supported yet.");
+				JOptionPane.showMessageDialog(Main.parent, tr("CSV output not supported yet."));
 				return;
 			} else {
-				JOptionPane.showMessageDialog(Main.parent, "Unknown file extension.");
+				JOptionPane.showMessageDialog(Main.parent, tr("Unknown file extension."));
 				return;
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(Main.parent, "An error occoured while saving.\n"+e.getMessage());
+			JOptionPane.showMessageDialog(Main.parent, tr("An error occoured while saving.")+"\n"+e.getMessage());
 		}
 	}
 }

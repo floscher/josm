@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.actions;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -20,7 +22,7 @@ public class UndoAction extends JosmAction {
 	 * Construct the action with "Undo" as label.
 	 */
 	public UndoAction() {
-		super("Undo", "undo", "Undo the last action.", "Ctrl-Z", KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
+		super(tr("Undo"), "undo", tr("Undo the last action."), tr("Ctrl-Z"), KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
 		setEnabled(false);
 	}
 

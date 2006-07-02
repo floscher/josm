@@ -1,7 +1,6 @@
 package org.openstreetmap.josm.tools;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -23,7 +22,7 @@ public class ExifReader {
 	            for (Iterator<Tag> tagIt = dirIt.next().getTagIterator(); tagIt.hasNext();) {
 	                Tag tag = tagIt.next();
 	                if (tag.getTagType() == 0x132 || tag.getTagType() == 0x9003 || tag.getTagType() == 0x9004)
-	                	return new SimpleDateFormat("yyyy:MM:dd HH:mm:ss").parse(tag.getDescription());
+	                	return DateParser.parse(tag.getDescription());
 	            }
 	        }
         } catch (Exception e) {

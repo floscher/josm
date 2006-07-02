@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.io;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,7 +31,7 @@ public class OsmIdReader extends MinML2 {
 				entries.put(Long.valueOf(atts.getValue("id")), qName);
 			} catch (Exception e) {
 				e.printStackTrace();
-				throw new SAXException("Error during parse.");
+				throw new SAXException(tr("Error during parse."));
 			}
 		}
     }

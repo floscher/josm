@@ -1,5 +1,8 @@
 package org.openstreetmap.josm.command;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+import static org.openstreetmap.josm.tools.I18n.trn;
+
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,7 +22,6 @@ import org.openstreetmap.josm.tools.ImageProvider;
  * @author imi
  */
 public class ChangePropertyCommand extends Command {
-
 	/**
 	 * All primitives, that are affected with this command.
 	 */
@@ -61,14 +63,13 @@ public class ChangePropertyCommand extends Command {
 	}
 
 	@Override public MutableTreeNode description() {
-		String text = value == null ? "Remove '"+key+"'" : "Set '"+key+"="+value+"'";
-		text += " for ";
+		String text = value == null ? tr( "Remove '{0}' for",key) : tr("Set {0}={1} for",key,value);
 		if (objects.size() == 1) {
 			NameVisitor v = new NameVisitor();
 			objects.iterator().next().visit(v);
 			text += v.className+" "+v.name;
 		} else
-			text += objects.size()+" objects";
+			text += trn("{0} object","{0} objects",objects.size(),objects.size());
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode(new JLabel(text, ImageProvider.get("data", "key"), JLabel.HORIZONTAL));
 		if (objects.size() == 1)
 			return root;

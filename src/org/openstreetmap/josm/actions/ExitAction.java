@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.actions;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
@@ -9,17 +11,14 @@ import java.awt.event.KeyEvent;
  * @author imi
  */
 public class ExitAction extends JosmAction {
-
 	/**
 	 * Construct the action with "Exit" as label
 	 */
 	public ExitAction() {
-		super("Exit", "exit", "Exit the application.", KeyEvent.VK_X);
+		super(tr("Exit"), "exit", tr("Exit the application."), KeyEvent.VK_X);
 	}
 	
 	public void actionPerformed(ActionEvent e) {
-		// todo: check for modified windows before exiting
 		System.exit(0);
 	}
-
 }

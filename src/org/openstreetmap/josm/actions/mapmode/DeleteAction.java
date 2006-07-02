@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.actions.mapmode;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -50,9 +52,9 @@ public class DeleteAction extends MapMode {
 	 * @param mapFrame The frame this action belongs to.
 	 */
 	public DeleteAction(MapFrame mapFrame) {
-		super("Delete", 
+		super(tr("Delete"), 
 				"delete", 
-				"Delete nodes, streets or segments.", 
+				tr("Delete nodes, streets or segments."), 
 				"D", 
 				KeyEvent.VK_D, 
 				mapFrame, 
@@ -145,11 +147,11 @@ public class DeleteAction extends MapMode {
 				if (osm instanceof Node) {
 					String reason = deleteNodeAndJoinSegment((Node)osm);
 					if (reason != null && msgBox) {
-						JOptionPane.showMessageDialog(Main.parent, "Cannot delete node. "+reason);
+						JOptionPane.showMessageDialog(Main.parent,tr("Cannot delete node.")+" "+reason);
 						return;
 					}
 				} else if (msgBox) {
-					JOptionPane.showMessageDialog(Main.parent, "This object is in use.");
+					JOptionPane.showMessageDialog(Main.parent, tr("This object is in use."));
 					return;
 				}
 			} else {
@@ -166,12 +168,12 @@ public class DeleteAction extends MapMode {
 		for (Segment s : Main.ds.segments) {
 			if (!s.deleted && (s.from == n || s.to == n)) {
 				if (segs.size() > 1)
-					return "Used by more than two segments.";
+					return tr("Used by more than two segments.");
 				segs.add(s);
 			}
 		}
 		if (segs.size() != 2)
-			return "Used by only one segment.";
+			return tr("Used by only one segment.");
 		Segment seg1 = segs.get(0);
 		Segment seg2 = segs.get(1);
 		if (seg1.from == seg2.to) {
@@ -181,12 +183,12 @@ public class DeleteAction extends MapMode {
 		}
 		for (Way w : Main.ds.ways)
 			if (!w.deleted && (w.segments.contains(seg1) || w.segments.contains(seg2)))
-				return "Used in a way.";
+				return tr("Used in a way.");
 		if (seg1.from == seg2.from || seg1.to == seg2.to)
-			return "Wrong direction of segments.";
+			return tr("Wrong direction of segments.");
 		for (Entry<String, String> e : seg1.entrySet())
 			if (seg2.keySet().contains(e.getKey()) && !seg2.get(e.getKey()).equals(e.getValue()))
-				return "Conflicting keys";
+				return tr("Conflicting keys");
 		Segment s = new Segment(seg1);
 		s.to = seg2.to;
 		if (s.keys == null)
@@ -196,7 +198,7 @@ public class DeleteAction extends MapMode {
 		Command[] cmds = new Command[]{
 			new ChangeCommand(seg1, s), 
 			new DeleteCommand(Arrays.asList(new OsmPrimitive[]{n, seg2}))};
-		Main.main.editLayer().add(new SequenceCommand("Delete Node", Arrays.asList(cmds)));
+		Main.main.editLayer().add(new SequenceCommand(tr("Delete Node"), Arrays.asList(cmds)));
 		return null;
     }
 }

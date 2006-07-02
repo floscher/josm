@@ -77,7 +77,7 @@ public class MapFrame extends JPanel {
 		// toolbar
 		toolBarActions.setFloatable(false);
 		toolBarActions.add(new IconToggleButton(new ZoomAction(this)));
-		final SelectionAction selectionAction = new SelectionAction(this);
+		final Action selectionAction = new SelectionAction.Group(this);
 		toolBarActions.add(new IconToggleButton(selectionAction));
 		toolBarActions.add(new IconToggleButton(new MoveAction(this)));
 		toolBarActions.add(new IconToggleButton(new AddNodeGroup(this)));

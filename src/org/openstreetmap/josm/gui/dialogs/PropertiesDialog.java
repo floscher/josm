@@ -1,5 +1,8 @@
 package org.openstreetmap.josm.gui.dialogs;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+import static org.openstreetmap.josm.tools.I18n.trn;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -82,11 +85,10 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	void edit(int row) {
 		String key = data.getValueAt(row, 0).toString();
 		Collection<OsmPrimitive> sel = Main.ds.getSelected();
-		String msg = "<html>This will change "+sel.size()+" object"+(sel.size()==1?"":"s")+".<br><br>"+
-		"Please select a new value for '"+key+"'.<br>(Empty string deletes the key.)";
+		String msg = "<html>"+trn("This will change {0} object.", "This will change {0} objects.", sel.size(), sel.size())+"<br><br> "+tr("Please select a new value for '{0}'.<br>(Empty string deletes the key.)</html>)", key);
 		final JComboBox combo = (JComboBox)data.getValueAt(row, 1);
 		JPanel p = new JPanel(new BorderLayout());
-		p.add(new JLabel(msg+"</html>"), BorderLayout.NORTH);
+		p.add(new JLabel(msg), BorderLayout.NORTH);
 		p.add(combo, BorderLayout.CENTER);
 
 		final JOptionPane optionPane = new JOptionPane(p, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION){
@@ -95,7 +97,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 				combo.getEditor().selectAll();
 			}
 		};
-		final JDialog dlg = optionPane.createDialog(Main.parent, "Change values?");
+		final JDialog dlg = optionPane.createDialog(Main.parent, tr("Change values?"));
 		combo.getEditor().addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				optionPane.setValue(JOptionPane.OK_OPTION);
@@ -113,7 +115,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		}
 
 		String value = combo.getEditor().getItem().toString();
-		if (value.equals("<different>"))
+		if (value.equals(tr("<different>")))
 			return;
 		if (value.equals(""))
 			value = null; // delete the key
@@ -133,8 +135,10 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		Collection<OsmPrimitive> sel = Main.ds.getSelected();
 
 		JPanel p = new JPanel(new BorderLayout());
-		p.add(new JLabel("<html>This will change "+sel.size()+" object"+(sel.size()==1?"":"s")+".<br><br>"+
-		"Please select a key"), BorderLayout.NORTH);
+		p.add(new JLabel(trn("<html>This will change {0} object.<br>br>Please select a key",
+				"<html>This will change {0} objects.<br>br>Please select a key",
+				sel.size(),sel.size())),
+				BorderLayout.NORTH);
 		TreeSet<String> allKeys = new TreeSet<String>();
 		for (OsmPrimitive osm : Main.ds.allNonDeletedPrimitives())
 			allKeys.addAll(osm.keySet());
@@ -146,7 +150,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 
 		JPanel p2 = new JPanel(new BorderLayout());
 		p.add(p2, BorderLayout.SOUTH);
-		p2.add(new JLabel("Please select a value"), BorderLayout.NORTH);
+		p2.add(new JLabel(tr("Please select a value")), BorderLayout.NORTH);
 		final JTextField values = new JTextField();
 		p2.add(values, BorderLayout.CENTER);
 		JOptionPane pane = new JOptionPane(p, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION){
@@ -155,7 +159,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 				keys.getEditor().selectAll();
 			}
 		};
-		pane.createDialog(Main.parent, "Change values?").setVisible(true);
+		pane.createDialog(Main.parent, tr("Change values?")).setVisible(true);
 		if (!Integer.valueOf(JOptionPane.OK_OPTION).equals(pane.getValue()))
 			return;
 		String key = keys.getEditor().getItem().toString();
@@ -197,11 +201,11 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	 * Create a new PropertiesDialog
 	 */
 	public PropertiesDialog(MapFrame mapFrame) {
-		super("Properties", "propertiesdialog", "Property for selected objects.", KeyEvent.VK_P);
+		super(tr("Properties"), "propertiesdialog", tr("Property for selected objects."), KeyEvent.VK_P);
 
 		setPreferredSize(new Dimension(320,150));
 
-		data.setColumnIdentifiers(new String[]{"Key", "Value"});
+		data.setColumnIdentifiers(new String[]{tr("Key"),tr("Value")});
 		propertyTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		propertyTable.setDefaultRenderer(JComboBox.class, new DefaultTableCellRenderer(){
 			@Override public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -209,7 +213,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 				if (c instanceof JLabel) {
 					String str = ((JComboBox)value).getEditor().getItem().toString();
 					((JLabel)c).setText(str);
-					if (str.equals("<different>"))
+					if (str.equals(tr("<different>")))
 						c.setFont(c.getFont().deriveFont(Font.ITALIC));
 				}
 				return c;
@@ -230,24 +234,24 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		ActionListener buttonAction = new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				int sel = propertyTable.getSelectedRow();
-				if (e.getActionCommand().equals("Add"))
+				if (e.getActionCommand().equals(tr("Add")))
 					add();
-				else if (e.getActionCommand().equals("Edit")) {
+				else if (e.getActionCommand().equals(tr("Edit"))) {
 					if (sel == -1)
-						JOptionPane.showMessageDialog(Main.parent, "Please select the row to edit.");
+						JOptionPane.showMessageDialog(Main.parent, tr("Please select the row to edit."));
 					else
 						edit(sel);
-				} else if (e.getActionCommand().equals("Delete")) {
+				} else if (e.getActionCommand().equals(tr("Delete"))) {
 					if (sel == -1)
-						JOptionPane.showMessageDialog(Main.parent, "Please select the row to delete.");
+						JOptionPane.showMessageDialog(Main.parent, tr("Please select the row to delete."));
 					else
 						delete(sel);
 				}
 			}
 		};
-		buttonPanel.add(createButton("Add", "Add a new key/value pair to all objects", KeyEvent.VK_A, buttonAction));
-		buttonPanel.add(createButton("Edit", "Edit the value of the selected key for all objects", KeyEvent.VK_E, buttonAction));
-		buttonPanel.add(createButton("Delete", "Delete the selected key in all objects", KeyEvent.VK_D, buttonAction));
+		buttonPanel.add(createButton(tr("Add"),tr("Add a new key/value pair to all objects"), KeyEvent.VK_A, buttonAction));
+		buttonPanel.add(createButton(tr("Edit"),tr( "Edit the value of the selected key for all objects"), KeyEvent.VK_E, buttonAction));
+		buttonPanel.add(createButton(tr("Delete"),tr("Delete the selected key in all objects"), KeyEvent.VK_D, buttonAction));
 		add(buttonPanel, BorderLayout.SOUTH);
 	}
 
@@ -293,7 +297,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		for (Entry<String, Collection<String>> e : props.entrySet()) {
 			JComboBox value = new JComboBox(e.getValue().toArray());
 			value.setEditable(true);
-			value.getEditor().setItem(valueCount.get(e.getKey()) != newSelection.size() ? "<different>" : e.getValue().iterator().next());
+			value.getEditor().setItem(valueCount.get(e.getKey()) != newSelection.size() ? tr("<different>") : e.getValue().iterator().next());
 			data.addRow(new Object[]{e.getKey(), value});
 		}
 	}

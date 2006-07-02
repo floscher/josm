@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.io;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.net.Authenticator;
@@ -65,21 +67,21 @@ public class OsmConnection {
 			if (passwordtried || username.equals("") || password.equals("")) {
 				JPanel p = new JPanel(new GridBagLayout());
 				if (!username.equals("") && !password.equals(""))
-					p.add(new JLabel("Incorrect password or username."), GBC.eop());
-				p.add(new JLabel("Username"), GBC.std().insets(0,0,10,0));
+					p.add(new JLabel(tr("Incorrect password or username.")), GBC.eop());
+				p.add(new JLabel(tr("Username")), GBC.std().insets(0,0,10,0));
 				JTextField usernameField = new JTextField(username, 20);
 				p.add(usernameField, GBC.eol());
-				p.add(new JLabel("Password"), GBC.std().insets(0,0,10,0));
+				p.add(new JLabel(tr("Password")), GBC.std().insets(0,0,10,0));
 				JPasswordField passwordField = new JPasswordField(password, 20);
 				p.add(passwordField, GBC.eol());
-				JLabel warning = new JLabel("Warning: The password is transferred unencrypted.");
+				JLabel warning = new JLabel(tr("Warning: The password is transferred unencrypted."));
 				warning.setFont(warning.getFont().deriveFont(Font.ITALIC));
 				p.add(warning, GBC.eop());
 
-				JCheckBox savePassword = new JCheckBox("Save user and password (unencrypted)", !username.equals("") && !password.equals(""));
+				JCheckBox savePassword = new JCheckBox(tr("Save user and password (unencrypted)"), !username.equals("") && !password.equals(""));
 				p.add(savePassword, GBC.eop());
 
-				int choice = JOptionPane.showConfirmDialog(Main.parent, p, "Enter Password", JOptionPane.OK_CANCEL_OPTION);
+				int choice = JOptionPane.showConfirmDialog(Main.parent, p, tr("Enter Password"), JOptionPane.OK_CANCEL_OPTION);
 				if (choice == JOptionPane.CANCEL_OPTION) {
 					authCancelled = true;
 					return null;
@@ -119,7 +121,7 @@ public class OsmConnection {
 	}
 
 	public void cancel() {
-		currentAction.setText("Aborting...");
+		currentAction.setText(tr("Aborting..."));
 		cancel = true;
 		if (activeConnection != null) {
 			activeConnection.setConnectTimeout(1);

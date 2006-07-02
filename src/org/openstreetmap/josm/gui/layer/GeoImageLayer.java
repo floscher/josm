@@ -1,5 +1,8 @@
 package org.openstreetmap.josm.gui.layer;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+import static org.openstreetmap.josm.tools.I18n.trn;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -79,12 +82,12 @@ public class GeoImageLayer extends Layer {
 		private final Collection<File> files;
 		private final RawGpsLayer gpsLayer;
 		public Loader(Collection<File> files, RawGpsLayer gpsLayer) {
-			super("Images");
+			super(tr("Images"));
 			this.files = files;
 			this.gpsLayer = gpsLayer;
 		}
 		@Override protected void realRun() throws IOException {
-			currentAction.setText("Read GPS...");
+			currentAction.setText(tr("Read GPS..."));
 			LinkedList<TimedPoint> gps = new LinkedList<TimedPoint>();
 
 			// check the gps layer for time loops (and process it on the way)
@@ -94,24 +97,24 @@ public class GeoImageLayer extends Layer {
 				for (Collection<GpsPoint> c : gpsLayer.data) {
 					for (GpsPoint p : c) {
 						if (p.time == null)
-							throw new IOException("No time for point "+p.latlon.lat()+","+p.latlon.lon());
+							throw new IOException(tr("No time for point {0},{1}",p.latlon.lat(),p.latlon.lon()));
 						Matcher m = reg.matcher(p.time);
 						if (!m.matches())
-							throw new IOException("Cannot read time from point "+p.latlon.lat()+","+p.latlon.lon());
+							throw new IOException(tr("Cannot read time from point {0},{1}",p.latlon.lat(),p.latlon.lon()));
 						Date d = DateParser.parse(m.group(1)+" "+m.group(2));
 						gps.add(new TimedPoint(d, p.eastNorth));
 						if (last != null && last.after(d))
-							throw new IOException("Time loop in gps data.");
+							throw new IOException(tr("Time loop in gps data."));
 						last = d;
 					}
 				}
 			} catch (ParseException e) {
 				e.printStackTrace();
-				throw new IOException("Incorrect date information");
+				throw new IOException(tr("Incorrect date information"));
 			}
 
 			if (gps.isEmpty()) {
-				errorMessage = "No images with readable timestamps found.";
+				errorMessage = tr("No images with readable timestamps found.");
 				return;
 			}
 
@@ -122,7 +125,7 @@ public class GeoImageLayer extends Layer {
 			for (File f : files) {
 				if (cancelled)
 					break;
-				currentAction.setText("Reading "+f.getName()+"...");
+				currentAction.setText(tr("Reading {0}...",f.getName()));
 				progress.setValue(i++);
 
 				ImageEntry e = new ImageEntry();
@@ -182,7 +185,7 @@ public class GeoImageLayer extends Layer {
 	}
 
 	private GeoImageLayer(final ArrayList<ImageEntry> data, LinkedList<TimedPoint> gps) {
-		super("Geotagged Images");
+		super(tr("Geotagged Images"));
 		this.data = data;
 		this.gps = gps;
 		mouseAdapter = new MouseAdapter(){
@@ -249,11 +252,11 @@ public class GeoImageLayer extends Layer {
 		JPanel p = new JPanel(new GridBagLayout());
 		p.add(new JLabel(getToolTipText()), GBC.eop());
 
-		p.add(new JLabel("GPS start: "+dateFormat.format(gps.getFirst().time)), GBC.eol());
-		p.add(new JLabel("GPS end: "+dateFormat.format(gps.getLast().time)), GBC.eop());
+		p.add(new JLabel(tr("GPS start: {0}",dateFormat.format(gps.getFirst().time))), GBC.eol());
+		p.add(new JLabel(tr("GPS end: {0}",dateFormat.format(gps.getLast().time))), GBC.eop());
 
-		p.add(new JLabel("current delta: "+(delta/1000.0)+"s"), GBC.eol());
-		p.add(new JLabel("timezone difference: "+(gpstimezone>0?"+":"")+(gpstimezone/1000/60/60)), GBC.eop());
+		p.add(new JLabel(tr("current delta: {0}s",(delta/1000.0))), GBC.eol());
+		p.add(new JLabel(tr("timezone difference: ")+(gpstimezone>0?"+":"")+(gpstimezone/1000/60/60)), GBC.eop());
 
 		JList img = new JList(data.toArray());
 		img.setCellRenderer(new DefaultListCellRenderer(){
@@ -277,7 +280,7 @@ public class GeoImageLayer extends Layer {
 		for (ImageEntry e : data)
 			if (e.pos != null)
 				i++;
-		return data.size()+" images, "+i+" within the track.";
+		return trn("{0} image. {1} within the track.","{0} images. {1} within the track.",data.size(),data.size(),i);
 	}
 
 	@Override public boolean isMergable(Layer other) {
@@ -315,7 +318,7 @@ public class GeoImageLayer extends Layer {
 	}
 
 	@Override public Component[] getMenuEntries() {
-		JMenuItem sync = new JMenuItem("Sync clock", ImageProvider.get("clock"));
+		JMenuItem sync = new JMenuItem(tr("Sync clock"), ImageProvider.get("clock"));
 		sync.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser fc = new JFileChooser(Main.pref.get("tagimages.lastdirectory"));
@@ -326,7 +329,7 @@ public class GeoImageLayer extends Layer {
 						return f.isDirectory() || f.getName().toLowerCase().endsWith(".jpg");
 					}
 					@Override public String getDescription() {
-						return "JPEG images (*.jpg)";
+						return tr("JPEG images (*.jpg)");
 					}
 				});
 				fc.showOpenDialog(Main.parent);
@@ -368,12 +371,12 @@ public class GeoImageLayer extends Layer {
 	private void sync(File f) {
 		Date exifDate = ExifReader.readTime(f);
 		JPanel p = new JPanel(new GridBagLayout());
-		p.add(new JLabel("Image"), GBC.eol());
+		p.add(new JLabel(tr("Image")), GBC.eol());
 		p.add(new JLabel(loadScaledImage(f, 300)), GBC.eop());
-		p.add(new JLabel("Enter shown date (mm/dd/yyyy HH:MM:SS)"), GBC.eol());
+		p.add(new JLabel(tr("Enter shown date (mm/dd/yyyy HH:MM:SS)")), GBC.eol());
 		JTextField gpsText = new JTextField(dateFormat.format(new Date(exifDate.getTime()+delta)));
 		p.add(gpsText, GBC.eol().fill(GBC.HORIZONTAL));
-		p.add(new JLabel("GPS unit timezome (difference to photo)"), GBC.eol());
+		p.add(new JLabel(tr("GPS unit timezome (difference to photo)")), GBC.eol());
 		String t = Main.pref.get("tagimages.gpstimezone", "0");
 		if (t.charAt(0) != '-')
 			t = "+"+t;
@@ -381,7 +384,7 @@ public class GeoImageLayer extends Layer {
 		p.add(gpsTimezone, GBC.eol().fill(GBC.HORIZONTAL));
 
 		while (true) {
-			int answer = JOptionPane.showConfirmDialog(Main.parent, p, "Syncronize Time with GPS Unit", JOptionPane.OK_CANCEL_OPTION);
+			int answer = JOptionPane.showConfirmDialog(Main.parent, p, tr("Syncronize Time with GPS Unit"), JOptionPane.OK_CANCEL_OPTION);
 			if (answer != JOptionPane.OK_OPTION || gpsText.getText().equals(""))
 				return;
 			try {
@@ -397,7 +400,7 @@ public class GeoImageLayer extends Layer {
 				calculatePosition();
 				return;
 			} catch (ParseException x) {
-				JOptionPane.showMessageDialog(Main.parent, "Time entered could not be parsed.");
+				JOptionPane.showMessageDialog(Main.parent, tr("Time entered could not be parsed."));
 			}
 		}
 	}

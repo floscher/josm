@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.actions;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -31,12 +33,12 @@ import org.xml.sax.SAXException;
  * @author imi
  */
 public class OpenAction extends DiskAccessAction {
-
+	
 	/**
 	 * Create an open action. The name is "Open a file".
 	 */
 	public OpenAction() {
-		super("Open", "open", "Open a file.", "Ctrl-O", KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
+		super(tr("Open"), "open", tr("Open a file."), tr("Ctrl-O"), KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -69,20 +71,20 @@ public class OpenAction extends DiskAccessAction {
 				if (ExtensionFileFilter.filters[ExtensionFileFilter.OSM].acceptName(fn)) {
 					dataSet = OsmReader.parseDataSet(new FileInputStream(filename), null, null);
 				} else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
-					JOptionPane.showMessageDialog(Main.parent, fn+": CSV Data import for non-GPS data is not implemented yet.");
+					JOptionPane.showMessageDialog(Main.parent, fn+": "+tr("CSV Data import for non-GPS data is not implemented yet."));
 					return;
 				} else {
-					JOptionPane.showMessageDialog(Main.parent, fn+": Unknown file extension: "+fn.substring(filename.getName().lastIndexOf('.')+1));
+					JOptionPane.showMessageDialog(Main.parent, fn+": "+tr("Unknown file extension: {0}", fn.substring(filename.getName().lastIndexOf('.')+1)));
 					return;
 				}
-				Main.main.addLayer(new OsmDataLayer(dataSet, "Data Layer", true));
+				Main.main.addLayer(new OsmDataLayer(dataSet, tr("Data Layer"), true));
 			}
 		} catch (SAXException x) {
 			x.printStackTrace();
-			JOptionPane.showMessageDialog(Main.parent, "Error while parsing "+fn+": "+x.getMessage());
+			JOptionPane.showMessageDialog(Main.parent, tr("Error while parsing {0}",fn)+": "+x.getMessage());
 		} catch (IOException x) {
 			x.printStackTrace();
-			JOptionPane.showMessageDialog(Main.parent, "Could not read '"+fn+"'\n"+x.getMessage());
+			JOptionPane.showMessageDialog(Main.parent, tr("Could not read '{0}'",fn)+"\n"+x.getMessage());
 		}
 	}
 

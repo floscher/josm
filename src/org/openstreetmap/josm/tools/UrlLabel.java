@@ -10,7 +10,10 @@ import javax.swing.event.HyperlinkListener;
  */
 public class UrlLabel extends JEditorPane implements HyperlinkListener {
 
+	private final String url;
+
 	public UrlLabel(String url) {
+		this.url = url;
 		setContentType("text/html");
 		setText("<html><a href=\""+url+"\">"+url+"</a></html>");
 		setEditable(false);
@@ -20,7 +23,7 @@ public class UrlLabel extends JEditorPane implements HyperlinkListener {
 
 	public void hyperlinkUpdate(HyperlinkEvent e) {
 		if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-			OpenBrowser.displayUrl("http://wiki.eigenheimstrasse.de/wiki/JOSM");
+			OpenBrowser.displayUrl(url);
 		}
 	}
 }

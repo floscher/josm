@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.actions;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.io.File;
 
 import javax.swing.JFileChooser;
@@ -53,7 +55,7 @@ abstract public class DiskAccessAction extends JosmAction {
 		if (!open) {
 			File file = fc.getSelectedFile();
 			if (file == null || (file.exists() && JOptionPane.YES_OPTION != 
-					JOptionPane.showConfirmDialog(Main.parent, "File exists. Overwrite?", "Overwrite", JOptionPane.YES_NO_OPTION)))
+					JOptionPane.showConfirmDialog(Main.parent, tr("File exists. Overwrite?"), tr("Overwrite"), JOptionPane.YES_NO_OPTION)))
 				return null;
 		}
 		

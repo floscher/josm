@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.gui;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.File;
@@ -85,7 +87,7 @@ public class BookmarkList extends JList {
 			}
 			in.close();
 		} catch (IOException e) {
-			JOptionPane.showMessageDialog(Main.parent, "Could not read bookmarks.\n"+e.getMessage());
+			JOptionPane.showMessageDialog(Main.parent, tr("Could not read bookmarks.")+"\n"+e.getMessage());
 		}
 	}
 
@@ -109,7 +111,7 @@ public class BookmarkList extends JList {
 			}
 			out.close();
 		} catch (IOException e) {
-			JOptionPane.showMessageDialog(Main.parent, "Could not write bookmark.\n"+e.getMessage());
+			JOptionPane.showMessageDialog(Main.parent,tr("Could not write bookmark.")+"\n"+e.getMessage());
 		}
 	}
 }

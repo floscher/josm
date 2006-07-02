@@ -1,5 +1,8 @@
 package org.openstreetmap.josm.command;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+import static org.openstreetmap.josm.tools.I18n.trn;
+
 import java.util.Collection;
 
 import javax.swing.JLabel;
@@ -40,7 +43,7 @@ public class DeleteCommand extends Command {
 
 		if (data.size() == 1) {
 			data.iterator().next().visit(v);
-			return new DefaultMutableTreeNode(new JLabel("Delete "+v.className+" "+v.name, v.icon, JLabel.HORIZONTAL));
+			return new DefaultMutableTreeNode(new JLabel(tr("Delete"+" "+v.className+" "+v.name), v.icon, JLabel.HORIZONTAL));
 		}
 
 		String cname = null;
@@ -51,7 +54,8 @@ public class DeleteCommand extends Command {
 			else if (!cname.equals(v.className))
 				cname = "primitive";
 		}
-		DefaultMutableTreeNode root = new DefaultMutableTreeNode(new JLabel("Delete "+data.size()+" "+cname+(data.size()==1?"":"s"), ImageProvider.get("data", cname), JLabel.HORIZONTAL));
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode(new JLabel(
+				tr("Delete")+" "+data.size()+" "+trn(cname, cname+"s", data.size()), ImageProvider.get("data", cname), JLabel.HORIZONTAL));
 		for (OsmPrimitive osm : data) {
 			osm.visit(v);
 			root.add(new DefaultMutableTreeNode(v.toLabel()));

@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.io;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -36,9 +38,9 @@ public class RawGpsReader {
 	                double lat = Double.parseDouble(atts.getValue("lat"));
 	                double lon = Double.parseDouble(atts.getValue("lon"));
 	        		if (Math.abs(lat) > 90)
-	        			throw new SAXException("Data error: lat value '"+lat+"' is out of bound.");
+	        			throw new SAXException(tr("Data error: lat value '{0}' is out of bound.", lat));
 	        		if (Math.abs(lon) > 180)
-	        			throw new SAXException("Data error: lon value '"+lon+"' is out of bound.");
+	        			throw new SAXException(tr("Data error: lon value '{0}' is out of bound.", lon));
 	                currentLatLon = new LatLon(lat, lon);
                 } catch (NumberFormatException e) {
                 	e.printStackTrace();

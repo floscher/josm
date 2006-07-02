@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.gui;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.GridBagLayout;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,13 +31,13 @@ public class MainApplet extends JApplet {
 	}
 
 	private final static String[][] paramInfo = {
-		{"username", "string", "Name of the user."},
-		{"password", "string", "OSM Password."},
-		{"geometry", "string", "Size the applet to the given geometry (format: WIDTHxHEIGHT)"},
-		{"download", "string;string;...", "Download each. Can be x1,y1,x2,y2 an url containing lat=y&lon=x&zoom=z or a filename"},
-		{"downloadgps", "string;string;...", "Download each as raw gps. Can be x1,y1,x2,y2 an url containing lat=y&lon=x&zoom=z or a filename"},
-		{"selection", "string;string;...", "Add each to the initial selection. Can be a google-like search string or an url which returns osm-xml"},
-		{"reset-preferences", "any", "If specified, reset the configuration instead of reading it."}
+		{"username", tr("string"), tr("Name of the user.")},
+		{"password", tr("string"), tr("OSM Password.")},
+		{"geometry", tr("string"), tr("Size the applet to the given geometry (format: WIDTHxHEIGHT)")},
+		{"download", tr("string;string;..."), tr("Download each. Can be x1,y1,x2,y2 an url containing lat=y&lon=x&zoom=z or a filename")},
+		{"downloadgps", tr("string;string;..."), tr("Download each as raw gps. Can be x1,y1,x2,y2 an url containing lat=y&lon=x&zoom=z or a filename")},
+		{"selection", tr("string;string;..."), tr("Add each to the initial selection. Can be a google-like search string or an url which returns osm-xml")},
+		{"reset-preferences", tr("any"),tr("If specified, reset the configuration instead of reading it.")}
 	};
 	
 	private Map<String, Collection<String>> args = new HashMap<String, Collection<String>>(); 
@@ -60,10 +62,10 @@ public class MainApplet extends JApplet {
 		String password = args.containsKey("password") ? args.get("password").iterator().next() : null;
 		if (username == null || password == null) {
 			JPanel p = new JPanel(new GridBagLayout());
-			p.add(new JLabel("Username"), GBC.std().insets(0,0,20,0));
+			p.add(new JLabel(tr("Username")), GBC.std().insets(0,0,20,0));
 			JTextField user = new JTextField(username == null ? "" : username);
 			p.add(user, GBC.eol().fill(GBC.HORIZONTAL));
-			p.add(new JLabel("Password"), GBC.std().insets(0,0,20,0));
+			p.add(new JLabel(tr("Password")), GBC.std().insets(0,0,20,0));
 			JPasswordField pass = new JPasswordField(password == null ? "" : password);
 			p.add(pass, GBC.eol().fill(GBC.HORIZONTAL));
 			JOptionPane.showMessageDialog(null, p);

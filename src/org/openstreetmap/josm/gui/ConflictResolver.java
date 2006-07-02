@@ -1,5 +1,8 @@
 package org.openstreetmap.josm.gui;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+import static org.openstreetmap.josm.tools.I18n.trn;
+
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -75,7 +78,7 @@ public class ConflictResolver extends JPanel {
 			return l;
 		}
 
-		public String getColumnName(int columnIndex) {return columnIndex == 0 ? "Key" : "Value";}
+		public String getColumnName(int columnIndex) {return columnIndex == 0 ? tr("Key") : tr("Value");}
 		public int getColumnCount() {return 2;}
 		public boolean isCellEditable(int row, int column) {return false;}
 		public Class<?> getColumnClass(int columnIndex) {return Object.class;}
@@ -157,7 +160,7 @@ public class ConflictResolver extends JPanel {
 		}
 		
 		if (this.conflicts.isEmpty())
-			throw new RuntimeException("No conflicts but in conflict list:\n" + Arrays.toString(conflicts.entrySet().toArray()));
+			throw new RuntimeException(tr("No conflicts but in conflict list:\n{0}" , Arrays.toString(conflicts.entrySet().toArray())));
 
 		// have to initialize the JTables here and not in the declaration, because its constructor
 		// may access this.conflicts (indirectly)
@@ -226,22 +229,22 @@ public class ConflictResolver extends JPanel {
 		theirTable.addMouseListener(new DblClickListener(Resolution.THEIR));
 		resolveTable.addMouseListener(new DblClickListener(null));
 
-		add(new JLabel(conflicts.size()+" object"+(conflicts.size()==1?" has":"s have")+" conflicts:"), GBC.eol().insets(0,0,0,10));
+		add(new JLabel(trn("{0} object has conflicts:","{0} objects have conflicts:",conflicts.size(),conflicts.size())), GBC.eol().insets(0,0,0,10));
 
 		JPanel p = new JPanel(new GridBagLayout());
-		p.add(new JLabel("my version:"), GBC.eol());
+		p.add(new JLabel(tr("my version:")), GBC.eol());
 		p.add(new JScrollPane(myTable), GBC.eol().fill(GBC.BOTH));
 		p.add(new JButton(new ResolveAction("down", Resolution.MY)), GBC.eol().anchor(GBC.CENTER).insets(0,5,0,0));
 		add(p, GBC.std().insets(0,0,5,0));
 
 		p = new JPanel(new GridBagLayout());
-		p.add(new JLabel("their version:"), GBC.eol());
+		p.add(new JLabel(tr("their version:")), GBC.eol());
 		p.add(new JScrollPane(theirTable), GBC.eol().fill(GBC.BOTH));
 		p.add(new JButton(new ResolveAction("down", Resolution.THEIR)), GBC.eol().anchor(GBC.CENTER).insets(0,5,0,0));
 		add(p, GBC.eop().insets(5,0,0,0));
 
 		add(new JButton(new ResolveAction("up", null)), GBC.eol().anchor(GBC.CENTER));
-		add(new JLabel("resolved version:"), GBC.eol().insets(0,5,0,0));
+		add(new JLabel(tr("resolved version:")), GBC.eol().insets(0,5,0,0));
 		add(new JScrollPane(resolveTable), GBC.eol().anchor(GBC.CENTER).fill(GBC.BOTH));
 	}
 }

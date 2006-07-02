@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.command;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.util.Collection;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -46,7 +48,7 @@ public class SequenceCommand extends Command {
 	}
 
 	@Override public MutableTreeNode description() {
-		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Sequence: "+name);
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode(tr("Sequence")+": "+name);
 		for (Command c : sequence)
 			root.add(c.description());
 	    return root;

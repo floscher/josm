@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.actions;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -41,7 +43,7 @@ import org.openstreetmap.josm.gui.BookmarkList.Bookmark;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.RawGpsLayer;
 import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
-import org.openstreetmap.josm.io.OsmServerReader;
+import org.openstreetmap.josm.io.BoundingBoxDownloader;
 import org.openstreetmap.josm.tools.GBC;
 import org.xml.sax.SAXException;
 
@@ -54,17 +56,16 @@ import org.xml.sax.SAXException;
  * @author imi
  */
 public class DownloadAction extends JosmAction {
-
 	/**
 	 * Open the download dialog and download the data.
 	 * Run in the worker thread.
 	 */
 	private final class DownloadOsmTask extends PleaseWaitRunnable {
-		private final OsmServerReader reader;
+		private final BoundingBoxDownloader reader;
 		private DataSet dataSet;
 
-		private DownloadOsmTask(OsmServerReader reader) {
-			super("Downloading data");
+		private DownloadOsmTask(BoundingBoxDownloader reader) {
+			super(tr("Downloading data"));
 			this.reader = reader;
 			reader.setProgressInformation(currentAction, progress);
 		}
@@ -76,9 +77,9 @@ public class DownloadAction extends JosmAction {
 		@Override protected void finish() {
 			if (dataSet == null)
 				return; // user cancelled download or error occoured
-			if (dataSet.nodes.isEmpty())
-				errorMessage = "No data imported.";
-			Main.main.addLayer(new OsmDataLayer(dataSet, "Data Layer", false));
+			if (dataSet.allPrimitives().isEmpty())
+				errorMessage = tr("No data imported.");
+			Main.main.addLayer(new OsmDataLayer(dataSet, tr("Data Layer"), false));
 		}
 
 		@Override protected void cancel() {
@@ -88,11 +89,11 @@ public class DownloadAction extends JosmAction {
 
 
 	private final class DownloadGpsTask extends PleaseWaitRunnable {
-		private final OsmServerReader reader;
+		private final BoundingBoxDownloader reader;
 		private Collection<Collection<GpsPoint>> rawData;
 
-		private DownloadGpsTask(OsmServerReader reader) {
-			super("Downloading GPS data");
+		private DownloadGpsTask(BoundingBoxDownloader reader) {
+			super(tr("Downloading GPS data"));
 			this.reader = reader;
 			reader.setProgressInformation(currentAction, progress);
 		}
@@ -122,10 +123,10 @@ public class DownloadAction extends JosmAction {
 			new JTextField(9),
 			new JTextField(9),
 			new JTextField(9)};
-	JCheckBox rawGps = new JCheckBox("Open as raw gps data", false);
+	JCheckBox rawGps = new JCheckBox(tr("Open as raw gps data"), false);
 
 	public DownloadAction() {
-		super("Download from OSM", "download", "Download map data from the OSM server.", "Ctrl-Shift-D", 
+		super(tr("Download from OSM"), "download", tr("Download map data from the OSM server."), tr("Ctrl-Shift-D"), 
 				KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
 		// TODO remove when bug in Java6 is fixed
 		for (JTextField f : latlon)
@@ -138,17 +139,17 @@ public class DownloadAction extends JosmAction {
 		// World image
 		WorldChooser wc = new WorldChooser();
 		dlg.add(wc, GBC.eop());
-		wc.setToolTipText("Move and zoom the image like the main map. Select an area to download by dragging.");
+		wc.setToolTipText(tr("Move and zoom the image like the main map. Select an area to download by dragging."));
 
 		// Bounding box edits
-		dlg.add(new JLabel("Bounding box"), GBC.eol());
-		dlg.add(new JLabel("min lat"), GBC.std().insets(10,0,5,0));
+		dlg.add(new JLabel(tr("Bounding box")), GBC.eol());
+		dlg.add(new JLabel(tr("min lat")), GBC.std().insets(10,0,5,0));
 		dlg.add(latlon[0], GBC.std());
-		dlg.add(new JLabel("min lon"), GBC.std().insets(10,0,5,0));
+		dlg.add(new JLabel(tr("min lon")), GBC.std().insets(10,0,5,0));
 		dlg.add(latlon[1], GBC.eol());
-		dlg.add(new JLabel("max lat"), GBC.std().insets(10,0,5,0));
+		dlg.add(new JLabel(tr("max lat")), GBC.std().insets(10,0,5,0));
 		dlg.add(latlon[2], GBC.std());
-		dlg.add(new JLabel("max lon"), GBC.std().insets(10,0,5,0));
+		dlg.add(new JLabel(tr("max lon")), GBC.std().insets(10,0,5,0));
 		dlg.add(latlon[3], GBC.eol());
 		if (Main.map != null) {
 			MapView mv = Main.map.mapView;
@@ -160,7 +161,7 @@ public class DownloadAction extends JosmAction {
 		dlg.add(rawGps, GBC.eop());
 
 		// OSM url edit
-		dlg.add(new JLabel("URL from www.openstreetmap.org"), GBC.eol());
+		dlg.add(new JLabel(tr("URL from www.openstreetmap.org")), GBC.eol());
 		final JTextField osmUrl = new JTextField();
 		dlg.add(osmUrl, GBC.eop().fill(GBC.HORIZONTAL));
 		final KeyListener osmUrlRefresher = new KeyAdapter(){
@@ -213,7 +214,7 @@ public class DownloadAction extends JosmAction {
 		});
 
 		// Bookmarks
-		dlg.add(new JLabel("Bookmarks"), GBC.eol());
+		dlg.add(new JLabel(tr("Bookmarks")), GBC.eol());
 		final BookmarkList bookmarks = new BookmarkList();
 		bookmarks.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
 			public void valueChanged(ListSelectionEvent e) {
@@ -230,15 +231,15 @@ public class DownloadAction extends JosmAction {
 		dlg.add(new JScrollPane(bookmarks), GBC.eol().fill());
 
 		JPanel buttons = new JPanel(new GridLayout(1,2));
-		JButton add = new JButton("Add");
+		JButton add = new JButton(tr("Add"));
 		add.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				Bookmark b = readBookmark();
 				if (b == null) {
-					JOptionPane.showMessageDialog(Main.parent, "Please enter the desired coordinates first.");
+					JOptionPane.showMessageDialog(Main.parent, tr("Please enter the desired coordinates first."));
 					return;
 				}
-				b.name = JOptionPane.showInputDialog(Main.parent, "Please enter a name for the location.");
+				b.name = JOptionPane.showInputDialog(Main.parent,tr("Please enter a name for the location."));
 				if (b.name != null && !b.name.equals("")) {
 					((DefaultListModel)bookmarks.getModel()).addElement(b);
 					bookmarks.save();
@@ -246,12 +247,12 @@ public class DownloadAction extends JosmAction {
 			}
 		});
 		buttons.add(add);
-		JButton remove = new JButton("Remove");
+		JButton remove = new JButton(tr("Remove"));
 		remove.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				Object sel = bookmarks.getSelectedValue();
 				if (sel == null) {
-					JOptionPane.showMessageDialog(Main.parent, "Select a bookmark first.");
+					JOptionPane.showMessageDialog(Main.parent,tr("Select a bookmark first."));
 					return;
 				}
 				((DefaultListModel)bookmarks.getModel()).removeElement(sel);
@@ -269,7 +270,7 @@ public class DownloadAction extends JosmAction {
 		Bookmark b;
 		do {
 			final JOptionPane pane = new JOptionPane(dlg, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
-			final JDialog panedlg = pane.createDialog(Main.parent, "Choose an area");
+			final JDialog panedlg = pane.createDialog(Main.parent, tr("Choose an area"));
 			bookmarks.addMouseListener(new MouseAdapter(){
 				@Override public void mouseClicked(MouseEvent e) {
 	                if (e.getClickCount() >= 2) {
@@ -284,7 +285,7 @@ public class DownloadAction extends JosmAction {
 				return;
 			b = readBookmark();
 			if (b == null)
-				JOptionPane.showMessageDialog(Main.parent, "Please enter the desired coordinates or click on a bookmark.");
+				JOptionPane.showMessageDialog(Main.parent,tr("Please enter the desired coordinates or click on a bookmark."));
 		} while (b == null);
 
 		double minlon = b.latlon[0];
@@ -364,7 +365,7 @@ public class DownloadAction extends JosmAction {
 	 * Do the download for the given area.
 	 */
 	public void download(boolean rawGps, double minlat, double minlon, double maxlat, double maxlon) {
-		OsmServerReader reader = new OsmServerReader(minlat, minlon, maxlat, maxlon);
+		BoundingBoxDownloader reader = new BoundingBoxDownloader(minlat, minlon, maxlat, maxlon);
 		PleaseWaitRunnable task = rawGps ? new DownloadGpsTask(reader) : new DownloadOsmTask(reader);
 		Main.worker.execute(task);
 		task.pleaseWaitDlg.setVisible(true);

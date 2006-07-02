@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.data.conflict;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 
@@ -14,7 +16,7 @@ public class PositionConflict extends ConflictItem {
 	}
 	
 	@Override public String key() {
-		return "node|position";
+		return "node|"+tr("position");
 	}
 	
 	@Override public void apply(OsmPrimitive target, OsmPrimitive other) {
