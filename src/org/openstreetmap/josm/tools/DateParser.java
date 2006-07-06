@@ -14,6 +14,9 @@ import java.util.Date;
 public class DateParser {
 
 	private static final String[] formats = {
+		"yyyy-MM-dd'T'HH:mm:ssZ",
+		"yyyy-MM-dd'T'HH:mm:ss.SSSZ",
+		"yyyy-MM-dd HH:mm:ss",
 		"MM/dd/yyyy HH:mm:ss",
 		"MM/dd/yyyy'T'HH:mm:ss.SSSZ",
 		"MM/dd/yyyy'T'HH:mm:ss.SSS",

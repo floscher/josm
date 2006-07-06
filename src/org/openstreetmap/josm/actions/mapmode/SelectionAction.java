@@ -93,7 +93,7 @@ public class SelectionAction extends MapMode implements SelectionEnded {
 	 * @param mapFrame The frame this action belongs to
 	 */
 	public SelectionAction(MapFrame mapFrame, String name, Mode mode, String desc) {
-		super(name, "selection/"+mode, desc, "S", KeyEvent.VK_S, mapFrame, ImageProvider.getCursor("normal", "selection"));
+		super(name, "selection/"+mode, desc, mapFrame, ImageProvider.getCursor("normal", "selection"));
 		this.mode = mode;
 		this.selectionManager = new SelectionManager(this, false, mapFrame.mapView);
 	}
@@ -201,6 +201,8 @@ public class SelectionAction extends MapMode implements SelectionEnded {
 
 	private Node addNearest(Collection<OsmPrimitive> path, Node start, Node end) {
 		Collection<Segment> c = reverseSegmentMap.get(start);
+		//if (c == null)
+			//return null; // start may be a waypoint without segments
 		double min = Double.MAX_VALUE;
 		Node next = null;
 		Segment seg = null;
