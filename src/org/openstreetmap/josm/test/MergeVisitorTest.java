@@ -169,8 +169,24 @@ public class MergeVisitorTest extends TestCase {
 		s1.id = 1;
 		Segment s2 = new Segment(s1);
 		s1.incomplete = true;
+		s2.timestamp = new Date();
 		v.visit(s2);
 		assertTrue(s1.realEqual(s2));
+	}
+	/**
+	 * Incomplete segments should extend existing ways.
+	 */
+	public void testImportIncompleteExtendWays() throws Exception {
+		Segment s1 = DataSetTestCaseHelper.createSegment(ds, dsNode, dsNode);
+		Way w = DataSetTestCaseHelper.createWay(ds, new Segment[]{s1});
+		s1.id = 1;
+		Segment s2 = new Segment(s1);
+		s1.incomplete = true;
+		v.visit(s2);
+		v.fixReferences();
+		assertEquals(1, w.segments.size());
+		assertEquals(s2, w.segments.get(0));
+		assertFalse(s2.incomplete);
 	}
 
 

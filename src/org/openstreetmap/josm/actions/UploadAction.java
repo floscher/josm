@@ -43,7 +43,7 @@ public class UploadAction extends JosmAction {
 			JOptionPane.showMessageDialog(Main.parent,tr("Nothing to upload. Get some data first."));
 			return;
 		}
-		
+
 		if (!Main.map.conflictDialog.conflicts.isEmpty()) {
 			JOptionPane.showMessageDialog(Main.parent,tr("There are unresolved conflicts. You have to resolve these first."));
 			Main.map.conflictDialog.action.button.setSelected(true);
@@ -55,6 +55,8 @@ public class UploadAction extends JosmAction {
 		final Collection<OsmPrimitive> update = new LinkedList<OsmPrimitive>();
 		final Collection<OsmPrimitive> delete = new LinkedList<OsmPrimitive>();
 		for (OsmPrimitive osm : Main.ds.allPrimitives()) {
+			if (osm.get("josm/ignore") != null)
+				continue;
 			if (osm.id == 0 && !osm.deleted)
 				add.add(osm);
 			else if (osm.modified && !osm.deleted)

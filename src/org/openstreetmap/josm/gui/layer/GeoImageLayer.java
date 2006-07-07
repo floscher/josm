@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
@@ -92,25 +90,21 @@ public class GeoImageLayer extends Layer {
 
 			// check the gps layer for time loops (and process it on the way)
 			Date last = null;
-			Pattern reg = Pattern.compile("(\\d\\d/\\d\\d/\\d{4}).(\\d\\d:\\d\\d:\\d\\d)");
-			try {
-				for (Collection<GpsPoint> c : gpsLayer.data) {
-					for (GpsPoint p : c) {
-						if (p.time == null)
-							throw new IOException(tr("No time for point {0},{1}",p.latlon.lat(),p.latlon.lon()));
-						Matcher m = reg.matcher(p.time);
-						if (!m.matches())
-							throw new IOException(tr("Cannot read time from point {0},{1}",p.latlon.lat(),p.latlon.lon()));
-						Date d = DateParser.parse(m.group(1)+" "+m.group(2));
-						gps.add(new TimedPoint(d, p.eastNorth));
-						if (last != null && last.after(d))
-							throw new IOException(tr("Time loop in gps data."));
-						last = d;
-					}
+			for (Collection<GpsPoint> c : gpsLayer.data) {
+				for (GpsPoint p : c) {
+					if (p.time == null)
+						throw new IOException(tr("No time for point {0},{1}",p.latlon.lat(),p.latlon.lon()));
+					Date d = null;
+                    try {
+                        d = DateParser.parse(p.time);
+                    } catch (ParseException e) {
+                    	throw new IOException(tr("Cannot read time \"{0}\" from point {1} x {2}",p.time,p.latlon.lat(),p.latlon.lon()));
+                    }
+					gps.add(new TimedPoint(d, p.eastNorth));
+					if (last != null && last.after(d))
+						throw new IOException(tr("Time loop in gps data."));
+					last = d;
 				}
-			} catch (ParseException e) {
-				e.printStackTrace();
-				throw new IOException(tr("Incorrect date information"));
 			}
 
 			if (gps.isEmpty()) {

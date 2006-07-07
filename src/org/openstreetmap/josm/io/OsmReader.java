@@ -185,8 +185,10 @@ public class OsmReader {
 			Way w = new Way();
 			for (long id : e.getValue()) {
 				Segment s = segments.get(id);
-				if (s == null)
+				if (s == null) {
 					s = new Segment(id); // incomplete line segment
+					adder.visit(s);
+				}
 				w.segments.add(s);
 			}
 			e.getKey().copyTo(w);
