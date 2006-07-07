@@ -123,7 +123,11 @@ public class GeoImageLayer extends Layer {
 				progress.setValue(i++);
 
 				ImageEntry e = new ImageEntry();
-				e.time = ExifReader.readTime(f);
+				try {
+	                e.time = ExifReader.readTime(f);
+                } catch (ParseException e1) {
+                	continue;
+                }
 				if (e.time == null)
 					continue;
 				e.image = f;
@@ -363,7 +367,17 @@ public class GeoImageLayer extends Layer {
 	}
 
 	private void sync(File f) {
-		Date exifDate = ExifReader.readTime(f);
+		Date exifDate;
+        try {
+	        exifDate = ExifReader.readTime(f);
+        } catch (ParseException e) {
+        	JOptionPane.showMessageDialog(Main.parent, tr("The date in file \"{0}\" could not be parsed.", f.getName()));
+        	return;
+        }
+		if (exifDate == null) {
+			JOptionPane.showMessageDialog(Main.parent, tr("There is no EXIF time within the file \"{0}\".", f.getName()));
+			return;
+		}
 		JPanel p = new JPanel(new GridBagLayout());
 		p.add(new JLabel(tr("Image")), GBC.eol());
 		p.add(new JLabel(loadScaledImage(f, 300)), GBC.eop());

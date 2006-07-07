@@ -25,6 +25,7 @@ public class DateParser {
 		"MM/dd/yyyy'T'HH:mm:ss.SSS",
 		"MM/dd/yyyy'T'HH:mm:ssZ",
 		"MM/dd/yyyy'T'HH:mm:ss",
+		"yyyy:MM:dd HH:mm:ss", // unfcklvble, but I have seen this...
 	};
 	
 	public static Date parse(String d) throws ParseException {

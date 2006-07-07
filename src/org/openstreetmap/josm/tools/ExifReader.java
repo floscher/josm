@@ -1,6 +1,7 @@
 package org.openstreetmap.josm.tools;
 
 import java.io.File;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -15,7 +16,7 @@ import com.drew.metadata.Tag;
  */
 public class ExifReader {
 
-	@SuppressWarnings("unchecked") public static Date readTime(File filename) {
+	@SuppressWarnings("unchecked") public static Date readTime(File filename) throws ParseException {
 		try {
 	        Metadata metadata = JpegMetadataReader.readMetadata(filename);
 	        for (Iterator<Directory> dirIt = metadata.getDirectoryIterator(); dirIt.hasNext();) {
@@ -25,6 +26,8 @@ public class ExifReader {
 	                	return DateParser.parse(tag.getDescription());
 	            }
 	        }
+		} catch (ParseException e) {
+			throw e;
         } catch (Exception e) {
 	        e.printStackTrace();
         }
