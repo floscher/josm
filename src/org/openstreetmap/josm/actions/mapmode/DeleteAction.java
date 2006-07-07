@@ -78,7 +78,7 @@ public class DeleteAction extends MapMode {
 		if (ctrl)
 			deleteWithReferences(Main.ds.getSelected());
 		else
-			delete(Main.ds.getSelected(), false);
+			delete(Main.ds.getSelected(), false, false);
 		Main.map.repaint();
 	}
 
@@ -97,7 +97,7 @@ public class DeleteAction extends MapMode {
 		if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) != 0)
 			deleteWithReferences(Collections.singleton(sel));
 		else
-			delete(Collections.singleton(sel), true);
+			delete(Collections.singleton(sel), true, true);
 
 		Main.map.mapView.repaint();
 	}
@@ -138,13 +138,13 @@ public class DeleteAction extends MapMode {
 	 * @param selection The objects to delete.
 	 * @param msgBox Whether a message box for errors should be shown
 	 */
-	private void delete(Collection<OsmPrimitive> selection, boolean msgBox) {
+	private void delete(Collection<OsmPrimitive> selection, boolean msgBox, boolean joinIfPossible) {
 		Collection<OsmPrimitive> del = new HashSet<OsmPrimitive>();
 		for (OsmPrimitive osm : selection) {
 			CollectBackReferencesVisitor v = new CollectBackReferencesVisitor(Main.ds);
 			osm.visit(v);
 			if (!selection.containsAll(v.data)) {
-				if (osm instanceof Node) {
+				if (osm instanceof Node && joinIfPossible) {
 					String reason = deleteNodeAndJoinSegment((Node)osm);
 					if (reason != null && msgBox) {
 						JOptionPane.showMessageDialog(Main.parent,tr("Cannot delete node.")+" "+reason);

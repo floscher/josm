@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Stack;
 
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
@@ -30,7 +31,8 @@ public class RawGpsReader {
 		private Collection<GpsPoint> current = new LinkedList<GpsPoint>();
 		public Collection<Collection<GpsPoint>> data = new LinkedList<Collection<GpsPoint>>();
 		private LatLon currentLatLon;
-		private String currentTime;
+		private String currentTime = null;
+		private Stack<String> tags = new Stack<String>();
 
 		@Override public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
 			if (qName.equals("wpt") || qName.equals("trkpt")) {
@@ -46,14 +48,21 @@ public class RawGpsReader {
                 	e.printStackTrace();
 	                throw new SAXException(e);
                 }
-			} else if (qName.equals("time")) {
-				currentTime = "";
 			}
+			tags.push(qName);
 		}
 
 		@Override public void characters(char[] ch, int start, int length) {
-			if (currentTime != null && currentTime.equals(""))
-				currentTime = new String(ch, start, length);
+			if (tags.peek().equals("time")) {
+				String time = tags.pop();
+				if (tags.empty() || (!tags.peek().equals("wpt") && !tags.peek().equals("trkpt"))) {
+					tags.push(time);
+					return;
+				}
+				String ct = new String(ch, start, length);
+				currentTime += ct;
+				tags.push(time);
+			}
 		}
 
 		@Override public void endElement(String namespaceURI, String localName, String qName) {
@@ -61,6 +70,10 @@ public class RawGpsReader {
 				current.add(new GpsPoint(currentLatLon, currentTime));
 			} else if (qName.equals("trkseg") || qName.equals("trk") || qName.equals("gpx"))
 				newTrack();
+			
+			if (!qName.equals("time"))
+				currentTime = "";
+			tags.pop();
         }
 
 		private void newTrack() {

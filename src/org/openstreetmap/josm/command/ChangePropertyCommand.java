@@ -63,13 +63,13 @@ public class ChangePropertyCommand extends Command {
 	}
 
 	@Override public MutableTreeNode description() {
-		String text = value == null ? tr( "Remove '{0}' for",key) : tr("Set {0}={1} for",key,value);
+		String text = value == null ? tr( "Remove \"{0}\" for", key) : tr("Set {0}={1} for",key,value);
 		if (objects.size() == 1) {
 			NameVisitor v = new NameVisitor();
 			objects.iterator().next().visit(v);
-			text += v.className+" "+v.name;
+			text += " "+v.className+" "+v.name;
 		} else
-			text += trn("{0} object","{0} objects",objects.size(),objects.size());
+			text += objects.size()+trn("object","objects",objects.size());
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode(new JLabel(text, ImageProvider.get("data", "key"), JLabel.HORIZONTAL));
 		if (objects.size() == 1)
 			return root;
