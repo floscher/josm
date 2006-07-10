@@ -38,7 +38,7 @@ public abstract class PleaseWaitRunnable implements Runnable {
 	private final JProgressBar progressBar = new JProgressBar();
 	private boolean closeDialogCalled = false;
 
-	protected final JLabel currentAction = new JLabel(tr("Contact OSM server..."));
+	protected final JLabel currentAction = new JLabel(tr("Contacting the OSM server..."));
 	protected final BoundedRangeModel progress = progressBar.getModel();
 
 	/**

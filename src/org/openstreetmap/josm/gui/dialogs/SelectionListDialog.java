@@ -16,10 +16,10 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.TreeSet;
 
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
@@ -215,12 +215,14 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 	 * @param newSelection The new selection array.
 	 */
 	public void selectionChanged(Collection<? extends OsmPrimitive> newSelection) {
-		TreeSet<OsmPrimitive> sortedSel = new TreeSet<OsmPrimitive>(newSelection);
 		if (list == null)
 			return; // selection changed may be received in base class constructor before init
-		list.setSize(sortedSel.size());
+		OsmPrimitive[] selArr = new OsmPrimitive[newSelection.size()];
+		selArr = newSelection.toArray(selArr);
+		Arrays.sort(selArr);
+		list.setSize(selArr.length);
 		int i = 0;
-		for (OsmPrimitive osm : sortedSel)
+		for (OsmPrimitive osm : selArr)
 			list.setElementAt(osm, i++);
 	}
 

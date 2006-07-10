@@ -182,8 +182,10 @@ public class MapView extends NavigatableComponent {
 		if (layers.remove(layer))
 			for (LayerChangeListener l : listeners)
 				l.layerRemoved(layer);
-		if (layer == editLayer)
+		if (layer == editLayer) {
 			editLayer = null;
+			Main.ds.clearSelection();
+		}
 	}
 
 	/**
