@@ -135,8 +135,8 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		Collection<OsmPrimitive> sel = Main.ds.getSelected();
 
 		JPanel p = new JPanel(new BorderLayout());
-		p.add(new JLabel(trn("<html>This will change {0} object.<br>br>Please select a key",
-				"<html>This will change {0} objects.<br>br>Please select a key",
+		p.add(new JLabel(trn("<html>This will change {0} object.<br><br>Please select a key",
+				"<html>This will change {0} objects.<br><br>Please select a key",
 				sel.size(),sel.size())),
 				BorderLayout.NORTH);
 		TreeSet<String> allKeys = new TreeSet<String>();
