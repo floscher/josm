@@ -1,0 +1,48 @@
+<project name="openstreetmap" default="dist" basedir=".">
+
+  <property name="src" location="src"/>
+  <property name="build" location="build"/>
+  <property name="dist" location="dist"/>
+  <property name="lib" location="lib"/>
+
+  <target name="init">
+    <tstamp/>
+    <mkdir dir="${build}"/>
+    <mkdir dir="${dist}"/>
+  </target>
+
+
+  <target name="compile" depends="init">
+    <javac srcdir="${src}"
+      classpath="${lib}/MinML2.jar:${lib}/gettext-commons-0.9.jar:${lib}/metadata-extractor-2.3.1.jar"
+      debug="true"
+      optimize="off"
+      destdir="${build}"
+      />
+  </target>
+
+  <target name="dist" depends="compile">
+
+    <!-- jars -->
+    <unjar src="${lib}/MinML2.jar" dest="${build}"/>
+    <unjar src="${lib}/gettext-commons-0.9.jar" dest="${build}"/>
+    <unjar src="${lib}/metadata-extractor-2.3.1.jar" dest="${build}"/>
+
+    <!-- images -->
+    <copy todir="${build}/images">
+      <fileset dir="images"/>
+    </copy>
+
+    <jar destfile="${dist}/josm-custom.jar" basedir="${build}">
+      <manifest>
+        <attribute name="Main-class" value="org.openstreetmap.josm.gui.MainApplication" />
+      </manifest> 
+    </jar>
+  </target>
+
+  <target name="clean">
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+  </target>
+
+</project>

@@ -10,9 +10,15 @@ of my local linux installation. The images are licensed
 under LGPL but redistributed by me under the terms of GPL
 2.0. The world image is from onearth.pl.
 
-The gettext-commons-0.9.jar is from Felix Berger and Steffen Pingel (http://xnap-commons.sourceforge.net/gettext-commons/). The jar-file is licensed under LGPL.
+The gettext-commons-0.9.jar is from Felix Berger and Steffen 
+Pingel (http://xnap-commons.sourceforge.net/gettext-commons/).
+The jar-file is licensed under LGPL.
 
-A internationalization-patch was submited 2006 by Sven Anders <sven@anders-hamburg.de>.
+An internationalization-patch was submited 2006 by Sven 
+Anders <sven@anders-hamburg.de>.
+
+Several smaller patches are contributed by community members
+of OSM.
 
 All the rest are belong to me.
 
