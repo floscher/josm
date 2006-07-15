@@ -25,6 +25,7 @@ import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.AddVisitor;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
+import org.openstreetmap.josm.tools.DateParser;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -144,11 +145,10 @@ public class OsmReader {
 		String time = atts.getValue("timestamp");
 		if (time != null && time.length() != 0) {
 			try {
-				DateFormat df = new SimpleDateFormat("y-M-d H:m:s");
-				current.timestamp = df.parse(time);
+				current.timestamp = DateParser.parse(time);
 			} catch (ParseException e) {
 				e.printStackTrace();
-				throw new SAXException(tr("Couldn't read time format '{0}'.",time));
+				throw new SAXException(tr("Couldn''t read time format \"{0}\".",time));
 			}
 		}
 
@@ -163,7 +163,7 @@ public class OsmReader {
 	private long getLong(Attributes atts, String value) throws SAXException {
 		String s = atts.getValue(value);
 		if (s == null)
-			throw new SAXException(tr("Missing required attirbute '{0}'.",value));
+			throw new SAXException(tr("Missing required attirbute \"{0}\".",value));
 		return Long.parseLong(s);
 	}
 

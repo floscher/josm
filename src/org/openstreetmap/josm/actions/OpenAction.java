@@ -84,7 +84,7 @@ public class OpenAction extends DiskAccessAction {
 			JOptionPane.showMessageDialog(Main.parent, tr("Error while parsing {0}",fn)+": "+x.getMessage());
 		} catch (IOException x) {
 			x.printStackTrace();
-			JOptionPane.showMessageDialog(Main.parent, tr("Could not read '{0}'",fn)+"\n"+x.getMessage());
+			JOptionPane.showMessageDialog(Main.parent, tr("Could not read \"{0}\"",fn)+"\n"+x.getMessage());
 		}
 	}
 
