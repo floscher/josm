@@ -80,7 +80,7 @@ public class RawCsvReader {
 					else if (token.equals("ignore"))
 						st.nextToken();
 					else
-						throw new SAXException(tr("Unknown data type: '{0}'.{1}",token,(Main.pref.get("csv.importstring").equals("") ? (" "+tr("Maybe add an format string in preferences.")) : "")));
+						throw new SAXException(tr("Unknown data type: \"{0}\".{1}",token,(Main.pref.get("csv.importstring").equals("") ? (" "+tr("Maybe add an format string in preferences.")) : "")));
 				}
 				data.add(new GpsPoint(new LatLon(lat, lon), time));
 			}

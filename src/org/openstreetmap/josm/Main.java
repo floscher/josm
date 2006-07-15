@@ -271,7 +271,7 @@ abstract public class Main {
 				Main.pref.load();
 		} catch (final IOException e1) {
 			e1.printStackTrace();
-			errMsg = tr("Preferences could not be loaded. Write default preference file to '{0}'.",
+			errMsg = tr("Preferences could not be loaded. Write default preference file to \"{0}\".",
                     pref.getPreferencesDir() + "preferences");
 			Main.pref.resetToDefault();
 		}
@@ -338,7 +338,7 @@ abstract public class Main {
 		if (s.startsWith("http:")) {
 			final Bounds b = DownloadAction.osmurl2bounds(s);
 			if (b == null)
-				JOptionPane.showMessageDialog(Main.parent, tr("Ignoring malformed url: '{0}'", s));
+				JOptionPane.showMessageDialog(Main.parent, tr("Ignoring malformed url: \"{0}\"", s));
 			else
 				main.downloadAction.download(false, b.min.lat(), b.min.lon(), b.max.lat(), b.max.lon());
 			return;
@@ -348,7 +348,7 @@ abstract public class Main {
 			try {
 				main.openAction.openFile(new File(new URI(s)));
 			} catch (URISyntaxException e) {
-				JOptionPane.showMessageDialog(Main.parent, tr("Ignoring malformed file url: '{0}", s));
+				JOptionPane.showMessageDialog(Main.parent, tr("Ignoring malformed file url: \"{0}\"", s));
 			}
 			return;
 		}

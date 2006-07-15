@@ -24,6 +24,7 @@ public class DateParserTest extends TestCase {
 		assertEquals(d2, DateParser.parse("11/23/2001 23:05:42"));
 		assertEquals(d2, DateParser.parse("11/23/2001T23:05:42"));
 		assertEquals(d2, DateParser.parse("11/23/2001T23:05:42+001"));
+		assertEquals(d2, DateParser.parse("2001-11-23T23:05:42+01:00"));
         assertEquals(d, DateParser.parse("11/23/2001T23:05:42.123"));
 		assertEquals(d, DateParser.parse("11/23/2001T23:05:42.123+001"));
     }
