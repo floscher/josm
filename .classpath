@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry including="images/" kind="src" path=""/>
+	<classpathentry including="images/" excluding="po/org/|po/" kind="src" path=""/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry sourcepath="JUNIT_SRC_HOME/junitsrc.zip" kind="var" path="JUNIT_HOME/junit.jar"/>
 	<classpathentry kind="lib" path="lib/MinML2.jar"/>
 	<classpathentry kind="lib" path="lib/metadata-extractor-2.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/gettext-commons-0.9.jar"/>
+	<classpathentry exported="true" kind="lib" path="po"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

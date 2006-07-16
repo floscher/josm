@@ -22,6 +22,7 @@ import javax.swing.JProgressBar;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.tools.GBC;
+import org.openstreetmap.josm.tools.I18n;
 import org.xml.sax.SAXException;
 
 /**
@@ -38,7 +39,7 @@ public abstract class PleaseWaitRunnable implements Runnable {
 	private final JProgressBar progressBar = new JProgressBar();
 	private boolean closeDialogCalled = false;
 
-	protected final JLabel currentAction = new JLabel(tr("Contacting the OSM server..."));
+	protected final JLabel currentAction = new JLabel(I18n.tr("Contacting the OSM server..."));
 	protected final BoundedRangeModel progress = progressBar.getModel();
 
 	/**

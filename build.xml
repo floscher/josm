@@ -1,48 +1,77 @@
 <project name="openstreetmap" default="dist" basedir=".">
 
-  <property name="src" location="src"/>
-  <property name="build" location="build"/>
-  <property name="dist" location="dist"/>
-  <property name="lib" location="lib"/>
+	<property name="src" location="src" />
+	<property name="po" location="po" />
+	<property name="build" location="build" />
+	<property name="dist" location="dist" />
+	<property name="lib" location="lib" />
+	
+	<path id="classpath">
+		<fileset dir="${lib}">
+			<include name="**/*.jar"/>
+		</fileset>
+	</path>
 
-  <target name="init">
-    <tstamp/>
-    <mkdir dir="${build}"/>
-    <mkdir dir="${dist}"/>
-  </target>
+	<path id="srcfiles">
+		<fileset dir="${src}">
+			<include name="**/*.java"/>
+		</fileset>
+	</path>
+
+	<target name="init">
+		<mkdir dir="${build}" />
+		<mkdir dir="${dist}" />
+	</target>
+
+	<target name="compile" depends="init">
+		<javac srcdir="${src}" classpathref="classpath" destdir="${build}">
+			<include name="org/openstreetmap/josm/gui/MainApplication.java"/>
+			<include name="org/openstreetmap/josm/gui/MainApplet.java"/>
+		</javac>
+	</target>
+
+	<target name="dist" depends="compile,gettext">
+		<!-- jars -->
+		<unjar src="${lib}/MinML2.jar" dest="${build}" />
+		<unjar src="${lib}/gettext-commons-0.9.jar" dest="${build}" />
+		<unjar src="${lib}/metadata-extractor-2.3.1.jar" dest="${build}" />
+
+		<!-- images -->
+		<copy todir="${build}/images">
+			<fileset dir="images" />
+		</copy>
+
+		<jar destfile="${dist}/josm-custom.jar" basedir="${build}">
+			<manifest>
+				<attribute name="Main-class" value="org.openstreetmap.josm.gui.MainApplication" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="clean">
+		<delete dir="${build}" />
+		<delete dir="${dist}" />
+	</target>
 
 
-  <target name="compile" depends="init">
-    <javac srcdir="${src}"
-      classpath="${lib}/MinML2.jar:${lib}/gettext-commons-0.9.jar:${lib}/metadata-extractor-2.3.1.jar"
-      debug="true"
-      optimize="off"
-      destdir="${build}"
-      />
-  </target>
+	<target name="gettext" depends="init">
+    	<exec executable="find" output="${build}/alljava.txt">
+    		<arg line="${src} -name '*.java'"/>
+    	</exec>
+        <exec executable="xgettext">
+        	<arg line="-ktr -ktrn:1,2 -ktrc -kmarktr -Ljava -o${build}/keys.pot -f${build}/alljava.txt"/>
+        </exec>
+        <apply executable="msgmerge">
+        	<arg line="-U ${build}/keys.pot"/>
+        	<fileset dir="${po}">
+        		<include name="*.po"/>
+        	</fileset>
+        </apply>
 
-  <target name="dist" depends="compile">
-
-    <!-- jars -->
-    <unjar src="${lib}/MinML2.jar" dest="${build}"/>
-    <unjar src="${lib}/gettext-commons-0.9.jar" dest="${build}"/>
-    <unjar src="${lib}/metadata-extractor-2.3.1.jar" dest="${build}"/>
-
-    <!-- images -->
-    <copy todir="${build}/images">
-      <fileset dir="images"/>
-    </copy>
-
-    <jar destfile="${dist}/josm-custom.jar" basedir="${build}">
-      <manifest>
-        <attribute name="Main-class" value="org.openstreetmap.josm.gui.MainApplication" />
-      </manifest> 
-    </jar>
-  </target>
-
-  <target name="clean">
-    <delete dir="${build}"/>
-    <delete dir="${dist}"/>
-  </target>
+    	<!-- FIXME: somehow iterate the po-directory and create the java files -->
+    	<exec executable="msgfmt">
+    		<arg line="--java2 -d${po} -rorg.openstreetmap.josm.Translation -lde ${po}/de.po"/>
+    	</exec>
+    </target>
 
 </project>
