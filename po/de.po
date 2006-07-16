@@ -1,0 +1,1660 @@
+# translation of de.po to
+# Sven Anders <s.anders@digitec.de>, 2006.
+# Sven Anders <sven@anders-hamburg.de>, 2006.
+msgid ""
+msgstr ""
+"Project-Id-Version: de\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-06-25 19:22+0200\n"
+"PO-Revision-Date: 2006-07-16 23:44+0200\n"
+"Last-Translator: Sven Anders <sven@anders-hamburg.de>\n"
+"Language-Team:  <de@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit"
+
+#: org/openstreetmap/josm/actions/mapmode/AddSegmentAction.java:53
+msgid "Add segment"
+msgstr "Abschnitt hinzufügen"
+
+#: org/openstreetmap/josm/actions/mapmode/AddSegmentAction.java:55
+msgid "Add a segment between two nodes."
+msgstr "Abschnitt zwischen zwei Kontenpunkten hinzufügen"
+
+#: org/openstreetmap/josm/actions/mapmode/DeleteAction.java:58
+#: org/openstreetmap/josm/gui/dialogs/LayerList.java:55
+#: org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:247
+msgid "Delete"
+msgstr "Löschen"
+
+#: org/openstreetmap/josm/actions/mapmode/DeleteAction.java:60
+msgid "Delete nodes, streets or segments."
+msgstr "Lösche Knotenpunkte, Straßen oder Abschnitte"
+
+#: org/openstreetmap/josm/actions/mapmode/DeleteAction.java:153
+#, java-format
+msgid "Cannot delete node. {0}"
+msgstr "Kann den Knotenpunkt {0} nicht löschen"
+
+#: org/openstreetmap/josm/actions/mapmode/DeleteAction.java:157
+msgid "This object is in use."
+msgstr "Das Objekt wird benutzt."
+
+#: org/openstreetmap/josm/actions/mapmode/DeleteAction.java:174
+msgid "Used by more than two segments."
+msgstr "Wird bei mehr als zwei Abschnitten benutzt."
+
+#: org/openstreetmap/josm/actions/mapmode/DeleteAction.java:179
+msgid "Used by only one segment."
+msgstr "Wird bei einen Abschnitt benutzt."
+
+#: org/openstreetmap/josm/actions/mapmode/DeleteAction.java:189
+msgid "Used in a way."
+msgstr "Wird in einem Weg benutzt."
+
+#: org/openstreetmap/josm/actions/mapmode/DeleteAction.java:191
+msgid "Wrong direction of segments."
+msgstr "Falsche Richtung der Abschnitte."
+
+#: org/openstreetmap/josm/actions/mapmode/DeleteAction.java:194
+msgid "Conflicting keys"
+msgstr "Schlüsselkonflikt"
+
+#: org/openstreetmap/josm/actions/mapmode/DeleteAction.java:204
+msgid "Delete Node"
+msgstr "Knotenpunkt löschen"
+
+#: org/openstreetmap/josm/actions/mapmode/ZoomAction.java:49
+msgid "Zoom"
+msgstr "Zoom"
+
+#: org/openstreetmap/josm/actions/mapmode/ZoomAction.java:49
+msgid "Zoom in by dragging. (Ctrl+up,left,down,right,+,-)"
+msgstr "Zommen durch ziehen  (Strg-Hoch,Links,Runter,Rechts,+,-)"
+
+#: org/openstreetmap/josm/actions/mapmode/SelectionAction.java:72
+msgid "Selection"
+msgstr "Auswählen"
+
+#: org/openstreetmap/josm/actions/mapmode/SelectionAction.java:74
+msgid "Select objects by dragging or clicking."
+msgstr "Wähle Objekte durch ziehen oder klicken."
+
+#: org/openstreetmap/josm/actions/mapmode/MoveAction.java:53
+msgid "Move"
+msgstr "Verschieben"
+
+#: org/openstreetmap/josm/actions/mapmode/MoveAction.java:55
+msgid "Move selected objects around."
+msgstr "Verschiebe markierte Objekte"
+
+#: org/openstreetmap/josm/actions/mapmode/MoveAction.java:101
+msgid "Cannot move objects outside of the world."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/mapmode/AddWayAction.java:63
+msgid "Add Way"
+msgstr "Weg hinzufügen"
+
+#: org/openstreetmap/josm/actions/mapmode/AddWayAction.java:63
+msgid "Add a new way to the data."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/mapmode/AddWayAction.java:97
+#: org/openstreetmap/josm/actions/mapmode/AddWayAction.java:145
+msgid ""
+"Warning: This way is incomplete. Try to download it, before adding segments."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/mapmode/AddWayAction.java:165
+#, java-format
+msgid ""
+"{0} way has been selected.\n"
+"Do you wish to select all segments belonging to the way instead?"
+"{0} ways have been selected.\n"
+"Do you wish to select all segments belonging to the ways instead?"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/mapmode/AddWayAction.java:165
+msgid "Add segments from ways"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/mapmode/AddWayAction.java:171
+msgid "Do you want to add all other selected segments to the one selected way?"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/mapmode/AddWayAction.java:171
+msgid "Add segments to way?"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/mapmode/AddWayAction.java:176
+msgid "Reorder all line segments?"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/mapmode/AddWayAction.java:176
+msgid "Reorder?"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/mapmode/AddWayAction.java:235
+#, java-format
+msgid "Create a new way out of {0} segments?"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/mapmode/AddWayAction.java:235
+msgid "Create new way"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/mapmode/AddNodeAction.java:49
+msgid "Add node"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/mapmode/AddNodeAction.java:49
+msgid "Add a new node to the map"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/mapmode/AddNodeAction.java:50
+msgid "Add node into segment"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/mapmode/AddNodeAction.java:50
+msgid "Add a node into an existing segment"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/mapmode/AddNodeAction.java:86
+msgid "Can not add a node outside of the world."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/mapmode/AddNodeAction.java:135
+msgid "Add Node into Segment"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/PreferencesAction.java:25
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:173
+msgid "Preferences"
+msgstr "Einstellungen"
+
+#: org/openstreetmap/josm/actions/PreferencesAction.java:25
+msgid "Open a preferences page for global settings."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/PreferencesAction.java:25
+msgid "F12"
+msgstr "F12"
+
+#: org/openstreetmap/josm/actions/OpenAction.java:45
+msgid "Open"
+msgstr "Öffnen"
+
+#: org/openstreetmap/josm/actions/OpenAction.java:45
+msgid "Open a file."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/OpenAction.java:45
+msgid "Ctrl-O"
+msgstr "Strg-O"
+
+#: org/openstreetmap/josm/actions/OpenAction.java:76
+msgid ""
+"Warning: Soon, it will be no longer possible to open GPX files as osm data. "
+"Please convert your files to .osm format."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/OpenAction.java:85
+#, java-format
+msgid ""
+"{0} seems to be an old 0.2 API XML file.\n"
+"JOSM can try to open it with the old parser. This option\n"
+"will not be available in future JOSM version. You should\n"
+"immediatly save the file, if successfull imported."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/OpenAction.java:89
+msgid "Load as 0.2 API file?"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/OpenAction.java:98
+#, java-format
+msgid "{0}: CSV Data import for non-GPS data is not implemented yet."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/OpenAction.java:101
+#, java-format
+msgid "{0}: Unknown file extension: {1}"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/OpenAction.java:104
+#: org/openstreetmap/josm/actions/DownloadAction.java:85
+msgid "Data Layer"
+msgstr "Daten-Ebene"
+
+#: org/openstreetmap/josm/actions/OpenAction.java:108
+#: org/openstreetmap/josm/actions/OpenAction.java:111
+#, java-format
+msgid "Error while parsing {0}: {1}"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/OpenAction.java:114
+#, java-format
+msgid ""
+"Could not read '{0}'\n"
+"{1}"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/OpenAction.java:128
+#, java-format
+msgid "Do you want to open {0} as raw gps data?"
+msgstr "Soll {0} als GPS-Daten geöffnet werden?"
+
+#: org/openstreetmap/josm/actions/OpenAction.java:129
+msgid "Open as raw data?"
+msgstr "Als Roh-Daten öffnen?"
+
+#: org/openstreetmap/josm/actions/UndoAction.java:28
+msgid "Undo"
+msgstr "Rückgängig"
+
+#: org/openstreetmap/josm/actions/UndoAction.java:28
+msgid "Undo the last action."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/UndoAction.java:28
+msgid "Ctrl-Z"
+msgstr "Strg-Z"
+
+#: org/openstreetmap/josm/actions/DownloadAction.java:71
+msgid "Downloading data"
+msgstr "Hole Daten aus dem Internet"
+
+#: org/openstreetmap/josm/actions/DownloadAction.java:84
+msgid "No data imported."
+msgstr "Keine Daten importiert."
+
+#: org/openstreetmap/josm/actions/DownloadAction.java:99
+msgid "Downloading GPS data"
+msgstr "Hole GPS-Daten"
+
+#: org/openstreetmap/josm/actions/DownloadAction.java:129
+msgid "Open as raw gps data"
+msgstr "Als GPS-Daten öffnen"
+
+#: org/openstreetmap/josm/actions/DownloadAction.java:132
+msgid "Download from OSM"
+msgstr "Von OSM laden"
+
+#: org/openstreetmap/josm/actions/DownloadAction.java:132
+msgid "Download map data from the OSM server."
+msgstr "Kartendaten vom OSM Server laden"
+
+#: org/openstreetmap/josm/actions/DownloadAction.java:132
+msgid "Ctrl-Shift-D"
+msgstr "Strg-Shift-D"
+
+#: org/openstreetmap/josm/actions/DownloadAction.java:145
+msgid ""
+"Move and zoom the image like the main map. Select an area to download by "
+"dragging."
+msgstr ""
+"Sie können verschieben und Zoomen wie auf der Hauptkarte. Wählen Sie den zu "
+"ladenden Bereich durch einfügen."
+
+#: org/openstreetmap/josm/actions/DownloadAction.java:148
+msgid "Bounding box"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/DownloadAction.java:149
+msgid "min lat"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/DownloadAction.java:151
+msgid "min lon"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/DownloadAction.java:153
+msgid "max lat"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/DownloadAction.java:155
+msgid "max lon"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/DownloadAction.java:167
+msgid "URL from www.openstreetmap.org"
+msgstr "URL von www.openstreetmap.org"
+
+#: org/openstreetmap/josm/actions/DownloadAction.java:220
+msgid "Bookmarks"
+msgstr "Lesezeichen"
+
+#: org/openstreetmap/josm/actions/DownloadAction.java:237
+msgid "Add"
+msgstr "Hinzufügen"
+
+#: org/openstreetmap/josm/actions/DownloadAction.java:242
+msgid "Please enter the desired coordinates first."
+msgstr "Bitte wählen Sie zuerst die Koordinaten."
+
+#: org/openstreetmap/josm/actions/DownloadAction.java:245
+msgid "Please enter a name for the location."
+msgstr "Bitte geben Sie einen Namen für den Ort an."
+
+#: org/openstreetmap/josm/actions/DownloadAction.java:253
+msgid "Remove"
+msgstr "Entfernen"
+
+#: org/openstreetmap/josm/actions/DownloadAction.java:258
+msgid "Select a bookmark first."
+msgstr "Bitte wählen Sie ein Lesezeichen."
+
+#: org/openstreetmap/josm/actions/DownloadAction.java:276
+msgid "Choose an area"
+msgstr "Bereich auswählen"
+
+#: org/openstreetmap/josm/actions/DownloadAction.java:291
+msgid "Please enter the desired coordinates or click on a bookmark."
+msgstr ""
+"Bitte geben Sie die Koordinaten an oder wählen Sie eine Lesezeichen aus."
+
+#: org/openstreetmap/josm/actions/ExitAction.java:20
+msgid "Exit"
+msgstr "Beenden"
+
+#: org/openstreetmap/josm/actions/ExitAction.java:20
+msgid "Exit the application."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/AboutAction.java:42
+msgid "About"
+msgstr "Über"
+
+#: org/openstreetmap/josm/actions/AboutAction.java:42
+msgid "Display the about screen."
+msgstr "Über dieses Programm"
+
+#: org/openstreetmap/josm/actions/AboutAction.java:60
+#, java-format
+msgid "Java OpenStreetMap Editor Version {0}"
+msgstr "Java OpenStreetMap Editor Version {0}"
+
+#: org/openstreetmap/josm/actions/AboutAction.java:61
+#, java-format
+msgid "last change at {0}"
+msgstr "Letzte Änderung am {0}"
+
+#: org/openstreetmap/josm/actions/AboutAction.java:62
+msgid "Homepage"
+msgstr "Webseite"
+
+#: org/openstreetmap/josm/actions/AboutAction.java:67
+msgid "Info"
+msgstr "Info"
+
+#: org/openstreetmap/josm/actions/AboutAction.java:68
+msgid "Readme"
+msgstr "Bitte lesen"
+
+#: org/openstreetmap/josm/actions/AboutAction.java:69
+msgid "Revision"
+msgstr "Version"
+
+#: org/openstreetmap/josm/actions/AboutAction.java:73
+msgid "About JOSM..."
+msgstr "Über JOSM..."
+
+#: org/openstreetmap/josm/actions/AboutAction.java:83
+msgid "File could not be found."
+msgstr "Datei wurde nicht gefunden."
+
+#: org/openstreetmap/josm/actions/DiskAccessAction.java:60
+msgid "File exists. Overwrite?"
+msgstr "Datei existiert. Überschreiben?"
+
+#: org/openstreetmap/josm/actions/DiskAccessAction.java:60
+msgid "Overwrite"
+msgstr "Überschreiben"
+
+#: org/openstreetmap/josm/actions/AutoScaleAction.java:36
+#, java-format
+msgid "Auto Scale: {0} "
+msgstr ""
+
+#: org/openstreetmap/josm/actions/AutoScaleAction.java:37
+#, java-format
+msgid "Auto zoom the view to {0}. Disabled if the view is moved."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/UploadAction.java:40
+msgid "Upload to OSM"
+msgstr "Zum OSM speichern"
+
+#: org/openstreetmap/josm/actions/UploadAction.java:40
+msgid "Upload all changes to the OSM server."
+msgstr "Kartendaten zum OSM Server speichern"
+
+#: org/openstreetmap/josm/actions/UploadAction.java:40
+msgid "Ctrl-Shift-U"
+msgstr "Strg-Shift-U"
+
+#: org/openstreetmap/josm/actions/UploadAction.java:46
+msgid "Nothing to upload. Get some data first."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/UploadAction.java:51
+msgid "There are unresolved conflicts. You have to resolve these first."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/UploadAction.java:78
+msgid "Uploading data"
+msgstr "Sende Daten"
+
+#: org/openstreetmap/josm/actions/UploadAction.java:102
+msgid "No changes to upload."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/UploadAction.java:111
+msgid "Objects to add:"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/UploadAction.java:119
+msgid "Objects to modify:"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/UploadAction.java:127
+msgid "Objects to delete:"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/UploadAction.java:134
+msgid "Upload this changes?"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/ExtensionFileFilter.java:28
+#, java-format
+msgid "OSM Server Version {0} (.osm .xml)"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/ExtensionFileFilter.java:29
+#, java-format
+msgid "GPX Files Version {0} (.gpx)"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/ExtensionFileFilter.java:30
+#, java-format
+msgid "CSV Files Version {0} (.csv .txt)"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/RedoAction.java:27
+msgid "Redo"
+msgstr "Wiederherstellen"
+
+#: org/openstreetmap/josm/actions/RedoAction.java:27
+msgid "Redo the last undone action."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/RedoAction.java:27
+msgid "Ctrl-Shift-Z"
+msgstr "Strg-Shift-Z"
+
+#: org/openstreetmap/josm/actions/WmsServerAction.java:17
+msgid "Show background"
+msgstr "Hintergrund anzeigen"
+
+#: org/openstreetmap/josm/actions/WmsServerAction.java:17
+msgid "Download and show landsat background images."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/WmsServerAction.java:21
+msgid "Not implemented yet."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/SaveAction.java:38
+msgid "Save"
+msgstr "Speichern"
+
+#: org/openstreetmap/josm/actions/SaveAction.java:38
+msgid "Save the current data."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/SaveAction.java:38
+msgid "Ctrl-S"
+msgstr "Strg-S"
+
+#: org/openstreetmap/josm/actions/SaveAction.java:43
+msgid "No document open so nothing to save."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/SaveAction.java:46
+msgid "The document contains no data. Save anyway?"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/SaveAction.java:46
+msgid "Empty document"
+msgstr "Leeres Dokument"
+
+#: org/openstreetmap/josm/actions/SaveAction.java:50
+msgid ""
+"There are unresolved conflicts. Conflicts will not be saved and handled as "
+"if you rejected all. Continue?"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/SaveAction.java:50
+msgid "Conflicts"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/SaveAction.java:75
+msgid ""
+"Export of data containing incomplete ways to GPX is not implemented.\n"
+"Be aware, that in future versions of JOSM, GPX support will be kept at a "
+"minimum.\n"
+"Please use .osm or .xml as extension for the better OSM support."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/SaveAction.java:83
+msgid "CSV output not supported yet."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/SaveAction.java:86
+msgid "Unknown file extension."
+msgstr "Dateiendung unbekannt."
+
+#: org/openstreetmap/josm/actions/SaveAction.java:93
+#, java-format
+msgid ""
+"An error occoured while saving.\n"
+"{0}"
+msgstr ""
+"Beim speichern ist ein Fehler aufgetreten.\n"
+"{0}"
+
+#: org/openstreetmap/josm/actions/GpxExportAction.java:42
+msgid ""
+"<html><font color='red' size='-2'>Note: GPL is not compatible to the OSM "
+"license. Do not upload GPL licensed tracks</html>"
+msgstr ""
+"<html><font color='red' size='-2'>Achtung: GPL ist nicht kompatibl zur OSM-"
+"Lizens. Keine Tracks die unter GPL stehen hochspielen.</html>"
+
+#: org/openstreetmap/josm/actions/GpxExportAction.java:47
+msgid "Export to GPX"
+msgstr "In GPX exportieren"
+
+#: org/openstreetmap/josm/actions/GpxExportAction.java:47
+msgid "Export the data to GPX file."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/GpxExportAction.java:47
+msgid "Ctrl-E"
+msgstr "Strg-E"
+
+#: org/openstreetmap/josm/actions/GpxExportAction.java:53
+msgid "Nothing to export. Get some data first."
+msgstr ""
+
+#: org/openstreetmap/josm/actions/GpxExportAction.java:73
+msgid "gps track description"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/GpxExportAction.java:79
+msgid "Add author information"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/GpxExportAction.java:82
+msgid "Real name"
+msgstr "Voller Name"
+
+#: org/openstreetmap/josm/actions/GpxExportAction.java:86
+msgid "Email"
+msgstr "E-Mail"
+
+#: org/openstreetmap/josm/actions/GpxExportAction.java:90
+msgid "Copyright (URL)"
+msgstr "Copyright (URL)"
+
+#: org/openstreetmap/josm/actions/GpxExportAction.java:94
+msgid "Predefined"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/GpxExportAction.java:96
+msgid "Copyright year"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/GpxExportAction.java:104
+msgid "Keywords"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/GpxExportAction.java:108
+msgid "Export options"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/GpxExportAction.java:131
+#, java-format
+msgid ""
+"Error while exporting {0}:\n"
+"{1}"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/GpxExportAction.java:131
+msgid "Error"
+msgstr ""
+
+#: org/openstreetmap/josm/actions/GpxExportAction.java:185
+msgid "Choose a predefined license"
+msgstr ""
+
+#: org/openstreetmap/josm/tools/DateParser.java:31
+msgid "No applicable parse format"
+msgstr ""
+
+#: org/openstreetmap/josm/tools/BugReportExceptionHandler.java:36
+msgid "Do nothing"
+msgstr ""
+
+#: org/openstreetmap/josm/tools/BugReportExceptionHandler.java:36
+msgid "Report Bug"
+msgstr ""
+
+#: org/openstreetmap/josm/tools/BugReportExceptionHandler.java:37
+msgid ""
+"An unexpected exception occoured.\n"
+"\n"
+"This is always a coding error. If you are running the latest\n"
+"version of JOSM, please consider be kind and file a bug report."
+msgstr ""
+
+#: org/openstreetmap/josm/tools/BugReportExceptionHandler.java:40
+msgid "Unexpected Exception"
+msgstr ""
+
+#: org/openstreetmap/josm/tools/BugReportExceptionHandler.java:48
+msgid ""
+"Please send this to josm@eigenheimstrasse.de\n"
+"\n"
+msgstr ""
+
+#: org/openstreetmap/josm/tools/BugReportExceptionHandler.java:50
+msgid "Development version. Unknown revision."
+msgstr ""
+
+#: org/openstreetmap/josm/tools/BugReportExceptionHandler.java:56
+#, java-format
+msgid ""
+"\n"
+"Main.class build on {0}\n"
+msgstr ""
+
+#: org/openstreetmap/josm/tools/BugReportExceptionHandler.java:69
+msgid ""
+"Please send an email with the following information to josm@eigenheimstrasse."
+"de"
+msgstr ""
+
+#: org/openstreetmap/josm/tools/ShortCutLabel.java:15
+msgid "Ctrl-"
+msgstr "Strg-"
+
+#: org/openstreetmap/josm/tools/ShortCutLabel.java:17
+msgid "Alt-"
+msgstr ""
+
+#: org/openstreetmap/josm/tools/ShortCutLabel.java:19
+msgid "AltGr-"
+msgstr ""
+
+#: org/openstreetmap/josm/tools/ShortCutLabel.java:21
+msgid "Shift-"
+msgstr "Shift-"
+
+#: org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:91
+msgid "Could not read from url: '{0}'"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:94
+msgid "Parsing error in url: '{0}'"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:121
+msgid "Current Selection"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:121
+msgid "Open a selection list window."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:137
+#: org/openstreetmap/josm/gui/dialogs/ConflictDialog.java:76
+#, fuzzy
+msgid "Select"
+msgstr "Auswählen"
+
+#: org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:138
+#: org/openstreetmap/josm/gui/dialogs/ConflictDialog.java:77
+msgid ""
+"Set the selected elements on the map to the selected items in the list above."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:146
+msgid "Reload"
+msgstr "Neu Laden"
+
+#: org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:147
+msgid "Refresh the selection list."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:155
+#: org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:189
+msgid "Search"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:156
+msgid "Search for objects."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:160
+msgid "Please enter a search string."
+msgstr "Bitte geben Sie einen Suchbegriff ein."
+
+#: org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:162
+msgid ""
+"<html>Fulltext search.<ul><li><code>Baker Street</code>  - 'Baker' and "
+"'Street' in any key or name.</li><li><code>\"Baker Street\"</code>  - 'Baker "
+"Street' in any key or name.</li><li><code>name:Bak</code>  - 'Bak' anywhere "
+"in the name.</li><li><code>-name:Bak</code>  - not 'Bak' in the name.</"
+"li><li><code>foot:</code>  - key=foot set to any value.</ul></html>"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:170
+msgid "replace selection"
+msgstr "Auswahl ersetzen"
+
+#: org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:171
+msgid "add to selection"
+msgstr "zur Auswahl hinzufügen"
+
+#: org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:172
+msgid "remove from selection"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/ConflictDialog.java:55
+msgid "Conflict"
+msgstr "Konflikt"
+
+#: org/openstreetmap/josm/gui/dialogs/ConflictDialog.java:55
+msgid "Merging conflicts."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/ConflictDialog.java:67
+msgid "Resolve"
+msgstr "Lösen"
+
+#: org/openstreetmap/josm/gui/dialogs/ConflictDialog.java:68
+msgid "Open a merge dialog of all selected items in the list above."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/ConflictDialog.java:110
+msgid "Please select something from the conflict list."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/CommandStackDialog.java:34
+msgid "Command Stack"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/CommandStackDialog.java:34
+msgid "Open a list of all commands (undo buffer)."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/LayerList.java:56
+msgid "Delete the selected layer."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/LayerList.java:79
+msgid "Show/Hide"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/LayerList.java:80
+msgid "Toggle visible state of the selected layer."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/LayerList.java:123
+msgid "Layers"
+msgstr "Ebenen"
+
+#: org/openstreetmap/josm/gui/dialogs/LayerList.java:123
+msgid "Open a list of all loaded layers."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/LayerList.java:195
+msgid "Move the selected layer one row up."
+msgstr "Gewählte Ebene eine Reihe höher schieben"
+
+#: org/openstreetmap/josm/gui/dialogs/LayerList.java:200
+msgid "Move the selected layer one row down."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/LayerList.java:213
+msgid "Merge the selected layer into the layer directly below."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:91
+#, java-format
+msgid ""
+"<html>This will change {0} object.<br><br> Please select a new value for "
+"'{1}'.<br>(Empty string deletes the key.)"
+"<html>This will change {0} objects.<br><br> Please select a new value for "
+"'{1}'.<br>(Empty string deletes the key.</html>)"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:103
+#: org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:165
+msgid "Change values?"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:141
+#, java-format
+msgid "<html>This will change {0} object.<br>br>Please select a key"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:156
+msgid "Please select a value"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:207
+msgid "Properties"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:207
+msgid "Property for selected objects."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:211
+msgid "Key"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:211
+msgid "Value"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:219
+msgid "<different>"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:242
+#: org/openstreetmap/josm/Main.java:154
+msgid "Edit"
+msgstr "Bearbeiten"
+
+#: org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:244
+msgid "Please select the row to edit."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:249
+msgid "Please select the row to delete."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:255
+msgid "Add a new key/value pair to all objects"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:256
+msgid "Edit the value of the selected key for all objects"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:257
+msgid "Delete the selected key in all objects"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/OsmDataLayer.java:56
+msgid "node"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/OsmDataLayer.java:56
+msgid "segment"
+msgstr "Abschnitt"
+
+#: org/openstreetmap/josm/gui/layer/OsmDataLayer.java:56
+msgid "way"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/OsmDataLayer.java:154
+#, java-format
+msgid "{0} nodes, {1} segments, {2} streets."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/OsmDataLayer.java:166
+msgid "There were conflicts during import."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/OsmDataLayer.java:306
+#, java-format
+msgid "{0} consists of:"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/OsmDataLayer.java:310
+#, java-format
+msgid " ({0} deleted.)"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/RawGpsLayer.java:52
+msgid "Convert layer to OSM"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/RawGpsLayer.java:155
+#, java-format
+msgid "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a track with {0} points<br>"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/RawGpsLayer.java:159
+#, java-format
+msgid "<html>{0} consists of {1} tracks ({2} points)<br>{3}"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/RawGpsLayer.java:165
+msgid "Customize Color"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/RawGpsLayer.java:170
+msgid "OK"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/RawGpsLayer.java:170
+#: org/openstreetmap/josm/gui/PleaseWaitRunnable.java:58
+msgid "Cancel"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/RawGpsLayer.java:170
+msgid "Default"
+msgstr "Voreinstellung"
+
+#: org/openstreetmap/josm/gui/layer/RawGpsLayer.java:171
+msgid "Choose a color"
+msgstr "Farbe auswählen"
+
+#: org/openstreetmap/josm/gui/layer/RawGpsLayer.java:199
+#: org/openstreetmap/josm/gui/layer/GeoImageLayer.java:333
+msgid "JPEG images (*.jpg)"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/GeoImageLayer.java:86
+msgid "Images"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/GeoImageLayer.java:91
+msgid "Read GPS..."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/GeoImageLayer.java:101
+#, java-format
+msgid "No time for point {0},{1}"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/GeoImageLayer.java:104
+#, java-format
+msgid "Cannot read time from point {0},{1}"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/GeoImageLayer.java:108
+msgid "Time loop in gps data."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/GeoImageLayer.java:114
+msgid "Incorrect date information"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/GeoImageLayer.java:118
+msgid "No images with readable timestamps found."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/GeoImageLayer.java:129
+#, java-format
+msgid "Reading {0}...."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/GeoImageLayer.java:256
+#, java-format
+msgid "GPS start: {0}"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/GeoImageLayer.java:257
+#, java-format
+msgid "GPS end: {0}"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/GeoImageLayer.java:259
+#, java-format
+msgid "current delta: {0}s"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/GeoImageLayer.java:260
+msgid "timezone difference: "
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/GeoImageLayer.java:284
+#, java-format
+msgid "{0} images {1} within the track."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/GeoImageLayer.java:322
+msgid "Sync clock"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/GeoImageLayer.java:372
+msgid "Image"
+msgstr "Bild"
+
+#: org/openstreetmap/josm/gui/layer/GeoImageLayer.java:374
+msgid "Enter shown date (mm/dd/yyyy HH:MM:SS)"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/GeoImageLayer.java:377
+msgid "GPS unit timezome (difference to photo)"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/GeoImageLayer.java:385
+msgid "Syncronize Time with GPS Unit"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/GeoImageLayer.java:401
+msgid "Time entered could not be parsed."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/WmsServerLayer.java:45
+msgid "Wrong longitude transformation for tile cache. Can't operate on {0}"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/layer/WmsServerLayer.java:56
+#, java-format
+msgid "WMS layer: {0}"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/BookmarkList.java:117
+#, java-format
+msgid ""
+"Could not write bookmark.\n"
+"{0}"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/MapView.java:162
+#, java-format
+msgid "{0}Java Open Street Map - Editor"
+msgstr "{0}Java OpenStreetMap - Editor "
+
+#: org/openstreetmap/josm/gui/MapView.java:200
+msgid "layer not in list."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/MainApplication.java:52
+msgid ""
+"\n"
+"Hint: Some changes came from uploading new data to the server."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/MainApplication.java:54
+msgid "There are unsaved changes. Really quit?"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/MainApplication.java:55
+msgid "Unsaved Changes"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/MainApplication.java:75
+#, fuzzy
+msgid ""
+"Java OpenStreetMap Editor\n"
+"\n"
+"usage:\n"
+"\tjava -jar josm.jar <option> <option> <option>...\n"
+"\n"
+"options:\n"
+"\t--help|-?|-h                              Show this help\n"
+"\t--geometry=widthxheight(+|-)x(+|-)y       Standard unix geometry argument\n"
+"\t[--download=]minlat,minlon,maxlat,maxlon  Download the bounding box\n"
+"\t[--download=]<url>                        Download the location at the url "
+"(with lat=x&lon=y&zoom=z)\n"
+"\t[--download=]<filename>                   Open file (as raw gps, if .gpx "
+"or .csv)\n"
+"\t--downloadgps=minlat,minlon,maxlat,maxlon Download the bounding box as raw "
+"gps\n"
+"\t--selection=<searchstring>                Select with the given search\n"
+"\t--no-fullscreen                           Don't launch in fullscreen mode\n"
+"\t--reset-preferences                       Reset the preferences to "
+"default\n"
+"\n"
+"examples:\n"
+"\tjava -jar josm.jar track1.gpx track2.gpx london.osm\n"
+"\tjava -jar josm.jar http://www.openstreetmap.org/index.html?"
+"lat=43.2&lon=11.1&zoom=13\n"
+"\tjava -jar josm.jar london.osm --selection=http://www.ostertag.name/osm/"
+"OSM_errors_node-duplicate.xml\n"
+"\tjava -jar josm.jar 43.2,11.1,43.4,11.4\n"
+"\n"
+"Parameters are read in the order they are specified, so make sure you load\n"
+"some data before --selection\n"
+"\n"
+"Instead of --download=<bbox> you may specify osm://<bbox>\n"
+msgstr ""
+"Java OpenStreetMap Editor\n"
+"\n"
+"Aufruf:\n"
+"\tjava -jar josm.jar <option> <option> <option>...\n"
+"\n"
+"options:\n"
+"\t--help|-?|-h                              Zeige diese Hilfe an\n"
+"\t--geometry=widthxheight(+|-)x(+|-)y       Standard unix Geometry argument\n"
+"\t[--download=]minlat,minlon,maxlat,maxlon  Download the bounding box\n"
+"\t[--download=]<url>                        Download the location at the url "
+"(with lat=x&lon=y&zoom=z)\n"
+"\t[--download=]<filename>                   Datei öffnen (als roh gps, wenn ."
+"gpx oder .csv)\n"
+"\t--downloadgps=minlat,minlon,maxlat,maxlon Download the bounding box as raw "
+"gps\n"
+"\t--selection=<searchstring>                Select with the given search\n"
+"\t--no-fullscreen                           Nicht im Fullscreenmodus "
+"starten\n"
+"\t--reset-preferences                       Einstellungen auf "
+"Voreinstellungen zurücksetzen\n"
+"\n"
+"Beispiele:\n"
+"\tjava -jar josm.jar track1.gpx track2.gpx london.osm\n"
+"\tjava -jar josm.jar http://www.openstreetmap.org/index.html?"
+"lat=43.2&lon=11.1&zoom=13\n"
+"\tjava -jar josm.jar london.osm --selection=http://www.ostertag.name/osm/"
+"OSM_errors_node-duplicate.xml\n"
+"\tjava -jar josm.jar 43.2,11.1,43.4,11.4\n"
+"\n"
+"Parameters are read in the order they are specified, so make sure you load\n"
+"some data before --selection\n"
+"\n"
+"Instead of --download=<bbox> you may specify osm://<bbox>\n"
+
+#: org/openstreetmap/josm/gui/MainApplication.java:102
+#, java-format
+msgid "Cannot open preferences directory: {0}"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/MainApplication.java:124
+msgid "Java Open Street Map - Editor"
+msgstr "Java OpenStreetMap - Editor "
+
+#: org/openstreetmap/josm/gui/MapStatus.java:220
+msgid "Lat/Lon "
+msgstr ""
+
+#: org/openstreetmap/josm/gui/MapStatus.java:222
+msgid " Object "
+msgstr ""
+
+#: org/openstreetmap/josm/gui/ConflictResolver.java:165
+#, java-format
+msgid ""
+"No conflicts but in conflict list:\n"
+"{0}"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/ConflictResolver.java:234
+#, java-format
+msgid "{0} object has confilicts:"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/ConflictResolver.java:237
+msgid "my version:"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/ConflictResolver.java:239
+#: org/openstreetmap/josm/gui/ConflictResolver.java:245
+msgid "down"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/ConflictResolver.java:243
+msgid "their version:"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/ConflictResolver.java:248
+msgid "up"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/ConflictResolver.java:249
+msgid "resolved version:"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PleaseWaitRunnable.java:45
+msgid "Contact OSM server..."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PleaseWaitRunnable.java:84
+#: org/openstreetmap/josm/gui/PleaseWaitRunnable.java:87
+#, java-format
+msgid "Error while parsing: {0}"
+msgstr "Beim speichern ist ein Fehler aufgetreten. {0}"
+
+#: org/openstreetmap/josm/gui/PleaseWaitRunnable.java:90
+msgid "Not found: "
+msgstr ""
+
+#: org/openstreetmap/josm/gui/MainApplet.java:36
+msgid "Name of the user."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/MainApplet.java:37
+msgid "OSM Password."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/MainApplet.java:38
+msgid "Size the applet to the given geometry (format: WIDTHxHEIGHT)"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/MainApplet.java:39
+msgid ""
+"Download each. Can be x1,y1,x2,y2 an url containing lat=y&lon=x&zoom=z or a "
+"filename"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/MainApplet.java:40
+msgid ""
+"Download each as raw gps. Can be x1,y1,x2,y2 an url containing "
+"lat=y&lon=x&zoom=z or a filename"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/MainApplet.java:41
+msgid ""
+"Add each to the initial selection. Can be a google-like search string or an "
+"url which returns osm-xml"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/MainApplet.java:42
+msgid "If specified, reset the configuration instead of reading it."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:62
+msgid "OptionPane.okButtonText"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:92
+msgid "You have to restart JOSM for some settings to take effect."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:103
+msgid "OptionPane.cancelButtonText"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:157
+msgid "Draw lines between raw gps points."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:161
+msgid "Force lines if no segments imported."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:162
+msgid "Draw Direction Arrows"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:222
+msgid ""
+"Force drawing of lines if the imported data contain no line information."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:225
+#, fuzzy
+msgid "Draw direction hints for all segments."
+msgstr "Falsche Richtung der Abschnitte."
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:262
+#, fuzzy
+msgid "Choose"
+msgstr "Bereich auswählen"
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:278
+msgid "The base URL to the OSM server (REST API)"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:279
+msgid "Login name (email) to the OSM account."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:280
+msgid ""
+"Login password to the OSM account. Leave blank to not store any password."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:281
+msgid "The base URL to the server retrieving WMS background pictures from."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:282
+msgid ""
+"<html>Import string specification. lat/lon and time are imported.<br><b>lat</"
+"b>: The latitude coordinate<br><b>lon</b>: The longitude "
+"coordinate<br><b>time</b>: The measured time as string<br><b>ignore</b>: "
+"Skip this field<br>An example: \"ignore ignore lat lon\" will use ' ' as "
+"delimiter, skip the first two values and read then lat/lon.<br>Other "
+"example: \"lat,lon\" will just read lat/lon values comma seperated.</html>"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:289
+msgid ""
+"If your gps device draw to few lines, select this to draw lines along your "
+"way."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:290
+msgid "Colors used by different objects in JOSM."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:295
+msgid "Display Settings"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:295
+msgid ""
+"Various settings that influence the visual representation of the whole "
+"program."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:296
+msgid "Look and Feel"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:302
+msgid "Colors"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:309
+msgid "Connection Settings"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:309
+#, fuzzy
+msgid "Connection Settings to the OSM server."
+msgstr "Kartendaten zum OSM Server speichern"
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:310
+msgid "Base Server URL"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:312
+msgid "OSM username (email)"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:314
+msgid "OSM password"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:316
+msgid ""
+"<html>WARNING: The password is stored in plain text in the preferences file."
+"<br>The password is transfered in plain text to the server, encoded in the "
+"url.<br><b>Do not use a valuable Password.</b></html>"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:325
+msgid "CSV import specification (empty: read from first line in data)"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:330
+msgid "Map Settings"
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:330
+msgid "Settings for the map projection and data interpretation."
+msgstr ""
+
+#: org/openstreetmap/josm/gui/PreferenceDialog.java:331
+msgid "Projection method"
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmReaderOld.java:53
+msgid "NumberFormatException. Probably a tag is missing."
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmReaderOld.java:55
+msgid "NullPointerException. Probably a tag name mismatch."
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmReaderOld.java:75
+#, java-format
+msgid "Illegal lat or lon value: {0}/{1}"
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmReaderOld.java:141
+msgid "The 'from' or 'to' object has not been transfered before."
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmReaderOld.java:229
+#, java-format
+msgid "Unknown object reference: {0}"
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmReaderOld.java:239
+msgid "Unknown segment reference: "
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmReader.java:99
+#, fuzzy
+msgid "Unknown version."
+msgstr "Dateiendung unbekannt."
+
+#: org/openstreetmap/josm/io/OsmReader.java:101
+#, fuzzy, java-format
+msgid "Unknown version {0}"
+msgstr "Dateiendung unbekannt."
+
+#: org/openstreetmap/josm/io/OsmReader.java:117
+msgid "Found <seg> tag on non-way."
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmReader.java:120
+msgid "Incomplete segment with id=0"
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmReader.java:129
+msgid "NullPointerException. Possible some missing tags."
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmReader.java:144
+msgid "Illegal object with id=0"
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmReader.java:153
+#, java-format
+msgid "Couldn't read time format '{0}'."
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmReader.java:168
+msgid "Missing required attirbute '{0}'."
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmReader.java:215
+#, fuzzy
+msgid "Preparing data..."
+msgstr "Sende Daten"
+
+#: org/openstreetmap/josm/io/OsmReader.java:224
+msgid "Illformed Node id"
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmServerWriter.java:74
+#, java-format
+msgid "Upload {0} {1} ({2})..."
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmServerWriter.java:79
+#, fuzzy
+msgid "An error occoured: "
+msgstr ""
+"Beim speichern ist ein Fehler aufgetreten.\n"
+"{0}"
+
+#: org/openstreetmap/josm/io/OsmServerWriter.java:159
+#, fuzzy, java-format
+msgid "upload to: {0}"
+msgstr "Zum OSM speichern"
+
+#: org/openstreetmap/josm/io/OsmServerWriter.java:176
+#, java-format
+msgid "got return: {0} with id {1}"
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmServerWriter.java:188
+msgid "Unknown host: "
+msgstr ""
+
+#: org/openstreetmap/josm/io/RawGpsReader.java:100
+#, java-format
+msgid "Data error: {0} value '{1}' is out of bound."
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmServerReader.java:59
+#, java-format
+msgid "Downloading points {0} to {1}..."
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmServerReader.java:105
+#, fuzzy
+msgid "Downloading OSM data..."
+msgstr "Hole GPS-Daten"
+
+#: org/openstreetmap/josm/io/OsmServerReader.java:133
+#, java-format
+msgid "download: {0}"
+msgstr ""
+
+#: org/openstreetmap/josm/io/RawCsvReader.java:42
+msgid "Could not detect data format string."
+msgstr ""
+
+#: org/openstreetmap/josm/io/RawCsvReader.java:65
+msgid ""
+"Format string in data is incomplete or not found. Try setting an manual "
+"format string in Preferences."
+msgstr ""
+
+#: org/openstreetmap/josm/io/RawCsvReader.java:66
+msgid ""
+"Format string is incomplete. Need at least 'lat' and 'lon' specification"
+msgstr ""
+
+#: org/openstreetmap/josm/io/RawCsvReader.java:86
+msgid "Unknown data type: '{0}'."
+msgstr ""
+
+#: org/openstreetmap/josm/io/RawCsvReader.java:86
+msgid " Maybe add an format string in preferences."
+msgstr ""
+
+#: org/openstreetmap/josm/io/RawCsvReader.java:91
+#, java-format
+msgid "Parsing error in line {0}"
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmConnection.java:65
+msgid "Incorrect password or username."
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmConnection.java:66
+msgid "Username"
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmConnection.java:69
+msgid "Password"
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmConnection.java:72
+msgid "Warning: The password is transferred unencrypted."
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmConnection.java:76
+msgid "Save user and password (unencrypted)"
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmConnection.java:79
+msgid "Enter Password"
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmConnection.java:119
+msgid "Aborting..."
+msgstr ""
+
+#: org/openstreetmap/josm/io/OsmIdReader.java:34
+msgid "Error during parse."
+msgstr ""
+
+#: org/openstreetmap/josm/command/ConflictResolveCommand.java:79
+#, java-format
+msgid "Resolve {0} conflicts in {1} objects"
+msgstr ""
+
+#: org/openstreetmap/josm/command/DeleteCommand.java:48
+#: org/openstreetmap/josm/command/DeleteCommand.java:59
+#, java-format
+msgid "Delete {0} {1}"
+msgstr ""
+
+#: org/openstreetmap/josm/command/DeleteCommand.java:57
+msgid "primitive"
+msgstr ""
+
+#: org/openstreetmap/josm/command/ChangeCommand.java:40
+#, java-format
+msgid "Change {0} {1}"
+msgstr ""
+
+#: org/openstreetmap/josm/command/MoveCommand.java:118
+#, java-format
+msgid "Move {0} Node"
+msgstr ""
+
+#: org/openstreetmap/josm/command/SequenceCommand.java:55
+#, java-format
+msgid "Sequence: {0}"
+msgstr ""
+
+#: org/openstreetmap/josm/command/ChangePropertyCommand.java:68
+msgid "Remove '{0}'"
+msgstr "Entferne '{0}'"
+
+#: org/openstreetmap/josm/command/ChangePropertyCommand.java:68
+#, java-format
+msgid "Set {0}={1} "
+msgstr "Setze {0}={1}"
+
+#: org/openstreetmap/josm/command/ChangePropertyCommand.java:69
+msgid "for"
+msgstr ""
+
+#: org/openstreetmap/josm/command/ChangePropertyCommand.java:75
+#, java-format
+msgid "{0} objects"
+msgstr ""
+
+#: org/openstreetmap/josm/Main.java:137
+msgid "Files"
+msgstr "Dateien"
+
+#: org/openstreetmap/josm/Main.java:147
+msgid "Layer"
+msgstr "Ebene"
+
+#: org/openstreetmap/josm/Main.java:163
+msgid "Help"
+msgstr "Hilfe"
+
+#: org/openstreetmap/josm/Main.java:253
+msgid ""
+"Preferences could not be loaded. Write default preference file to '{0} "
+"preferences'."
+msgstr ""
+
+#: org/openstreetmap/josm/Main.java:263
+msgid "The projection could not be read from preferences. Using EPSG:4263."
+msgstr ""
+
+#: org/openstreetmap/josm/Main.java:297
+#, java-format
+msgid "Ignoring malformed geometry: {0}"
+msgstr ""
+
+#: org/openstreetmap/josm/Main.java:319
+msgid "Ignoring malformed url: '{0}'"
+msgstr ""
+
+#: org/openstreetmap/josm/Main.java:329
+msgid "Ignoring malformed file url: '{0}'"
+msgstr ""
+
