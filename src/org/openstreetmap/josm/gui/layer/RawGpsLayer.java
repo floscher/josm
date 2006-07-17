@@ -129,8 +129,8 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 		int points = 0;
 		for (Collection<GpsPoint> c : data)
 			points += c.size();
-		return trn("{0} track", "{0} tracks", data.size(), data.size())
-		+" "+trn("{0} point", "{0} points", points, points);
+		return data.size()+" "+trn("track", "tracks", data.size())
+		+" "+points+" "+trn("point", "points", points);
 	}
 
 	@Override public void mergeFrom(Layer from) {
@@ -156,7 +156,7 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 			points += c.size();
 		}
 		b.append("</html>");
-		return "<html>"+tr("{0} consists of ")+trn("{0} track", "{0} tracks", data.size(), data.size())+" ("+trn("{0} point", "{0} points", points, points)+")<br>"+b.toString();
+		return "<html>"+tr("{0} consists of {1} track", "{0} consists of {1} tracks", data.size(), name, data.size())+" ("+trn("{0} point", "{0} points", points, points)+")<br>"+b.toString();
 	}
 
 	@Override public Component[] getMenuEntries() {

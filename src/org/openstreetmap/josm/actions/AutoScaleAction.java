@@ -1,6 +1,7 @@
 package org.openstreetmap.josm.actions;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
+import static org.xnap.commons.i18n.I18n.marktr;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -24,15 +25,20 @@ import org.openstreetmap.josm.tools.ImageProvider;
  */
 public class AutoScaleAction extends GroupAction {
 
-	private enum AutoScaleMode {data, selection, layer, conflict}
-	private AutoScaleMode mode = AutoScaleMode.data;
+	private static final String[] modes = {
+		marktr("data"), 
+		marktr("selection"),
+		marktr("layer"),
+		marktr("conflict")
+	};
+	private String mode = "data";
 	private final MapFrame mapFrame;
 
 	private class Action extends AbstractAction {
-		private final AutoScaleMode mode;
-		public Action(AutoScaleMode mode) {
-			super(tr("Auto Scale"+": "+tr(mode.toString())), ImageProvider.get("dialogs/autoscale/"+mode));
-			putValue(SHORT_DESCRIPTION, tr("Auto zoom the view")+tr("(to "+mode+")")+tr(". Disabled if the view is moved."));
+		private final String mode;
+		public Action(String mode) {
+			super(tr("Auto Scale: {0}", tr(mode)), ImageProvider.get("dialogs/autoscale/"+mode));
+			putValue(SHORT_DESCRIPTION, tr("Auto zoom the view (to {0}. Disabled if the view is moved)", tr(mode)));
 			this.mode = mode;
 		}
 		public void actionPerformed(ActionEvent e) {
@@ -47,13 +53,13 @@ public class AutoScaleAction extends GroupAction {
 
 	public AutoScaleAction(final MapFrame mapFrame) {
 		super(KeyEvent.VK_A, 0);
-		for (AutoScaleMode mode : AutoScaleMode.values())
+		for (String mode : modes)
 			actions.add(new Action(mode));
 		setCurrent(0);
 		this.mapFrame = mapFrame;
 		Main.ds.addSelectionChangedListener(new SelectionChangedListener(){
 			public void selectionChanged(Collection<? extends OsmPrimitive> newSelection) {
-				if (mode == AutoScaleMode.selection)
+				if (mode.equals("selection"))
 					mapFrame.mapView.recalculateCenterScale();
 			}
 		});
@@ -61,17 +67,13 @@ public class AutoScaleAction extends GroupAction {
 
 	public BoundingXYVisitor getBoundingBox() {
 		BoundingXYVisitor v = new BoundingXYVisitor();
-		switch (mode) {
-		case data:
+		if (mode.equals("data")) {
 			for (Layer l : mapFrame.mapView.getAllLayers())
 				l.visitBoundingBox(v);
-			break;
-		case layer:
+		} else if (mode.equals("layer"))
 			mapFrame.mapView.getActiveLayer().visitBoundingBox(v);
-			break;
-		case selection:
-		case conflict:
-			Collection<OsmPrimitive> sel = mode == AutoScaleMode.selection ? Main.ds.getSelected() : mapFrame.conflictDialog.conflicts.keySet();
+		else if (mode.equals("selection") || mode.equals("conflict")) { 
+			Collection<OsmPrimitive> sel = mode.equals("selection") ? Main.ds.getSelected() : mapFrame.conflictDialog.conflicts.keySet();
 			for (OsmPrimitive osm : sel)
 				osm.visit(v);
 			// special case to zoom nicely to one single node
@@ -80,7 +82,6 @@ public class AutoScaleAction extends GroupAction {
 				v.min = new EastNorth(v.min.east()-en.east(), v.min.north()-en.north());
 				v.max = new EastNorth(v.max.east()+en.east(), v.max.north()+en.north());
 			}
-			break;
 		}
 		return v;
 	}

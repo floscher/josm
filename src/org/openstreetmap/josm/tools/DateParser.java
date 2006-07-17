@@ -1,7 +1,5 @@
 package org.openstreetmap.josm.tools;
 
-import static org.openstreetmap.josm.tools.I18n.tr;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -41,6 +39,6 @@ public class DateParser {
 			SimpleDateFormat sdf = new SimpleDateFormat(parse);
 			try {return sdf.parse(d);} catch (ParseException pe) {}
 		}
-		throw new ParseException(tr("No applicable parse format"), 0);
+		throw new ParseException("", 0);
 	}
 }

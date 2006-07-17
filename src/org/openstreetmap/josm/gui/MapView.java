@@ -156,7 +156,7 @@ public class MapView extends NavigatableComponent {
 			Main.ds = dataLayer.data;
 			dataLayer.listenerModified.add(new ModifiedChangedListener(){
 				public void modifiedChanged(boolean value, OsmDataLayer source) {
-					JOptionPane.getFrameForComponent(Main.parent).setTitle(tr("{0}Java Open Street Map - Editor",(value?"*":"")));
+					JOptionPane.getFrameForComponent(Main.parent).setTitle((value?"*":"")+tr("Java Open Street Map - Editor"));
 				}
 			});
 		}
@@ -325,7 +325,7 @@ public class MapView extends NavigatableComponent {
 	 */
 	public void setActiveLayer(Layer layer) {
 		if (!layers.contains(layer))
-			throw new IllegalArgumentException(tr("layer must be in layerlist"));
+			throw new IllegalArgumentException("Layer must be in layerlist");
 		Layer old = activeLayer;
 		activeLayer = layer;
 		if (old != layer) {

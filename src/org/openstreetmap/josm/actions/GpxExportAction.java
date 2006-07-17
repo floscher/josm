@@ -23,7 +23,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 
 import org.openstreetmap.josm.Main;
@@ -37,12 +36,12 @@ import org.openstreetmap.josm.tools.GBC;
  */
 public class GpxExportAction extends DiskAccessAction {
 
-	private final static String warningGpl = tr("<html><font color='red' size='-2'>Note: GPL is not compatible to the OSM license. Do not upload GPL licensed tracks</html>");
+	private final static String warningGpl = "<html><font color='red' size='-2'>"+tr("Note: GPL is not compatible to the OSM license. Do not upload GPL licensed tracks.")+"</html>";
 
 	private final Layer layer;
 
 	public GpxExportAction(Layer layer) {
-		super(tr("Export to GPX"), "exportgpx", tr("Export the data to GPX file."), tr("Ctrl-E"), KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK));
+		super(tr("Export to GPX"), "exportgpx", tr("Export the data to GPX file."), KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK);
 		this.layer = layer;
 	}
 

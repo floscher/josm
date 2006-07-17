@@ -14,7 +14,6 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.KeyStroke;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -34,8 +33,7 @@ import org.xml.sax.SAXException;
  */
 public class UploadAction extends JosmAction {
 	public UploadAction() {
-		super(tr("Upload to OSM"), "upload", tr("Upload all changes to the OSM server."), tr("Ctrl-Shift-U"), 
-				KeyStroke.getKeyStroke(KeyEvent.VK_U, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
+		super(tr("Upload to OSM"), "upload", tr("Upload all changes to the OSM server."), KeyEvent.VK_U, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK);
 	}
 
 	public void actionPerformed(ActionEvent e) {

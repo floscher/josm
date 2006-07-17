@@ -12,7 +12,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.DataSet;
@@ -83,8 +82,7 @@ public class DownloadIncompleteAction extends JosmAction {
 	}
 
 	public DownloadIncompleteAction() {
-		super(tr("Download incomplete objects"), "downloadincomplete", tr("Download all (selected) incomplete ways from the OSM server."), tr("Ctrl-Shift-Alt-D"), 
-				KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK | InputEvent.ALT_DOWN_MASK));
+		super(tr("Download incomplete objects"), "downloadincomplete", tr("Download all (selected) incomplete ways from the OSM server."), KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK | InputEvent.ALT_DOWN_MASK);
 	}
 
 	public void actionPerformed(ActionEvent e) {

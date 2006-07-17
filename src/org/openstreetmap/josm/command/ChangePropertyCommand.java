@@ -67,9 +67,9 @@ public class ChangePropertyCommand extends Command {
 		if (objects.size() == 1) {
 			NameVisitor v = new NameVisitor();
 			objects.iterator().next().visit(v);
-			text += " "+v.className+" "+v.name;
+			text += " "+tr(v.className)+" "+v.name;
 		} else
-			text += objects.size()+trn("object","objects",objects.size());
+			text += objects.size()+" "+trn("object","objects",objects.size());
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode(new JLabel(text, ImageProvider.get("data", "key"), JLabel.HORIZONTAL));
 		if (objects.size() == 1)
 			return root;

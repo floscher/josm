@@ -51,7 +51,6 @@ public class AddSegmentAction extends MapMode implements MouseListener {
 		super(tr("Add segment"), 
 				"addsegment", 
 				tr("Add a segment between two nodes."), 
-				"G", 
 				KeyEvent.VK_G, 
 				mapFrame, 
 				ImageProvider.getCursor("normal", "segment"));

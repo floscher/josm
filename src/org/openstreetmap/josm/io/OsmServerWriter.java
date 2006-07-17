@@ -68,7 +68,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 				if (cancel)
 					return;
 				osm.visit(v);
-				currentAction.setText(tr("Upload {0} {1} ({2})...", v.className, v.name, osm.id));
+				currentAction.setText(tr("Upload {0} {1} ({2})...", tr(v.className), v.name, osm.id));
 				osm.visit(this);
 				progress.setValue(progress.getValue()+1);
 			}
@@ -153,7 +153,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 			OsmPrimitive osm, boolean addBody) {
 		try {
 			URL url = new URL(Main.pref.get("osm-server.url") + "/0.3/" + urlSuffix + "/" + osm.id);
-			System.out.println(tr("upload to: {0}"));
+			System.out.println("upload to: "+url);
 			activeConnection = (HttpURLConnection) url.openConnection();
 			activeConnection.setConnectTimeout(15000);
 			activeConnection.setRequestMethod(requestMethod);
@@ -170,7 +170,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 			int retCode = activeConnection.getResponseCode();
 			if (retCode == 200 && osm.id == 0)
 				osm.id = readId(activeConnection.getInputStream());
-			System.out.println(tr("got return: {0} with id {1}",retCode,osm.id));
+			System.out.println("got return: "+retCode+" with id "+osm.id);
 			String retMsg = activeConnection.getResponseMessage();
 			activeConnection.disconnect();
 			if (retCode == 410 && requestMethod.equals("DELETE"))
@@ -182,7 +182,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 				throw new RuntimeException(retCode+" "+retMsg);
 			}
 		} catch (UnknownHostException e) {
-			throw new RuntimeException(tr("Unknown host: ")+e.getMessage(), e);
+			throw new RuntimeException(tr("Unknown host")+": "+e.getMessage(), e);
 		} catch (Exception e) {
 			if (cancel)
 				return; // assume cancel

@@ -26,7 +26,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -126,8 +125,7 @@ public class DownloadAction extends JosmAction {
 	JCheckBox rawGps = new JCheckBox(tr("Open as raw gps data"), false);
 
 	public DownloadAction() {
-		super(tr("Download from OSM"), "download", tr("Download map data from the OSM server."), tr("Ctrl-Shift-D"), 
-				KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
+		super(tr("Download from OSM"), "download", tr("Download map data from the OSM server."), KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK);
 		// TODO remove when bug in Java6 is fixed
 		for (JTextField f : latlon)
 			f.setMinimumSize(new Dimension(100,new JTextField().getMinimumSize().height));

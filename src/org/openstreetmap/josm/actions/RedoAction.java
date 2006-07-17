@@ -6,8 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
-import javax.swing.KeyStroke;
-
 import org.openstreetmap.josm.Main;
 
 
@@ -22,7 +20,7 @@ public class RedoAction extends JosmAction {
 	 * Construct the action with "Undo" as label.
 	 */
 	public RedoAction() {
-		super(tr("Redo"), "redo", tr("Redo the last undone action."), tr("Ctrl-Shift-Z"), KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
+		super(tr("Redo"), "redo", tr("Redo the last undone action."), KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK);
 		setEnabled(false);
 	}
 

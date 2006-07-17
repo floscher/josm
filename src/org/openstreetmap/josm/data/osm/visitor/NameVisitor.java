@@ -45,11 +45,12 @@ public class NameVisitor implements Visitor {
 		name = ls.get("name");
 		if (name == null) {
 			if (ls.incomplete)
-				name = ls.id == 0 ? tr("new") : tr("{0} (unknown)", ls.id);
+				name = ls.id == 0 ? tr("new") : ls.id+" ("+tr("unknown")+")";
 			else
 				name = (ls.id==0?"":ls.id+" ")+"("+ls.from.coor.lat()+","+ls.from.coor.lon()+") -> ("+ls.to.coor.lat()+","+ls.to.coor.lon()+")";
 		}
 		icon = ImageProvider.get("data", "segment");
+		trn("segment", "segments", 0); // no marktrn available
 		className = "segment";
 	}
 
@@ -62,6 +63,7 @@ public class NameVisitor implements Visitor {
 		if (name == null)
 			name = (n.id==0?"":""+n.id)+" ("+n.coor.lat()+","+n.coor.lon()+")";
 		icon = ImageProvider.get("data", "node");
+		trn("node", "nodes", 0); // no marktrn available
 		className = "node";
 	}
 
@@ -87,6 +89,7 @@ public class NameVisitor implements Visitor {
 				name += " ("+tr("incomplete")+")";
 		}
 		icon = ImageProvider.get("data", "way");
+		trn("way", "ways", 0); // no marktrn available
 		className = "way";
 	}
 	

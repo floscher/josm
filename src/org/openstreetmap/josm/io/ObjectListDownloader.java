@@ -32,7 +32,7 @@ public class ObjectListDownloader extends OsmServerReader {
 			final NameVisitor namer = new NameVisitor();
 			for (OsmPrimitive osm : toDownload) {
 				osm.visit(namer);
-				download(namer.className, osm.id);
+				download(tr(namer.className), osm.id);
 				if (cancel)
 					break;
 			}

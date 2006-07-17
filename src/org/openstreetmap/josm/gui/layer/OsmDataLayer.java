@@ -150,9 +150,9 @@ public class OsmDataLayer extends Layer {
 	}
 
 	@Override public String getToolTipText() {
-		return trn("{0} node", "{0} nodes", undeletedSize(data.nodes), undeletedSize(data.nodes))
-		+trn("{0} segment", "{0} segments", undeletedSize(data.segments), undeletedSize(data.segments))
-		+trn("{0} way", "{0} ways", undeletedSize(data.ways), undeletedSize(data.ways));
+		return undeletedSize(data.nodes)+" "+trn("node", "nodes", undeletedSize(data.nodes))+
+		undeletedSize(data.segments)+" "+trn("segment", "segments", undeletedSize(data.segments))+
+		undeletedSize(data.ways)+" "+trn("way", "ways", undeletedSize(data.ways));
 	}
 
 	@Override public void mergeFrom(final Layer from) {

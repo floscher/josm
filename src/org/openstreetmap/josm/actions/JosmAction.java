@@ -7,6 +7,7 @@ import javax.swing.KeyStroke;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.tools.ImageProvider;
+import org.openstreetmap.josm.tools.ShortCutLabel;
 
 /**
  * Base class helper for all Actions in JOSM. Just to make the life easier.
@@ -29,12 +30,12 @@ abstract public class JosmAction extends AbstractAction {
 	}
 
 
-	public JosmAction(String name, String iconName, String tooltip, String shortCutName, KeyStroke shortCut) {
+	public JosmAction(String name, String iconName, String tooltip, int shortCut, int modifier) {
 		super(name, ImageProvider.get(iconName));
-		putValue(SHORT_DESCRIPTION, "<html>"+tooltip+" <font size='-2'>"+shortCutName+"</font>&nbsp;</html>");
+		putValue(SHORT_DESCRIPTION, "<html>"+tooltip+" <font size='-2'>"+ShortCutLabel.name(shortCut, modifier)+"</font>&nbsp;</html>");
 		//Main.panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(shortCut, name);
         //Main.panel.getActionMap().put(name, this);
-        Main.contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(shortCut, name);
+        Main.contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(shortCut, modifier), name);
         Main.contentPane.getActionMap().put(name, this);
 	}
 

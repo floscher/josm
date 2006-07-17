@@ -8,11 +8,9 @@ import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.KeyStroke;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.JosmAction;
-import org.openstreetmap.josm.tools.ShortCutLabel;
 
 /**
  * This class is a toggle dialog that can be turned on and off. It is attached
@@ -26,8 +24,8 @@ public class ToggleDialog extends JPanel {
 	    public final String prefname;
 	    public AbstractButton button;
 
-	    private ToggleDialogAction(String name, String iconName, String tooltip, String shortcut, KeyStroke cut, String prefname) {
-		    super(name, iconName, tooltip, shortcut, cut);
+	    private ToggleDialogAction(String name, String iconName, String tooltip, int shortCut, int modifier, String prefname) {
+		    super(name, iconName, tooltip, shortCut, modifier);
 		    this.prefname = prefname;
 	    }
 
@@ -47,7 +45,7 @@ public class ToggleDialog extends JPanel {
 
 	public ToggleDialog(String name, String iconName, String tooltip, int shortCut) {
 		this.prefName = iconName;
-		action = new ToggleDialogAction(name, "dialogs/"+iconName, tooltip, ShortCutLabel.name(shortCut, KeyEvent.ALT_MASK), KeyStroke.getKeyStroke(shortCut, KeyEvent.ALT_MASK), iconName);
+		action = new ToggleDialogAction(name, "dialogs/"+iconName, tooltip, shortCut, KeyEvent.ALT_MASK, iconName);
 		setLayout(new BorderLayout());
 		add(new JLabel(name), BorderLayout.NORTH);
 		setVisible(false);
