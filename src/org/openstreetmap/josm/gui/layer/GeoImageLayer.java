@@ -93,7 +93,7 @@ public class GeoImageLayer extends Layer {
 			for (Collection<GpsPoint> c : gpsLayer.data) {
 				for (GpsPoint p : c) {
 					if (p.time == null)
-						throw new IOException(tr("No time for point {0},{1}",p.latlon.lat(),p.latlon.lon()));
+						throw new IOException(tr("No time for point {0} x {1}",p.latlon.lat(),p.latlon.lon()));
 					Date d = null;
                     try {
                         d = DateParser.parse(p.time);
@@ -278,7 +278,7 @@ public class GeoImageLayer extends Layer {
 		for (ImageEntry e : data)
 			if (e.pos != null)
 				i++;
-		return trn("{0} image. {1} within the track.","{0} images. {1} within the track.",data.size(),data.size(),i);
+		return data.size()+" "+trn("image","images",data.size())+". "+tr("{0} within the track.",i);
 	}
 
 	@Override public boolean isMergable(Layer other) {

@@ -43,7 +43,7 @@ public class DeleteCommand extends Command {
 
 		if (data.size() == 1) {
 			data.iterator().next().visit(v);
-			return new DefaultMutableTreeNode(new JLabel(tr("Delete"+" "+v.className+" "+v.name), v.icon, JLabel.HORIZONTAL));
+			return new DefaultMutableTreeNode(new JLabel(tr("Delete")+" "+tr(v.className)+" "+v.name, v.icon, JLabel.HORIZONTAL));
 		}
 
 		String cname = null;
@@ -52,7 +52,7 @@ public class DeleteCommand extends Command {
 			if (cname == null)
 				cname = v.className;
 			else if (!cname.equals(v.className))
-				cname = "primitive";
+				cname = "object";
 		}
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode(new JLabel(
 				tr("Delete")+" "+data.size()+" "+trn(cname, cname+"s", data.size()), ImageProvider.get("data", cname), JLabel.HORIZONTAL));

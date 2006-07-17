@@ -55,7 +55,6 @@ public class DeleteAction extends MapMode {
 		super(tr("Delete"), 
 				"delete", 
 				tr("Delete nodes, streets or segments."), 
-				"D", 
 				KeyEvent.VK_D, 
 				mapFrame, 
 				ImageProvider.getCursor("normal", "delete"));

@@ -2,6 +2,7 @@ package org.openstreetmap.josm.gui.dialogs;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
 import static org.openstreetmap.josm.tools.I18n.trn;
+import static org.xnap.commons.i18n.I18n.marktr;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -85,7 +86,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	void edit(int row) {
 		String key = data.getValueAt(row, 0).toString();
 		Collection<OsmPrimitive> sel = Main.ds.getSelected();
-		String msg = "<html>"+trn("This will change {0} object.", "This will change {0} objects.", sel.size(), sel.size())+"<br><br> "+tr("Please select a new value for \"{0}\".<br>(Empty string deletes the key.)</html>)", key);
+		String msg = "<html>"+trn("This will change {0} object.", "This will change {0} objects.", sel.size(), sel.size())+"<br><br> "+tr("Please select a new value for \"{0}\".<br>(Empty string deletes the key.)", key)+"</html>";
 		final JComboBox combo = (JComboBox)data.getValueAt(row, 1);
 		JPanel p = new JPanel(new BorderLayout());
 		p.add(new JLabel(msg), BorderLayout.NORTH);
@@ -135,9 +136,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		Collection<OsmPrimitive> sel = Main.ds.getSelected();
 
 		JPanel p = new JPanel(new BorderLayout());
-		p.add(new JLabel(trn("<html>This will change {0} object.<br><br>Please select a key",
-				"<html>This will change {0} objects.<br><br>Please select a key",
-				sel.size(),sel.size())),
+		p.add(new JLabel("<html>"+trn("This will change {0} object.","This will change {0} objects.", sel.size(),sel.size())+"<br><br>"+tr("Please select a key")),
 				BorderLayout.NORTH);
 		TreeSet<String> allKeys = new TreeSet<String>();
 		for (OsmPrimitive osm : Main.ds.allNonDeletedPrimitives())
@@ -249,14 +248,14 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 				}
 			}
 		};
-		buttonPanel.add(createButton(tr("Add"),tr("Add a new key/value pair to all objects"), KeyEvent.VK_A, buttonAction));
-		buttonPanel.add(createButton(tr("Edit"),tr( "Edit the value of the selected key for all objects"), KeyEvent.VK_E, buttonAction));
-		buttonPanel.add(createButton(tr("Delete"),tr("Delete the selected key in all objects"), KeyEvent.VK_D, buttonAction));
+		buttonPanel.add(createButton(marktr("Add"),tr("Add a new key/value pair to all objects"), KeyEvent.VK_A, buttonAction));
+		buttonPanel.add(createButton(marktr("Edit"),tr( "Edit the value of the selected key for all objects"), KeyEvent.VK_E, buttonAction));
+		buttonPanel.add(createButton(marktr("Delete"),tr("Delete the selected key in all objects"), KeyEvent.VK_D, buttonAction));
 		add(buttonPanel, BorderLayout.SOUTH);
 	}
 
 	private JButton createButton(String name, String tooltip, int mnemonic, ActionListener actionListener) {
-		JButton b = new JButton(name, ImageProvider.get("dialogs", name.toLowerCase()));
+		JButton b = new JButton(tr(name), ImageProvider.get("dialogs", name.toLowerCase()));
 		b.setActionCommand(name);
 		b.addActionListener(actionListener);
 		b.setToolTipText(tooltip);

@@ -6,7 +6,6 @@ import java.io.File;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -16,8 +15,8 @@ import org.openstreetmap.josm.data.osm.OsmPrimitive;
  */
 abstract public class DiskAccessAction extends JosmAction {
 
-	public DiskAccessAction(String name, String iconName, String tooltip, String shortCutName, KeyStroke shortCut) {
-		super(name, iconName, tooltip, shortCutName, shortCut);
+	public DiskAccessAction(String name, String iconName, String tooltip, int shortCut, int modifiers) {
+		super(name, iconName, tooltip, shortCut, modifiers);
 	}
 	
 	

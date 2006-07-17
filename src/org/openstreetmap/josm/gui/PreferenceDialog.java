@@ -229,13 +229,13 @@ public class PreferenceDialog extends JDialog {
 		Vector<Vector<Object>> rows = new Vector<Vector<Object>>();
 		for (Entry<String,String> e : allColors.entrySet()) {
 			Vector<Object> row = new Vector<Object>(2);
-			row.add(e.getKey().substring("color.".length()));
+			row.add(tr(e.getKey().substring("color.".length())));
 			row.add(ColorHelper.html2color(e.getValue()));
 			rows.add(row);
 		}
 		Vector<Object> cols = new Vector<Object>(2);
-		cols.add("Color");
-		cols.add("Name");
+		cols.add(tr("Color"));
+		cols.add(tr("Name"));
 		colors = new JTable(rows, cols){
 			@Override public boolean isCellEditable(int row, int column) {
 				return false;

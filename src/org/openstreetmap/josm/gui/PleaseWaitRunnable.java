@@ -52,7 +52,7 @@ public abstract class PleaseWaitRunnable implements Runnable {
 		pane.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 		pane.add(currentAction, GBC.eol().fill(GBC.HORIZONTAL));
 		pane.add(progressBar, GBC.eop().fill(GBC.HORIZONTAL));
-		JButton cancel = new JButton(tr(tr("Cancel")));
+		JButton cancel = new JButton(tr("Cancel"));
 		pane.add(cancel, GBC.eol().anchor(GBC.CENTER));
 		pleaseWaitDlg.setContentPane(pane);
 		pleaseWaitDlg.setSize(350,100);
@@ -78,10 +78,10 @@ public abstract class PleaseWaitRunnable implements Runnable {
 			realRun();
 		} catch (SAXException x) {
 			x.printStackTrace();
-			errorMessage = tr("Error while parsing: ")+x.getMessage();
+			errorMessage = tr("Error while parsing")+": "+x.getMessage();
 		} catch (FileNotFoundException x) {
 			x.printStackTrace();
-			errorMessage = tr("Not found: ") + x.getMessage();
+			errorMessage = tr("File Not found")+": "+x.getMessage();
 		} catch (IOException x) {
 			x.printStackTrace();
 			errorMessage = x.getMessage();

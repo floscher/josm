@@ -160,7 +160,7 @@ public class ConflictResolver extends JPanel {
 		}
 		
 		if (this.conflicts.isEmpty())
-			throw new RuntimeException(tr("No conflicts but in conflict list:\n{0}" , Arrays.toString(conflicts.entrySet().toArray())));
+			throw new RuntimeException("No conflicts but in conflict list:\n"+Arrays.toString(conflicts.entrySet().toArray()));
 
 		// have to initialize the JTables here and not in the declaration, because its constructor
 		// may access this.conflicts (indirectly)

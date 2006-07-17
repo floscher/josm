@@ -51,7 +51,6 @@ public class MoveAction extends MapMode {
 		super(tr("Move"), 
 				"move", 
 				tr("Move selected objects around."), 
-				"M", 
 				KeyEvent.VK_M, 
 				mapFrame, 
 				ImageProvider.getCursor("normal", "move"));

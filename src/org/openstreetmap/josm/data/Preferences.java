@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.data;
 
+import static org.xnap.commons.i18n.I18n.marktr;
+
 import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -127,14 +129,14 @@ public class Preferences {
 		properties.put("laf", "javax.swing.plaf.metal.MetalLookAndFeel");
 		properties.put("projection", "org.openstreetmap.josm.data.projection.Epsg4326");
 		properties.put("osm-server.url", "http://www.openstreetmap.org/api");
-		properties.put("color.background", ColorHelper.color2html(Color.black));
-		properties.put("color.node", ColorHelper.color2html(Color.red));
-		properties.put("color.segment", ColorHelper.color2html(SimplePaintVisitor.darkgreen));
-		properties.put("color.way", ColorHelper.color2html(SimplePaintVisitor.darkblue));
-		properties.put("color.incomplete way", ColorHelper.color2html(SimplePaintVisitor.darkerblue));
-		properties.put("color.selected", ColorHelper.color2html(Color.white));
-		properties.put("color.gps point", ColorHelper.color2html(Color.gray));
-		properties.put("color.conflict", ColorHelper.color2html(Color.gray));
+		properties.put("color."+marktr("background"), ColorHelper.color2html(Color.black));
+		properties.put("color."+marktr("node"), ColorHelper.color2html(Color.red));
+		properties.put("color."+marktr("segment"), ColorHelper.color2html(SimplePaintVisitor.darkgreen));
+		properties.put("color."+marktr("way"), ColorHelper.color2html(SimplePaintVisitor.darkblue));
+		properties.put("color."+marktr("incomplete way"), ColorHelper.color2html(SimplePaintVisitor.darkerblue));
+		properties.put("color."+marktr("selected"), ColorHelper.color2html(Color.white));
+		properties.put("color."+marktr("gps point"), ColorHelper.color2html(Color.gray));
+		properties.put("color."+marktr("conflict"), ColorHelper.color2html(Color.gray));
 		save();
 	}
 }

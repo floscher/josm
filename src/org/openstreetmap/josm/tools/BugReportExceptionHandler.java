@@ -48,7 +48,7 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 					e.printStackTrace(new PrintWriter(stack));
 
 					URL revUrl = Main.class.getResource("/REVISION");
-					StringBuilder sb = new StringBuilder("Please send this to josm@eigenheimstrasse.de\n\n");
+					StringBuilder sb = new StringBuilder(tr("Please send this to josm@eigenheimstrasse.de\n\n"));
 					if (revUrl == null) {
 						sb.append("Development version. Unknown revision.");
 						File f = new File("org/openstreetmap/josm/Main.class");
@@ -69,7 +69,7 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 					sb.append("\n"+stack.getBuffer().toString());
 
 					JPanel p = new JPanel(new GridBagLayout());
-					p.add(new JLabel("Please send an email with the following information to josm@eigenheimstrasse.de"), GBC.eop());
+					p.add(new JLabel(tr("Please send an email with the following information to josm@eigenheimstrasse.de")), GBC.eop());
 
 					JTextArea info = new JTextArea(sb.toString(), 20, 60);
 					info.setCaretPosition(0);

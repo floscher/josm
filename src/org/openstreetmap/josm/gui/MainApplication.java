@@ -48,7 +48,7 @@ public class MainApplication extends Main {
 						}
 					}
 					if (modified) {
-						final String msg = uploadedModified ? tr("\nHint: Some changes came from uploading new data to the server.") : "";
+						final String msg = uploadedModified ? "\n"+tr("Hint: Some changes came from uploading new data to the server.") : "";
 						final int answer = JOptionPane.showConfirmDialog(
 								Main.parent, tr("There are unsaved changes. Really quit?")+msg,
 								tr("Unsaved Changes"), JOptionPane.YES_NO_OPTION);

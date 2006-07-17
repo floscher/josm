@@ -11,7 +11,6 @@ import java.io.IOException;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
 import org.openstreetmap.josm.Main;
@@ -30,7 +29,7 @@ public class SaveAction extends DiskAccessAction {
 	 * 		data set.
 	 */
 	public SaveAction() {
-		super(tr("Save"), "save", tr("Save the current data."), tr("Ctrl-S"), KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
+		super(tr("Save"), "save", tr("Save the current data."), KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK);
 	}
 	
 	public void actionPerformed(ActionEvent event) {

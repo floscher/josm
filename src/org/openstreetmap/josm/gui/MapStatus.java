@@ -218,9 +218,9 @@ public class MapStatus extends JPanel {
 		nameText.setEditable(false);
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-		add(new JLabel(tr("Lat/Lon ")));
+		add(new JLabel(tr("Lat/Lon")+" "));
 		add(positionText);
-		add(new JLabel(tr(" Object ")));
+		add(new JLabel(" "+tr("Object")+" "));
 		add(nameText);
 
 		// The background thread

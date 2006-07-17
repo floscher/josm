@@ -6,8 +6,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
-import javax.swing.KeyStroke;
-
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.JosmAction;
 import org.openstreetmap.josm.gui.MapFrame;
@@ -28,8 +26,8 @@ abstract public class MapMode extends JosmAction implements MouseListener, Mouse
 	/**
 	 * Constructor for mapmodes without an menu
 	 */
-	public MapMode(String name, String iconName, String tooltip, String keyname, int keystroke, MapFrame mapFrame, Cursor cursor) {
-		super(name, "mapmode/"+iconName, tooltip, keyname, KeyStroke.getKeyStroke(keystroke, 0));
+	public MapMode(String name, String iconName, String tooltip, int keystroke, MapFrame mapFrame, Cursor cursor) {
+		super(name, "mapmode/"+iconName, tooltip, keystroke, 0);
 //		this.cursor = cursor;
 		putValue("active", false);
 	}

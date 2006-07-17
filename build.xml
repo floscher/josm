@@ -62,7 +62,9 @@
         	<arg line="-ktr -ktrn:1,2 -ktrc -kmarktr -Ljava -o${build}/keys.pot -f${build}/alljava.txt"/>
         </exec>
         <apply executable="msgmerge">
-        	<arg line="-U ${build}/keys.pot"/>
+        	<arg value="-U"/>
+			<srcfile/>
+        	<arg file="${build}/keys.pot"/>
         	<fileset dir="${po}">
         		<include name="*.po"/>
         	</fileset>

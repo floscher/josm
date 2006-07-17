@@ -14,7 +14,6 @@ import java.util.LinkedList;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.DataSet;
@@ -38,7 +37,7 @@ public class OpenAction extends DiskAccessAction {
 	 * Create an open action. The name is "Open a file".
 	 */
 	public OpenAction() {
-		super(tr("Open"), "open", tr("Open a file."), tr("Ctrl-O"), KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
+		super(tr("Open"), "open", tr("Open a file."), KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK);
 	}
 
 	public void actionPerformed(ActionEvent e) {

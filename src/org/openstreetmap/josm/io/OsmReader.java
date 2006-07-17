@@ -93,9 +93,9 @@ public class OsmReader {
 			try {
 				if (qName.equals("osm")) {
 					if (atts == null)
-						throw new SAXException(tr("Unknown version."));
+						throw new SAXException(tr("Unknown version"));
 					if (!"0.3".equals(atts.getValue("version")))
-						throw new SAXException(tr("Unknown version {0}",atts.getValue("version")));
+						throw new SAXException(tr("Unknown version")+": "+atts.getValue("version"));
 				} else if (qName.equals("node")) {
 					current = new Node(new LatLon(getDouble(atts, "lat"), getDouble(atts, "lon")));
 					readCommon(atts, current);

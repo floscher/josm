@@ -16,7 +16,10 @@ public class ShortCutLabel {
 			s += tr("AltGr-");
 		if ((modifiers & KeyEvent.SHIFT_MASK) != 0)
 			s += tr("Shift-");
-		s += Character.toUpperCase((char)shortCut);
+		if (shortCut >= KeyEvent.VK_F1 && shortCut <= KeyEvent.VK_F12)
+			s += "F"+(shortCut-KeyEvent.VK_F1+1);
+		else
+			s += Character.toUpperCase((char)shortCut);
 		return s;
 	}
 }
