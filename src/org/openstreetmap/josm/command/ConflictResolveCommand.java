@@ -74,6 +74,6 @@ public class ConflictResolveCommand extends Command {
 		for (ConflictItem c : conflicts)
 			if (c.resolution != null)
 				i++;
-		return new DefaultMutableTreeNode(new JLabel(tr("Resolve {0} conflicts in {1} objects",i,resolved.size()), ImageProvider.get("data", "primitive"), JLabel.HORIZONTAL));
+		return new DefaultMutableTreeNode(new JLabel(tr("Resolve {0} conflicts in {1} objects",i,resolved.size()), ImageProvider.get("data", "object"), JLabel.HORIZONTAL));
     }
 }
