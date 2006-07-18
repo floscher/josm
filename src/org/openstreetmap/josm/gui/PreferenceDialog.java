@@ -77,6 +77,7 @@ public class PreferenceDialog extends JDialog {
 			Main.pref.put("csv.importstring", csvImportString.getText());
 			Main.pref.put("draw.rawgps.lines", drawRawGpsLines.isSelected());
 			Main.pref.put("draw.rawgps.lines.force", forceRawGpsLines.isSelected());
+			Main.pref.put("draw.rawgps.large", largeGpsPoints.isSelected());
 			Main.pref.put("draw.segment.direction", directionHint.isSelected());
 
 			for (int i = 0; i < colors.getRowCount(); ++i) {
@@ -156,6 +157,7 @@ public class PreferenceDialog extends JDialog {
 	 * The checkbox stating whether raw gps lines should be forced.
 	 */
 	private JCheckBox forceRawGpsLines = new JCheckBox(tr("Force lines if no segments imported."));
+	private JCheckBox largeGpsPoints = new JCheckBox(tr("Draw large GPS points."));
 	private JCheckBox directionHint = new JCheckBox(tr("Draw Direction Arrows"));
 	private JTable colors;
 
@@ -219,6 +221,8 @@ public class PreferenceDialog extends JDialog {
 		forceRawGpsLines.setToolTipText(tr("Force drawing of lines if the imported data contain no line information."));
 		forceRawGpsLines.setSelected(Main.pref.getBoolean("draw.rawgps.lines.force"));
 		forceRawGpsLines.setEnabled(drawRawGpsLines.isSelected());
+		largeGpsPoints.setSelected(Main.pref.getBoolean("draw.rawgps.large"));
+		largeGpsPoints.setToolTipText(tr("Draw larger dots for the GPS points."));
 		directionHint.setToolTipText(tr("Draw direction hints for all segments."));
 		directionHint.setSelected(Main.pref.getBoolean("draw.segment.direction"));
 
@@ -295,6 +299,7 @@ public class PreferenceDialog extends JDialog {
 		display.add(lafCombo, GBC.eol().fill(GBC.HORIZONTAL));
 		display.add(drawRawGpsLines, GBC.eol().insets(20,0,0,0));
 		display.add(forceRawGpsLines, GBC.eop().insets(40,0,0,0));
+		display.add(largeGpsPoints, GBC.eop().insets(20,0,0,0));
 		display.add(directionHint, GBC.eop().insets(20,0,0,0));
 		display.add(new JLabel(tr("Colors")), GBC.eol());
 		colors.setPreferredScrollableViewportSize(new Dimension(100,112));

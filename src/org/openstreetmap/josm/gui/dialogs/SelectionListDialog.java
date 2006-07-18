@@ -40,7 +40,7 @@ import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.OsmPrimitivRenderer;
 import org.openstreetmap.josm.gui.PleaseWaitRunnable;
 import org.openstreetmap.josm.io.OsmIdReader;
-import org.openstreetmap.josm.io.ProgressReader;
+import org.openstreetmap.josm.io.ProgressInputStream;
 import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.ImageProvider;
 import org.openstreetmap.josm.tools.SearchCompiler;
@@ -73,7 +73,7 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 			sel = mode != SearchMode.remove ? new LinkedList<OsmPrimitive>() : Main.ds.allNonDeletedPrimitives();
 			try {
 		        URLConnection con = url.openConnection();
-		        InputStream in = new ProgressReader(con, progress, currentAction);
+		        InputStream in = new ProgressInputStream(con, progress, currentAction);
 				currentAction.setText(tr("Downloading..."));
 				Map<Long, String> ids = idReader.parseIds(in);
 		        for (OsmPrimitive osm : Main.ds.allNonDeletedPrimitives()) {

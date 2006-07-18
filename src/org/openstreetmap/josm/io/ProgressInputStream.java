@@ -11,7 +11,7 @@ import javax.swing.JLabel;
  * Read from an other reader and increment an progress counter while on the way.
  * @author Imi
  */
-public class ProgressReader extends InputStream {
+public class ProgressInputStream extends InputStream {
 
 	private final InputStream in;
 	private final BoundedRangeModel progress;
@@ -20,7 +20,7 @@ public class ProgressReader extends InputStream {
 	private int lastDialogUpdate = 0;
 	private final URLConnection connection;
 
-	public ProgressReader(URLConnection con, BoundedRangeModel progress, JLabel currentAction) throws IOException {
+	public ProgressInputStream(URLConnection con, BoundedRangeModel progress, JLabel currentAction) throws IOException {
 		this.connection = con;
 		this.in = con.getInputStream();
 		this.progress = progress;

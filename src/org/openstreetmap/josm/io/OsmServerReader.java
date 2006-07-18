@@ -29,6 +29,6 @@ abstract class OsmServerReader extends OsmConnection {
 		activeConnection.setConnectTimeout(15000);
 		if (isAuthCancelled() && activeConnection.getResponseCode() == 401)
 			return null;
-		return new ProgressReader(activeConnection, progress, currentAction);
+		return new ProgressInputStream(activeConnection, progress, currentAction);
 	}
 }
