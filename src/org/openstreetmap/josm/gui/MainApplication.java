@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.swing.JFrame;
@@ -69,42 +70,8 @@ public class MainApplication extends Main {
 	public static void main(final String[] argArray) {
 		Thread.setDefaultUncaughtExceptionHandler(new BugReportExceptionHandler());
 
-		List<String> argList = Arrays.asList(argArray);
-		if (argList.contains("--help") || argList.contains("-?") || argList.contains("-h")) {
-			System.out.println(tr("Java OpenStreetMap Editor\n\n"+
-						   "usage:\n"+
-						   "\tjava -jar josm.jar <option> <option> <option>...\n\n"+
-						   "options:\n"+
-						   "\t--help|-?|-h                              Show this help\n"+
-						   "\t--geometry=widthxheight(+|-)x(+|-)y       Standard unix geometry argument\n"+
-						   "\t[--download=]minlat,minlon,maxlat,maxlon  Download the bounding box\n"+
-						   "\t[--download=]<url>                        Download the location at the url (with lat=x&lon=y&zoom=z)\n"+
-						   "\t[--download=]<filename>                   Open file (as raw gps, if .gpx or .csv)\n"+
-						   "\t--downloadgps=minlat,minlon,maxlat,maxlon Download the bounding box as raw gps\n"+
-						   "\t--selection=<searchstring>                Select with the given search\n"+
-						   "\t--no-fullscreen                           Don't launch in fullscreen mode\n"+
-						   "\t--reset-preferences                       Reset the preferences to default\n\n"+
-						   "examples:\n"+
-						   "\tjava -jar josm.jar track1.gpx track2.gpx london.osm\n"+
-						   "\tjava -jar josm.jar http://www.openstreetmap.org/index.html?lat=43.2&lon=11.1&zoom=13\n"+
-						   "\tjava -jar josm.jar london.osm --selection=http://www.ostertag.name/osm/OSM_errors_node-duplicate.xml\n"+
-						   "\tjava -jar josm.jar 43.2,11.1,43.4,11.4\n\n"+
-
-						   "Parameters are read in the order they are specified, so make sure you load\n"+
-						   "some data before --selection\n\n"+
-						   "Instead of --download=<bbox> you may specify osm://<bbox>\n"));
-			System.exit(0);
-		}
-
-		final File prefDir = new File(Main.pref.getPreferencesDir());
-		if (prefDir.exists() && !prefDir.isDirectory()) {
-			JOptionPane.showMessageDialog(null, tr("Cannot open preferences directory: {0}",Main.pref.getPreferencesDir()));
-			return;
-		}
-		if (!prefDir.exists())
-			prefDir.mkdirs();
-
 		// construct argument table
+		List<String> argList = Arrays.asList(argArray);
 		Map<String, Collection<String>> args = new HashMap<String, Collection<String>>();
 		for (String arg : argArray) {
 			if (!arg.startsWith("--"))
@@ -118,6 +85,54 @@ public class MainApplication extends Main {
 			v.add(value);
 			args.put(key, v);
 		}
+
+		// very first thing to do is to setup the locale
+		if (args.containsKey("language") && !args.get("language").isEmpty() && args.get("language").iterator().next().length() >= 2) {
+			String s = args.get("language").iterator().next();
+			Locale l = null;
+			if (s.length() <= 2 || s.charAt(2) != '_')
+				l = new Locale(s);
+			else if (s.length() <= 5 || s.charAt(5) != '.')
+				l = new Locale(s.substring(0,2), s.substring(3));
+			else
+				l = new Locale(s.substring(0,2), s.substring(3,5), s.substring(6));
+			Locale.setDefault(l);
+		}
+		
+		if (argList.contains("--help") || argList.contains("-?") || argList.contains("-h")) {
+			System.out.println(tr("Java OpenStreetMap Editor")+"\n\n"+
+					tr("usage")+":\n"+
+					"\tjava -jar josm.jar <option> <option> <option>...\n\n"+
+					tr("options")+":\n"+
+					"\t--help|-?|-h                              "+tr("Show this help")+"\n"+
+					"\t--geometry=widthxheight(+|-)x(+|-)y       "+tr("Standard unix geometry argument")+"\n"+
+					"\t[--download=]minlat,minlon,maxlat,maxlon  "+tr("Download the bounding box")+"\n"+
+					"\t[--download=]<url>                        "+tr("Download the location at the url (with lat=x&lon=y&zoom=z)")+"\n"+
+					"\t[--download=]<filename>                   "+tr("Open file (as raw gps, if .gpx or .csv)")+"\n"+
+					"\t--downloadgps=minlat,minlon,maxlat,maxlon "+tr("Download the bounding box as raw gps")+"\n"+
+					"\t--selection=<searchstring>                "+tr("Select with the given search")+"\n"+
+					"\t--no-fullscreen                           "+tr("Don't launch in fullscreen mode")+"\n"+
+					"\t--reset-preferences                       "+tr("Reset the preferences to default")+"\n\n"+
+					"\t--language=<language>                     "+tr("Set the language. Example: ")+"\n\n"+
+					tr("examples")+":\n"+
+					"\tjava -jar josm.jar track1.gpx track2.gpx london.osm\n"+
+					"\tjava -jar josm.jar http://www.openstreetmap.org/index.html?lat=43.2&lon=11.1&zoom=13\n"+
+					"\tjava -jar josm.jar london.osm --selection=http://www.ostertag.name/osm/OSM_errors_node-duplicate.xml\n"+
+					"\tjava -jar josm.jar 43.2,11.1,43.4,11.4\n\n"+
+
+					tr("Parameters are read in the order they are specified, so make sure you load\n"+
+					"some data before --selection")+"\n\n"+
+					tr("Instead of --download=<bbox> you may specify osm://<bbox>\n"));
+			System.exit(0);
+		}
+
+		final File prefDir = new File(Main.pref.getPreferencesDir());
+		if (prefDir.exists() && !prefDir.isDirectory()) {
+			JOptionPane.showMessageDialog(null, tr("Cannot open preferences directory: {0}",Main.pref.getPreferencesDir()));
+			return;
+		}
+		if (!prefDir.exists())
+			prefDir.mkdirs();
 
 		preConstructorInit(args);
 		JFrame mainFrame = new JFrame(tr("Java Open Street Map - Editor"));

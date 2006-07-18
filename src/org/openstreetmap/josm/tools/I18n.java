@@ -19,7 +19,7 @@ public class I18n {
 		try {
 	        i18n = I18nFactory.getI18n(Main.class);
         } catch (MissingResourceException e) {
-        	System.out.println("Locale '"+Locale.getDefault().getLanguage()+"' not found. Using default.");
+        	System.out.println("Locale '"+Locale.getDefault()+"' not found. Using default.");
         }
 	}
 	

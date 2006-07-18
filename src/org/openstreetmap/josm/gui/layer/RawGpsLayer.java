@@ -111,15 +111,21 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 		else
 			g.setColor(Color.GRAY);
 		Point old = null;
+		
+		boolean force = Main.pref.getBoolean("draw.rawgps.lines.force");
+		boolean lines = Main.pref.getBoolean("draw.rawgps.lines");
+		boolean large = Main.pref.getBoolean("draw.rawgps.large");
 		for (Collection<GpsPoint> c : data) {
-			if (!Main.pref.getBoolean("draw.rawgps.lines.force"))
+			if (!force)
 				old = null;
 			for (GpsPoint p : c) {
 				Point screen = mv.getPoint(p.eastNorth);
-				if (Main.pref.getBoolean("draw.rawgps.lines") && old != null)
+				if (lines && old != null)
 					g.drawLine(old.x, old.y, screen.x, screen.y);
-				else
+				else if (!large)
 					g.drawRect(screen.x, screen.y, 0, 0);
+				if (large)
+					g.fillRect(screen.x-1, screen.y-1, 3, 3);
 				old = screen;
 			}
 		}

@@ -233,14 +233,14 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		ActionListener buttonAction = new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				int sel = propertyTable.getSelectedRow();
-				if (e.getActionCommand().equals(tr("Add")))
+				if (e.getActionCommand().equals("Add"))
 					add();
-				else if (e.getActionCommand().equals(tr("Edit"))) {
+				else if (e.getActionCommand().equals("Edit")) {
 					if (sel == -1)
 						JOptionPane.showMessageDialog(Main.parent, tr("Please select the row to edit."));
 					else
 						edit(sel);
-				} else if (e.getActionCommand().equals(tr("Delete"))) {
+				} else if (e.getActionCommand().equals("Delete")) {
 					if (sel == -1)
 						JOptionPane.showMessageDialog(Main.parent, tr("Please select the row to delete."));
 					else
