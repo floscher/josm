@@ -291,7 +291,6 @@ public class PreferenceDialog extends JDialog {
 		});
 
 		// Annotation source panels
-		JPanel annoButton = new JPanel(new GridBagLayout());
 		JButton addAnno = new JButton(tr("Add"));
 		addAnno.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
@@ -302,9 +301,6 @@ public class PreferenceDialog extends JDialog {
 				requiresRestart = true;
 			}
 		});
-		GBC g = GBC.eol().fill(GBC.HORIZONTAL);
-		g.weightx = 0;
-		annoButton.add(addAnno,g);
 
 		JButton editAnno = new JButton(tr("Edit"));
 		editAnno.addActionListener(new ActionListener(){
@@ -320,8 +316,6 @@ public class PreferenceDialog extends JDialog {
 				}
 			}
 		});
-		annoButton.add(GBC.glue(0, 2), GBC.eol());
-		annoButton.add(editAnno,g);
 
 		JButton deleteAnno = new JButton(tr("Delete"));
 		deleteAnno.addActionListener(new ActionListener(){
@@ -334,9 +328,7 @@ public class PreferenceDialog extends JDialog {
 				}
 			}
 		});
-		annoButton.add(GBC.glue(0, 2), GBC.eol());
-		annoButton.add(deleteAnno,g);
-		annotationSources.setVisibleRowCount(5);
+		annotationSources.setVisibleRowCount(3);
 
 
 
@@ -401,10 +393,18 @@ public class PreferenceDialog extends JDialog {
 		map.add(new JLabel(tr("Projection method")), GBC.std());
 		map.add(GBC.glue(5,0), GBC.std().fill(GBC.HORIZONTAL));
 		map.add(projectionCombo, GBC.eop().fill(GBC.HORIZONTAL).insets(0,0,0,5));
-		map.add(new JLabel(tr("Annotation preset sources")), GBC.eol());
-		map.add(new JScrollPane(annotationSources), GBC.std().fill(GBC.HORIZONTAL).insets(10,0,10,0));
-		map.add(annoButton, GBC.eol());
+		map.add(new JLabel(tr("Annotation preset sources")), GBC.eol().insets(0,5,0,0));
+		map.add(new JScrollPane(annotationSources), GBC.eol().fill(GBC.BOTH));
+		map.add(GBC.glue(5, 0), GBC.std().fill(GBC.HORIZONTAL));
+		map.add(addAnno, GBC.std());
+		map.add(editAnno, GBC.std().insets(5,0,5,0));
+		map.add(deleteAnno, GBC.std());
 
+		// I HATE SWING!
+		map.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
+		map.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
+		map.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
+		map.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
 		map.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
 
 

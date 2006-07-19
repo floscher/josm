@@ -19,7 +19,7 @@ public class GBC extends GridBagConstraints {
 	 * Use public static creator functions to create an GBC.
 	 */
 	private GBC() {}
-	
+
 	/**
 	 * Create a standard constraint (which is not the last).
 	 * @return A standard constraint with no filling.
@@ -29,7 +29,7 @@ public class GBC extends GridBagConstraints {
 		c.anchor = WEST;
 		return c;
 	}
-	
+
 	/**
 	 * Create the constraint for the last elements on a line.
 	 * @return A constraint which indicates the last item on a line.
@@ -39,7 +39,7 @@ public class GBC extends GridBagConstraints {
 		c.gridwidth = REMAINDER;
 		return c;
 	}
-	
+
 	/**
 	 * Create the constraint for the last elements on a line and on a paragraph.
 	 * This is merely a shortcut for eol().insets(0,0,0,10)
@@ -70,7 +70,7 @@ public class GBC extends GridBagConstraints {
 			weighty = 1.0;
 		return this;
 	}
-	
+
 	/**
 	 * Set the anchor of this GBC to a.
 	 * @param a The new anchor, e.g. GBC.CENTER or GBC.EAST.
@@ -93,7 +93,7 @@ public class GBC extends GridBagConstraints {
 		insets = new Insets(top, left, bottom, right);
 		return this;
 	}
-	
+
 	/**
 	 * This is a helper to easily create a glue with a minimum default value.
 	 * @param x If higher than 0, this will be a horizontal glue with x as minimum
