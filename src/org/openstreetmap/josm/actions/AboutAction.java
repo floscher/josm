@@ -37,7 +37,7 @@ import org.openstreetmap.josm.tools.UrlLabel;
 public class AboutAction extends JosmAction {
 
 	public static final String version;
-	
+
 	private static JTextArea revision;
 	private static String time;
 
@@ -47,41 +47,43 @@ public class AboutAction extends JosmAction {
 		Pattern versionPattern = Pattern.compile(".*?Revision: ([0-9]*).*", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
 		Matcher match = versionPattern.matcher(revision.getText());
 		version = match.matches() ? match.group(1) : "UNKNOWN";
-		
+
 		Pattern timePattern = Pattern.compile(".*?Last Changed Date: ([^\n]*).*", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
 		match = timePattern.matcher(revision.getText());
 		time = match.matches() ? match.group(1) : "UNKNOWN";
 	}
-	
+
 	public AboutAction() {
 		super(tr("About"), "about",tr("Display the about screen."), KeyEvent.VK_A);
 	}
-	
+
 	public void actionPerformed(ActionEvent e) {
 		JTabbedPane about = new JTabbedPane();
-		
+
 		JTextArea readme = loadFile(Main.class.getResource("/README"));
+		JTextArea contribution = loadFile(Main.class.getResource("/CONTRIBUTION"));
 
 		JPanel info = new JPanel(new GridBagLayout());
 		info.add(new JLabel(tr("Java OpenStreetMap Editor Version {0}",version)), GBC.eop());
 		info.add(new JLabel(tr("last change at {0}",time)), GBC.eop());
+		info.add(new JLabel(tr("Java Version {0}",System.getProperty("java.version"))), GBC.eop());
 		info.add(new JLabel(tr("Homepage")), GBC.std().insets(0,0,10,0));
 		info.add(new UrlLabel("http://wiki.eigenheimstrasse.de/wiki/JOSM"), GBC.eol());
 		info.add(new JLabel(tr("Bug Reports")), GBC.std().insets(0,0,10,0));
 		info.add(new UrlLabel("http://trac.openstreetmap.org"), GBC.eol());
-		
-		
-		
+
+
 		about.addTab(tr("Info"), info);
 		about.addTab(tr("Readme"), new JScrollPane(readme));
 		about.addTab(tr("Revision"), new JScrollPane(revision));
-		
+		about.addTab(tr("Contribution"), new JScrollPane(contribution));
+
 		about.setPreferredSize(new Dimension(500,300));
-		
+
 		JOptionPane.showMessageDialog(Main.parent, about, tr("About JOSM..."),
 				JOptionPane.INFORMATION_MESSAGE, ImageProvider.get("logo"));
 	}
-	
+
 	/**
 	 * Load the specified ressource into an TextArea and return it.
 	 * @param resource The resource url to load

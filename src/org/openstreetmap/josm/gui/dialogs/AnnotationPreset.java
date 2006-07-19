@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -78,6 +79,28 @@ public class AnnotationPreset {
 		}
 	}
 
+	public static class Combo implements Item {
+		String key;
+		String label;
+		JComboBox combo;
+
+		public void addToPanel(JPanel p) {
+			p.add(new JLabel(label), GBC.std().insets(0,0,10,0));
+			p.add(combo, GBC.eol().fill(GBC.HORIZONTAL));
+		}
+		public Combo(String key, String label, String def, String[] values, boolean editable) {
+			this.key = key;
+			this.label = label;
+			combo = new JComboBox(values);
+			combo.setEditable(editable);
+			combo.setSelectedItem(def);
+		}
+		public void addCommands(Collection<OsmPrimitive> sel, List<Command> cmds) {
+			String str = combo.isEditable()?combo.getEditor().getItem().toString() : combo.getSelectedItem().toString();
+			cmds.add(new ChangePropertyCommand(sel, key, str));
+		}
+	}
+
 	public static class Label implements Item {
 		String text;
 
@@ -119,14 +142,19 @@ public class AnnotationPreset {
 				if (currentName == null)
 					currentName = "Unnamed Preset #"+(unknownCounter++);
 			} else if (qname.equals("text"))
-				current.add(new Text(a.getValue("key"), a.getValue("label"), a.getValue("default")));
+				current.add(new Text(a.getValue("key"), a.getValue("text"), a.getValue("default")));
 			else if (qname.equals("check")) {
 				String s = a.getValue("default");
-				boolean check = s == null || s.equals("0") || s.startsWith("off") || s.startsWith("false") || s.startsWith("no");
-				current.add(new Check(a.getValue("key"), a.getValue("label"), check));
+				boolean clear = s == null || s.equals("0") || s.startsWith("off") || s.startsWith("false") || s.startsWith("no");
+				current.add(new Check(a.getValue("key"), a.getValue("text"), !clear));
 			} else if (qname.equals("label"))
-				current.add(new Label(a.getValue("label")));
-			else if (qname.equals("key"))
+				current.add(new Label(a.getValue("text")));
+			else if (qname.equals("combo")) {
+				String[] values = a.getValue("values").split(",");
+				String s = a.getValue("readonly");
+				boolean editable = s == null || s.equals("0") || s.startsWith("off") || s.startsWith("false") || s.startsWith("no");
+				current.add(new Combo(a.getValue("key"), a.getValue("text"), a.getValue("default"), values, editable));
+			} else if (qname.equals("key"))
 				current.add(new Key(a.getValue("key"), a.getValue("value")));
 			else
 				throw new SAXException(tr("Unknown annotation object {0} at line {1} column {2}", qname, getLineNumber(), getColumnNumber()));
@@ -175,7 +203,7 @@ public class AnnotationPreset {
 			i.addToPanel(p);
 		return p;
 	}
-	
+
 	@Override public String toString() {
 		return name;
 	}
@@ -190,5 +218,5 @@ public class AnnotationPreset {
 			return cmds.get(0);
 		else
 			return new SequenceCommand(tr("Change Properties"), cmds);
-    }
+	}
 }
