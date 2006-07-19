@@ -10,6 +10,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.Map.Entry;
@@ -18,6 +19,7 @@ import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
@@ -80,6 +82,13 @@ public class PreferenceDialog extends JDialog {
 			Main.pref.put("draw.rawgps.large", largeGpsPoints.isSelected());
 			Main.pref.put("draw.segment.direction", directionHint.isSelected());
 
+			if (annotationSources.getModel().getSize() > 0) {
+				StringBuilder sb = new StringBuilder();
+				for (int i = 0; i < annotationSources.getModel().getSize(); ++i)
+					sb.append(";"+annotationSources.getModel().getElementAt(i));
+				Main.pref.put("annotation.sources", sb.toString().substring(1));
+			}
+
 			for (int i = 0; i < colors.getRowCount(); ++i) {
 				String name = (String)colors.getValueAt(i, 0);
 				Color col = (Color)colors.getValueAt(i, 1);
@@ -120,10 +129,6 @@ public class PreferenceDialog extends JDialog {
 	 */
 	private JComboBox lafCombo = new JComboBox(UIManager.getInstalledLookAndFeels());
 	/**
-	 * Combobox with all projections available
-	 */
-	private JComboBox projectionCombo = new JComboBox(Projection.allProjections);
-	/**
 	 * The main tab panel.
 	 */
 	private JTabbedPane tabPane = new JTabbedPane(JTabbedPane.LEFT);
@@ -160,6 +165,12 @@ public class PreferenceDialog extends JDialog {
 	private JCheckBox largeGpsPoints = new JCheckBox(tr("Draw large GPS points."));
 	private JCheckBox directionHint = new JCheckBox(tr("Draw Direction Arrows"));
 	private JTable colors;
+
+	/**
+	 * Combobox with all projections available
+	 */
+	private JComboBox projectionCombo = new JComboBox(Projection.allProjections);
+	private JList annotationSources = new JList(new DefaultListModel());
 
 
 	/**
@@ -226,6 +237,10 @@ public class PreferenceDialog extends JDialog {
 		directionHint.setToolTipText(tr("Draw direction hints for all segments."));
 		directionHint.setSelected(Main.pref.getBoolean("draw.segment.direction"));
 
+		String annos = Main.pref.get("annotation.sources");
+		StringTokenizer st = new StringTokenizer(annos, ";");
+		while (st.hasMoreTokens())
+			((DefaultListModel)annotationSources.getModel()).addElement(st.nextToken());
 
 
 		Map<String,String> allColors = new TreeMap<String, String>(Main.pref.getAllPrefix("color."));
@@ -275,6 +290,56 @@ public class PreferenceDialog extends JDialog {
 			}
 		});
 
+		// Annotation source panels
+		JPanel annoButton = new JPanel(new GridBagLayout());
+		JButton addAnno = new JButton(tr("Add"));
+		addAnno.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				String source = JOptionPane.showInputDialog(Main.parent, tr("Annotation preset source"));
+				if (source == null)
+					return;
+				((DefaultListModel)annotationSources.getModel()).addElement(source);
+				requiresRestart = true;
+			}
+		});
+		GBC g = GBC.eol().fill(GBC.HORIZONTAL);
+		g.weightx = 0;
+		annoButton.add(addAnno,g);
+
+		JButton editAnno = new JButton(tr("Edit"));
+		editAnno.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				if (annotationSources.getSelectedIndex() == -1)
+					JOptionPane.showMessageDialog(Main.parent, tr("Please select the row to edit."));
+				else {
+					String source = JOptionPane.showInputDialog(Main.parent, tr("Annotation preset source"), annotationSources.getSelectedValue());
+					if (source == null)
+						return;
+					((DefaultListModel)annotationSources.getModel()).setElementAt(source, annotationSources.getSelectedIndex());
+					requiresRestart = true;
+				}
+			}
+		});
+		annoButton.add(GBC.glue(0, 2), GBC.eol());
+		annoButton.add(editAnno,g);
+
+		JButton deleteAnno = new JButton(tr("Delete"));
+		deleteAnno.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				if (annotationSources.getSelectedIndex() == -1)
+					JOptionPane.showMessageDialog(Main.parent, tr("Please select the row to delete."));
+				else {
+					((DefaultListModel)annotationSources.getModel()).remove(annotationSources.getSelectedIndex());
+					requiresRestart = true;
+				}
+			}
+		});
+		annoButton.add(GBC.glue(0, 2), GBC.eol());
+		annoButton.add(deleteAnno,g);
+		annotationSources.setVisibleRowCount(5);
+
+
+
 		// setting tooltips
 		osmDataServer.setToolTipText(tr("The base URL to the OSM server (REST API)"));
 		osmDataUsername.setToolTipText(tr("Login name (email) to the OSM account."));
@@ -289,6 +354,9 @@ public class PreferenceDialog extends JDialog {
 		"Other example: \"lat,lon\" will just read lat/lon values comma seperated.</html>"));
 		drawRawGpsLines.setToolTipText(tr("If your gps device draw to few lines, select this to draw lines along your way."));
 		colors.setToolTipText(tr("Colors used by different objects in JOSM."));
+		annotationSources.setToolTipText(tr("The sources (url or filename) of annotation preset definition files. See http://josm.eigenheimstrasse.de/wiki/AnnotationPresets for help."));
+		addAnno.setToolTipText(tr("Add a new annotation preset source to the list."));
+		deleteAnno.setToolTipText(tr("Delete the selected source from the list."));
 
 		// creating the gui
 
@@ -332,7 +400,11 @@ public class PreferenceDialog extends JDialog {
 		JPanel map = createPreferenceTab("map", tr("Map Settings"), tr("Settings for the map projection and data interpretation."));
 		map.add(new JLabel(tr("Projection method")), GBC.std());
 		map.add(GBC.glue(5,0), GBC.std().fill(GBC.HORIZONTAL));
-		map.add(projectionCombo, GBC.eol().fill(GBC.HORIZONTAL).insets(0,0,0,5));
+		map.add(projectionCombo, GBC.eop().fill(GBC.HORIZONTAL).insets(0,0,0,5));
+		map.add(new JLabel(tr("Annotation preset sources")), GBC.eol());
+		map.add(new JScrollPane(annotationSources), GBC.std().fill(GBC.HORIZONTAL).insets(10,0,10,0));
+		map.add(annoButton, GBC.eol());
+
 		map.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
 
 

@@ -36,6 +36,23 @@ import org.openstreetmap.josm.tools.UrlLabel;
  */
 public class AboutAction extends JosmAction {
 
+	public static final String version;
+	
+	private static JTextArea revision;
+	private static String time;
+
+	static {
+		JTextArea revision = loadFile(Main.class.getResource("/REVISION"));
+
+		Pattern versionPattern = Pattern.compile(".*?Revision: ([0-9]*).*", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
+		Matcher match = versionPattern.matcher(revision.getText());
+		version = match.matches() ? match.group(1) : "UNKNOWN";
+		
+		Pattern timePattern = Pattern.compile(".*?Last Changed Date: ([^\n]*).*", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
+		match = timePattern.matcher(revision.getText());
+		time = match.matches() ? match.group(1) : "UNKNOWN";
+	}
+	
 	public AboutAction() {
 		super(tr("About"), "about",tr("Display the about screen."), KeyEvent.VK_A);
 	}
@@ -44,16 +61,7 @@ public class AboutAction extends JosmAction {
 		JTabbedPane about = new JTabbedPane();
 		
 		JTextArea readme = loadFile(Main.class.getResource("/README"));
-		JTextArea revision = loadFile(Main.class.getResource("/REVISION"));
-		
-		Pattern versionPattern = Pattern.compile(".*?Revision: ([0-9]*).*", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
-		Pattern timePattern = Pattern.compile(".*?Last Changed Date: ([^\n]*).*", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
 
-		Matcher match = versionPattern.matcher(revision.getText());
-		String version = match.matches() ? match.group(1) : "UNKNOWN";
-		match = timePattern.matcher(revision.getText());
-		String time = match.matches() ? match.group(1) : "UNKNOWN";
-		
 		JPanel info = new JPanel(new GridBagLayout());
 		info.add(new JLabel(tr("Java OpenStreetMap Editor Version {0}",version)), GBC.eop());
 		info.add(new JLabel(tr("last change at {0}",time)), GBC.eop());
@@ -79,7 +87,7 @@ public class AboutAction extends JosmAction {
 	 * @param resource The resource url to load
 	 * @return	An read-only text area with the content of "resource"
 	 */
-	private JTextArea loadFile(URL resource) {
+	private static JTextArea loadFile(URL resource) {
 		JTextArea area = new JTextArea(tr("File could not be found."));
 		area.setEditable(false);
 		Font font = Font.getFont("monospaced");

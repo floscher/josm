@@ -33,4 +33,8 @@ public class Mercator implements Projection {
     public String getCacheDirectoryName() {
         return "mercator";
     }
+
+	public double scaleFactor() {
+	    return 1/Math.PI/2;
+    }
 }

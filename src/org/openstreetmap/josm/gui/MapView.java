@@ -97,7 +97,7 @@ public class MapView extends NavigatableComponent {
 
 		MapSlider zoomSlider = new MapSlider(this);
 		add(zoomSlider);
-		zoomSlider.setBounds(0,0, 100, 30);
+		zoomSlider.setBounds(3, 0, 114, 30);
 		
 		MapScaler scaler = new MapScaler(this);
 		add(scaler);
