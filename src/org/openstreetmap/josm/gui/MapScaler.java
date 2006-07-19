@@ -1,10 +1,12 @@
 package org.openstreetmap.josm.gui;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.geom.Rectangle2D;
 
 import javax.swing.JComponent;
+
+import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.tools.ColorHelper;
 
 public class MapScaler extends JComponent {
 
@@ -17,9 +19,9 @@ public class MapScaler extends JComponent {
     }
 
 	@Override public void paint(Graphics g) {
-		double circum = mv.getScale()*100/Math.PI/2*40041455; // circumference of the earth in meter
+		double circum = mv.getScale()*100*Main.proj.scaleFactor()*40041455; // circumference of the earth in meter
 		String text = circum > 1000 ? (Math.round(circum/100)/10.0)+"km" : Math.round(circum)+"m";
-		g.setColor(Color.white);
+		g.setColor(ColorHelper.html2color(Main.pref.get("color.scale", "#ffffff")));
 		g.drawLine(0, 5, 99, 5);
 		g.drawLine(0, 0, 0, 10);
 		g.drawLine(99, 0, 99, 10);

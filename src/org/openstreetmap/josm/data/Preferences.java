@@ -31,14 +31,14 @@ public class Preferences {
 	public static interface PreferenceChangedListener {
 		void preferenceChanged(String key, String newValue);
 	}
-	
+
 	public final ArrayList<PreferenceChangedListener> listener = new ArrayList<PreferenceChangedListener>();
-	
+
 	/**
 	 * Map the property name to the property object.
 	 */
 	private final SortedMap<String, String> properties = new TreeMap<String, String>();
-	
+
 	/**
 	 * Return the location of the preferences file
 	 */
@@ -111,7 +111,6 @@ public class Preferences {
 		}		
 	}
 
-
 	public void load() throws IOException {
 		properties.clear();
 		final BufferedReader in = new BufferedReader(new FileReader(getPreferencesDir()+"preferences"));
@@ -137,6 +136,12 @@ public class Preferences {
 		properties.put("color."+marktr("selected"), ColorHelper.color2html(Color.white));
 		properties.put("color."+marktr("gps point"), ColorHelper.color2html(Color.gray));
 		properties.put("color."+marktr("conflict"), ColorHelper.color2html(Color.gray));
+		properties.put("color."+marktr("scale"), ColorHelper.color2html(Color.white));
 		save();
+	}
+
+	public final void upgrade(int oldVersion) {
+		if (oldVersion > 115) return;
+		properties.put("color.scale", ColorHelper.color2html(Color.white));
 	}
 }

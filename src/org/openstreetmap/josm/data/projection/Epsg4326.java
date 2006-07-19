@@ -25,4 +25,8 @@ public class Epsg4326 implements Projection {
     public String getCacheDirectoryName() {
         return "epsg4326";
     }
+
+	public double scaleFactor() {
+	    return 1.0/360;
+    }
 }

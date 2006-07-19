@@ -267,14 +267,22 @@ abstract public class Main {
 		try {
 			if (args.containsKey("reset-preferences")) {
 				Main.pref.resetToDefault();
-			} else
+			} else {
 				Main.pref.load();
+			}
 		} catch (final IOException e1) {
 			e1.printStackTrace();
 			errMsg = tr("Preferences could not be loaded. Write default preference file to \"{0}\".",
                     pref.getPreferencesDir() + "preferences");
 			Main.pref.resetToDefault();
 		}
+
+		try {
+	        Main.pref.upgrade(Integer.parseInt(AboutAction.version));
+        } catch (NumberFormatException e1) {
+        }
+
+		
 		if (errMsg != null)
 			JOptionPane.showMessageDialog(null, errMsg);
 
