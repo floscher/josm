@@ -1,6 +1,7 @@
 package org.openstreetmap.josm.gui.dialogs;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
@@ -43,8 +44,9 @@ public class ToggleDialog extends JPanel {
 	public ToggleDialogAction action;
 	public final String prefName;
 
-	public ToggleDialog(String name, String iconName, String tooltip, int shortCut) {
+	public ToggleDialog(String name, String iconName, String tooltip, int shortCut, int preferredHeight) {
 		this.prefName = iconName;
+		setPreferredSize(new Dimension(330,preferredHeight));
 		action = new ToggleDialogAction(name, "dialogs/"+iconName, tooltip, shortCut, KeyEvent.ALT_MASK, iconName);
 		setLayout(new BorderLayout());
 		add(new JLabel(name), BorderLayout.NORTH);

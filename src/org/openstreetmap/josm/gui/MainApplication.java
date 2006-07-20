@@ -7,6 +7,7 @@ import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -86,7 +87,27 @@ public class MainApplication extends Main {
 			args.put(key, v);
 		}
 
-		// very first thing to do is to setup the locale
+		// get the preferences.
+		final File prefDir = new File(Main.pref.getPreferencesDir());
+		if (prefDir.exists() && !prefDir.isDirectory()) {
+			JOptionPane.showMessageDialog(null, "Cannot open preferences directory: "+Main.pref.getPreferencesDir());
+			return;
+		}
+		if (!prefDir.exists())
+			prefDir.mkdirs();
+		try {
+			if (args.containsKey("reset-preferences")) {
+				Main.pref.resetToDefault();
+			} else {
+				Main.pref.load();
+			}
+		} catch (final IOException e1) {
+			e1.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Preferences could not be loaded. Write default preference file to "+pref.getPreferencesDir()+"preferences");
+			Main.pref.resetToDefault();
+		}
+
+		// setup the locale
 		if (args.containsKey("language") && !args.get("language").isEmpty() && args.get("language").iterator().next().length() >= 2) {
 			String s = args.get("language").iterator().next();
 			Locale l = null;
@@ -97,8 +118,18 @@ public class MainApplication extends Main {
 			else
 				l = new Locale(s.substring(0,2), s.substring(3,5), s.substring(6));
 			Locale.setDefault(l);
+		} else if (!Main.pref.get("language").equals("")) {
+			String lang = Main.pref.get("language");
+			for (Locale l : Locale.getAvailableLocales()) {
+				if (l.toString().equals(lang)) {
+					Locale.setDefault(l);
+					break;
+				}
+			}
 		}
 		
+		// Locale is set. From now on, tr(), trn() and trc() may be called.
+
 		if (argList.contains("--help") || argList.contains("-?") || argList.contains("-h")) {
 			System.out.println(tr("Java OpenStreetMap Editor")+"\n\n"+
 					tr("usage")+":\n"+
@@ -125,14 +156,6 @@ public class MainApplication extends Main {
 					tr("Instead of --download=<bbox> you may specify osm://<bbox>\n"));
 			System.exit(0);
 		}
-
-		final File prefDir = new File(Main.pref.getPreferencesDir());
-		if (prefDir.exists() && !prefDir.isDirectory()) {
-			JOptionPane.showMessageDialog(null, tr("Cannot open preferences directory: {0}",Main.pref.getPreferencesDir()));
-			return;
-		}
-		if (!prefDir.exists())
-			prefDir.mkdirs();
 
 		preConstructorInit(args);
 		JFrame mainFrame = new JFrame(tr("Java Open Street Map - Editor"));

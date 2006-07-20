@@ -48,7 +48,7 @@ public final class ConflictDialog extends ToggleDialog {
 	private final JList displaylist = new JList(model);
 
 	public ConflictDialog() {
-		super(tr("Conflict"), "conflict", tr("Merging conflicts."), KeyEvent.VK_C);
+		super(tr("Conflict"), "conflict", tr("Merging conflicts."), KeyEvent.VK_C, 100);
 		displaylist.setCellRenderer(new OsmPrimitivRenderer());
 		displaylist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		displaylist.addMouseListener(new MouseAdapter(){

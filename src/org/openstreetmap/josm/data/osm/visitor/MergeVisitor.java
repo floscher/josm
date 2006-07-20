@@ -152,9 +152,20 @@ public class MergeVisitor implements Visitor {
 				break;
 			}
 		}
-		if (my == null)
+		if (my == null) {
+			// Add the way and replace any incomplete segments that we already have
 			ds.ways.add(other);
-		else {
+			for (Segment s : other.segments) {
+				if (s.incomplete) {
+					for (Segment ourSegment : ds.segments) {
+						if (ourSegment.id == s.id) {
+							mergedSegments.put(s, ourSegment);
+							break;
+						}
+					}
+				}
+			}
+		} else {
 			mergeCommon(my, other);
 			if (my.modified && !other.modified)
 				return;
@@ -212,9 +223,8 @@ public class MergeVisitor implements Visitor {
 	    	t.segments.clear();
 	    	t.segments.addAll(newSegments);
 	    }
-	    for (Segment ls : t.segments) {
+	    for (Segment ls : t.segments)
 	    	fixSegment(ls);
-	    }
     }
 
 	private void fixSegment(Segment ls) {

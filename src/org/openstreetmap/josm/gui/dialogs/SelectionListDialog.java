@@ -3,7 +3,6 @@ package org.openstreetmap.josm.gui.dialogs;
 import static org.openstreetmap.josm.tools.I18n.tr;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -62,36 +61,36 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 		private final SearchMode mode;
 		private OsmIdReader idReader = new OsmIdReader();
 		public SelectionWebsiteLoader(String urlStr, SearchMode mode) {
-	        super(tr("Load Selection"));
-	        this.mode = mode;
-	        URL u = null;
+			super(tr("Load Selection"));
+			this.mode = mode;
+			URL u = null;
 			try {u = new URL(urlStr);} catch (MalformedURLException e) {}
-            this.url = u;
-        }
+			this.url = u;
+		}
 		@Override protected void realRun() {
 			currentAction.setText(tr("Contact {0}...", url.getHost()));
 			sel = mode != SearchMode.remove ? new LinkedList<OsmPrimitive>() : Main.ds.allNonDeletedPrimitives();
 			try {
-		        URLConnection con = url.openConnection();
-		        InputStream in = new ProgressInputStream(con, progress, currentAction);
+				URLConnection con = url.openConnection();
+				InputStream in = new ProgressInputStream(con, progress, currentAction);
 				currentAction.setText(tr("Downloading..."));
 				Map<Long, String> ids = idReader.parseIds(in);
-		        for (OsmPrimitive osm : Main.ds.allNonDeletedPrimitives()) {
-		        	if (ids.containsKey(osm.id) && osm.getClass().getName().toLowerCase().endsWith(ids.get(osm.id))) {
-		        		if (mode == SearchMode.remove)
-		        			sel.remove(osm);
-		        		else
-		        			sel.add(osm);
-		        	}
+				for (OsmPrimitive osm : Main.ds.allNonDeletedPrimitives()) {
+					if (ids.containsKey(osm.id) && osm.getClass().getName().toLowerCase().endsWith(ids.get(osm.id))) {
+						if (mode == SearchMode.remove)
+							sel.remove(osm);
+						else
+							sel.add(osm);
+					}
 				}
-	        } catch (IOException e) {
-		        e.printStackTrace();
-		        JOptionPane.showMessageDialog(Main.parent, tr("Could not read from url: \"{0}\"",url));
-	        } catch (SAXException e) {
-		        e.printStackTrace();
-		        JOptionPane.showMessageDialog(Main.parent,tr("Parsing error in url: \"{0}\"",url));
-	        }
-        }
+			} catch (IOException e) {
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(Main.parent, tr("Could not read from url: \"{0}\"",url));
+			} catch (SAXException e) {
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(Main.parent,tr("Parsing error in url: \"{0}\"",url));
+			}
+		}
 		@Override protected void cancel() {
 			sel = null;
 			idReader.cancel();
@@ -99,9 +98,9 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 		@Override protected void finish() {
 			if (sel != null)
 				Main.ds.setSelected(sel);
-        }
+		}
 	}
-	
+
 	/**
 	 * The selection's list data.
 	 */
@@ -110,14 +109,13 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 	 * The display list.
 	 */
 	private JList displaylist = new JList(list);
-	
+
 	/**
 	 * Create a SelectionList dialog.
 	 * @param mapView The mapView to get the dataset from.
 	 */
 	public SelectionListDialog(MapFrame mapFrame) {
-		super(tr("Current Selection"), "selectionlist", tr("Open a selection list window."), KeyEvent.VK_E);
-		setPreferredSize(new Dimension(320,150));
+		super(tr("Current Selection"), "selectionlist", tr("Open a selection list window."), KeyEvent.VK_E, 150);
 		displaylist.setCellRenderer(new OsmPrimitivRenderer());
 		displaylist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		displaylist.addMouseListener(new MouseAdapter(){
@@ -131,7 +129,7 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 		add(new JScrollPane(displaylist), BorderLayout.CENTER);
 
 		JPanel buttonPanel = new JPanel(new GridLayout(1,2));
-		
+
 		JButton button = new JButton(tr("Select"), ImageProvider.get("mapmode/selection/select"));
 		button.setToolTipText(tr("Set the selected elements on the map to the selected items in the list above."));
 		button.addActionListener(new ActionListener(){
@@ -149,7 +147,7 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 			}
 		});
 		buttonPanel.add(button);
-		
+
 		button = new JButton(tr("Search"), ImageProvider.get("dialogs", "search"));
 		button.setToolTipText(tr("Search for objects."));
 		button.addActionListener(new ActionListener(){
@@ -163,7 +161,7 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 						"<li><code>name:Bak</code>  - 'Bak' anywhere in the name.</li>" +
 						"<li><code>-name:Bak</code>  - not 'Bak' in the name.</li>" +
 						"<li><code>foot:</code>  - key=foot set to any value." +
-						"</ul></html>"));
+				"</ul></html>"));
 
 				JRadioButton replace = new JRadioButton(tr("replace selection"), true);
 				JRadioButton add = new JRadioButton(tr("add to selection"), false);
@@ -182,7 +180,7 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 				JOptionPane pane = new JOptionPane(p, JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null){
 					@Override public void selectInitialValue() {
 						input.requestFocusInWindow();
-                    }
+					}
 				};
 				pane.createDialog(Main.parent,tr("Search")).setVisible(true);
 				if (!Integer.valueOf(JOptionPane.OK_OPTION).equals(pane.getValue()))
@@ -193,7 +191,7 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 			}
 		});
 		buttonPanel.add(button);
-		
+
 		add(buttonPanel, BorderLayout.SOUTH);
 		selectionChanged(Main.ds.getSelected());
 	}
@@ -240,25 +238,25 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 	public static void search(String search, SearchMode mode) {
 		if (search.startsWith("http://") || search.startsWith("ftp://") || search.startsWith("https://") || search.startsWith("file:/")) {
 			SelectionWebsiteLoader loader = new SelectionWebsiteLoader(search, mode);
-	    	if (loader.url != null) {
-	    		Main.worker.execute(loader);
-	    		loader.pleaseWaitDlg.setVisible(true);
-	    		return;
-	    	}
-	    }
-	    Collection<OsmPrimitive> sel = Main.ds.getSelected();
-    	SearchCompiler.Match matcher = SearchCompiler.compile(search);
-    	for (OsmPrimitive osm : Main.ds.allNonDeletedPrimitives()) {
-    		if (mode == SearchMode.replace) {
-    			if (matcher.match(osm))
-    				sel.add(osm);
-    			else
-    				sel.remove(osm);
-    		} else if (mode == SearchMode.add && !osm.selected && matcher.match(osm))
-    			sel.add(osm);
-    		else if (mode == SearchMode.remove && osm.selected && matcher.match(osm))
-    			sel.remove(osm);
-    	}
-	    Main.ds.setSelected(sel);
-    }
+			if (loader.url != null) {
+				Main.worker.execute(loader);
+				loader.pleaseWaitDlg.setVisible(true);
+				return;
+			}
+		}
+		Collection<OsmPrimitive> sel = Main.ds.getSelected();
+		SearchCompiler.Match matcher = SearchCompiler.compile(search);
+		for (OsmPrimitive osm : Main.ds.allNonDeletedPrimitives()) {
+			if (mode == SearchMode.replace) {
+				if (matcher.match(osm))
+					sel.add(osm);
+				else
+					sel.remove(osm);
+			} else if (mode == SearchMode.add && !osm.selected && matcher.match(osm))
+				sel.add(osm);
+			else if (mode == SearchMode.remove && osm.selected && matcher.match(osm))
+				sel.remove(osm);
+		}
+		Main.ds.setSelected(sel);
+	}
 }

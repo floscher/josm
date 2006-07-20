@@ -9,6 +9,7 @@ import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
@@ -68,6 +69,7 @@ public class PreferenceDialog extends JDialog {
 		}
 		public void actionPerformed(ActionEvent e) {
 			Main.pref.put("laf", ((LookAndFeelInfo)lafCombo.getSelectedItem()).getClassName());
+			Main.pref.put("language", languages.getSelectedItem().toString());
 			Main.pref.put("projection", projectionCombo.getSelectedItem().getClass().getName());
 			Main.pref.put("osm-server.url", osmDataServer.getText());
 			Main.pref.put("osm-server.username", osmDataUsername.getText());
@@ -93,7 +95,7 @@ public class PreferenceDialog extends JDialog {
 			for (int i = 0; i < colors.getRowCount(); ++i) {
 				String name = (String)colors.getValueAt(i, 0);
 				Color col = (Color)colors.getValueAt(i, 1);
-				Main.pref.put("color."+tr(name), ColorHelper.color2html(col));
+				Main.pref.put("color."+name, ColorHelper.color2html(col));
 			}
 
 			if (requiresRestart)
@@ -129,6 +131,7 @@ public class PreferenceDialog extends JDialog {
 	 * ComboBox with all look and feels.
 	 */
 	private JComboBox lafCombo = new JComboBox(UIManager.getInstalledLookAndFeels());
+	private JComboBox languages = new JComboBox(new Locale[]{Locale.ENGLISH, Locale.GERMAN, Locale.FRENCH});
 	/**
 	 * The main tab panel.
 	 */
@@ -201,6 +204,20 @@ public class PreferenceDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				requiresRestart = true;
 			}
+		});
+
+		// language
+		String lang = Main.pref.get("language");
+		for (int i = 0; i < languages.getItemCount(); ++i) {
+			if (languages.getItemAt(i).toString().equals(lang)) {
+				languages.setSelectedIndex(i);
+				break;
+			}
+		}
+		languages.setRenderer(new DefaultListCellRenderer(){
+			@Override public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+	            return super.getListCellRendererComponent(list, ((Locale)value).getDisplayName(), index, isSelected, cellHasFocus);
+            }
 		});
 
 		// projection combo box
@@ -358,6 +375,9 @@ public class PreferenceDialog extends JDialog {
 		display.add(new JLabel(tr("Look and Feel")), GBC.std());
 		display.add(GBC.glue(5,0), GBC.std().fill(GBC.HORIZONTAL));
 		display.add(lafCombo, GBC.eol().fill(GBC.HORIZONTAL));
+		display.add(new JLabel(tr("Language")), GBC.std());
+		display.add(GBC.glue(5,0), GBC.std().fill(GBC.HORIZONTAL));
+		display.add(languages, GBC.eol().fill(GBC.HORIZONTAL));
 		display.add(drawRawGpsLines, GBC.eol().insets(20,0,0,0));
 		display.add(forceRawGpsLines, GBC.eop().insets(40,0,0,0));
 		display.add(largeGpsPoints, GBC.eop().insets(20,0,0,0));
