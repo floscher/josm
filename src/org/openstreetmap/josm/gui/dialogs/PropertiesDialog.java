@@ -6,7 +6,6 @@ import static org.xnap.commons.i18n.I18n.marktr;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -208,9 +207,8 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	 * Create a new PropertiesDialog
 	 */
 	public PropertiesDialog(MapFrame mapFrame) {
-		super(tr("Properties"), "propertiesdialog", tr("Property for selected objects."), KeyEvent.VK_P);
-		setPreferredSize(new Dimension(320,150));
-		
+		super(tr("Properties"), "propertiesdialog", tr("Property for selected objects."), KeyEvent.VK_P, 150);
+
 		Vector<AnnotationPreset> allPresets = new Vector<AnnotationPreset>();
 		String allAnnotations = Main.pref.get("annotation.sources");
 		StringTokenizer st = new StringTokenizer(allAnnotations, ";");
@@ -218,20 +216,20 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 			InputStream in = null;
 			String source = st.nextToken();
 			try {
-	            if (source.startsWith("http") || source.startsWith("ftp") || source.startsWith("file"))
-	            	in = new URL(source).openStream();
-	            else if (source.startsWith("resource://"))
-	            	in = Main.class.getResourceAsStream(source.substring("resource:/".length()));
-	            else
-	            	in = new FileInputStream(source);
-	            allPresets.addAll(AnnotationPreset.readAll(in));
-            } catch (IOException e) {
-	            e.printStackTrace();
-	            JOptionPane.showMessageDialog(Main.parent, tr("Could not read annotation preset source: {0}",source));
-            } catch (SAXException e) {
-	            e.printStackTrace();
-	            JOptionPane.showMessageDialog(Main.parent, tr("Error parsing {0}: ", source)+e.getMessage());
-            }
+				if (source.startsWith("http") || source.startsWith("ftp") || source.startsWith("file"))
+					in = new URL(source).openStream();
+				else if (source.startsWith("resource://"))
+					in = Main.class.getResourceAsStream(source.substring("resource:/".length()));
+				else
+					in = new FileInputStream(source);
+				allPresets.addAll(AnnotationPreset.readAll(in));
+			} catch (IOException e) {
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(Main.parent, tr("Could not read annotation preset source: {0}",source));
+			} catch (SAXException e) {
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(Main.parent, tr("Error parsing {0}: ", source)+e.getMessage());
+			}
 		}
 		if (allPresets.size() > 0) {
 			allPresets.add(0, new AnnotationPreset());
@@ -255,7 +253,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 					selectionChanged(sel); // update whole table
 				}
 				annotationPresets.setSelectedIndex(0);
-            }
+			}
 		});
 
 		data.setColumnIdentifiers(new String[]{tr("Key"),tr("Value")});

@@ -237,7 +237,39 @@ public class MergeVisitorTest extends TestCase {
 		v.visit(w2);
 		assertSame("Do not import incomplete segments when merging ways.", s, w.segments.iterator().next());
 	}
+
+	/**
+	 * When merging an incomplete way over a dataset that contain already all
+	 * necessary segments, the way must be completed.
+	 */
+	@Bug(117)
+	public void testMergeIncompleteOnExistingDoesNotComplete() {
+		// create a dataset with an segment (as base for the later incomplete way)
+		DataSet ds = new DataSet();
+		Node[] n = createNodes(ds, 2);
+		Segment s = DataSetTestCaseHelper.createSegment(ds, n[0], n[1]);
+		s.id = 23;
+		// create an incomplete way which references the former segment
+		Way w = new Way();
+		Segment incompleteSegment = new Segment(s.id);
+		w.segments.add(incompleteSegment);
+		w.id = 42;
+		// merge both
+		MergeVisitor v = new MergeVisitor(ds);
+		v.visit(w);
+		v.fixReferences();
 		
+		assertTrue(ds.ways.contains(w));
+		assertEquals(1, w.segments.size());
+		assertFalse(w.segments.get(0).incomplete);
+	}
+	
+	/**
+	 * Deleted segments should be deleted when merged over unchanged segments.
+	 * Deleted segments should also raise an conflict when merged over changed segments. 
+	 */
+	//TODO
+
 	/**
 	 * Create that amount of nodes and add them to the dataset. The id will be 1,2,3,4...
 	 * @param amount Number of nodes to create.

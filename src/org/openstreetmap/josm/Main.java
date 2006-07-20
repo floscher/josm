@@ -6,8 +6,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
@@ -18,6 +18,7 @@ import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -45,6 +46,7 @@ import org.openstreetmap.josm.data.projection.Epsg4326;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
+import org.openstreetmap.josm.gui.dialogs.AnnotationTester;
 import org.openstreetmap.josm.gui.dialogs.SelectionListDialog;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
@@ -127,7 +129,7 @@ abstract public class Main {
 			layerMenu.setVisible(true);
 		}
 	}
-	
+
 	/**
 	 * Remove the specified layer from the map. If it is the last layer, remove the map as well.
 	 */
@@ -141,6 +143,15 @@ abstract public class Main {
 	public Main() {
 		main = this;
 		contentPane.add(panel, BorderLayout.CENTER);
+
+		final Action annotationTesterAction = new AbstractAction(){
+			public void actionPerformed(ActionEvent e) {
+				String[] args = pref.get("annotation.sources").split(";");
+				new AnnotationTester(args);
+			}
+		};
+		annotationTesterAction.putValue(Action.NAME, "Annotation Preset Tester");
+		annotationTesterAction.putValue(Action.SMALL_ICON, ImageProvider.get("annotation-tester"));
 
 		final Action uploadAction = new UploadAction();
 		final Action saveAction = new SaveAction();
@@ -170,7 +181,7 @@ abstract public class Main {
 		layerMenu.setMnemonic('L');
 		mainMenu.add(layerMenu);
 		layerMenu.setVisible(false);
-		
+
 		final JMenu editMenu = new JMenu(tr("Edit"));
 		editMenu.setMnemonic('E');
 		editMenu.add(undoAction);
@@ -182,6 +193,8 @@ abstract public class Main {
 		mainMenu.add(new JSeparator());
 		final JMenu helpMenu = new JMenu(tr("Help"));
 		helpMenu.setMnemonic('H');
+		helpMenu.add(annotationTesterAction);
+		helpMenu.addSeparator();
 		helpMenu.add(aboutAction);
 		mainMenu.add(helpMenu);
 
@@ -262,29 +275,10 @@ abstract public class Main {
 	 * @param args The parsed argument list.
 	 */
 	public static void preConstructorInit(Map<String, Collection<String>> args) {
-		// load preferences
-		String errMsg = null;
 		try {
-			if (args.containsKey("reset-preferences")) {
-				Main.pref.resetToDefault();
-			} else {
-				Main.pref.load();
-			}
-		} catch (final IOException e1) {
-			e1.printStackTrace();
-			errMsg = tr("Preferences could not be loaded. Write default preference file to \"{0}\".",
-                    pref.getPreferencesDir() + "preferences");
-			Main.pref.resetToDefault();
+			Main.pref.upgrade(Integer.parseInt(AboutAction.version));
+		} catch (NumberFormatException e1) {
 		}
-
-		try {
-	        Main.pref.upgrade(Integer.parseInt(AboutAction.version));
-        } catch (NumberFormatException e1) {
-        }
-
-		
-		if (errMsg != null)
-			JOptionPane.showMessageDialog(null, errMsg);
 
 		try {
 			Main.proj = (Projection)Class.forName(Main.pref.get("projection")).newInstance();

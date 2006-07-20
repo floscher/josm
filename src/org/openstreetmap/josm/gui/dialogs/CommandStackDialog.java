@@ -4,7 +4,6 @@ import static org.openstreetmap.josm.tools.I18n.tr;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.util.Collection;
 
@@ -29,8 +28,7 @@ public class CommandStackDialog extends ToggleDialog implements CommandQueueList
     private JTree tree = new JTree(treeModel);
 
 	public CommandStackDialog(final MapFrame mapFrame) {
-		super(tr("Command Stack"), "commandstack", tr("Open a list of all commands (undo buffer)."), KeyEvent.VK_C);
-		setPreferredSize(new Dimension(320,100));
+		super(tr("Command Stack"), "commandstack", tr("Open a list of all commands (undo buffer)."), KeyEvent.VK_C, 100);
 		mapFrame.mapView.addLayerChangeListener(new LayerChangeListener(){
 			public void activeLayerChange(Layer oldLayer, Layer newLayer) {}
 			public void layerAdded(Layer newLayer) {

@@ -4,7 +4,6 @@ import static org.openstreetmap.josm.tools.I18n.tr;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -116,9 +115,8 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 	 * Create an layerlist and attach it to the given mapView.
 	 */
 	public LayerList(MapFrame mapFrame) {
-		super(tr("Layers"), "layerlist", tr("Open a list of all loaded layers."), KeyEvent.VK_L);
+		super(tr("Layers"), "layerlist", tr("Open a list of all loaded layers."), KeyEvent.VK_L, 100);
 		instance = new JList(model);
-		setPreferredSize(new Dimension(320,100));
 		add(new JScrollPane(instance), BorderLayout.CENTER);
 		instance.setBackground(UIManager.getColor("Button.background"));
 		instance.setCellRenderer(new DefaultListCellRenderer(){
