@@ -201,8 +201,8 @@ public class SelectionAction extends MapMode implements SelectionEnded {
 
 	private Node addNearest(Collection<OsmPrimitive> path, Node start, Node end) {
 		Collection<Segment> c = reverseSegmentMap.get(start);
-		//if (c == null)
-			//return null; // start may be a waypoint without segments
+		if (c == null)
+			return null; // start may be a waypoint without segments
 		double min = Double.MAX_VALUE;
 		Node next = null;
 		Segment seg = null;

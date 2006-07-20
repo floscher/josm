@@ -31,7 +31,7 @@ public class RawGpsReader {
 		private Collection<GpsPoint> current = new LinkedList<GpsPoint>();
 		public Collection<Collection<GpsPoint>> data = new LinkedList<Collection<GpsPoint>>();
 		private LatLon currentLatLon;
-		private String currentTime = null;
+		private String currentTime = "";
 		private Stack<String> tags = new Stack<String>();
 
 		@Override public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
@@ -48,6 +48,7 @@ public class RawGpsReader {
                 	e.printStackTrace();
 	                throw new SAXException(e);
                 }
+                currentTime = "";
 			}
 			tags.push(qName);
 		}
@@ -68,11 +69,11 @@ public class RawGpsReader {
 		@Override public void endElement(String namespaceURI, String localName, String qName) {
 			if (qName.equals("wpt") || qName.equals("trkpt")) {
 				current.add(new GpsPoint(currentLatLon, currentTime));
-			} else if (qName.equals("trkseg") || qName.equals("trk") || qName.equals("gpx"))
-				newTrack();
-			
-			if (!qName.equals("time"))
 				currentTime = "";
+			} else if (qName.equals("trkseg") || qName.equals("trk") || qName.equals("gpx")) {
+				newTrack();
+				currentTime = "";
+			}
 			tags.pop();
         }
 
