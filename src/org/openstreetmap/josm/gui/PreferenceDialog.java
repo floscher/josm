@@ -87,7 +87,8 @@ public class PreferenceDialog extends JDialog {
 				for (int i = 0; i < annotationSources.getModel().getSize(); ++i)
 					sb.append(";"+annotationSources.getModel().getElementAt(i));
 				Main.pref.put("annotation.sources", sb.toString().substring(1));
-			}
+			} else
+				Main.pref.put("annotation.sources", null);
 
 			for (int i = 0; i < colors.getRowCount(); ++i) {
 				String name = (String)colors.getValueAt(i, 0);

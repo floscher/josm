@@ -142,6 +142,7 @@ public class Preferences {
 
 	public final void upgrade(int oldVersion) {
 		if (oldVersion > 117) return;
-		properties.put("color.scale", ColorHelper.color2html(Color.white));
+		if (!properties.containsKey("color.scale"))
+			properties.put("color.scale", ColorHelper.color2html(Color.white));
 	}
 }
