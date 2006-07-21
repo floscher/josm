@@ -42,6 +42,7 @@ import javax.swing.table.DefaultTableModel;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.ChangePropertyCommand;
+import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.data.SelectionChangedListener;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.MapFrame;
@@ -223,6 +224,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 				else
 					in = new FileInputStream(source);
 				allPresets.addAll(AnnotationPreset.readAll(in));
+				in.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 				JOptionPane.showMessageDialog(Main.parent, tr("Could not read annotation preset source: {0}",source));
@@ -249,8 +251,11 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 				else
 					answer = JOptionPane.showConfirmDialog(Main.parent, p, trn("Change {0} object", "Change {0} objects", sel.size(), sel.size()), JOptionPane.OK_CANCEL_OPTION);
 				if (answer == JOptionPane.OK_OPTION) {
-					Main.main.editLayer().add(preset.createCommand(sel));
-					selectionChanged(sel); // update whole table
+					Command cmd = preset.createCommand(sel);
+					if (cmd != null) {
+						Main.main.editLayer().add(cmd);
+						selectionChanged(sel); // update whole table
+					}
 				}
 				annotationPresets.setSelectedIndex(0);
 			}
