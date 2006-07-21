@@ -131,6 +131,7 @@ public class AnnotationPreset {
 		List<AnnotationPreset> data = new LinkedList<AnnotationPreset>();
 		List<Item> current;
 		String currentName;
+		Class<?> currentType;
 		private static int unknownCounter = 1;
 
 		@Override public void startElement(String ns, String lname, String qname, Attributes a) throws SAXException {
@@ -141,6 +142,16 @@ public class AnnotationPreset {
 				currentName = a.getValue("name");
 				if (currentName == null)
 					currentName = "Unnamed Preset #"+(unknownCounter++);
+				if (a.getValue("type") != null) {
+					String s = a.getValue("type");
+					s = Character.toUpperCase(s.charAt(0))+s.substring(1);
+					try {
+						currentType = Class.forName("org.openstreetmap.josm.data.osm."+s);
+					} catch (ClassNotFoundException e) {
+						e.printStackTrace();
+						throw new SAXException(tr("Unknown type at line {0}", getLineNumber()));
+					}
+				}
 			} else if (qname.equals("text"))
 				current.add(new Text(a.getValue("key"), a.getValue("text"), a.getValue("default")));
 			else if (qname.equals("check")) {
@@ -159,18 +170,21 @@ public class AnnotationPreset {
 			else
 				throw new SAXException(tr("Unknown annotation object {0} at line {1} column {2}", qname, getLineNumber(), getColumnNumber()));
 		}
+
 		@Override public void endElement(String ns, String lname, String qname) {
 			if (qname.equals("item"))
-				data.add(new AnnotationPreset(current, currentName));
+				data.add(new AnnotationPreset(current, currentName, currentType));
 		}
 	}
 
 	private List<Item> data;
 	String name;
+	private Class<?> type;
 
-	public AnnotationPreset(List<Item> data, String name) {
+	public AnnotationPreset(List<Item> data, String name, Class<?> currentType) {
 		this.data = data;
 		this.name = name;
+		this.type = currentType;
 	}
 
 	/**
@@ -208,7 +222,14 @@ public class AnnotationPreset {
 		return name;
 	}
 
-	public Command createCommand(Collection<OsmPrimitive> sel) {
+	public Command createCommand(Collection<OsmPrimitive> participants) {
+		Collection<OsmPrimitive> sel = new LinkedList<OsmPrimitive>();
+		for (OsmPrimitive osm : participants)
+			if (osm.getClass() == type)
+				sel.add(osm);
+		if (sel.isEmpty())
+			return null;
+
 		List<Command> cmds = new LinkedList<Command>();
 		for (Item i : data)
 			i.addCommands(sel, cmds);

@@ -45,6 +45,12 @@ public class AnnotationTester extends JFrame {
 				e.printStackTrace();
 				JOptionPane.showMessageDialog(null, "Error parsing "+source+": "+e.getMessage());
 			}
+
+			try {
+	            if (in != null)
+	            	in.close();
+            } catch (IOException e) {
+            }
 		}
 		annotationPresets.setModel(new DefaultComboBoxModel(allPresets));
 	}
