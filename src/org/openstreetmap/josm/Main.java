@@ -146,7 +146,12 @@ abstract public class Main {
 
 		final Action annotationTesterAction = new AbstractAction(){
 			public void actionPerformed(ActionEvent e) {
-				String[] args = pref.get("annotation.sources").split(";");
+				String annotationSources = pref.get("annotation.sources");
+				if (annotationSources.equals("")) {
+					JOptionPane.showMessageDialog(Main.parent, "You have to specify annotation sources in the preferences first.");
+					return;
+				}
+				String[] args = annotationSources.split(";");
 				new AnnotationTester(args);
 			}
 		};

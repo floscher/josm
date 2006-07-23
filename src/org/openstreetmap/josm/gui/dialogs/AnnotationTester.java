@@ -58,6 +58,8 @@ public class AnnotationTester extends JFrame {
 	public void reselect() {
 		annotationPanel.removeAll();
 		AnnotationPreset preset = (AnnotationPreset)annotationPresets.getSelectedItem();
+		if (preset == null)
+			return;
 		JPanel p = preset.createPanel();
 		p.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 		if (p != null)

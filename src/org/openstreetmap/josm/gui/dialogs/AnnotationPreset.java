@@ -1,6 +1,7 @@
 package org.openstreetmap.josm.gui.dialogs;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
+import static org.openstreetmap.josm.tools.I18n.trn;
 
 import java.awt.GridBagLayout;
 import java.io.BufferedReader;
@@ -83,20 +84,23 @@ public class AnnotationPreset {
 		String key;
 		String label;
 		JComboBox combo;
+		private final String[] values;
 
 		public void addToPanel(JPanel p) {
 			p.add(new JLabel(label), GBC.std().insets(0,0,10,0));
 			p.add(combo, GBC.eol().fill(GBC.HORIZONTAL));
 		}
-		public Combo(String key, String label, String def, String[] values, boolean editable) {
+		public Combo(String key, String label, String def, String[] values, String[] displayedValues, boolean editable) {
 			this.key = key;
 			this.label = label;
-			combo = new JComboBox(values);
+			this.values = values;
+			combo = new JComboBox(displayedValues);
 			combo.setEditable(editable);
 			combo.setSelectedItem(def);
 		}
 		public void addCommands(Collection<OsmPrimitive> sel, List<Command> cmds) {
-			String str = combo.isEditable()?combo.getEditor().getItem().toString() : combo.getSelectedItem().toString();
+			String v = combo.getSelectedIndex() == -1 ? null : values[combo.getSelectedIndex()];
+			String str = combo.isEditable()?combo.getEditor().getItem().toString() : v;
 			cmds.add(new ChangePropertyCommand(sel, key, str));
 		}
 	}
@@ -163,8 +167,19 @@ public class AnnotationPreset {
 			else if (qname.equals("combo")) {
 				String[] values = a.getValue("values").split(",");
 				String s = a.getValue("readonly");
-				boolean editable = s == null || s.equals("0") || s.startsWith("off") || s.startsWith("false") || s.startsWith("no");
-				current.add(new Combo(a.getValue("key"), a.getValue("text"), a.getValue("default"), values, editable));
+				String dvstr = a.getValue("display_values");
+				boolean editable = s == null  || s.equals("0") || s.startsWith("off") || s.startsWith("false") || s.startsWith("no");
+				if (dvstr != null) {
+					if (editable && s != null)
+						throw new SAXException(tr("Cannot have a writable combobox with default values (line {0})", getLineNumber()));
+					editable = false; // for combos with display_value readonly default to false
+				}
+				String[] displayValues = dvstr == null ? values : dvstr.split(",");
+				if (displayValues.length != values.length)
+					throw new SAXException(tr("display_values ({0}) and values ({1}) must be of same number of elements.",
+							displayValues.length+" "+trn("element", "elements", displayValues.length),
+							values.length+" "+trn("element", "elements", values.length)));
+				current.add(new Combo(a.getValue("key"), a.getValue("text"), a.getValue("default"), values, displayValues, editable));
 			} else if (qname.equals("key"))
 				current.add(new Key(a.getValue("key"), a.getValue("value")));
 			else
