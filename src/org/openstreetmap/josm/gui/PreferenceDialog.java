@@ -131,7 +131,7 @@ public class PreferenceDialog extends JDialog {
 	 * ComboBox with all look and feels.
 	 */
 	private JComboBox lafCombo = new JComboBox(UIManager.getInstalledLookAndFeels());
-	private JComboBox languages = new JComboBox(new Locale[]{Locale.ENGLISH, Locale.GERMAN, Locale.FRENCH});
+	private JComboBox languages = new JComboBox(new Locale[]{new Locale("en", "US"), new Locale("en", "GB"), Locale.GERMAN, Locale.FRENCH});
 	/**
 	 * The main tab panel.
 	 */
