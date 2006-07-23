@@ -11,6 +11,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.concurrent.Executor;
@@ -39,9 +40,15 @@ import org.openstreetmap.josm.actions.SaveAction;
 import org.openstreetmap.josm.actions.UndoAction;
 import org.openstreetmap.josm.actions.UploadAction;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
+import org.openstreetmap.josm.command.ChangeCommand;
+import org.openstreetmap.josm.command.Command;
+import org.openstreetmap.josm.command.SequenceCommand;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.data.osm.Node;
+import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.projection.Epsg4326;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.MapFrame;
@@ -155,8 +162,39 @@ abstract public class Main {
 				new AnnotationTester(args);
 			}
 		};
-		annotationTesterAction.putValue(Action.NAME, "Annotation Preset Tester");
+		annotationTesterAction.putValue(Action.NAME, tr("Annotation Preset Tester"));
 		annotationTesterAction.putValue(Action.SMALL_ICON, ImageProvider.get("annotation-tester"));
+		final Action reverseSegmentAction = new AbstractAction(){
+			public void actionPerformed(ActionEvent e) {
+				Collection<OsmPrimitive> sel = Main.ds.getSelected();
+				boolean hasSegments = false;
+				for (OsmPrimitive osm : sel) {
+					if (osm instanceof Segment) {
+						hasSegments = true;
+						break;
+					}
+				}
+				if (!hasSegments) {
+					JOptionPane.showMessageDialog(Main.parent, tr("Please select at least one segment."));
+					return;
+				}
+				Collection<Command> c = new LinkedList<Command>();
+				for (OsmPrimitive osm : sel) {
+					if (!(osm instanceof Segment))
+						continue;
+					Segment s = (Segment)osm;
+					Segment snew = new Segment(s);
+					Node n = snew.from;
+					snew.from = snew.to;
+					snew.to = n;
+					c.add(new ChangeCommand(s, snew));
+				}
+				editLayer().add(new SequenceCommand(tr("Reverse Segments"), c));
+				map.repaint();
+			}
+		};
+		reverseSegmentAction.putValue(Action.NAME, tr("Reverse Segments"));
+		reverseSegmentAction.putValue(Action.SMALL_ICON, ImageProvider.get("segmentflip"));
 
 		final Action uploadAction = new UploadAction();
 		final Action saveAction = new SaveAction();
@@ -192,6 +230,8 @@ abstract public class Main {
 		editMenu.add(undoAction);
 		editMenu.add(redoAction);
 		editMenu.addSeparator();
+		editMenu.add(reverseSegmentAction);
+		editMenu.addSeparator();
 		editMenu.add(preferencesAction);
 		mainMenu.add(editMenu);
 
@@ -215,6 +255,8 @@ abstract public class Main {
 		toolBar.addSeparator();
 		toolBar.add(undoAction);
 		toolBar.add(redoAction);
+		toolBar.addSeparator();
+		toolBar.add(reverseSegmentAction);
 		toolBar.addSeparator();
 		toolBar.add(preferencesAction);
 		contentPane.add(toolBar, BorderLayout.NORTH);
