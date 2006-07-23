@@ -40,7 +40,9 @@
 		<copy todir="${build}/images">
 			<fileset dir="images" />
 		</copy>
-
+		<copy todir="${build}/org/openstreetmap/josm">
+		        <fileset dir="${po}/org/openstreetmap/josm" />
+		</copy>
 		<jar destfile="${dist}/josm-custom.jar" basedir="${build}">
 			<manifest>
 				<attribute name="Main-class" value="org.openstreetmap.josm.gui.MainApplication" />
