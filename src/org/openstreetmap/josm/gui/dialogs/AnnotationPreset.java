@@ -135,7 +135,7 @@ public class AnnotationPreset {
 		List<AnnotationPreset> data = new LinkedList<AnnotationPreset>();
 		List<Item> current;
 		String currentName;
-		Class<?> currentType;
+		Collection<Class<?>> currentTypes;
 		private static int unknownCounter = 1;
 
 		@Override public void startElement(String ns, String lname, String qname, Attributes a) throws SAXException {
@@ -148,9 +148,13 @@ public class AnnotationPreset {
 					currentName = "Unnamed Preset #"+(unknownCounter++);
 				if (a.getValue("type") != null) {
 					String s = a.getValue("type");
-					s = Character.toUpperCase(s.charAt(0))+s.substring(1);
 					try {
-						currentType = Class.forName("org.openstreetmap.josm.data.osm."+s);
+						for (String type : s.split(",")) {
+							type = Character.toUpperCase(type.charAt(0))+type.substring(1);
+							if (currentTypes == null)
+								currentTypes = new LinkedList<Class<?>>();
+							currentTypes.add(Class.forName("org.openstreetmap.josm.data.osm."+type));
+						}
 					} catch (ClassNotFoundException e) {
 						e.printStackTrace();
 						throw new SAXException(tr("Unknown type at line {0}", getLineNumber()));
@@ -187,19 +191,23 @@ public class AnnotationPreset {
 		}
 
 		@Override public void endElement(String ns, String lname, String qname) {
-			if (qname.equals("item"))
-				data.add(new AnnotationPreset(current, currentName, currentType));
+			if (qname.equals("item")) {
+				data.add(new AnnotationPreset(current, currentName, currentTypes));
+				current = null;
+				currentName = null;
+				currentTypes = null;
+			}
 		}
 	}
 
 	private List<Item> data;
-	String name;
-	private Class<?> type;
+	public final String name;
+	private Collection<Class<?>> types;
 
-	public AnnotationPreset(List<Item> data, String name, Class<?> currentType) {
+	public AnnotationPreset(List<Item> data, String name, Collection<Class<?>> currentTypes) {
 		this.data = data;
 		this.name = name;
-		this.type = currentType;
+		this.types = currentTypes;
 	}
 
 	/**
@@ -233,14 +241,10 @@ public class AnnotationPreset {
 		return p;
 	}
 
-	@Override public String toString() {
-		return name;
-	}
-
 	public Command createCommand(Collection<OsmPrimitive> participants) {
 		Collection<OsmPrimitive> sel = new LinkedList<OsmPrimitive>();
 		for (OsmPrimitive osm : participants)
-			if (osm.getClass() == type)
+			if (types == null || types.contains(osm.getClass()))
 				sel.add(osm);
 		if (sel.isEmpty())
 			return null;
