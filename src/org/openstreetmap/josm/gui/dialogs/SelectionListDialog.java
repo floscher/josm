@@ -35,7 +35,6 @@ import javax.swing.ListSelectionModel;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.SelectionChangedListener;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.OsmPrimitivRenderer;
 import org.openstreetmap.josm.gui.PleaseWaitRunnable;
 import org.openstreetmap.josm.io.OsmIdReader;
@@ -110,11 +109,7 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 	 */
 	private JList displaylist = new JList(list);
 
-	/**
-	 * Create a SelectionList dialog.
-	 * @param mapView The mapView to get the dataset from.
-	 */
-	public SelectionListDialog(MapFrame mapFrame) {
+	public SelectionListDialog() {
 		super(tr("Current Selection"), "selectionlist", tr("Open a selection list window."), KeyEvent.VK_E, 150);
 		displaylist.setCellRenderer(new OsmPrimitivRenderer());
 		displaylist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
