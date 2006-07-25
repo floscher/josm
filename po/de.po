@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-07-23 23:39+0200\n"
+"POT-Creation-Date: 2006-07-25 00:28+0200\n"
 "PO-Revision-Date: 2006-07-22 14:48+0200\n"
 "Last-Translator: Sven Anders <sven@anders-hamburg.de>\n"
 "Language-Team:  <de@li.org>\n"
@@ -966,36 +966,36 @@ msgstr "Den Wert des Schlüssels für alle Objekte ändern"
 msgid "Delete the selected key in all objects"
 msgstr "Den Schlüssel aus allen Objekten löschen."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:156
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:160
 #, java-format
 msgid "Unknown type at line {0}"
 msgstr "Unbekannter Typ in Zeile {0}"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:174
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:178
 #, java-format
 msgid "Cannot have a writable combobox with default values (line {0})"
 msgstr ""
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:179
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:183
 #, java-format
 msgid ""
 "display_values ({0}) and values ({1}) must be of same number of elements."
 msgstr ""
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:180
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:181
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:184
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:185
 #, fuzzy
 msgid "element"
 msgid_plural "elements"
 msgstr[0] "Abschnitt"
 msgstr[1] "Abschnitte"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:186
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:190
 #, java-format
 msgid "Unknown annotation object {0} at line {1} column {2}"
 msgstr "Unbekannt Vermerktes Objekt {0} an Zeile {1} Spalte {2}"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:256
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:260
 msgid "Change Properties"
 msgstr "Einstellungen ändern"
 
