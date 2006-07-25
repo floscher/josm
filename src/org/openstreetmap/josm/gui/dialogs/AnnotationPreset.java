@@ -201,8 +201,8 @@ public class AnnotationPreset {
 	}
 
 	private List<Item> data;
-	public final String name;
-	private Collection<Class<?>> types;
+	public String name;
+	Collection<Class<?>> types;
 
 	public AnnotationPreset(List<Item> data, String name, Collection<Class<?>> currentTypes) {
 		this.data = data;
@@ -215,9 +215,7 @@ public class AnnotationPreset {
 	 * will be an empty string as text. createPanel will return null.
 	 * Use this as default item for "do not select anything".
 	 */
-	public AnnotationPreset() {
-		name = "";
-	}
+	public AnnotationPreset() {}
 
 	public static List<AnnotationPreset> readAll(InputStream inStream) throws IOException, SAXException {
 		BufferedReader in = null;
