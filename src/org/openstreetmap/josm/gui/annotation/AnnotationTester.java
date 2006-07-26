@@ -1,4 +1,4 @@
-package org.openstreetmap.josm.gui.dialogs;
+package org.openstreetmap.josm.gui.annotation;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -72,6 +72,7 @@ public class AnnotationTester extends JFrame {
 		super("Annotation Preset Tester");
 		this.args = args;
 		annotationPresets = new JComboBox();
+		annotationPresets.setRenderer(new AnnotationCellRenderer());
 		reload();
 
 		panel.add(annotationPresets, BorderLayout.NORTH);

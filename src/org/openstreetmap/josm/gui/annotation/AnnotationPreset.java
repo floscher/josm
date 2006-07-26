@@ -1,4 +1,4 @@
-package org.openstreetmap.josm.gui.dialogs;
+package org.openstreetmap.josm.gui.annotation;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
 import static org.openstreetmap.josm.tools.I18n.trn;
@@ -202,7 +202,7 @@ public class AnnotationPreset {
 
 	private List<Item> data;
 	public String name;
-	Collection<Class<?>> types;
+	public Collection<Class<?>> types;
 
 	public AnnotationPreset(List<Item> data, String name, Collection<Class<?>> currentTypes) {
 		this.data = data;

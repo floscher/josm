@@ -298,7 +298,10 @@ public class GeoImageLayer extends Layer {
 				Rectangle r = new Rectangle(p.x-e.icon.getIconWidth()/2, p.y-e.icon.getIconHeight()/2, e.icon.getIconWidth(), e.icon.getIconHeight());
 				e.icon.paintIcon(mv, g, r.x, r.y);
 				Border b = null;
-				if (!clickedFound && mousePressed && r.contains(mv.getMousePosition())) {
+				Point mousePosition = mv.getMousePosition();
+				if (mousePosition == null)
+					continue; // mouse outside the whole window
+				if (!clickedFound && mousePressed && r.contains(mousePosition)) {
 					b = BorderFactory.createBevelBorder(BevelBorder.LOWERED);
 					clickedFound = true;
 				} else

@@ -56,14 +56,14 @@ public class HistoryDialog extends ToggleDialog implements SelectionChangedListe
 		c.set(Calendar.SECOND, 0);
 		return c.getTime();
 	}
-	
+
 	private static class HistoryItem implements Comparable<HistoryItem> {
 		OsmPrimitive osm;
 		boolean visible;
-		
+
 		public int compareTo(HistoryItem o) {
-	        return unifyDate(osm.timestamp).compareTo(unifyDate(o.osm.timestamp));
-        }
+			return unifyDate(osm.timestamp).compareTo(unifyDate(o.osm.timestamp));
+		}
 	}
 
 	private final DefaultTableModel data = new DefaultTableModel(){
@@ -99,17 +99,17 @@ public class HistoryDialog extends ToggleDialog implements SelectionChangedListe
 		final TableCellRenderer oldRenderer = history.getTableHeader().getDefaultRenderer();
 		history.getTableHeader().setDefaultRenderer(new DefaultTableCellRenderer(){
 			@Override public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-	            JComponent c = (JComponent)oldRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-	            if (!value.equals(""))
-	            	return c;
-	            JLabel l = new JLabel(ImageProvider.get("misc","showhide"));
-	            l.setForeground(c.getForeground());
-	            l.setBackground(c.getBackground());
-	            l.setFont(c.getFont());
-	            l.setBorder(c.getBorder());
-	            l.setOpaque(true);
-	            return l;
-            }
+				JComponent c = (JComponent)oldRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				if (!value.equals(""))
+					return c;
+				JLabel l = new JLabel(ImageProvider.get("misc","showhide"));
+				l.setForeground(c.getForeground());
+				l.setBackground(c.getBackground());
+				l.setFont(c.getFont());
+				l.setBorder(c.getBorder());
+				l.setOpaque(true);
+				return l;
+			}
 		});
 
 		JPanel centerPanel = new JPanel(new GridBagLayout());
