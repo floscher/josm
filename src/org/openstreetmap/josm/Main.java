@@ -47,7 +47,7 @@ import org.openstreetmap.josm.data.projection.Epsg4326;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
-import org.openstreetmap.josm.gui.dialogs.AnnotationTester;
+import org.openstreetmap.josm.gui.annotation.AnnotationTester;
 import org.openstreetmap.josm.gui.dialogs.SelectionListDialog;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
@@ -141,6 +141,8 @@ abstract public class Main {
 		if (map.mapView.getAllLayers().isEmpty())
 			setMapFrame(null);
 	}
+
+
 	public Main() {
 		main = this;
 		contentPane.add(panel, BorderLayout.CENTER);

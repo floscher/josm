@@ -27,13 +27,10 @@ import java.util.Vector;
 import java.util.Map.Entry;
 
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -49,6 +46,8 @@ import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.data.SelectionChangedListener;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.MapFrame;
+import org.openstreetmap.josm.gui.annotation.AnnotationCellRenderer;
+import org.openstreetmap.josm.gui.annotation.AnnotationPreset;
 import org.openstreetmap.josm.tools.ImageProvider;
 import org.xml.sax.SAXException;
 
@@ -263,27 +262,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 				annotationPresets.setSelectedIndex(0);
 			}
 		});
-		annotationPresets.setRenderer(new DefaultListCellRenderer(){
-			@Override public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-	            AnnotationPreset a = (AnnotationPreset)value;
-				if (a.name == null)
-	            	return super.getListCellRendererComponent(list, "", index, false, false);
-				JComponent c = (JComponent)super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-	            JLabel l = new JLabel((a).name);
-	            l.setForeground(c.getForeground());
-	            l.setBackground(c.getBackground());
-	            l.setFont(c.getFont());
-	            l.setBorder(c.getBorder());
-	            if (a.types == null)
-	            	l.setIcon(ImageProvider.get("data", "empty"));
-	            else if (a.types.size() != 1)
-	            	l.setIcon(ImageProvider.get("data", "object"));
-	            else
-	            	l.setIcon(ImageProvider.get("data", a.types.iterator().next().getSimpleName().toLowerCase()));
-	            l.setOpaque(true);
-	            return l;
-            }
-		});
+		annotationPresets.setRenderer(new AnnotationCellRenderer());
 
 		data.setColumnIdentifiers(new String[]{tr("Key"),tr("Value")});
 		propertyTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
