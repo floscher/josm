@@ -54,7 +54,7 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 		private final Layer layer;
 
 		public DeleteLayerAction(Layer layer) {
-			super("Delete", ImageProvider.get("dialogs", "delete"));
+			super(tr("Delete"), ImageProvider.get("dialogs", "delete"));
 			putValue(SHORT_DESCRIPTION, tr("Delete the selected layer."));
 			this.layer = layer;
 		}
