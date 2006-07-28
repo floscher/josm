@@ -6,14 +6,15 @@
 # translation of de.po to
 # translation of de.po to
 # translation of de.po to
+# translation of de.po to
 # Sven Anders <s.anders@digitec.de>, 2006.
 # Sven Anders <sven@anders-hamburg.de>, 2006.
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-07-25 20:23+0200\n"
-"PO-Revision-Date: 2006-07-25 20:21+0200\n"
+"POT-Creation-Date: 2006-07-28 19:41+0200\n"
+"PO-Revision-Date: 2006-07-28 20:16+0200\n"
 "Last-Translator: Sven Anders <sven@anders-hamburg.de>\n"
 "Language-Team:  <de@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -24,14 +25,14 @@ msgstr ""
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/mapmode/AddSegmentAction.java:51
 msgid "Add segment"
-msgstr "TWAbschnitt hinzufügen"
+msgstr "Abschnitt hinzufügen"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/mapmode/AddSegmentAction.java:53
 msgid "Add a segment between two nodes."
-msgstr "Abschnitt zwischen zwei Kontenpunkten hinzufügen"
+msgstr "Abschnitt zwischen zwei Knotenpunkten hinzufügen"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/mapmode/DeleteAction.java:55
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:334
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:313
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/PreferenceDialog.java:338
 #: /home/sven/svn/src/org/openstreetmap/josm/command/DeleteCommand.java:46
 #: /home/sven/svn/src/org/openstreetmap/josm/command/DeleteCommand.java:58
@@ -80,7 +81,7 @@ msgstr "Zoom"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/mapmode/ZoomAction.java:46
 msgid "Zoom in by dragging. (Ctrl+up,left,down,right,+,-)"
-msgstr "Zommen durch ancklicken  (Strg-Hoch,Links,Runter,Rechts,+,-)"
+msgstr "Zoomen durch anklicken  (Strg-Hoch,Links,Runter,Rechts,+,-)"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/mapmode/SelectionAction.java:72
 msgid "Selection"
@@ -121,8 +122,7 @@ msgstr "Füge einen neuen Weg hinzu."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/mapmode/AddWayAction.java:95
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/mapmode/AddWayAction.java:143
-msgid ""
-"Warning: This way is incomplete. Try to download it, before adding segments."
+msgid "Warning: This way is incomplete. Try to download it, before adding segments."
 msgstr ""
 "Achtung: Dieser Weg ist nicht vollständig. Er sollte vom Server geladen "
 "werden, bevor Abschnitte hinzugefügt werden."
@@ -150,8 +150,7 @@ msgstr "Abschnitte eines Weges hinzufügen."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/mapmode/AddWayAction.java:168
 msgid "Do you want to add all other selected segments to the one selected way?"
-msgstr ""
-"Sollen die gewählten Abschnitte zu dem ausgewählten Weg hinzugefügt werden?"
+msgstr "Sollen die gewählten Abschnitte zu dem ausgewählten Weg hinzugefügt werden?"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/mapmode/AddWayAction.java:168
 msgid "Add segments to way?"
@@ -169,7 +168,7 @@ msgstr "Neu Anordnen?"
 #, java-format
 msgid "Create a new way out of {0} segment?"
 msgid_plural "Create a new way out of {0} segments?"
-msgstr[0] "Soll ein neuer Weg aus {0} Abschnitt erstellt weden."
+msgstr[0] "Soll ein neuer Weg aus {0} Abschnitt erstellt werden."
 msgstr[1] "Soll ein neuer Weg aus {0} Abschnitten erstellt weden."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/mapmode/AddWayAction.java:232
@@ -178,7 +177,7 @@ msgstr "Neuen Weg erstellen"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/mapmode/AddNodeAction.java:46
 msgid "Add node"
-msgstr "Knoptenpunkt hinzufügen"
+msgstr "Knotenpunkt hinzufügen"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/mapmode/AddNodeAction.java:46
 msgid "Add a new node to the map"
@@ -199,6 +198,19 @@ msgstr "Kann keinen Knoten außerhalb der Welt erstellen."
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/mapmode/AddNodeAction.java:132
 msgid "Add Node into Segment"
 msgstr "Einen Knotenpunkt in einen Abschnitt einfügen"
+
+#: /home/sven/svn/src/org/openstreetmap/josm/actions/ReverseSegmentAction.java:26
+#: /home/sven/svn/src/org/openstreetmap/josm/actions/ReverseSegmentAction.java:53
+msgid "Reverse Segments"
+msgstr "Richtung ändern"
+
+#: /home/sven/svn/src/org/openstreetmap/josm/actions/ReverseSegmentAction.java:26
+msgid "Revert the direction of all selected Segments."
+msgstr "Richtung der ausgewählten Abschnitte umdrehen."
+
+#: /home/sven/svn/src/org/openstreetmap/josm/actions/ReverseSegmentAction.java:39
+msgid "Please select at least one segment."
+msgstr "Bitte wählen Sie mindestens einen Abschnitt aus."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/PreferencesAction.java:21
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/PreferenceDialog.java:187
@@ -294,7 +306,7 @@ msgstr "min Breite"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/DownloadAction.java:146
 msgid "min lon"
-msgstr "min Breite"
+msgstr "min Länge"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/DownloadAction.java:148
 msgid "max lat"
@@ -313,7 +325,7 @@ msgid "Bookmarks"
 msgstr "Lesezeichen"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/DownloadAction.java:232
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:332
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:311
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/PreferenceDialog.java:312
 #: /home/sven/svn/src/org/openstreetmap/josm/command/AddCommand.java:52
 msgid "Add"
@@ -341,8 +353,7 @@ msgstr "Bereich auswählen"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/DownloadAction.java:286
 msgid "Please enter the desired coordinates or click on a bookmark."
-msgstr ""
-"Bitte geben Sie die Koordinaten an oder wählen Sie eine Lesezeichen aus."
+msgstr "Bitte geben Sie die Koordinaten an oder wählen Sie eine Lesezeichen aus."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/ExitAction.java:18
 msgid "Exit"
@@ -418,7 +429,7 @@ msgstr "Überschreiben"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/AutoScaleAction.java:29
 msgid "data"
-msgstr "daten"
+msgstr "Daten"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/AutoScaleAction.java:30
 msgid "selection"
@@ -442,7 +453,7 @@ msgstr "Automatisch skalieren: {0}"
 #, java-format
 msgid "Auto zoom the view (to {0}. Disabled if the view is moved)"
 msgstr ""
-"Den Bereich automatisch zommen (nach {0}. Ausgeschaltet wenn der Bereich "
+"Den Bereich automatisch zoomen (nach {0}. Ausgeschaltet wenn der Bereich "
 "bewegt wird)"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/UploadAction.java:36
@@ -455,11 +466,11 @@ msgstr "Kartendaten zum OSM Server speichern"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/UploadAction.java:41
 msgid "Nothing to upload. Get some data first."
-msgstr "Nichts geändert. Kann nichts hochladen."
+msgstr "Nichts geändert. Kann nichts hoch-laden."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/UploadAction.java:46
 msgid "There are unresolved conflicts. You have to resolve these first."
-msgstr "Es gibt ungelöste Konfilkte, die zuerst bearbeitet werden müssen."
+msgstr "Es gibt ungelöste Konflikte, die zuerst bearbeitet werden müssen."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/UploadAction.java:75
 msgid "Uploading data"
@@ -535,9 +546,11 @@ msgstr "Hintergrund anzeigen"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/WmsServerAction.java:15
 msgid "Download and show landsat background images."
-msgstr "Lade und zeige Satelietenbilder als Hintergund."
+msgstr "Lade und zeige Satelietenbilder als Hintergrund."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/WmsServerAction.java:19
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/HistoryDialog.java:133
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/HistoryDialog.java:177
 msgid "Not implemented yet."
 msgstr "Noch nicht fertig."
 
@@ -551,7 +564,7 @@ msgstr "Speichere die aktuellen Daten."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/SaveAction.java:37
 msgid "No document open so nothing to save."
-msgstr "Kein Dokument geöfnet, deshalb nichts zu speichern."
+msgstr "Kein Dokument geöffnet, deshalb nichts zu speichern."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/SaveAction.java:40
 msgid "The document contains no data. Save anyway?"
@@ -590,8 +603,8 @@ msgid ""
 "Note: GPL is not compatible to the OSM license. Do not upload GPL licensed "
 "tracks."
 msgstr ""
-"Achtung: Die GPL ist nicht konform zur OSM-Lizens. Keine Tracks die unter "
-"GPL  stehen hochspielen."
+"Achtung: Die GPL ist nicht konform zur OSM-Lizenz. Keine Tracks die unter "
+"GPL  stehen hoch-spielen."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/GpxExportAction.java:44
 msgid "Export to GPX"
@@ -627,7 +640,7 @@ msgstr "Copyright (URL)"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/GpxExportAction.java:95
 msgid "Predefined"
-msgstr "Vordefinert"
+msgstr "Vordefiniert"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/actions/GpxExportAction.java:97
 msgid "Copyright year"
@@ -677,7 +690,7 @@ msgstr ""
 
 #: /home/sven/svn/src/org/openstreetmap/josm/tools/BugReportExceptionHandler.java:43
 msgid "Unexpected Exception"
-msgstr "Unerwarter Fehler"
+msgstr "Unerwarteter Fehler"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/tools/BugReportExceptionHandler.java:51
 msgid ""
@@ -711,6 +724,46 @@ msgstr "AltGr-"
 msgid "Shift-"
 msgstr "Shift-"
 
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/HistoryDialog.java:81
+msgid "Click Reload to refresh list"
+msgstr "\"Neu Laden\" anklicken um die Liste zu aktualisieren."
+
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/HistoryDialog.java:82
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:137
+msgid "Reload"
+msgstr "Neu Laden"
+
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/HistoryDialog.java:83
+msgid "Revert"
+msgstr "Zücknehmen"
+
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/HistoryDialog.java:86
+msgid "History"
+msgstr "Geschichte"
+
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/HistoryDialog.java:86
+msgid "Display the history of all selected items."
+msgstr "Die Geschichte aller ausgewählten Elemente ansehen."
+
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/HistoryDialog.java:95
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/MapStatus.java:223
+msgid "Object"
+msgstr "Objekt"
+
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/HistoryDialog.java:95
+msgid "Date"
+msgstr "Datum"
+
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/HistoryDialog.java:130
+msgid "Reload all currently selected objects and refresh the list."
+msgstr "Alle gewählten Objekte neu laden und die Liste neu aufbauen."
+
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/HistoryDialog.java:136
+msgid ""
+"Revert the state of all currently selected objects to the version selected "
+"in the history list."
+msgstr "Die ausgewählten Objekte in die gewählten Version in der Versionsliste zurückführen."
+
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/ConflictDialog.java:51
 msgid "Conflict"
 msgstr "Konflikt"
@@ -725,20 +778,18 @@ msgstr "Lösen"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/ConflictDialog.java:64
 msgid "Open a merge dialog of all selected items in the list above."
-msgstr ""
-"Öffnet eine Dialog-Fenster mit dem gewählten Objekten aus der obigen Liste."
+msgstr "Öffnet eine Dialog-Fenster mit dem gewählten Objekten aus der obigen Liste."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/ConflictDialog.java:72
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:133
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:128
 msgid "Select"
 msgstr "Wähle aus"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/ConflictDialog.java:73
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:134
-msgid ""
-"Set the selected elements on the map to the selected items in the list above."
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:129
+msgid "Set the selected elements on the map to the selected items in the list above."
 msgstr ""
-"Setze die geählten Elemnte auf der Karte auf die obige Liste der ausgwählten "
+"Setze die gewählten Elemente auf der Karte auf die obige Liste der ausgewählten "
 "Objekte."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/ConflictDialog.java:106
@@ -749,59 +800,55 @@ msgstr "Bitte wählen Sie Einträge aus der Konflikte-Liste."
 msgid "Resolve Conflicts"
 msgstr "Konflikte entfernen"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:64
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:63
 msgid "Load Selection"
 msgstr "Lade Auswahl"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:71
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:70
 #, java-format
 msgid "Contact {0}..."
 msgstr "Verbinde zu {0} ..."
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:76
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:75
 msgid "Downloading..."
 msgstr "Lade Daten ..."
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:88
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:87
 #, java-format
 msgid "Could not read from url: \"{0}\""
 msgstr "Kann die URL \"{0}\" nicht lesen"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:91
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:90
 #, java-format
 msgid "Parsing error in url: \"{0}\""
 msgstr "Kann die URL \"{0}\" nicht parsen."
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:118
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:113
 msgid "Current Selection"
 msgstr "Aktuelle Auswahl"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:118
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:113
 msgid "Open a selection list window."
 msgstr "Öffne ein Fenster mit der aktuellen Auswahl."
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:142
-msgid "Reload"
-msgstr "Neu Laden"
-
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:143
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:138
 msgid "Refresh the selection list."
 msgstr "Auswahlliste aktualisieren."
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:151
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:185
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:146
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:180
 msgid "Search"
 msgstr "Suche"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:152
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:147
 msgid "Search for objects."
 msgstr "Objekte suchen."
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:156
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:151
 msgid "Please enter a search string."
 msgstr "Bitte geben Sie einen Suchbegriff ein."
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:158
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:153
 msgid ""
 "<html>Fulltext search.<ul><li><code>Baker Street</code>  - 'Baker' and "
 "'Street' in any key or name.</li><li><code>\"Baker Street\"</code>  - 'Baker "
@@ -817,15 +864,15 @@ msgstr ""
 "code> - ein Objekt mit Schlüssel  'Bla' und irgend einen Wert</li></ul></"
 "html>"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:166
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:161
 msgid "replace selection"
 msgstr "Auswahl ersetzen"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:167
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:162
 msgid "add to selection"
 msgstr "zur Auswahl hinzufügen"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:168
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:163
 msgid "remove from selection"
 msgstr "aus der Auswahl entfernen"
 
@@ -847,7 +894,7 @@ msgstr "Zeigen/Verstecken"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/LayerList.java:80
 msgid "Toggle visible state of the selected layer."
-msgstr "Schaltet die Ebene zwischen sichtbar und unsichbar um."
+msgstr "Schaltet die Ebene zwischen sichtbar und unsichtbar um."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/LayerList.java:118
 msgid "Layers"
@@ -869,137 +916,102 @@ msgstr "Gewählte Ebene eine Reihe tiefer schieben."
 msgid "Merge the selected layer into the layer directly below."
 msgstr "Gewählte Ebene in die Ebene direkt darunter integrieren."
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:99
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:149
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:98
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:148
 #, java-format
 msgid "This will change {0} object."
 msgid_plural "This will change {0} objects."
 msgstr[0] "Dies wird ein {0} Objekt ändern"
 msgstr[1] "Dies wird {0} Objekte ändern."
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:99
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:98
 #, java-format
-msgid ""
-"Please select a new value for \"{0}\".<br>(Empty string deletes the key.)"
+msgid "Please select a new value for \"{0}\".<br>(Empty string deletes the key.)"
 msgstr ""
 "Bitte geben Sie einen neuen Wert für \"{0}\" an.<br>(Leereingabe löscht den "
 "Eintrag.)"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:111
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:171
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:110
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:170
 msgid "Change values?"
 msgstr "Wert ändern?"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:129
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:296
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:380
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:128
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:275
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:359
 msgid "<different>"
 msgstr "<verschieden>"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:149
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:148
 msgid "Please select a key"
 msgstr "Bitte wählen Sie einen Schlüssel"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:162
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:161
 msgid "Please select a value"
 msgstr "Bitte wählen Sie einen Wert"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:214
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:213
 msgid "Properties"
 msgstr "Einstellungen"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:214
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:213
 msgid "Property for selected objects."
 msgstr "Einstellungen der Ausgewählten Objekte."
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:233
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:232
 #, java-format
 msgid "Could not read annotation preset source: {0}"
 msgstr "Kann die voreingestellte Quelle nicht laden: {0}"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:236
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:235
 #, java-format
 msgid "Error parsing {0}: "
 msgstr "Fehler beim Parsen. {0}"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:255
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:254
 #, java-format
 msgid "Change {0} object"
 msgid_plural "Change {0} objects"
 msgstr[0] "Ändere {0} Objekt"
 msgstr[1] "Ändere {0} Objekte"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:288
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:267
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/ConflictResolver.java:81
 msgid "Key"
 msgstr "Schlüssel"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:288
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:267
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/ConflictResolver.java:81
 msgid "Value"
 msgstr "Wert"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:321
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:300
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/PreferenceDialog.java:327
 msgid "Please select the row to edit."
 msgstr "Bitte wählen sie eine Zeile zum bearbeiten."
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:326
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:305
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/PreferenceDialog.java:342
 msgid "Please select the row to delete."
 msgstr "Bitte wählen Sie die löschende Zeile."
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:332
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:311
 msgid "Add a new key/value pair to all objects"
 msgstr "Füge ein neues Paar aus Schlüssel und Wert zu allen Objekten hinzu."
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:333
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:312
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/PreferenceDialog.java:323
-#: /home/sven/svn/src/org/openstreetmap/josm/Main.java:228
+#: /home/sven/svn/src/org/openstreetmap/josm/Main.java:193
 msgid "Edit"
 msgstr "Bearbeiten"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:333
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:312
 msgid "Edit the value of the selected key for all objects"
 msgstr "Den Wert des Schlüssels für alle Objekte ändern"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:334
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:313
 msgid "Delete the selected key in all objects"
 msgstr "Den Schlüssel aus allen Objekten löschen."
-
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:160
-#, java-format
-msgid "Unknown type at line {0}"
-msgstr "Unbekannter Typ in Zeile {0}"
-
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:178
-#, java-format
-msgid "Cannot have a writable combobox with default values (line {0})"
-msgstr "Kann keine schreibbare Combobox mit Defaultwerten haben (Zeile {0})"
-
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:183
-#, java-format
-msgid ""
-"display_values ({0}) and values ({1}) must be of same number of elements."
-msgstr ""
-"display_values ({0}) und values ({1}) müssen die selbe Anzahl an Elementen "
-"haben."
-
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:184
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:185
-msgid "element"
-msgid_plural "elements"
-msgstr[0] "Element"
-msgstr[1] "Elemente"
-
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:190
-#, java-format
-msgid "Unknown annotation object {0} at line {1} column {2}"
-msgstr "Unbekannt Vermerktes Objekt {0} an Zeile {1} Spalte {2}"
-
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:258
-msgid "Change Properties"
-msgstr "Einstellungen ändern"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/OsmDataLayer.java:153
 #: /home/sven/svn/src/org/openstreetmap/josm/data/osm/visitor/NameVisitor.java:66
@@ -1028,7 +1040,7 @@ msgstr[1] "Wege"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/OsmDataLayer.java:167
 msgid "There were conflicts during import."
-msgstr "Es gab Konflikte beim Importien.w"
+msgstr "Es gab Konflikte beim Importieren.w"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/OsmDataLayer.java:306
 #, java-format
@@ -1101,7 +1113,7 @@ msgid "Import images"
 msgstr "Bilder importieren"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/RawGpsLayer.java:202
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:330
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:333
 msgid "JPEG images (*.jpg)"
 msgstr "JPEG Bilder (*.jpg)"
 
@@ -1143,7 +1155,7 @@ msgstr "Bilder mit Ortsbezug"
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:253
 #, java-format
 msgid "GPS start: {0}"
-msgstr "GPS start: {0}"
+msgstr "GPS Start: {0}"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:254
 #, java-format
@@ -1170,37 +1182,37 @@ msgstr[1] "Bilder"
 msgid "{0} within the track."
 msgstr "{0} innerhalb des Tracks."
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:319
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:322
 msgid "Sync clock"
-msgstr "Uhrzeit Synchornisieren"
+msgstr "Uhrzeit Synchronisieren"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:374
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:377
 #, java-format
 msgid "The date in file \"{0}\" could not be parsed."
 msgstr "Die Datei {0} kann nicht verarbeitet werden."
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:378
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:381
 #, java-format
 msgid "There is no EXIF time within the file \"{0}\"."
 msgstr "Es gibt keine EXIF Zeitinformationen in der Datei {0}"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:382
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:385
 msgid "Image"
 msgstr "Bild"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:384
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:387
 msgid "Enter shown date (mm/dd/yyyy HH:MM:SS)"
 msgstr "Datum eingeben (mm/tt/jjjj HH:MM:SS)"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:387
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:390
 msgid "GPS unit timezome (difference to photo)"
 msgstr "Zeitzone des GPS Geräts (Unterschied zum Foto)"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:395
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:398
 msgid "Syncronize Time with GPS Unit"
 msgstr "Zeit mit GPS Gerät synchronisieren"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:411
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:414
 msgid "Time entered could not be parsed."
 msgstr "Die eingegebene Zeit ist nicht maschinenlesbar."
 
@@ -1214,6 +1226,39 @@ msgstr ""
 #, java-format
 msgid "WMS layer: {0}"
 msgstr "WMS-Ebene: {0}"
+
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/annotation/AnnotationPreset.java:160
+#, java-format
+msgid "Unknown type at line {0}"
+msgstr "Unbekannter Typ in Zeile {0}"
+
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/annotation/AnnotationPreset.java:178
+#, java-format
+msgid "Cannot have a writable combobox with default values (line {0})"
+msgstr "Kann keine schreibbare Combobox mit Defaultwerten haben (Zeile {0})"
+
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/annotation/AnnotationPreset.java:183
+#, java-format
+msgid "display_values ({0}) and values ({1}) must be of same number of elements."
+msgstr ""
+"display_values ({0}) und values ({1}) müssen die selbe Anzahl an Elementen "
+"haben."
+
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/annotation/AnnotationPreset.java:184
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/annotation/AnnotationPreset.java:185
+msgid "element"
+msgid_plural "elements"
+msgstr[0] "Element"
+msgstr[1] "Elemente"
+
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/annotation/AnnotationPreset.java:190
+#, java-format
+msgid "Unknown annotation object {0} at line {1} column {2}"
+msgstr "Unbekannt Vermerktes Objekt {0} an Zeile {1} Spalte {2}"
+
+#: /home/sven/svn/src/org/openstreetmap/josm/gui/annotation/AnnotationPreset.java:258
+msgid "Change Properties"
+msgstr "Einstellungen ändern"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/BookmarkList.java:90
 msgid "Could not read bookmarks."
@@ -1234,8 +1279,7 @@ msgstr "Ebene nicht in der Liste."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/MainApplication.java:53
 msgid "Hint: Some changes came from uploading new data to the server."
-msgstr ""
-"Hinweis: Einige Änderungen sind durch das Übertragen zum Server enstanden."
+msgstr "Hinweis: Einige Änderungen sind durch das Übertragen zum Server entstanden."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/MainApplication.java:55
 msgid "There are unsaved changes. Really quit?"
@@ -1263,7 +1307,7 @@ msgstr "Zeige diese Hilfe"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/MainApplication.java:139
 msgid "Standard unix geometry argument"
-msgstr "Standard Unix Gemoetry Argument"
+msgstr "Standard Unix Geometrie Argument"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/MainApplication.java:140
 msgid "Download the bounding box"
@@ -1306,8 +1350,8 @@ msgid ""
 "Parameters are read in the order they are specified, so make sure you load\n"
 "some data before --selection"
 msgstr ""
-"Parameter werder in der Reihenfolge ausgewertet, wie sie angegeben werden. "
-"Stellen Sie also sicher, das Daten existieren, bevor der Paramter --"
+"Parameter werden in der Reihenfolge ausgewertet, wie sie angegeben werden. "
+"Stellen Sie also sicher, das Daten existieren, bevor der Parameter --"
 "selection verwendet wird."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/MainApplication.java:156
@@ -1317,10 +1361,6 @@ msgstr "Anstatt --download<bbox> ist auch osm://<bbox> möglich\n"
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/MapStatus.java:221
 msgid "Lat/Lon"
 msgstr "Breite/Länge"
-
-#: /home/sven/svn/src/org/openstreetmap/josm/gui/MapStatus.java:223
-msgid "Object"
-msgstr "Objekt"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/ConflictResolver.java:232
 #, java-format
@@ -1375,14 +1415,14 @@ msgstr "Ändere die Größe auf den angegeben Wert (Format: Breitex Höhe)"
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/MainApplet.java:38
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/MainApplet.java:39
 msgid "string;string;..."
-msgstr "Zeichenkette;Zeichenketter;..."
+msgstr "Zeichenkette;Zeichenkette;..."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/MainApplet.java:37
 msgid ""
 "Download each. Can be x1,y1,x2,y2 an url containing lat=y&lon=x&zoom=z or a "
 "filename"
 msgstr ""
-"Lade daten. Kann x1,y1,x2,y2; eine URL mit lat=y&lon=x&zomm=z oder ein "
+"Lade Daten. Kann x1,y1,x2,y2; eine URL mit lat=y&lon=x&zomm=z oder ein "
 "Dateiname sein."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/MainApplet.java:38
@@ -1398,7 +1438,7 @@ msgid ""
 "Add each to the initial selection. Can be a google-like search string or an "
 "url which returns osm-xml"
 msgstr ""
-"Alle zu der Initaialen Selektion hinzufügen. Kann eine Google ähnliche "
+"Alle zu der Initialen Selektion hinzufügen. Kann eine Google ähnliche "
 "Suchanfrage oder eine URL  auf ein osm-xml Dokument sein."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/MainApplet.java:40
@@ -1407,8 +1447,7 @@ msgstr "jeder"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/MainApplet.java:40
 msgid "If specified, reset the configuration instead of reading it."
-msgstr ""
-"Wenn angegeben, wird die Konfiguration zurückgesetzt anstatt sie zu lesen."
+msgstr "Wenn angegeben, wird die Konfiguration zurückgesetzt anstatt sie zu lesen."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/MainApplet.java:65
 #: /home/sven/svn/src/org/openstreetmap/josm/io/OsmConnection.java:71
@@ -1426,8 +1465,7 @@ msgstr "OptionPane.okButtonText"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/PreferenceDialog.java:102
 msgid "You have to restart JOSM for some settings to take effect."
-msgstr ""
-"Sie müssen das Programm neu starten damit die Einstellungen sichtbar werden."
+msgstr "Sie müssen das Programm neu starten damit die Einstellungen sichtbar werden."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/PreferenceDialog.java:113
 msgid "OptionPane.cancelButtonText"
@@ -1443,15 +1481,14 @@ msgstr "Erzwingt Linien, wenn keine Abschnitte importiert werden."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/PreferenceDialog.java:169
 msgid "Draw large GPS points."
-msgstr "Zeiche große GPS Punkte."
+msgstr "Zeichne große GPS Punkte."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/PreferenceDialog.java:170
 msgid "Draw Direction Arrows"
 msgstr "Zeichne Richtungspfeile"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/PreferenceDialog.java:250
-msgid ""
-"Force drawing of lines if the imported data contain no line information."
+msgid "Force drawing of lines if the imported data contain no line information."
 msgstr ""
 "Das Zeichnen von Linien erzwingen, wenn die importierten Daten keine Linien-"
 "Informationen enthalten."
@@ -1499,15 +1536,14 @@ msgid "Login name (email) to the OSM account."
 msgstr "Benutzername (E-Mail) für den OSM Server."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/PreferenceDialog.java:356
-msgid ""
-"Login password to the OSM account. Leave blank to not store any password."
+msgid "Login password to the OSM account. Leave blank to not store any password."
 msgstr ""
 "Passwort für den OSM Server. Leer lassen, wenn kein Passwort gespeichert "
 "werden soll."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/PreferenceDialog.java:357
 msgid "The base URL to the server retrieving WMS background pictures from."
-msgstr "Die Basis URL für WMS Hintergund-Bilder."
+msgstr "Die Basis URL für WMS Hintergrund-Bilder."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/PreferenceDialog.java:358
 msgid ""
@@ -1522,7 +1558,7 @@ msgstr ""
 "b>:Die Längen Koordinatenangabe<br><b>lon</b>: Die Breiten "
 "Koordinatenangabe<br><b>time</b>: Die gemessene Zeit als "
 "Zeichenkette<br><b>ignore</b>: Lasse dieses Feld aus<br> Ein Beispiel: "
-"\"ignore ignore lat lon\" wird ' ' als Trenzeichen, läßt die ersten zwei "
+"\"ignore ignore lat lon\" wird ' ' als Trennzeichen, läßt die ersten zwei "
 "Werte aus und ließt dann Länge und Breite.<br>Anderes Beispiel: \"lat,lon\" "
 "ließt einfach die Länge und Breite durch Komma getrennt.</html>"
 
@@ -1562,12 +1598,11 @@ msgstr "Anzeige-Einstellungen"
 msgid ""
 "Various settings that influence the visual representation of the whole "
 "program."
-msgstr ""
-"Diverse Optionen die die Visuell Representation des Programms beinflussen."
+msgstr "Diverse Optionen die die Visuell Repräsentation des Programms beeinflussen."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/PreferenceDialog.java:375
 msgid "Look and Feel"
-msgstr "Verhalten und Aussehne"
+msgstr "Verhalten und Aussehen"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/PreferenceDialog.java:378
 msgid "Language"
@@ -1609,7 +1644,7 @@ msgstr ""
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/PreferenceDialog.java:408
 msgid "CSV import specification (empty: read from first line in data)"
-msgstr "CSV import definition (leer: lese aus der ersten Zeile der Daten)"
+msgstr "CSV Import Definition (leer: lese aus der ersten Zeile der Daten)"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/gui/PreferenceDialog.java:413
 msgid "Map Settings"
@@ -1708,11 +1743,10 @@ msgid ""
 "format string in Preferences."
 msgstr ""
 "Die Format Zeile in dem Daten ist unvollständig oder nicht vorhanden. "
-"Veruschen sie das Format in den Einstellunge einzustellen."
+"Versuchen sie das Format in den Einstellungen einzustellen."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/io/RawCsvReader.java:63
-msgid ""
-"Format string is incomplete. Need at least 'lat' and 'lon' specification"
+msgid "Format string is incomplete. Need at least 'lat' and 'lon' specification"
 msgstr ""
 "Die Format -Zeile ist unvollständig. Brauche mindestens 'lat' und 'lon' "
 "Spalten."
@@ -1749,7 +1783,7 @@ msgstr "Passwort eingeben"
 
 #: /home/sven/svn/src/org/openstreetmap/josm/io/OsmConnection.java:124
 msgid "Aborting..."
-msgstr "Abruch..."
+msgstr "Abbruch..."
 
 #: /home/sven/svn/src/org/openstreetmap/josm/io/BoundingBoxDownloader.java:44
 #, java-format
@@ -1868,51 +1902,43 @@ msgid_plural "objects"
 msgstr[0] "Objekt"
 msgstr[1] "Objekte"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/Main.java:165
+#: /home/sven/svn/src/org/openstreetmap/josm/Main.java:161
 msgid "Annotation Preset Tester"
 msgstr "Voreinstellungsquellen Tester"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/Main.java:178
-msgid "Please select at least one segment."
-msgstr "Bitte wählen Sie mindestens einen Abschnitt aus."
-
-#: /home/sven/svn/src/org/openstreetmap/josm/Main.java:192
-#: /home/sven/svn/src/org/openstreetmap/josm/Main.java:196
-msgid "Reverse Segments"
-msgstr "Richtung ändern"
-
-#: /home/sven/svn/src/org/openstreetmap/josm/Main.java:206
+#: /home/sven/svn/src/org/openstreetmap/josm/Main.java:171
 msgid "Files"
 msgstr "Dateien"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/Main.java:216
+#: /home/sven/svn/src/org/openstreetmap/josm/Main.java:181
 msgid "Connection"
 msgstr "Verbindung"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/Main.java:223
+#: /home/sven/svn/src/org/openstreetmap/josm/Main.java:188
 msgid "Layer"
 msgstr "Ebene"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/Main.java:239
+#: /home/sven/svn/src/org/openstreetmap/josm/Main.java:204
 msgid "Help"
 msgstr "Hilfe"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/Main.java:284
+#: /home/sven/svn/src/org/openstreetmap/josm/Main.java:249
 msgid "unnamed"
-msgstr "unbennant"
+msgstr "unbenannt"
 
-#: /home/sven/svn/src/org/openstreetmap/josm/Main.java:334
+#: /home/sven/svn/src/org/openstreetmap/josm/Main.java:299
 msgid "The projection could not be read from preferences. Using EPSG:4263."
 msgstr ""
 "Die Projektion kann nicht aus den Einstellungen ermittelt werden. Benutze "
 "RPSG:4263."
 
-#: /home/sven/svn/src/org/openstreetmap/josm/Main.java:390
+#: /home/sven/svn/src/org/openstreetmap/josm/Main.java:355
 #, java-format
 msgid "Ignoring malformed url: \"{0}\""
-msgstr "Ingnoriere die ungültige URL: \"{0}\""
+msgstr "Ignoriere die ungültige URL: \"{0}\""
 
-#: /home/sven/svn/src/org/openstreetmap/josm/Main.java:400
+#: /home/sven/svn/src/org/openstreetmap/josm/Main.java:365
 #, java-format
 msgid "Ignoring malformed file url: \"{0}\""
 msgstr "Ignoriere die Ungültige Datei URL: \"{0}\""
+
