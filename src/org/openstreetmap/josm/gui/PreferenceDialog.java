@@ -54,6 +54,13 @@ import org.openstreetmap.josm.tools.ImageProvider;
  */
 public class PreferenceDialog extends JDialog {
 
+	private final class RequireRestartAction implements ActionListener {
+	    public void actionPerformed(ActionEvent e) {
+	    	requiresRestart = true;
+	    }
+    }
+	private RequireRestartAction requireRestartAction = new RequireRestartAction();
+
 	/**
 	 * Action to take place when user pressed the ok button.
 	 */
@@ -131,7 +138,12 @@ public class PreferenceDialog extends JDialog {
 	 * ComboBox with all look and feels.
 	 */
 	private JComboBox lafCombo = new JComboBox(UIManager.getInstalledLookAndFeels());
-	private JComboBox languages = new JComboBox(new Locale[]{new Locale("en", "US"), new Locale("en", "GB"), Locale.GERMAN, Locale.FRENCH});
+	private JComboBox languages = new JComboBox(new Locale[]{
+			new Locale("en", "US"), 
+			new Locale("en", "GB"), 
+			Locale.GERMAN, 
+			Locale.FRENCH,
+			new Locale("ro", "RO")});
 	/**
 	 * The main tab panel.
 	 */
@@ -200,11 +212,7 @@ public class PreferenceDialog extends JDialog {
 				return oldRenderer.getListCellRendererComponent(list, ((LookAndFeelInfo)value).getName(), index, isSelected, cellHasFocus);
 			}
 		});
-		lafCombo.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e) {
-				requiresRestart = true;
-			}
-		});
+		lafCombo.addActionListener(requireRestartAction);
 
 		// language
 		String lang = Main.pref.get("language");
@@ -219,6 +227,7 @@ public class PreferenceDialog extends JDialog {
 	            return super.getListCellRendererComponent(list, ((Locale)value).getDisplayName(), index, isSelected, cellHasFocus);
             }
 		});
+		languages.addActionListener(requireRestartAction);
 
 		// projection combo box
 		for (int i = 0; i < projectionCombo.getItemCount(); ++i) {
@@ -227,11 +236,7 @@ public class PreferenceDialog extends JDialog {
 				break;
 			}
 		}
-		projectionCombo.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e) {
-				requiresRestart = true;
-			}
-		});
+		projectionCombo.addActionListener(requireRestartAction);
 
 		drawRawGpsLines.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
