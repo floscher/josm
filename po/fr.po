@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-07-25 00:28+0200\n"
+"POT-Creation-Date: 2006-08-15 01:02+0200\n"
 "PO-Revision-Date: 2006-07-21 21:36+0200\n"
 "Last-Translator: Frederic Bonifas <fredericbonifas@gmail.com>\n"
 "Language-Team: French <josm-fr@eigenheimstrasse.de>\n"
@@ -24,8 +24,9 @@ msgid "Add a segment between two nodes."
 msgstr "Ajouter un segment entre deux noeuds."
 
 #: /home/imi/src/josm/src/org/openstreetmap/josm/actions/mapmode/DeleteAction.java:55
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:310
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:338
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/LayerList.java:57
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:313
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:343
 #: /home/imi/src/josm/src/org/openstreetmap/josm/command/DeleteCommand.java:46
 #: /home/imi/src/josm/src/org/openstreetmap/josm/command/DeleteCommand.java:58
 msgid "Delete"
@@ -201,8 +202,24 @@ msgstr "Impossible d'ajouter un noeud en dehors de la Terre."
 msgid "Add Node into Segment"
 msgstr "Ajouter un noeud dans un segment"
 
+#: /home/imi/src/josm/src/org/openstreetmap/josm/actions/ReverseSegmentAction.java:26
+#: /home/imi/src/josm/src/org/openstreetmap/josm/actions/ReverseSegmentAction.java:53
+#, fuzzy
+msgid "Reverse Segments"
+msgstr "segments"
+
+#: /home/imi/src/josm/src/org/openstreetmap/josm/actions/ReverseSegmentAction.java:26
+#, fuzzy
+msgid "Revert the direction of all selected Segments."
+msgstr "Segments dans la mauvaise direction."
+
+#: /home/imi/src/josm/src/org/openstreetmap/josm/actions/ReverseSegmentAction.java:39
+#, fuzzy
+msgid "Please select at least one segment."
+msgstr "Sélectionner l'étage à supprimer."
+
 #: /home/imi/src/josm/src/org/openstreetmap/josm/actions/PreferencesAction.java:21
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:187
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:199
 msgid "Preferences"
 msgstr "Préférences"
 
@@ -316,8 +333,8 @@ msgid "Bookmarks"
 msgstr "Marque-pages"
 
 #: /home/imi/src/josm/src/org/openstreetmap/josm/actions/DownloadAction.java:232
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:308
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:312
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:311
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:317
 #: /home/imi/src/josm/src/org/openstreetmap/josm/command/AddCommand.java:52
 msgid "Add"
 msgstr "Ajouter"
@@ -541,6 +558,8 @@ msgid "Download and show landsat background images."
 msgstr "Télécharger et montrer les images d'arrière-plan landsat."
 
 #: /home/imi/src/josm/src/org/openstreetmap/josm/actions/WmsServerAction.java:19
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/HistoryDialog.java:133
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/HistoryDialog.java:177
 msgid "Not implemented yet."
 msgstr "Pas encore implémenté."
 
@@ -713,43 +732,43 @@ msgstr "AltGr-"
 msgid "Shift-"
 msgstr "Shift-"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:64
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:63
 msgid "Load Selection"
 msgstr "Charger la sélection"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:71
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:70
 #, java-format
 msgid "Contact {0}..."
 msgstr "Contact de {0}..."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:76
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:75
 msgid "Downloading..."
 msgstr "Téléchargement..."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:88
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:87
 #, java-format
 msgid "Could not read from url: \"{0}\""
 msgstr "Impossible de lire quelque chose depuis l'URL : \"{0}\""
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:91
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:90
 #, java-format
 msgid "Parsing error in url: \"{0}\""
 msgstr "Erreur d'analyse dans l'URL : \"{0}\""
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:118
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:113
 msgid "Current Selection"
 msgstr "Sélection actuelle"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:118
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:113
 msgid "Open a selection list window."
 msgstr "Ouvrir une fenêtre de sélection de liste."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:133
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:128
 #: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/ConflictDialog.java:72
 msgid "Select"
 msgstr "Sélectionner"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:134
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:129
 #: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/ConflictDialog.java:73
 msgid ""
 "Set the selected elements on the map to the selected items in the list above."
@@ -757,28 +776,29 @@ msgstr ""
 "Remplacer les éléments de la carte par les éléments sélectionnés de cette "
 "liste."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:142
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:137
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/HistoryDialog.java:82
 msgid "Reload"
 msgstr "Recharger"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:143
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:138
 msgid "Refresh the selection list."
 msgstr "Actualiser la liste de sélection"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:151
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:185
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:146
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:180
 msgid "Search"
 msgstr "Chercher"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:152
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:147
 msgid "Search for objects."
 msgstr "Rechercher des objets"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:156
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:151
 msgid "Please enter a search string."
 msgstr "Entrer le texte à rechercher."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:158
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:153
 msgid ""
 "<html>Fulltext search.<ul><li><code>Baker Street</code>  - 'Baker' and "
 "'Street' in any key or name.</li><li><code>\"Baker Street\"</code>  - 'Baker "
@@ -793,15 +813,15 @@ msgstr ""
 "code>··-·pas de·'Bak'·dans le nom.</li><li><code>foot:</code>··-"
 "·key=foot·associé à n'importe quelle valeur.</ul></html>"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:166
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:161
 msgid "replace selection"
 msgstr "remplacer la sélection"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:167
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:162
 msgid "add to selection"
 msgstr "ajouter à la sélection"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:168
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/SelectionListDialog.java:163
 msgid "remove from selection"
 msgstr "supprimer de la sélection"
 
@@ -871,15 +891,15 @@ msgid "Merge the selected layer into the layer directly below."
 msgstr ""
 "Fusionner les calques sélectionnés dans le calque directement en dessous."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:96
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:146
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:98
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:148
 #, java-format
 msgid "This will change {0} object."
 msgid_plural "This will change {0} objects."
 msgstr[0] "Cela changera {0} objet."
 msgstr[1] "Cela changera {0} objets."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:96
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:98
 #, java-format
 msgid ""
 "Please select a new value for \"{0}\".<br>(Empty string deletes the key.)"
@@ -887,120 +907,123 @@ msgstr ""
 "Merci de sélectionner une valeur pour \"{0}\". <br>(une chaîne de caractères "
 "vide supprime la clé)"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:108
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:168
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:110
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:170
 msgid "Change values?"
 msgstr "Changer les valeurs ?"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:126
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:272
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:356
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:128
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:275
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:359
 msgid "<different>"
 msgstr "<différent>"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:146
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:148
 msgid "Please select a key"
 msgstr "Sélectionner une clé"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:159
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:161
 msgid "Please select a value"
 msgstr "Sélectionner une valeur"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:211
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:213
 msgid "Properties"
 msgstr "Propriétés"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:211
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:213
 msgid "Property for selected objects."
 msgstr "Propriétés des objets sélectionnés."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:230
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:232
 #, java-format
 msgid "Could not read annotation preset source: {0}"
 msgstr "Impossible de lire le fichier d'annotations : {0}"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:233
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:235
 #, java-format
 msgid "Error parsing {0}: "
 msgstr "Erreur de traitement {0}"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:252
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:254
 #, fuzzy, java-format
 msgid "Change {0} object"
 msgid_plural "Change {0} objects"
 msgstr[0] "Cela changera {0} objet."
 msgstr[1] "Cela changera {0} objets."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:264
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:267
 #: /home/imi/src/josm/src/org/openstreetmap/josm/gui/ConflictResolver.java:81
 msgid "Key"
 msgstr "Clé"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:264
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:267
 #: /home/imi/src/josm/src/org/openstreetmap/josm/gui/ConflictResolver.java:81
 msgid "Value"
 msgstr "Valeur"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:297
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:327
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:300
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:332
 msgid "Please select the row to edit."
 msgstr "Sélectionnez l'étage à éditer."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:302
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:342
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:305
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:347
 msgid "Please select the row to delete."
 msgstr "Sélectionner l'étage à supprimer."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:308
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:311
 msgid "Add a new key/value pair to all objects"
 msgstr "Ajouter un nouveau couple clé/valeur à tous les objets"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:309
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:323
-#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:228
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:312
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:328
+#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:193
 msgid "Edit"
 msgstr "Éditer"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:309
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:312
 msgid "Edit the value of the selected key for all objects"
 msgstr "Éditer la valeur de la clé selectionnée pour tous les objets"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:310
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:313
 msgid "Delete the selected key in all objects"
 msgstr "Supprimer la clé sélectionnée de tous les objets"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:160
-#, fuzzy, java-format
-msgid "Unknown type at line {0}"
-msgstr "Extension de fichier inconnue : {0}"
-
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:178
-#, java-format
-msgid "Cannot have a writable combobox with default values (line {0})"
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/HistoryDialog.java:81
+msgid "Click Reload to refresh list"
 msgstr ""
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:183
-#, java-format
-msgid ""
-"display_values ({0}) and values ({1}) must be of same number of elements."
-msgstr ""
-
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:184
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:185
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/HistoryDialog.java:83
 #, fuzzy
-msgid "element"
-msgid_plural "elements"
-msgstr[0] "segment"
-msgstr[1] "segments"
+msgid "Revert"
+msgstr "Supprimer"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:190
-#, java-format
-msgid "Unknown annotation object {0} at line {1} column {2}"
-msgstr "Objet d'annotation inconnu : {0} à la ligne {1} colonne {2}"
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/HistoryDialog.java:86
+msgid "History"
+msgstr ""
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/AnnotationPreset.java:260
-msgid "Change Properties"
-msgstr "Changer les propriétés"
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/HistoryDialog.java:86
+msgid "Display the history of all selected items."
+msgstr ""
+
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/HistoryDialog.java:95
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/MapStatus.java:223
+msgid "Object"
+msgstr "Objet"
+
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/HistoryDialog.java:95
+msgid "Date"
+msgstr ""
+
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/HistoryDialog.java:130
+msgid "Reload all currently selected objects and refresh the list."
+msgstr ""
+
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/HistoryDialog.java:136
+msgid ""
+"Revert the state of all currently selected objects to the version selected "
+"in the history list."
+msgstr ""
 
 #: /home/imi/src/josm/src/org/openstreetmap/josm/gui/layer/OsmDataLayer.java:153
 #: /home/imi/src/josm/src/org/openstreetmap/josm/data/osm/visitor/NameVisitor.java:66
@@ -1102,7 +1125,7 @@ msgid "Import images"
 msgstr "Import des images"
 
 #: /home/imi/src/josm/src/org/openstreetmap/josm/gui/layer/RawGpsLayer.java:202
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:330
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:333
 msgid "JPEG images (*.jpg)"
 msgstr "images JPEG (*.jpg)"
 
@@ -1171,37 +1194,37 @@ msgstr[1] "images"
 msgid "{0} within the track."
 msgstr "{0} dans la trace."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:319
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:322
 msgid "Sync clock"
 msgstr "Synchroniser l'horloge"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:374
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:377
 #, java-format
 msgid "The date in file \"{0}\" could not be parsed."
 msgstr "La date du fichier \"{0}\" ne peut être analysée."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:378
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:381
 #, java-format
 msgid "There is no EXIF time within the file \"{0}\"."
 msgstr "Il n'y a aucune heure EXIF associée au fichier \"{0}\"."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:382
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:385
 msgid "Image"
 msgstr "Image"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:384
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:387
 msgid "Enter shown date (mm/dd/yyyy HH:MM:SS)"
 msgstr "Entrez la date et l'heure montrées (mm/jj/aaaa HH:MM:SS)"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:387
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:390
 msgid "GPS unit timezome (difference to photo)"
 msgstr "Zone horaire de l'unité GPS (différence avec la photo)"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:395
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:398
 msgid "Syncronize Time with GPS Unit"
 msgstr "Synchroniser l'heure avec l'unité GPS"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:411
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/layer/GeoImageLayer.java:414
 msgid "Time entered could not be parsed."
 msgstr "L'heure indiquée ne peut être analysée."
 
@@ -1320,10 +1343,6 @@ msgstr "Au lieu de --download=<bbox> vous devriez indiquer osm://<bbox>\n"
 msgid "Lat/Lon"
 msgstr "Lat/Lon"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/MapStatus.java:223
-msgid "Object"
-msgstr "Objet"
-
 #: /home/imi/src/josm/src/org/openstreetmap/josm/gui/ConflictResolver.java:232
 #, java-format
 msgid "{0} object has conflicts:"
@@ -1423,95 +1442,95 @@ msgstr "Nom d'utilisateur"
 msgid "Password"
 msgstr "Mot de passe"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:62
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:69
 msgid "OptionPane.okButtonText"
 msgstr "OptionPane.okButtonText"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:102
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:109
 msgid "You have to restart JOSM for some settings to take effect."
 msgstr "Vous devez redémarrer JOSM pour que certains réglages prennent effet."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:113
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:120
 msgid "OptionPane.cancelButtonText"
 msgstr "OptionPane.cancelButtonText"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:164
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:176
 msgid "Draw lines between raw gps points."
 msgstr "Dessiner des lignes entre les points GPS bruts."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:168
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:180
 msgid "Force lines if no segments imported."
 msgstr "Forcer les lignes si aucun segment importé"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:169
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:181
 msgid "Draw large GPS points."
 msgstr "Dessiner de gros points GPS."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:170
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:182
 msgid "Draw Direction Arrows"
 msgstr "Dessiner les flèches de direction"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:250
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:255
 msgid ""
 "Force drawing of lines if the imported data contain no line information."
 msgstr ""
 "Force le dessin de lignes si les données importées ne contiennent pas "
 "d'informationsur les lignes."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:254
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:259
 msgid "Draw larger dots for the GPS points."
 msgstr "Dessine de plus gros points GPS."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:255
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:260
 msgid "Draw direction hints for all segments."
 msgstr "Dessine les flèches de direction pour tous les segments."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:274
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:279
 msgid "Color"
 msgstr "Couleur"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:275
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:280
 msgid "Name"
 msgstr "Nom"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:296
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:301
 msgid "Choose"
 msgstr "Choisir"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:300
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:305
 msgid "Please select a color."
 msgstr "Sélectionner une couleur"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:305
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:310
 #, java-format
 msgid "Choose a color for {0}"
 msgstr "Choisir une couleur pour {0}"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:315
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:329
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:320
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:334
 msgid "Annotation preset source"
 msgstr "Source du fichier d'annotations"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:354
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:359
 msgid "The base URL to the OSM server (REST API)"
 msgstr "L'URL de base du serveur OSM (API)"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:355
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:360
 msgid "Login name (email) to the OSM account."
 msgstr "Nom d'utilisateur (e-mail) de votre compte OSM."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:356
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:361
 msgid ""
 "Login password to the OSM account. Leave blank to not store any password."
 msgstr ""
 "Mot de passe d'identification au compte OSM. Laisser blanc pour ne stocker "
 "aucun mot de passe."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:357
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:362
 msgid "The base URL to the server retrieving WMS background pictures from."
 msgstr "L'URL du serveur récupérant les images de l'arrière-plan WMS."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:358
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:363
 msgid ""
 "<html>Import string specification. lat/lon and time are imported.<br><b>lat</"
 "b>: The latitude coordinate<br><b>lon</b>: The longitude "
@@ -1528,7 +1547,7 @@ msgstr ""
 "exemple : \"lat,lon\"·lira simplement la latitude et la longitude séparées "
 "par une virgule.</html>"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:365
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:370
 msgid ""
 "If your gps device draw to few lines, select this to draw lines along your "
 "way."
@@ -1536,11 +1555,11 @@ msgstr ""
 "Si votre unité GPS dessine trop peu de lignes, sélectionnez ceci pour "
 "dessiner des lignes le long de votre chemin."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:366
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:371
 msgid "Colors used by different objects in JOSM."
 msgstr "Couleurs utilisées par les différents objets de JOSM."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:367
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:372
 msgid ""
 "The sources (url or filename) of annotation preset definition files. See "
 "http://josm.eigenheimstrasse.de/wiki/AnnotationPresets for help."
@@ -1548,57 +1567,57 @@ msgstr ""
 "Sources (URL ou fichier) des fichiers d'annotations prédéfinies. Voir http://"
 "josm.eigenheimstrasse.de/wiki/AnnotationPresets pour de l'aide (en anglais)."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:368
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:373
 msgid "Add a new annotation preset source to the list."
 msgstr "Ajouter un nouveau fichier d'annotations à la liste."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:369
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:374
 msgid "Delete the selected source from the list."
 msgstr "Supprimer la source sélectionné de la liste."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:374
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:379
 msgid "Display Settings"
 msgstr "Réglages d'affichage"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:374
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:379
 msgid ""
 "Various settings that influence the visual representation of the whole "
 "program."
 msgstr "Divers réglages de l'apparence de tout le programme."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:375
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:380
 msgid "Look and Feel"
 msgstr "Apparence et comportement"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:378
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:383
 msgid "Language"
 msgstr "Langue"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:385
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:390
 msgid "Colors"
 msgstr "Couleurs"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:392
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:397
 msgid "Connection Settings"
 msgstr "Réglages de connexion"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:392
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:397
 msgid "Connection Settings to the OSM server."
 msgstr "Réglages de connexion au serveur OSM"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:393
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:398
 msgid "Base Server URL"
 msgstr "URL du serveur de base"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:395
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:400
 msgid "OSM username (email)"
 msgstr "Nom d'utilisateur OSM (e-mail)"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:397
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:402
 msgid "OSM password"
 msgstr "Mot de passe OSM"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:399
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:404
 msgid ""
 "<html>WARNING: The password is stored in plain text in the preferences file."
 "<br>The password is transfered in plain text to the server, encoded in the "
@@ -1608,28 +1627,61 @@ msgstr ""
 "de préférences.<br>Le mot de passe est transféré en texte brut au serveur, "
 "encodé dans l'URL.<br><b>N'utilisez pas un mot de passe de valeur.</b></html>"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:408
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:413
 msgid "CSV import specification (empty: read from first line in data)"
 msgstr ""
 "Spécifications de l'import CSV (vide : lire depuis la première ligne de "
 "données)"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:413
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:418
 msgid "Map Settings"
 msgstr "Réglages de la carte"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:413
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:418
 msgid "Settings for the map projection and data interpretation."
 msgstr ""
 "Réglages pour la projection de la carte et l'interprétation des données."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:414
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:419
 msgid "Projection method"
 msgstr "Méthode de projection"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:417
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:422
 msgid "Annotation preset sources"
 msgstr "Sources des annotations prédéfinies"
+
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/annotation/AnnotationPreset.java:160
+#, fuzzy, java-format
+msgid "Unknown type at line {0}"
+msgstr "Extension de fichier inconnue : {0}"
+
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/annotation/AnnotationPreset.java:178
+#, java-format
+msgid "Cannot have a writable combobox with default values (line {0})"
+msgstr ""
+
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/annotation/AnnotationPreset.java:183
+#, java-format
+msgid ""
+"display_values ({0}) and values ({1}) must be of same number of elements."
+msgstr ""
+
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/annotation/AnnotationPreset.java:184
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/annotation/AnnotationPreset.java:185
+#, fuzzy
+msgid "element"
+msgid_plural "elements"
+msgstr[0] "segment"
+msgstr[1] "segments"
+
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/annotation/AnnotationPreset.java:190
+#, java-format
+msgid "Unknown annotation object {0} at line {1} column {2}"
+msgstr "Objet d'annotation inconnu : {0} à la ligne {1} colonne {2}"
+
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/annotation/AnnotationPreset.java:258
+msgid "Change Properties"
+msgstr "Changer les propriétés"
 
 #: /home/imi/src/josm/src/org/openstreetmap/josm/io/ObjectListDownloader.java:40
 msgid "Conflicts in disjunct objects"
@@ -1872,54 +1924,47 @@ msgid_plural "objects"
 msgstr[0] "objet"
 msgstr[1] "objets"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:165
+#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:154
+msgid "You have to specify annotation sources in the preferences first."
+msgstr ""
+
+#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:161
 #, fuzzy
 msgid "Annotation Preset Tester"
 msgstr "Source du fichier d'annotations"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:178
-#, fuzzy
-msgid "Please select at least one segment."
-msgstr "Sélectionner l'étage à supprimer."
-
-#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:192
-#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:196
-#, fuzzy
-msgid "Reverse Segments"
-msgstr "segments"
-
-#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:206
+#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:171
 msgid "Files"
 msgstr "Fichiers"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:216
+#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:181
 msgid "Connection"
 msgstr "Connexion"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:223
+#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:188
 msgid "Layer"
 msgstr "Calque"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:239
+#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:204
 msgid "Help"
 msgstr "Aide"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:284
+#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:249
 msgid "unnamed"
 msgstr "sans-nom"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:334
+#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:299
 msgid "The projection could not be read from preferences. Using EPSG:4263."
 msgstr ""
 "La projection ne peut être lue depuis les préférences. EPSG:4263 sera "
 "utilisé."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:390
+#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:355
 #, java-format
 msgid "Ignoring malformed url: \"{0}\""
 msgstr "Ignore l'URL malformé : \"{0}\""
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:400
+#: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:365
 #, java-format
 msgid "Ignoring malformed file url: \"{0}\""
 msgstr "Ignore le fichier malformé d'URL : \"{0}\""

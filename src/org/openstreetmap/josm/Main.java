@@ -151,7 +151,7 @@ abstract public class Main {
 			public void actionPerformed(ActionEvent e) {
 				String annotationSources = pref.get("annotation.sources");
 				if (annotationSources.equals("")) {
-					JOptionPane.showMessageDialog(Main.parent, "You have to specify annotation sources in the preferences first.");
+					JOptionPane.showMessageDialog(Main.parent, tr("You have to specify annotation sources in the preferences first."));
 					return;
 				}
 				String[] args = annotationSources.split(";");

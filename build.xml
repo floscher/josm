@@ -82,6 +82,9 @@
     	<exec executable="msgfmt">
     		<arg line="--java2 -d${po} -rorg.openstreetmap.josm.Translation -len_GB ${po}/en_GB.po"/>
     	</exec>
+    	<exec executable="msgfmt">
+    		<arg line="--java2 -d${po} -rorg.openstreetmap.josm.Translation -lro ${po}/ro.po"/>
+    	</exec>
     </target>
 
 </project>
