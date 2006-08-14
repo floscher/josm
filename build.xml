@@ -61,12 +61,12 @@
     		<arg line="${src} -name '*.java'"/>
     	</exec>
         <exec executable="xgettext">
-        	<arg line="-ktr -ktrn:1,2 -ktrc -kmarktr -Ljava -o${build}/keys.pot -f${build}/alljava.txt"/>
+        	<arg line="-ktr -ktrn:1,2 -ktrc -kmarktr -Ljava -o${po}/keys.pot -f${build}/alljava.txt"/>
         </exec>
         <apply executable="msgmerge">
         	<arg value="-U"/>
 			<srcfile/>
-        	<arg file="${build}/keys.pot"/>
+        	<arg file="${po}/keys.pot"/>
         	<fileset dir="${po}">
         		<include name="*.po"/>
         	</fileset>
