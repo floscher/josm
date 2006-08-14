@@ -65,9 +65,10 @@ public class PreferenceDialog extends JDialog {
 	 * Action to take place when user pressed the ok button.
 	 */
 	class OkAction extends AbstractAction {
+		private static final String OKBUTTON_PROP = "OptionPane.okButtonText";
+
 		public OkAction() {
-			super(UIManager.getString("OptionPane.okButtonText"), 
-					UIManager.getIcon("OptionPane.okIcon"));
+			super(UIManager.getString(OKBUTTON_PROP), UIManager.getIcon("OptionPane.okIcon"));
 			try {
 				putValue(MNEMONIC_KEY, new Integer((String)UIManager.get("OptionPane.okButtonMnemonic")));
 			} catch (NumberFormatException e) {
@@ -116,8 +117,9 @@ public class PreferenceDialog extends JDialog {
 	 * Action to take place when user pressed the cancel button.
 	 */
 	class CancelAction extends AbstractAction {
+		private static final String CANCELBUTTON_PROP = "OptionPane.cancelButtonText";
 		public CancelAction() {
-			super(UIManager.getString("OptionPane.cancelButtonText"), 
+			super(UIManager.getString(CANCELBUTTON_PROP), 
 					UIManager.getIcon("OptionPane.cancelIcon"));
 			try {
 				putValue(MNEMONIC_KEY, new Integer((String)UIManager.get("OptionPane.cancelButtonMnemonic")));

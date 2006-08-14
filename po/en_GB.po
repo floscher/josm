@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: JOSM SVN\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-08-15 01:02+0200\n"
+"POT-Creation-Date: 2006-08-15 01:11+0200\n"
 "PO-Revision-Date: 2006-07-22 16:18+0100\n"
 "Last-Translator: Bruce Cowan <bruce.cowan@dsl.pipex.com>\n"
 "Language-Team: English/GB <josm-en_gb@eigenheimstrasse.de>\n"
@@ -30,7 +30,7 @@ msgstr "Add a segment between two nodes."
 #: /home/imi/src/josm/src/org/openstreetmap/josm/actions/mapmode/DeleteAction.java:55
 #: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/LayerList.java:57
 #: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:313
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:343
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:345
 #: /home/imi/src/josm/src/org/openstreetmap/josm/command/DeleteCommand.java:46
 #: /home/imi/src/josm/src/org/openstreetmap/josm/command/DeleteCommand.java:58
 msgid "Delete"
@@ -216,7 +216,7 @@ msgid "Please select at least one segment."
 msgstr "Please select the row to delete."
 
 #: /home/imi/src/josm/src/org/openstreetmap/josm/actions/PreferencesAction.java:21
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:199
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:201
 msgid "Preferences"
 msgstr "Preferences"
 
@@ -329,7 +329,7 @@ msgstr "Bookmarks"
 
 #: /home/imi/src/josm/src/org/openstreetmap/josm/actions/DownloadAction.java:232
 #: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:311
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:317
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:319
 #: /home/imi/src/josm/src/org/openstreetmap/josm/command/AddCommand.java:52
 msgid "Add"
 msgstr "Add"
@@ -950,12 +950,12 @@ msgid "Value"
 msgstr "Value"
 
 #: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:300
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:332
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:334
 msgid "Please select the row to edit."
 msgstr "Please select the row to edit."
 
 #: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:305
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:347
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:349
 msgid "Please select the row to delete."
 msgstr "Please select the row to delete."
 
@@ -964,7 +964,7 @@ msgid "Add a new key/value pair to all objects"
 msgstr "Add a new key/value pair to all objects"
 
 #: /home/imi/src/josm/src/org/openstreetmap/josm/gui/dialogs/PropertiesDialog.java:312
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:328
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:330
 #: /home/imi/src/josm/src/org/openstreetmap/josm/Main.java:193
 msgid "Edit"
 msgstr "Edit"
@@ -1429,93 +1429,85 @@ msgstr "Username"
 msgid "Password"
 msgstr "Password"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:69
-msgid "OptionPane.okButtonText"
-msgstr "OptionPane.okButtonText"
-
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:109
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:110
 msgid "You have to restart JOSM for some settings to take effect."
 msgstr "You have to restart JOSM for some settings to take effect."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:120
-msgid "OptionPane.cancelButtonText"
-msgstr "OptionPane.cancelButtonText"
-
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:176
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:178
 msgid "Draw lines between raw gps points."
 msgstr "Draw lines between raw gps points."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:180
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:182
 msgid "Force lines if no segments imported."
 msgstr "Force lines if no segments imported."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:181
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:183
 msgid "Draw large GPS points."
 msgstr ""
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:182
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:184
 msgid "Draw Direction Arrows"
 msgstr "Draw Direction Arrows"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:255
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:257
 msgid ""
 "Force drawing of lines if the imported data contain no line information."
 msgstr ""
 "Force drawing of lines if the imported data contain no line information."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:259
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:261
 msgid "Draw larger dots for the GPS points."
 msgstr ""
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:260
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:262
 msgid "Draw direction hints for all segments."
 msgstr "Draw direction hints for all segments."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:279
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:281
 msgid "Color"
 msgstr "Colour"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:280
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:282
 msgid "Name"
 msgstr "Name"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:301
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:303
 msgid "Choose"
 msgstr "Choose"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:305
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:307
 msgid "Please select a color."
 msgstr "Please select a colour."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:310
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:312
 #, java-format
 msgid "Choose a color for {0}"
 msgstr "Choose a colour for {0}"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:320
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:334
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:322
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:336
 msgid "Annotation preset source"
 msgstr ""
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:359
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:361
 msgid "The base URL to the OSM server (REST API)"
 msgstr "The base URL to the OSM server (REST API)"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:360
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:362
 msgid "Login name (email) to the OSM account."
 msgstr "Login name (email) to the OSM account."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:361
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:363
 msgid ""
 "Login password to the OSM account. Leave blank to not store any password."
 msgstr ""
 "Login password to the OSM account. Leave blank to not store any password."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:362
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:364
 msgid "The base URL to the server retrieving WMS background pictures from."
 msgstr "The base URL to the server retrieving WMS background pictures from."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:363
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:365
 msgid ""
 "<html>Import string specification. lat/lon and time are imported.<br><b>lat</"
 "b>: The latitude coordinate<br><b>lon</b>: The longitude "
@@ -1531,7 +1523,7 @@ msgstr ""
 "delimiter, skip the first two values and read then lat/lon.<br>Other "
 "example: \"lat,lon\" will just read lat/lon values comma seperated.</html>"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:370
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:372
 msgid ""
 "If your gps device draw to few lines, select this to draw lines along your "
 "way."
@@ -1539,30 +1531,30 @@ msgstr ""
 "If your gps device draw to few lines, select this to draw lines along your "
 "way."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:371
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:373
 msgid "Colors used by different objects in JOSM."
 msgstr "Colours used by different objects in JOSM."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:372
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:374
 msgid ""
 "The sources (url or filename) of annotation preset definition files. See "
 "http://josm.eigenheimstrasse.de/wiki/AnnotationPresets for help."
 msgstr ""
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:373
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:375
 msgid "Add a new annotation preset source to the list."
 msgstr ""
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:374
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:376
 #, fuzzy
 msgid "Delete the selected source from the list."
 msgstr "Delete the selected layer."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:379
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:381
 msgid "Display Settings"
 msgstr "Display Settings"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:379
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:381
 msgid ""
 "Various settings that influence the visual representation of the whole "
 "program."
@@ -1570,39 +1562,39 @@ msgstr ""
 "Various settings that influence the visual representation of the whole "
 "program."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:380
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:382
 msgid "Look and Feel"
 msgstr "Look and Feel"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:383
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:385
 msgid "Language"
 msgstr ""
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:390
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:392
 msgid "Colors"
 msgstr "Colours"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:397
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:399
 msgid "Connection Settings"
 msgstr "Connection Settings"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:397
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:399
 msgid "Connection Settings to the OSM server."
 msgstr "Connection Settings to the OSM server."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:398
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:400
 msgid "Base Server URL"
 msgstr "Base Server URL"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:400
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:402
 msgid "OSM username (email)"
 msgstr "OSM username (email)"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:402
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:404
 msgid "OSM password"
 msgstr "OSM password"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:404
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:406
 msgid ""
 "<html>WARNING: The password is stored in plain text in the preferences file."
 "<br>The password is transfered in plain text to the server, encoded in the "
@@ -1612,23 +1604,23 @@ msgstr ""
 "<br>The password is transfered in plain text to the server, encoded in the "
 "url.<br><b>Do not use a valuable Password.</b></html>"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:413
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:415
 msgid "CSV import specification (empty: read from first line in data)"
 msgstr "CSV import specification (empty: read from first line in data)"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:418
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:420
 msgid "Map Settings"
 msgstr "Map Settings"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:418
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:420
 msgid "Settings for the map projection and data interpretation."
 msgstr "Settings for the map projection and data interpretation."
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:419
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:421
 msgid "Projection method"
 msgstr "Projection method"
 
-#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:422
+#: /home/imi/src/josm/src/org/openstreetmap/josm/gui/PreferenceDialog.java:424
 msgid "Annotation preset sources"
 msgstr ""
 
@@ -1948,6 +1940,12 @@ msgstr "Ignoring malformed url: \"{0}\""
 #, java-format
 msgid "Ignoring malformed file url: \"{0}\""
 msgstr "Ignoring malformed file url: \"{0}\""
+
+#~ msgid "OptionPane.okButtonText"
+#~ msgstr "OptionPane.okButtonText"
+
+#~ msgid "OptionPane.cancelButtonText"
+#~ msgstr "OptionPane.cancelButtonText"
 
 #~ msgid ""
 #~ "Java OpenStreetMap Editor\n"
