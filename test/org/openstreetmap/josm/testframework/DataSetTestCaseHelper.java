@@ -1,4 +1,4 @@
-package org.openstreetmap.josm.test.framework;
+package org.openstreetmap.josm.testframework;
 
 import java.util.Arrays;
 

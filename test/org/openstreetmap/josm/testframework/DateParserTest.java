@@ -1,4 +1,4 @@
-package org.openstreetmap.josm.test;
+package org.openstreetmap.josm.testframework;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

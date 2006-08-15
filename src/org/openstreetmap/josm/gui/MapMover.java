@@ -31,11 +31,12 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 			this.action = action;
         }
 	    public void actionPerformed(ActionEvent e) {
-	    	if (action.equals("+") || action.equals("-")) {
+	    	System.out.println("e="+e.toString()+" action="+e.getActionCommand());
+	    	if (action.equals(".") || action.equals(",")) {
 	    		Point mouse = nc.getMousePosition();
 	    		if (mouse == null)
 	    			mouse = new Point((int)nc.getBounds().getCenterX(), (int)nc.getBounds().getCenterY());
-	    		MouseWheelEvent we = new MouseWheelEvent(nc, e.getID(), e.getWhen(), e.getModifiers(), mouse.x, mouse.y, 0, false, MouseWheelEvent.WHEEL_UNIT_SCROLL, 1, action.equals("+") ? -1 : 1);
+	    		MouseWheelEvent we = new MouseWheelEvent(nc, e.getID(), e.getWhen(), e.getModifiers(), mouse.x, mouse.y, 0, false, MouseWheelEvent.WHEEL_UNIT_SCROLL, 1, action.equals(",") ? -1 : 1);
 	    		mouseWheelMoved(we);
 	    	} else {
 	    		EastNorth center = nc.getCenter();
@@ -77,8 +78,8 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 		nc.addMouseMotionListener(this);
 		nc.addMouseWheelListener(this);
 		
-		String[] n = {"+","-","up","right","down","left"};
-		int[] k = {KeyEvent.VK_PLUS, KeyEvent.VK_MINUS, KeyEvent.VK_UP, KeyEvent.VK_RIGHT, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT};
+		String[] n = {",",".","up","right","down","left"};
+		int[] k = {KeyEvent.VK_COMMA, KeyEvent.VK_PERIOD, KeyEvent.VK_UP, KeyEvent.VK_RIGHT, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT};
 
 		for (int i = 0; i < n.length; ++i) {
 			Main.contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(k[i], KeyEvent.CTRL_DOWN_MASK), "MapMover.Zoomer."+n[i]);

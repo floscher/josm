@@ -30,7 +30,7 @@
 		</javac>
 	</target>
 
-	<target name="dist" depends="compile,gettext">
+	<target name="dist" depends="compile">
 		<!-- jars -->
 		<unjar src="${lib}/MinML2.jar" dest="${build}" />
 		<unjar src="${lib}/gettext-commons-0.9.jar" dest="${build}" />

@@ -1,4 +1,4 @@
-package org.openstreetmap.josm.test;
+package org.openstreetmap.josm.data.osm.visitor;
 
 import java.util.Date;
 
@@ -11,8 +11,8 @@ import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.MergeVisitor;
-import org.openstreetmap.josm.test.framework.Bug;
-import org.openstreetmap.josm.test.framework.DataSetTestCaseHelper;
+import org.openstreetmap.josm.testframework.Bug;
+import org.openstreetmap.josm.testframework.DataSetTestCaseHelper;
 
 public class MergeVisitorTest extends TestCase {
 
