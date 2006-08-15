@@ -2,11 +2,13 @@ package org.openstreetmap.josm.actions;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -29,14 +31,10 @@ public class GroupAction extends JosmAction {
 
 	private PropertyChangeListener forwardActiveListener = new PropertyChangeListener(){
 		public void propertyChange(PropertyChangeEvent evt) {
-			if (evt.getPropertyName().equals("active")) {
+			if (evt.getPropertyName().equals("active"))
 				putValue("active", evt.getNewValue());
-				if (evt.getNewValue() == Boolean.FALSE)
-					cycle = false;
-			}
 		}
 	};
-	public boolean cycle;
 
 	protected void setCurrent(int current) {
 		if (this.current != -1)
@@ -52,13 +50,14 @@ public class GroupAction extends JosmAction {
 	public GroupAction(int shortCut, int modifiers) {
 		String idName = getClass().getName();
 		Main.contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(shortCut, modifiers), idName);
-        Main.contentPane.getActionMap().put(idName, this);
+		Main.contentPane.getActionMap().put(idName, this);
 		shortCutName = ShortCutLabel.name(shortCut, modifiers);
-		addPropertyChangeListener(new PropertyChangeListener(){
-			public void propertyChange(PropertyChangeEvent evt) {
-				if (evt.getPropertyName().equals("active") && evt.getNewValue() == Boolean.FALSE)
-					cycle = false;
-            }
+		Main.contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(shortCut, KeyEvent.SHIFT_DOWN_MASK), idName+".cycle");
+		Main.contentPane.getActionMap().put(idName+".cycle", new AbstractAction(){
+			public void actionPerformed(ActionEvent e) {
+				setCurrent((current+1)%actions.size());
+				actions.get(current).actionPerformed(e);
+			}
 		});
 	}
 
@@ -67,13 +66,8 @@ public class GroupAction extends JosmAction {
 			IconToggleButton b = (IconToggleButton)e.getSource();
 			b.setSelected(!b.isSelected());
 			openPopup(b);
-		} else {
-			if (cycle)
-				setCurrent((current+1)%actions.size());
-			else
-				cycle = true;
+		} else
 			actions.get(current).actionPerformed(e);
-		}
 	}
 
 	private void openPopup(IconToggleButton b) {

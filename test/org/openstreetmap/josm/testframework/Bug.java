@@ -1,4 +1,4 @@
-package org.openstreetmap.josm.test.framework;
+package org.openstreetmap.josm.testframework;
 
 /**
  * Annotation that indicate that a specific test case function was a bug.
