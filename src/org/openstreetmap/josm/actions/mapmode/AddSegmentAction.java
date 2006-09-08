@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Collection;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.AddCommand;
@@ -144,7 +145,9 @@ public class AddSegmentAction extends MapMode implements MouseListener {
 
 			Segment ls = new Segment(start, end);
 			Main.main.editLayer().add(new AddCommand(ls));
-			Main.ds.setSelected(ls);
+			Collection<OsmPrimitive> sel = Main.ds.getSelected();
+			sel.add(ls);
+			Main.ds.setSelected(sel);
 		}
 
 		Main.map.mapView.repaint();
