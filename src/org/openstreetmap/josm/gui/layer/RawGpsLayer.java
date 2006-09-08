@@ -14,11 +14,14 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import javax.swing.AbstractAction;
+import javax.swing.Box;
+import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.filechooser.FileFilter;
 
@@ -114,6 +117,9 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 		
 		boolean force = Main.pref.getBoolean("draw.rawgps.lines.force");
 		boolean lines = Main.pref.getBoolean("draw.rawgps.lines");
+		String linesKey = "draw.rawgps.lines.layer "+name;
+		if (Main.pref.hasKey(linesKey))
+			lines = Main.pref.getBoolean(linesKey);
 		boolean large = Main.pref.getBoolean("draw.rawgps.large");
 		for (Collection<GpsPoint> c : data) {
 			if (!force)
@@ -166,6 +172,35 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 	}
 
 	@Override public Component[] getMenuEntries() {
+		JMenuItem line = new JMenuItem(tr("Customize line drawing"), ImageProvider.get("mapmode/addsegment"));
+		line.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				JRadioButton[] r = new JRadioButton[3];
+				r[0] = new JRadioButton(tr("Use global settings."));
+				r[1] = new JRadioButton(tr("Draw lines between points for this layer."));
+				r[2] = new JRadioButton(tr("Do not draw lines between points for this layer."));
+				ButtonGroup group = new ButtonGroup();
+				Box panel = Box.createVerticalBox();
+				for (JRadioButton b : r) {
+					group.add(b);
+					panel.add(b);
+				}
+				String propName = "draw.rawgps.lines.layer "+name;
+				if (Main.pref.hasKey(propName))
+					group.setSelected(r[Main.pref.getBoolean(propName) ? 1:2].getModel(), true);
+				else
+					group.setSelected(r[0].getModel(), true);
+				int answer = JOptionPane.showConfirmDialog(Main.parent, panel, tr("Select line drawing options"), JOptionPane.OK_CANCEL_OPTION);
+				if (answer == JOptionPane.CANCEL_OPTION)
+					return;
+				if (group.getSelection() == r[0].getModel())
+					Main.pref.put(propName, null);
+				else
+					Main.pref.put(propName, group.getSelection() == r[1].getModel());
+				Main.map.repaint();
+			}
+		});
+
 		JMenuItem color = new JMenuItem(tr("Customize Color"), ImageProvider.get("colorchooser"));
 		color.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
@@ -227,6 +262,7 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 				new JSeparator(),
 				new JMenuItem(new GpxExportAction(this)),
 				color,
+				line,
 				tagimage,
 				new JMenuItem(new ConvertToDataLayerAction()),
 				new JSeparator(),

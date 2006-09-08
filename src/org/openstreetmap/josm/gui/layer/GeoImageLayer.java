@@ -23,6 +23,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 
@@ -66,12 +67,15 @@ import org.openstreetmap.josm.tools.ImageProvider;
  */
 public class GeoImageLayer extends Layer {
 
-	private static final class ImageEntry {
+	private static final class ImageEntry implements Comparable<ImageEntry> {
 		File image;
 		Date time;
 		LatLon coor;
 		EastNorth pos;
 		Icon icon;
+		public int compareTo(ImageEntry image) {
+			return time.compareTo(image.time);
+		}		
 	}
 
 	private static final class Loader extends PleaseWaitRunnable {
@@ -88,8 +92,7 @@ public class GeoImageLayer extends Layer {
 			currentAction.setText(tr("Read GPS..."));
 			LinkedList<TimedPoint> gps = new LinkedList<TimedPoint>();
 
-			// check the gps layer for time loops (and process it on the way)
-			Date last = null;
+			// Extract dates and locations from GPS input
 			for (Collection<GpsPoint> c : gpsLayer.data) {
 				for (GpsPoint p : c) {
 					if (p.time == null)
@@ -101,9 +104,6 @@ public class GeoImageLayer extends Layer {
                     	throw new IOException(tr("Cannot read time \"{0}\" from point {1} x {2}",p.time,p.latlon.lat(),p.latlon.lon()));
                     }
 					gps.add(new TimedPoint(d, p.eastNorth));
-					if (last != null && last.after(d))
-						throw new IOException(tr("Time loop in gps data."));
-					last = d;
 				}
 			}
 
@@ -167,12 +167,15 @@ public class GeoImageLayer extends Layer {
 		}
 	}
 
-	private static final class TimedPoint {
+	private static final class TimedPoint implements Comparable<TimedPoint> {
 		Date time;
 		EastNorth pos;
 		public TimedPoint(Date time, EastNorth pos) {
 			this.time = time;
 			this.pos = pos;
+		}
+		public int compareTo(TimedPoint point) {
+			return time.compareTo(point.time);
 		}
 	}
 
@@ -184,6 +187,8 @@ public class GeoImageLayer extends Layer {
 
 	private GeoImageLayer(final ArrayList<ImageEntry> data, LinkedList<TimedPoint> gps) {
 		super(tr("Geotagged Images"));
+		Collections.sort(data);
+		Collections.sort(gps);					
 		this.data = data;
 		this.gps = gps;
 		mouseAdapter = new MouseAdapter(){
