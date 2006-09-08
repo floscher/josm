@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map.Entry;
 
 import javax.swing.JOptionPane;
@@ -133,6 +134,8 @@ public class DeleteAction extends MapMode {
 	 * 
 	 * If deleting a node which is part of exactly two segments, and both segments
 	 * have no conflicting keys, join them and remove the node.
+	 * If the two segments are part of the same way, remove the deleted segment
+	 * from the way.
 	 * 
 	 * @param selection The objects to delete.
 	 * @param msgBox Whether a message box for errors should be shown
@@ -180,24 +183,35 @@ public class DeleteAction extends MapMode {
 			seg1 = seg2;
 			seg2 = s;
 		}
-		for (Way w : Main.ds.ways)
-			if (!w.deleted && (w.segments.contains(seg1) || w.segments.contains(seg2)))
-				return tr("Used in a way.");
 		if (seg1.from == seg2.from || seg1.to == seg2.to)
 			return tr("Wrong direction of segments.");
 		for (Entry<String, String> e : seg1.entrySet())
 			if (seg2.keySet().contains(e.getKey()) && !seg2.get(e.getKey()).equals(e.getValue()))
 				return tr("Conflicting keys");
+		ArrayList<Way> ways = new ArrayList<Way>(2);
+		for (Way w : Main.ds.ways) {
+			if (w.deleted)
+				continue;
+			if ((w.segments.contains(seg1) && !w.segments.contains(seg2)) || (w.segments.contains(seg2) && !w.segments.contains(seg1)))
+				return tr("Segments are part of different ways.");
+			if (w.segments.contains(seg1) && w.segments.contains(seg2))
+				ways.add(w);
+		}
 		Segment s = new Segment(seg1);
 		s.to = seg2.to;
 		if (s.keys == null)
 			s.keys = seg2.keys;
 		else if (seg2.keys != null)
 			s.keys.putAll(seg2.keys);
-		Command[] cmds = new Command[]{
-			new ChangeCommand(seg1, s), 
-			new DeleteCommand(Arrays.asList(new OsmPrimitive[]{n, seg2}))};
-		Main.main.editLayer().add(new SequenceCommand(tr("Delete Node"), Arrays.asList(cmds)));
+		Collection<Command> cmds = new LinkedList<Command>();
+		for (Way w : ways) {
+			Way copy = new Way(w);
+			copy.segments.remove(seg2);
+			cmds.add(new ChangeCommand(w, copy));
+		}
+		cmds.add(new ChangeCommand(seg1, s));
+		cmds.add(new DeleteCommand(Arrays.asList(new OsmPrimitive[]{n, seg2})));
+		Main.main.editLayer().add(new SequenceCommand(tr("Delete Node"), cmds));
 		return null;
     }
 }

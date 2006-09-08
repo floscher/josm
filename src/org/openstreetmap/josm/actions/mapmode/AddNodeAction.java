@@ -132,6 +132,7 @@ public class AddNodeAction extends MapMode {
 			c = new SequenceCommand(tr("Add Node into Segment"), cmds);
 		}
 		Main.main.editLayer().add(c);
+		Main.ds.setSelected(n);
 		Main.map.mapView.repaint();
 	}
 }

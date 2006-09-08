@@ -46,6 +46,9 @@ public class Preferences {
 		return System.getProperty("user.home")+"/.josm/";
 	}
 
+	synchronized final public boolean hasKey(final String key) {
+		return properties.containsKey(key);
+	}
 	synchronized final public String get(final String key) {
 		if (!properties.containsKey(key))
 			return "";

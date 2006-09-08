@@ -43,7 +43,7 @@ public class DownloadIncompleteAction extends JosmAction {
 		private boolean nodesLoaded = false;
 
 		private DownloadTask(Collection<OsmPrimitive> toDownload) {
-			super(trn("Downloading {0} segments", "Downloading {0} segment", toDownload.size(), toDownload.size()));
+			super(trn("Downloading {0} segment", "Downloading {0} segments", toDownload.size(), toDownload.size()));
 			reader = new ObjectListDownloader(toDownload);
 			reader.setProgressInformation(currentAction, progress);
 		}
