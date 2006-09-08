@@ -69,6 +69,17 @@ public class MainApplication extends Main {
 	 * @param args	No parameters accepted.
 	 */
 	public static void main(final String[] argArray) {
+		/////////////////////////////////////////////////////////////////////////
+		//                        TO ALL TRANSLATORS
+		/////////////////////////////////////////////////////////////////////////
+		// Do not translate the early strings below until the locale is set up.
+		// The cannot be translated. That's live. Really. Sorry.
+		//
+		// The next sending me a patch translating these strings owe me a beer!
+		//
+		//                                                                 Imi.
+		/////////////////////////////////////////////////////////////////////////
+		
 		Thread.setDefaultUncaughtExceptionHandler(new BugReportExceptionHandler());
 
 		// construct argument table
@@ -103,7 +114,7 @@ public class MainApplication extends Main {
 			}
 		} catch (final IOException e1) {
 			e1.printStackTrace();
-			JOptionPane.showMessageDialog(null, "Preferences could not be loaded. Write default preference file to "+pref.getPreferencesDir()+"preferences");
+			JOptionPane.showMessageDialog(null, "Preferences could not be loaded. Writing default preference file to "+pref.getPreferencesDir()+"preferences");
 			Main.pref.resetToDefault();
 		}
 

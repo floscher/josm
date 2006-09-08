@@ -37,6 +37,7 @@ import org.openstreetmap.josm.actions.PreferencesAction;
 import org.openstreetmap.josm.actions.RedoAction;
 import org.openstreetmap.josm.actions.ReverseSegmentAction;
 import org.openstreetmap.josm.actions.SaveAction;
+import org.openstreetmap.josm.actions.SaveAsAction;
 import org.openstreetmap.josm.actions.UndoAction;
 import org.openstreetmap.josm.actions.UploadAction;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
@@ -163,6 +164,7 @@ abstract public class Main {
 		final Action reverseSegmentAction = new ReverseSegmentAction();
 		final Action uploadAction = new UploadAction();
 		final Action saveAction = new SaveAction();
+		final Action saveAsAction = new SaveAsAction();
 		final Action gpxExportAction = new GpxExportAction(null);
 		final Action exitAction = new ExitAction();
 		final Action preferencesAction = new PreferencesAction();
@@ -172,6 +174,7 @@ abstract public class Main {
 		fileMenu.setMnemonic('F');
 		fileMenu.add(openAction);
 		fileMenu.add(saveAction);
+		fileMenu.add(saveAsAction);
 		fileMenu.add(gpxExportAction);
 		fileMenu.addSeparator();
 		fileMenu.add(exitAction);
@@ -246,7 +249,7 @@ abstract public class Main {
 	 */
 	public final OsmDataLayer editLayer() {
 		if (map == null || map.mapView.editLayer == null)
-			addLayer(new OsmDataLayer(ds, tr("unnamed"), false));
+			addLayer(new OsmDataLayer(ds, tr("unnamed"), null));
 		return map.mapView.editLayer;
 	}
 

@@ -47,11 +47,13 @@ import javax.swing.border.Border;
 import javax.swing.filechooser.FileFilter;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.actions.RenameLayerAction;
 import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.PleaseWaitRunnable;
+import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
 import org.openstreetmap.josm.gui.dialogs.LayerList;
 import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
 import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
@@ -84,7 +86,7 @@ public class GeoImageLayer extends Layer {
 		private final Collection<File> files;
 		private final RawGpsLayer gpsLayer;
 		public Loader(Collection<File> files, RawGpsLayer gpsLayer) {
-			super(tr("Images"));
+			super(tr("Images for {0}", gpsLayer.name));
 			this.files = files;
 			this.gpsLayer = gpsLayer;
 		}
@@ -220,6 +222,13 @@ public class GeoImageLayer extends Layer {
 			}
 		};
 		Main.map.mapView.addMouseListener(mouseAdapter);
+		Main.map.mapView.addLayerChangeListener(new LayerChangeListener(){
+			public void activeLayerChange(Layer oldLayer, Layer newLayer) {}
+			public void layerAdded(Layer newLayer) {}
+			public void layerRemoved(Layer oldLayer) {
+				Main.map.mapView.removeMouseListener(mouseAdapter);
+			}
+		});
 	}
 
 	private void showImage(final ImageEntry e) {
@@ -352,6 +361,8 @@ public class GeoImageLayer extends Layer {
 				new JMenuItem(new LayerList.DeleteLayerAction(this)),
 				new JSeparator(),
 				sync,
+				new JSeparator(),
+				new JMenuItem(new RenameLayerAction(null, this)),
 				new JSeparator(), 
 				new JMenuItem(new LayerListPopup.InfoAction(this))};
 	}
@@ -405,16 +416,18 @@ public class GeoImageLayer extends Layer {
 				return;
 			try {
 				delta = DateParser.parse(gpsText.getText()).getTime() - exifDate.getTime();
-				Main.pref.put("tagimages.delta", ""+delta);
 				String time = gpsTimezone.getText();
 				if (!time.equals("") && time.charAt(0) == '+')
 					time = time.substring(1);
 				if (time.equals(""))
 					time = "0";
-				Main.pref.put("tagimages.gpstimezone", time);
 				gpstimezone = Long.valueOf(time)*60*60*1000;
+				Main.pref.put("tagimages.delta", ""+delta);
+                Main.pref.put("tagimages.gpstimezone", time);
 				calculatePosition();
 				return;
+			} catch (NumberFormatException x) {
+				JOptionPane.showMessageDialog(Main.parent, tr("Time entered could not be parsed."));
 			} catch (ParseException x) {
 				JOptionPane.showMessageDialog(Main.parent, tr("Time entered could not be parsed."));
 			}
@@ -434,8 +447,4 @@ public class GeoImageLayer extends Layer {
 		}
 		return new ImageIcon(img.getScaledInstance(w, h, Image.SCALE_SMOOTH));
 	}
-
-	@Override public void layerRemoved() {
-		Main.map.mapView.removeMouseListener(mouseAdapter);
-    }
 }

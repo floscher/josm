@@ -15,6 +15,28 @@ import org.openstreetmap.josm.data.osm.OsmPrimitive;
  */
 abstract public class DiskAccessAction extends JosmAction {
 
+	/**
+	 * Checks whether it is ok to launch a save (whether we have data,
+	 * there is no conflict etc...)
+	 * @return <code>true</code>, if it is save to save.
+	 */
+	public boolean checkSaveConditions() {
+        if (Main.map == null) {
+    		JOptionPane.showMessageDialog(Main.parent, tr("No document open so nothing to save."));
+    		return false;
+    	}
+    	if (isDataSetEmpty() && JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(Main.parent,tr("The document contains no data. Save anyway?"), tr("Empty document"), JOptionPane.YES_NO_OPTION))
+    		return false;
+    	if (!Main.map.conflictDialog.conflicts.isEmpty()) {
+    		int answer = JOptionPane.showConfirmDialog(Main.parent, 
+    				tr("There are unresolved conflicts. Conflicts will not be saved and handled as if you rejected all. Continue?"),tr("Conflicts"), JOptionPane.YES_NO_OPTION);
+    		if (answer != JOptionPane.YES_OPTION)
+    			return false;
+    	}
+    	return true;
+    }
+
+
 	public DiskAccessAction(String name, String iconName, String tooltip, int shortCut, int modifiers) {
 		super(name, iconName, tooltip, shortCut, modifiers);
 	}
@@ -34,7 +56,7 @@ abstract public class DiskAccessAction extends JosmAction {
 		return true;
 	}
 	
-	protected JFileChooser createAndOpenFileChooser(boolean open, boolean multiple) {
+	protected static JFileChooser createAndOpenFileChooser(boolean open, boolean multiple) {
 		String curDir = Main.pref.get("lastDirectory");
 		if (curDir.equals(""))
 			curDir = ".";

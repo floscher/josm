@@ -23,10 +23,12 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.GpxExportAction;
+import org.openstreetmap.josm.actions.RenameLayerAction;
 import org.openstreetmap.josm.data.Preferences.PreferenceChangedListener;
 import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.coor.LatLon;
@@ -36,6 +38,7 @@ import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.gui.MapView;
+import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
 import org.openstreetmap.josm.gui.dialogs.LayerList;
 import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
 import org.openstreetmap.josm.tools.ColorHelper;
@@ -70,7 +73,7 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 				}
 				ds.ways.add(w);
 			}
-			Main.main.addLayer(new OsmDataLayer(ds, tr("Data Layer"), true));
+			Main.main.addLayer(new OsmDataLayer(ds, tr("Data Layer"), null));
 			Main.main.removeLayer(RawGpsLayer.this);
         }
     }
@@ -91,10 +94,22 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 	 */
 	public final Collection<Collection<GpsPoint>> data;
 
-	public RawGpsLayer(Collection<Collection<GpsPoint>> data, String name) {
+	public RawGpsLayer(Collection<Collection<GpsPoint>> data, String name, File associatedFile) {
 		super(name);
+		this.associatedFile = associatedFile;
 		this.data = data;
 		Main.pref.listener.add(this);
+		SwingUtilities.invokeLater(new Runnable(){
+			public void run() {
+				Main.map.mapView.addLayerChangeListener(new LayerChangeListener(){
+					public void activeLayerChange(Layer oldLayer, Layer newLayer) {}
+					public void layerAdded(Layer newLayer) {}
+					public void layerRemoved(Layer oldLayer) {
+						Main.pref.listener.remove(RawGpsLayer.this);
+					}
+				});
+            }
+		});
 	}
 
 	/**
@@ -141,8 +156,11 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 		int points = 0;
 		for (Collection<GpsPoint> c : data)
 			points += c.size();
-		return data.size()+" "+trn("track", "tracks", data.size())
+		String tool = data.size()+" "+trn("track", "tracks", data.size())
 		+" "+points+" "+trn("point", "points", points);
+		if (associatedFile != null)
+			tool = "<html>"+tool+"<br>"+associatedFile.getPath()+"</html>";
+		return tool;
 	}
 
 	@Override public void mergeFrom(Layer from) {
@@ -168,7 +186,7 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 			points += c.size();
 		}
 		b.append("</html>");
-		return "<html>"+tr("{0} consists of {1} track", "{0} consists of {1} tracks", data.size(), name, data.size())+" ("+trn("{0} point", "{0} points", points, points)+")<br>"+b.toString();
+		return "<html>"+trn("{0} consists of {1} track", "{0} consists of {1} tracks", data.size(), name, data.size())+" ("+trn("{0} point", "{0} points", points, points)+")<br>"+b.toString();
 	}
 
 	@Override public Component[] getMenuEntries() {
@@ -256,6 +274,7 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 				}
             }
 		});
+		
 		return new Component[]{
 				new JMenuItem(new LayerList.ShowHideLayerAction(this)),
 				new JMenuItem(new LayerList.DeleteLayerAction(this)),
@@ -266,6 +285,8 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 				tagimage,
 				new JMenuItem(new ConvertToDataLayerAction()),
 				new JSeparator(),
+				new JMenuItem(new RenameLayerAction(associatedFile, this)),
+				new JSeparator(),
 				new JMenuItem(new LayerListPopup.InfoAction(this))};
     }
 
@@ -273,8 +294,4 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 		if (Main.map != null && (key.equals("draw.rawgps.lines") || key.equals("draw.rawgps.lines.force")))
 			Main.map.repaint();
 	}
-
-	@Override public void layerRemoved() {
-		Main.pref.listener.remove(this);
-    }
 }

@@ -7,6 +7,7 @@ import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -23,7 +24,9 @@ import javax.swing.JSeparator;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.GpxExportAction;
+import org.openstreetmap.josm.actions.RenameLayerAction;
 import org.openstreetmap.josm.actions.SaveAction;
+import org.openstreetmap.josm.actions.SaveAsAction;
 import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.Node;
@@ -113,10 +116,11 @@ public class OsmDataLayer extends Layer {
 	/**
 	 * Construct a OsmDataLayer.
 	 */
-	public OsmDataLayer(final DataSet data, final String name, final boolean fromDisk) {
+	public OsmDataLayer(final DataSet data, final String name, final File associatedFile) {
 		super(name);
 		this.data = data;
-		this.fromDisk = fromDisk;
+		this.fromDisk = associatedFile != null;
+		this.associatedFile = associatedFile;
 	}
 
 	/**
@@ -150,9 +154,13 @@ public class OsmDataLayer extends Layer {
 	}
 
 	@Override public String getToolTipText() {
-		return undeletedSize(data.nodes)+" "+trn("node", "nodes", undeletedSize(data.nodes))+
-		undeletedSize(data.segments)+" "+trn("segment", "segments", undeletedSize(data.segments))+
-		undeletedSize(data.ways)+" "+trn("way", "ways", undeletedSize(data.ways));
+		String tool = "";
+		tool += undeletedSize(data.nodes)+" "+trn("node", "nodes", undeletedSize(data.nodes))+", ";
+		tool += undeletedSize(data.segments)+" "+trn("segment", "segments", undeletedSize(data.segments))+", ";
+		tool += undeletedSize(data.ways)+" "+trn("way", "ways", undeletedSize(data.ways));
+		if (associatedFile != null)
+			tool = "<html>"+tool+"<br>"+associatedFile.getPath()+"</html>";
+		return tool;
 	}
 
 	@Override public void mergeFrom(final Layer from) {
@@ -319,7 +327,10 @@ public class OsmDataLayer extends Layer {
 				new JMenuItem(new LayerList.DeleteLayerAction(this)),
 				new JSeparator(),
 				new JMenuItem(new SaveAction()),
+				new JMenuItem(new SaveAsAction()),
 				new JMenuItem(new GpxExportAction(this)),
+				new JSeparator(),
+				new JMenuItem(new RenameLayerAction(associatedFile, this)),
 				new JSeparator(),
 				new JMenuItem(new LayerListPopup.InfoAction(this))};
 	}
