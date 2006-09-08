@@ -144,6 +144,7 @@ public class AddSegmentAction extends MapMode implements MouseListener {
 
 			Segment ls = new Segment(start, end);
 			Main.main.editLayer().add(new AddCommand(ls));
+			Main.ds.setSelected(ls);
 		}
 
 		Main.map.mapView.repaint();

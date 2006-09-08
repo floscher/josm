@@ -52,31 +52,31 @@ public class OpenAction extends DiskAccessAction {
 	/**
 	 * Open the given file.
 	 */
-	public void openFile(File filename) {
-		String fn = filename.getName();
+	public void openFile(File file) {
+		String fn = file.getName();
 		try {
 			if (asRawData(fn)) {
 				Collection<Collection<GpsPoint>> data;
 				if (ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn)) {
-					data = RawGpsReader.parse(new FileInputStream(filename));
+					data = RawGpsReader.parse(new FileInputStream(file));
 				} else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
 					data = new LinkedList<Collection<GpsPoint>>();
-					data.add(new RawCsvReader(new FileReader(filename)).parse());
+					data.add(new RawCsvReader(new FileReader(file)).parse());
 				} else
 					throw new IllegalStateException();
-				Main.main.addLayer(new RawGpsLayer(data, filename.getName()));
+				Main.main.addLayer(new RawGpsLayer(data, file.getName(), file));
 			} else {
 				DataSet dataSet;
 				if (ExtensionFileFilter.filters[ExtensionFileFilter.OSM].acceptName(fn)) {
-					dataSet = OsmReader.parseDataSet(new FileInputStream(filename), null, null);
+					dataSet = OsmReader.parseDataSet(new FileInputStream(file), null, null);
 				} else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
 					JOptionPane.showMessageDialog(Main.parent, fn+": "+tr("CSV Data import for non-GPS data is not implemented yet."));
 					return;
 				} else {
-					JOptionPane.showMessageDialog(Main.parent, fn+": "+tr("Unknown file extension: {0}", fn.substring(filename.getName().lastIndexOf('.')+1)));
+					JOptionPane.showMessageDialog(Main.parent, fn+": "+tr("Unknown file extension: {0}", fn.substring(file.getName().lastIndexOf('.')+1)));
 					return;
 				}
-				Main.main.addLayer(new OsmDataLayer(dataSet, tr("Data Layer"), true));
+				Main.main.addLayer(new OsmDataLayer(dataSet, file.getName(), file));
 			}
 		} catch (SAXException x) {
 			x.printStackTrace();

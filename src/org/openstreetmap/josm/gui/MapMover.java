@@ -31,7 +31,6 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 			this.action = action;
         }
 	    public void actionPerformed(ActionEvent e) {
-	    	System.out.println("e="+e.toString()+" action="+e.getActionCommand());
 	    	if (action.equals(".") || action.equals(",")) {
 	    		Point mouse = nc.getMousePosition();
 	    		if (mouse == null)

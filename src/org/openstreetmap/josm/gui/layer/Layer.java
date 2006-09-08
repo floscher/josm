@@ -2,6 +2,7 @@ package org.openstreetmap.josm.gui.layer;
 
 import java.awt.Component;
 import java.awt.Graphics;
+import java.io.File;
 
 import javax.swing.Icon;
 
@@ -32,7 +33,11 @@ abstract public class Layer {
 	/**
 	 * The name of this layer.
 	 */
-	public final String name;
+	public String name;
+	/**
+	 * If a file is associated with this layer, this variable should be set to it.
+	 */
+	public File associatedFile;
 
 	/**
 	 * Create the layer and fill in the necessary components.
@@ -82,9 +87,4 @@ abstract public class Layer {
 	abstract public Object getInfoComponent();
 	
 	abstract public Component[] getMenuEntries();
-	
-	/**
-	 * Called, when the layer is removed from the list. (See it as an destructor)
-	 */
-	public void layerRemoved() {}
 }

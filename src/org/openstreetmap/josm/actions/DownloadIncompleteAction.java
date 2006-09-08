@@ -60,7 +60,7 @@ public class DownloadIncompleteAction extends JosmAction {
 			if (errorMessage == null && nodesLoaded == false)
 				startDownloadNodes();
 			else if (errorMessage == null)
-				Main.main.addLayer(new OsmDataLayer(dataSet, tr("Data Layer"), false));
+				Main.main.addLayer(new OsmDataLayer(dataSet, tr("Data Layer"), null));
 		}
 
 		private void startDownloadNodes() {

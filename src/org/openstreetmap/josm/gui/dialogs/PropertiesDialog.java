@@ -95,6 +95,10 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	void edit(int row) {
 		String key = data.getValueAt(row, 0).toString();
 		Collection<OsmPrimitive> sel = Main.ds.getSelected();
+		if (sel.isEmpty()) {
+			JOptionPane.showMessageDialog(Main.parent, tr("Please select the objects you want to change properties for."));
+			return;
+		}
 		String msg = "<html>"+trn("This will change {0} object.", "This will change {0} objects.", sel.size(), sel.size())+"<br><br> "+tr("Please select a new value for \"{0}\".<br>(Empty string deletes the key.)", key)+"</html>";
 		final JComboBox combo = (JComboBox)data.getValueAt(row, 1);
 		JPanel p = new JPanel(new BorderLayout());
@@ -143,6 +147,10 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	 */
 	void add() {
 		Collection<OsmPrimitive> sel = Main.ds.getSelected();
+		if (sel.isEmpty()) {
+			JOptionPane.showMessageDialog(Main.parent, tr("Please select objects for which you want to change properties."));
+			return;
+		}
 
 		JPanel p = new JPanel(new BorderLayout());
 		p.add(new JLabel("<html>"+trn("This will change {0} object.","This will change {0} objects.", sel.size(),sel.size())+"<br><br>"+tr("Please select a key")),

@@ -78,7 +78,7 @@ public class DownloadAction extends JosmAction {
 				return; // user cancelled download or error occoured
 			if (dataSet.allPrimitives().isEmpty())
 				errorMessage = tr("No data imported.");
-			Main.main.addLayer(new OsmDataLayer(dataSet, tr("Data Layer"), false));
+			Main.main.addLayer(new OsmDataLayer(dataSet, tr("Data Layer"), null));
 		}
 
 		@Override protected void cancel() {
@@ -105,7 +105,7 @@ public class DownloadAction extends JosmAction {
 			if (rawData == null)
 				return;
 			String name = latlon[0].getText() + " " + latlon[1].getText() + " x " + latlon[2].getText() + " " + latlon[3].getText();
-			Main.main.addLayer(new RawGpsLayer(rawData, name));
+			Main.main.addLayer(new RawGpsLayer(rawData, name, null));
 		}
 
 		@Override protected void cancel() {
