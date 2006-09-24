@@ -173,6 +173,7 @@ public class MapStatus extends JPanel {
 						popup = null;
 					}
 				} catch (ConcurrentModificationException x) {
+				} catch (NullPointerException x) {
 				}
 			}
 		}

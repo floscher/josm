@@ -42,6 +42,9 @@ public class SaveAction extends DiskAccessAction {
 			return;
 
 		save(file);
+		Main.main.editLayer().name = file.getName();
+		Main.main.editLayer().associatedFile = file;
+		Main.parent.repaint();
 	}
 
 	public static void save(File file) {

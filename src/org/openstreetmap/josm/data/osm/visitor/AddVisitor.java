@@ -17,18 +17,35 @@ import org.openstreetmap.josm.data.osm.Way;
 public class AddVisitor implements Visitor {
 	
 	private final DataSet ds;
+	private final boolean includeReferences;
+	
+	public AddVisitor(DataSet ds, boolean includeReferences) {
+		this.ds = ds;
+		this.includeReferences = includeReferences;
+	}
 	
 	public AddVisitor(DataSet ds) {
-		this.ds = ds;
+		this(ds, false);
 	}
 	
 	public void visit(Node n) {
-		ds.nodes.add(n);
+		if (!includeReferences || !ds.nodes.contains(n))
+			ds.nodes.add(n);
 	}
-	public void visit(Segment ls) {
-		ds.segments.add(ls);
+	public void visit(Segment s) {
+		ds.segments.add(s);
+		if (includeReferences && !s.incomplete) {
+			if (!ds.nodes.contains(s.from))
+				s.from.visit(this);
+			if (!ds.nodes.contains(s.to))
+				s.to.visit(this);
+		}
 	}
-	public void visit(Way t) {
-		ds.ways.add(t);
+	public void visit(Way w) {
+		ds.ways.add(w);
+		if (includeReferences)
+			for (Segment s : w.segments)
+				if (!ds.segments.contains(s))
+					s.visit(this);
 	}
 }

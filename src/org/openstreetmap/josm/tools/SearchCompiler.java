@@ -77,7 +77,7 @@ public class SearchCompiler {
 				value = osm.get(key);
 			if (value == null)
 				return notValue;
-			return (value.indexOf(this.value) != -1) != notValue;
+			return (value.toLowerCase().indexOf(this.value.toLowerCase()) != -1) != notValue;
 		}
 		@Override public String toString() {return key+"="+(notValue?"!":"")+value;}
 	}
@@ -89,7 +89,8 @@ public class SearchCompiler {
 			if (osm.keys == null)
 				return s.equals("");
 			for (Entry<String, String> e : osm.keys.entrySet())
-				if (e.getKey().indexOf(s) != -1 || e.getValue().indexOf(s) != -1)
+				if (e.getKey().toLowerCase().indexOf(s.toLowerCase()) != -1 
+						|| e.getValue().toLowerCase().indexOf(s.toLowerCase()) != -1)
 					return true;
 			return false;
 		}
@@ -110,7 +111,7 @@ public class SearchCompiler {
 		}
 		@Override public String toString() {return "type="+type;}
 	}
-	
+
 	private static class Modified extends Match {
 		@Override public boolean match(OsmPrimitive osm) {
 			return osm.modified;

@@ -1,5 +1,6 @@
 package org.openstreetmap.josm.data.coor;
 
+import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.projection.Projection;
 
 /**
@@ -41,6 +42,13 @@ public class LatLon extends Coordinate {
 			lon() < -Projection.MAX_LON || lon() > Projection.MAX_LON;
 	}
 
+	/**
+	 * @return <code>true</code> if this is within the given bounding box.
+	 */
+	public boolean isWithin(Bounds b) {
+		return lat() >= b.min.lat() && lat() <= b.max.lat() && lon() > b.min.lon() && lon() < b.max.lon();
+	}
+	
     @Override public String toString() {
         return "LatLon[lat="+lat()+",lon="+lon()+"]";
     }
