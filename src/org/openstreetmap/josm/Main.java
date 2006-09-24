@@ -31,6 +31,7 @@ import javax.swing.UIManager;
 import org.openstreetmap.josm.actions.AboutAction;
 import org.openstreetmap.josm.actions.DownloadAction;
 import org.openstreetmap.josm.actions.ExitAction;
+import org.openstreetmap.josm.actions.ExternalToolsAction;
 import org.openstreetmap.josm.actions.GpxExportAction;
 import org.openstreetmap.josm.actions.OpenAction;
 import org.openstreetmap.josm.actions.PreferencesAction;
@@ -202,6 +203,10 @@ abstract public class Main {
 		editMenu.addSeparator();
 		editMenu.add(preferencesAction);
 		mainMenu.add(editMenu);
+
+		JMenu externalMenu = ExternalToolsAction.buildMenu();
+		if (externalMenu != null)
+			mainMenu.add(externalMenu);
 
 		mainMenu.add(new JSeparator());
 		final JMenu helpMenu = new JMenu(tr("Help"));
