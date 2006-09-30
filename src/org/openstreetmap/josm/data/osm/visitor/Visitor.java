@@ -1,7 +1,7 @@
 package org.openstreetmap.josm.data.osm.visitor;
 
-import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Node;
+import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 
 /**

@@ -29,6 +29,7 @@ import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.RawGpsLayer;
 import org.openstreetmap.josm.io.GpxWriter;
+import org.openstreetmap.josm.io.XmlWriter;
 import org.openstreetmap.josm.tools.GBC;
 
 /**
@@ -116,15 +117,15 @@ public class GpxExportAction extends DiskAccessAction {
 		if (copyright.getText().length() != 0)
 			Main.pref.put("lastCopyright", copyright.getText());
 		
-		try {
-			GpxWriter w = new GpxWriter(new FileOutputStream(file), layer.name, desc.getText(),
+		XmlWriter.OsmWriterInterface w;
+		if (layer instanceof RawGpsLayer)
+			w = new GpxWriter.Trk(((RawGpsLayer)layer).data);
+		else
+			w = new GpxWriter.All(Main.ds, layer.name, desc.getText(),
 					authorName.getText(), email.getText(), copyright.getText(),
 					copyrightYear.getText(), keywords.getText());
-			if (layer instanceof RawGpsLayer)
-				w.output(((RawGpsLayer)layer).data);
-			else
-				w.output(Main.ds);
-			w.close();
+		try {
+			XmlWriter.output(new FileOutputStream(file), w);
 		} catch (IOException x) {
 			x.printStackTrace();
 			JOptionPane.showMessageDialog(Main.parent, tr("Error while exporting {0}", fn)+":\n"+x.getMessage(), tr("Error"), JOptionPane.ERROR_MESSAGE);

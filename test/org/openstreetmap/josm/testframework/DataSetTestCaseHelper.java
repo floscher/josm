@@ -43,7 +43,8 @@ public class DataSetTestCaseHelper {
 	public static Way createWay(DataSet ds, Segment... segments) {
 		Way t = new Way();
 		t.segments.addAll(Arrays.asList(segments));
-		ds.ways.add(t);
+		if (ds != null)
+			ds.ways.add(t);
 		return t;
 	}
 	
@@ -52,7 +53,8 @@ public class DataSetTestCaseHelper {
 	 */
 	public static Segment createSegment(DataSet ds, Node n1, Node n2) {
 		Segment ls = new Segment(n1, n2);
-		ds.segments.add(ls);
+		if (ds != null)
+			ds.segments.add(ls);
 		return ls;
 	}
 
