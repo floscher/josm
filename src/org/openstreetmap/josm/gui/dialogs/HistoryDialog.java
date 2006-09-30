@@ -76,6 +76,7 @@ public class HistoryDialog extends ToggleDialog implements SelectionChangedListe
 	 * Object | Date | visible (icon, no text)
 	 */
 	private JTable history = new JTable(data);
+	private JScrollPane historyPane = new JScrollPane(history);
 
 	private Map<OsmPrimitive, List<HistoryItem>> cache = new HashMap<OsmPrimitive, List<HistoryItem>>();
 	private JLabel notLoaded = new JLabel("<html><i><p align=\"center\">"+tr("Click Reload to refresh list")+"</p></i></html>");
@@ -84,7 +85,7 @@ public class HistoryDialog extends ToggleDialog implements SelectionChangedListe
 
 	public HistoryDialog() {
 		super(tr("History"), "history", tr("Display the history of all selected items."), KeyEvent.VK_H, 150);
-		history.setVisible(false);
+		historyPane.setVisible(false);
 		notLoaded.setVisible(true);
 
 		history.setDefaultRenderer(Object.class, new DefaultTableCellRenderer(){
@@ -114,7 +115,7 @@ public class HistoryDialog extends ToggleDialog implements SelectionChangedListe
 
 		JPanel centerPanel = new JPanel(new GridBagLayout());
 		centerPanel.add(notLoaded, GBC.eol().fill(GBC.BOTH));
-		centerPanel.add(new JScrollPane(history), GBC.eol().fill(GBC.BOTH));
+		centerPanel.add(historyPane, GBC.eol().fill(GBC.BOTH));
 		add(centerPanel, BorderLayout.CENTER);
 
 		JPanel buttons = new JPanel(new GridLayout(1,2));
@@ -159,7 +160,7 @@ public class HistoryDialog extends ToggleDialog implements SelectionChangedListe
 	private void update() {
 		Collection<OsmPrimitive> sel = Main.ds.getSelected();
 		if (!cache.keySet().containsAll(sel)) {
-			history.setVisible(false);
+			historyPane.setVisible(false);
 			notLoaded.setVisible(true);
 		} else {
 			SortedSet<HistoryItem> orderedHistory = new TreeSet<HistoryItem>();
@@ -168,7 +169,7 @@ public class HistoryDialog extends ToggleDialog implements SelectionChangedListe
 			data.setRowCount(0);
 			for (HistoryItem i : orderedHistory)
 				data.addRow(new Object[]{i.osm, i.osm.timestamp, i.visible});
-			history.setVisible(true);
+			historyPane.setVisible(true);
 			notLoaded.setVisible(false);
 		}
 	}

@@ -1,9 +1,6 @@
 package org.openstreetmap.josm.io;
 
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -13,19 +10,13 @@ import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
-import org.openstreetmap.josm.tools.XmlWriter;
 
 /**
  * Save the dataset into a stream as osm intern xml format. This is not using any
  * xml library for storing.
  * @author imi
  */
-public class OsmWriter implements Visitor {
-
-	/**
-	 * The output writer to save the values to.
-	 */
-	private PrintWriter out;
+public class OsmWriter extends XmlWriter implements Visitor {
 
 	/**
 	 * The counter for new created objects. Starting at -1 and goes down.
@@ -39,41 +30,65 @@ public class OsmWriter implements Visitor {
 
 	private final boolean osmConform;
 
+	public abstract static class Osm implements OsmWriterInterface {
+		public void header(PrintWriter out) {
+			out.println("<osm version='0.3' generator='JOSM'>");
+		}
+		public void footer(PrintWriter out) {
+			out.println("</osm>");
+		}
+	}
+	
 	/**
-	 * Output the data to the stream
-	 * @param osmConform <code>true</code>, if the xml should be 100% osm conform. In this
-	 * 		case, not all information can be retrieved later (as example, modified state
-	 * 		is lost and id's remain 0 instead of decrementing from -1)
+	 * An output writer for function output that writes everything of the given dataset into
+	 * the xml
 	 */
-	public static void output(OutputStream out, DataSet ds, boolean osmConform) {
-		OsmWriter writer = new OsmWriter(out, osmConform);
-		writer.out.println("<?xml version='1.0' encoding='UTF-8'?>");
-		writer.out.println("<osm version='0.3' generator='JOSM'>");
-		for (Node n : ds.nodes)
-			writer.visit(n);
-		for (Segment ls : ds.segments)
-			writer.visit(ls);
-		for (Way w : ds.ways)
-			writer.visit(w);
-		writer.out.println("</osm>");
-		writer.close();
-	}
+	public static final class All extends Osm {
+		private final DataSet ds;
+		private final boolean osmConform;
 
-	public static void outputSingle(OutputStream out, OsmPrimitive osm, boolean osmConform) {
-		OsmWriter writer = new OsmWriter(out, osmConform);
-		writer.out.println(XmlWriter.header());
-		writer.out.println("<osm version='0.3' generator='JOSM'>");
-		osm.visit(writer);
-		writer.out.println("</osm>");
-		writer.close();
-	}
+		/**
+		 * Construct an writer function
+		 * @param osmConform <code>true</code>, if the xml should be 100% osm conform. In this
+		 * 		case, not all information can be retrieved later (as example, modified state
+		 * 		is lost and id's remain 0 instead of decrementing from -1)
+		 */
+		public All(DataSet ds, boolean osmConform) {
+			this.ds = ds;
+			this.osmConform = osmConform;
+		}
 
-	private OsmWriter(OutputStream out, boolean osmConform) {
-		try {
-	        this.out = new PrintWriter(new OutputStreamWriter(out, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-        	throw new RuntimeException(e);
+		public void write(PrintWriter out) {
+			Visitor writer = new OsmWriter(out, osmConform);
+			for (Node n : ds.nodes)
+				writer.visit(n);
+			for (Segment ls : ds.segments)
+				writer.visit(ls);
+			for (Way w : ds.ways)
+				writer.visit(w);
         }
+	}
+
+	/**
+	 * An output writer for functino output that writes only one specific primitive into
+	 * the xml
+	 */
+	public static final class Single extends Osm {
+		private final OsmPrimitive osm;
+		private final boolean osmConform;
+
+		public Single(OsmPrimitive osm, boolean osmConform) {
+			this.osm = osm;
+			this.osmConform = osmConform;
+		}
+
+		public void write(PrintWriter out) {
+			osm.visit(new OsmWriter(out, osmConform));
+        }
+	}
+
+	private OsmWriter(PrintWriter out, boolean osmConform) {
+		super(out);
 		this.osmConform = osmConform;
 	}
 
@@ -145,8 +160,4 @@ public class OsmWriter implements Visitor {
 			out.print(" timestamp='"+time+"'");
 		}
 	}
-
-	public void close() {
-	    out.close();
-    }
 }

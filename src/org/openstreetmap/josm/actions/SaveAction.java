@@ -53,7 +53,7 @@ public class SaveAction extends DiskAccessAction {
 			if (ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(file.getPath())) {
 				GpxExportAction.exportGpx(file, layer);
 			} else if (ExtensionFileFilter.filters[ExtensionFileFilter.OSM].acceptName(file.getPath())) {
-				OsmWriter.output(new FileOutputStream(file), Main.ds, false);
+				OsmWriter.output(new FileOutputStream(file), new OsmWriter.All(Main.ds, false));
 			} else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(file.getPath())) {
 				JOptionPane.showMessageDialog(Main.parent, tr("CSV output not supported yet."));
 				return;

@@ -163,7 +163,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 
 			if (addBody) {
 				OutputStream out = activeConnection.getOutputStream();
-				OsmWriter.outputSingle(out, osm, true);
+				OsmWriter.output(out, new OsmWriter.Single(osm, true));
 				out.close();
 			}
 
@@ -177,7 +177,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 				return; // everything fine.. was already deleted.
 			if (retCode != 200) {
 				ByteArrayOutputStream o = new ByteArrayOutputStream();
-				OsmWriter.outputSingle(o, osm, true);
+				OsmWriter.output(o, new OsmWriter.Single(osm, true));
 				System.out.println(new String(o.toByteArray(), "UTF-8").toString());
 				throw new RuntimeException(retCode+" "+retMsg);
 			}
