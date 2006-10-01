@@ -113,6 +113,8 @@ public class OsmDataLayer extends Layer {
 	public final LinkedList<ModifiedChangedListener> listenerModified = new LinkedList<ModifiedChangedListener>();
 	public final LinkedList<CommandQueueListener> listenerCommands = new LinkedList<CommandQueueListener>();
 
+	private SimplePaintVisitor mapPainter = new SimplePaintVisitor();
+
 	/**
 	 * Construct a OsmDataLayer.
 	 */
@@ -137,19 +139,20 @@ public class OsmDataLayer extends Layer {
 	 * Draw nodes last to overlap the segments they belong to.
 	 */
 	@Override public void paint(final Graphics g, final MapView mv) {
-		final SimplePaintVisitor visitor = new SimplePaintVisitor(g, mv);
+		mapPainter.setGraphics(g);
+		mapPainter.setNavigatableComponent(mv);
 		for (final OsmPrimitive osm : data.segments)
 			if (!osm.deleted)
-				osm.visit(visitor);
+				osm.visit(mapPainter);
 		for (final OsmPrimitive osm : data.ways)
 			if (!osm.deleted)
-				osm.visit(visitor);
+				osm.visit(mapPainter);
 		for (final OsmPrimitive osm : data.nodes)
 			if (!osm.deleted)
-				osm.visit(visitor);
+				osm.visit(mapPainter);
 		for (final OsmPrimitive osm : data.getSelected())
 			if (!osm.deleted)
-				osm.visit(visitor);
+				osm.visit(mapPainter);
 		Main.map.conflictDialog.paintConflicts(g, mv);
 	}
 
@@ -334,4 +337,9 @@ public class OsmDataLayer extends Layer {
 				new JSeparator(),
 				new JMenuItem(new LayerListPopup.InfoAction(this))};
 	}
+
+
+	public void setMapPainter(SimplePaintVisitor mapPainter) {
+    	this.mapPainter = mapPainter;
+    }
 }

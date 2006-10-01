@@ -11,6 +11,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.concurrent.Executor;
@@ -54,6 +55,7 @@ import org.openstreetmap.josm.gui.dialogs.SelectionListDialog;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer.CommandQueueListener;
+import org.openstreetmap.josm.plugins.Plugin;
 import org.openstreetmap.josm.tools.ImageProvider;
 
 abstract public class Main {
@@ -87,6 +89,10 @@ abstract public class Main {
 	 * The MapFrame. Use setMapFrame to set or clear it.
 	 */
 	public static MapFrame map;
+	/**
+	 * All installed and loaded plugins (resp. their main classes)
+	 */
+	public final Collection<Plugin> plugins = new LinkedList<Plugin>();
 
 	/**
 	 * Set or clear (if passed <code>null</code>) the map.
@@ -117,6 +123,9 @@ abstract public class Main {
 				map.mapView.editLayer.listenerCommands.add(redoUndoListener);
 		}
 		redoUndoListener.commandChanged(0,0);
+
+		for (Plugin plugin : plugins)
+			plugin.mapFrameInitialized(map);
 	}
 
 	/**
@@ -235,6 +244,18 @@ abstract public class Main {
 		contentPane.add(toolBar, BorderLayout.NORTH);
 
 		contentPane.updateUI();
+		
+		// Plugins
+		if (pref.hasKey("plugins")) {
+			for (String pluginName : pref.get("plugins").split(",")) {
+				try {
+	                plugins.add((Plugin)Class.forName(pluginName).newInstance());
+                } catch (Exception e) {
+                	e.printStackTrace();
+                	JOptionPane.showMessageDialog(parent, tr("Could not load plugin {0}.", pluginName));
+                }
+			}
+		}
 	}
 	/**
 	 * Add a new layer to the map. If no map exist, create one.
