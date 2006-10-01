@@ -28,5 +28,5 @@ public abstract class Plugin {
 	/**
 	 * Called after Main.mapFrame is initalized. (After the first data is loaded).
 	 */
-	public void mapFrameInitialized(MapFrame mapFrame) {}
+	public void mapFrameInitialized(MapFrame oldFrame, MapFrame newFrame) {}
 }

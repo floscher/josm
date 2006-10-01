@@ -98,6 +98,7 @@ abstract public class Main {
 	 * Set or clear (if passed <code>null</code>) the map.
 	 */
 	public final void setMapFrame(final MapFrame map) {
+		MapFrame old = Main.map;
 		Main.map = map;
 		panel.setVisible(false);
 		panel.removeAll();
@@ -125,7 +126,7 @@ abstract public class Main {
 		redoUndoListener.commandChanged(0,0);
 
 		for (Plugin plugin : plugins)
-			plugin.mapFrameInitialized(map);
+			plugin.mapFrameInitialized(old, map);
 	}
 
 	/**

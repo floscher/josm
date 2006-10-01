@@ -310,16 +310,18 @@ public class SelectionManager implements MouseListener, MouseMotionListener, Pro
 			for (Way w : Main.ds.ways) {
 				if (w.deleted)
 					continue;
-				boolean wholeWaySelected = !w.segments.isEmpty();
+				boolean someSelectableSegment = false;
+				boolean wholeWaySelected = true;
 				for (Segment s : w.segments) {
 					if (s.incomplete)
 						continue;
+					someSelectableSegment = true;
 					if (!rectangleContainSegment(r, alt, s)) {
 						wholeWaySelected = false;
 						break;
 					}
 				}
-				if (wholeWaySelected)
+				if (someSelectableSegment && wholeWaySelected)
 					selection.add(w);
 			}
 		}
