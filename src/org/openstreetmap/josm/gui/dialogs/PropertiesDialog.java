@@ -137,8 +137,8 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 
 		if (value == null)
 			selectionChanged(sel); // update whole table
-		else
-			PropertiesDialog.this.repaint(); // repaint is enough 
+		
+		Main.parent.repaint(); // repaint all - drawing could have been changed
 	}
 
 	/**
@@ -184,6 +184,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 			return;
 		Main.main.editLayer().add(new ChangePropertyCommand(sel, key, value));
 		selectionChanged(sel); // update table
+		Main.parent.repaint(); // repaint all - drawing could have been changed
 	}
 
 	/**

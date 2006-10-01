@@ -26,22 +26,13 @@ public class SimplePaintVisitor implements Visitor {
 	/**
 	 * The environment to paint to.
 	 */
-	private final Graphics g;
+	protected Graphics g;
 	/**
 	 * MapView to get screen coordinates.
 	 */
-	private final NavigatableComponent nc;
-	private static final double PHI = Math.toRadians(20);
+	protected NavigatableComponent nc;
 
-	/**
-	 * Construct the painter visitor.
-	 * @param g   The graphics to draw to.
-	 * @param mv  The view to get screen coordinates from.
-	 */
-	public SimplePaintVisitor(Graphics g, NavigatableComponent mv) {
-		this.g = g;
-		this.nc = mv;
-	}
+	protected static final double PHI = Math.toRadians(20);
 
 	/**
 	 * Draw a small rectangle. 
@@ -96,7 +87,7 @@ public class SimplePaintVisitor implements Visitor {
 	/**
 	 * Draw a line with the given color.
 	 */
-	private void drawSegment(Segment ls, Color col) {
+	protected void drawSegment(Segment ls, Color col) {
 		if (ls.incomplete)
 			return;
 		if (ls.selected)
@@ -121,4 +112,13 @@ public class SimplePaintVisitor implements Visitor {
 		}
 		return ColorHelper.html2color(colStr);
 	}
+
+
+	public void setGraphics(Graphics g) {
+    	this.g = g;
+    }
+
+	public void setNavigatableComponent(NavigatableComponent nc) {
+    	this.nc = nc;
+    }
 }
