@@ -40,8 +40,11 @@ public class MapPaintPlugin extends Plugin implements LayerChangeListener {
 		}
 	}
 
-	@Override public void mapFrameInitialized(MapFrame mapFrame) {
-		mapFrame.mapView.addLayerChangeListener(this);
+	@Override public void mapFrameInitialized(MapFrame oldFrame, MapFrame newFrame) {
+		if (newFrame != null)
+			newFrame.mapView.addLayerChangeListener(this);
+		else
+			oldFrame.mapView.removeLayerChangeListener(this);
 	}
 
 	public void activeLayerChange(Layer oldLayer, Layer newLayer) {}

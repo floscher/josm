@@ -31,6 +31,7 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -234,7 +235,6 @@ public class GeoImageLayer extends Layer {
 	private void showImage(final ImageEntry e) {
 		final JPanel p = new JPanel(new BorderLayout());
 		final JScrollPane scroll = new JScrollPane(new JLabel(loadScaledImage(e.image, 580)));
-		//scroll.setPreferredSize(new Dimension(800,600));
 		final JViewport vp = scroll.getViewport();
 		p.add(scroll, BorderLayout.CENTER);
 
@@ -253,7 +253,10 @@ public class GeoImageLayer extends Layer {
 			}
 		});
 		scale.setSelected(true);
-		JOptionPane.showMessageDialog(Main.parent, p, e.image+" ("+e.coor.lat()+","+e.coor.lon()+")", JOptionPane.PLAIN_MESSAGE);
+		JOptionPane pane = new JOptionPane(p, JOptionPane.PLAIN_MESSAGE);
+		JDialog dlg = pane.createDialog(Main.parent, e.image+" ("+e.coor.lat()+","+e.coor.lon()+")");
+		dlg.setModal(false);
+		dlg.setVisible(true);
 	}
 
 	@Override public Icon getIcon() {

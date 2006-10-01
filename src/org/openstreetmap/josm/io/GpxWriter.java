@@ -91,7 +91,7 @@ public class GpxWriter extends XmlWriter {
 				return;
 			GpxWriter writer = new GpxWriter(out);
 			// calculate bounds
-			Bounds b = new Bounds(new LatLon(Double.MAX_VALUE, Double.MAX_VALUE), new LatLon(Double.MIN_VALUE, Double.MIN_VALUE));
+			Bounds b = new Bounds(new LatLon(Double.MAX_VALUE, Double.MAX_VALUE), new LatLon(-Double.MAX_VALUE, -Double.MAX_VALUE));
 			for (Node n : data.nodes)
 				if (!n.deleted)
 					b.extend(n.coor);
