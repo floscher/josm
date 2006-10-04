@@ -68,9 +68,11 @@ public class AboutAction extends JosmAction {
 		info.add(new JLabel(tr("last change at {0}",time)), GBC.eop());
 		info.add(new JLabel(tr("Java Version {0}",System.getProperty("java.version"))), GBC.eop());
 		info.add(new JLabel(tr("Homepage")), GBC.std().insets(0,0,10,0));
-		info.add(new UrlLabel("http://wiki.eigenheimstrasse.de/wiki/JOSM"), GBC.eol());
+		info.add(new UrlLabel("http://josm.eigenheimstrasse.de"), GBC.eol());
 		info.add(new JLabel(tr("Bug Reports")), GBC.std().insets(0,0,10,0));
-		info.add(new UrlLabel("http://trac.openstreetmap.org"), GBC.eol());
+		info.add(new UrlLabel("http://josm.eigenheimstrasse.de/newticket"), GBC.eol());
+		info.add(new JLabel(tr("News about JOSM")), GBC.std().insets(0,0,10,0));
+		info.add(new UrlLabel("http://www.opengeodata.org/?cat=17"), GBC.eol());
 
 
 		about.addTab(tr("Info"), info);
