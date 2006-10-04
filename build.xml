@@ -27,6 +27,7 @@
 		<javac srcdir="${src}" classpathref="classpath" destdir="${build}">
 			<include name="org/openstreetmap/josm/gui/MainApplication.java"/>
 			<include name="org/openstreetmap/josm/gui/MainApplet.java"/>
+			<include name="org/openstreetmap/josm/plugins/**/*.java"/>
 		</javac>
 	</target>
 
