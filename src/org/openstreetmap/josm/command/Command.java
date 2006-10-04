@@ -1,13 +1,18 @@
 package org.openstreetmap.josm.command;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.tree.MutableTreeNode;
 
+import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.visitor.CloneVisitor;
+import org.openstreetmap.josm.data.osm.Segment;
+import org.openstreetmap.josm.data.osm.Way;
+import org.openstreetmap.josm.data.osm.visitor.Visitor;
 
 
 /**
@@ -22,6 +27,20 @@ import org.openstreetmap.josm.data.osm.visitor.CloneVisitor;
  */
 abstract public class Command {
 
+	private static final class CloneVisitor implements Visitor {
+		public Map<OsmPrimitive, OsmPrimitive> orig = new HashMap<OsmPrimitive, OsmPrimitive>();
+		
+		public void visit(Node n) {
+			orig.put(n, new Node(n));
+	    }
+		public void visit(Segment s) {
+			orig.put(s, new Segment(s));
+	    }
+		public void visit(Way w) {
+			orig.put(w, new Way(w));
+	    }
+	}
+	
 	private CloneVisitor orig; 
 	
 	/**

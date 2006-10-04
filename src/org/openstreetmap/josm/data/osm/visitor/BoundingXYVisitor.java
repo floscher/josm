@@ -8,8 +8,8 @@ import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Way;
 
 /**
- * Calculates the total bounding rectangle of a serie of OsmPrimitives, using the EastNorth values
- * as reference.
+ * Calculates the total bounding rectangle of a serie of OsmPrimitives, using the 
+ * EastNorth values as reference.
  * @author imi
  */
 public class BoundingXYVisitor implements Visitor {

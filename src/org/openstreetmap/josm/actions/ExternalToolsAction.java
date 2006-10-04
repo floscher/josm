@@ -75,7 +75,30 @@ public class ExternalToolsAction extends AbstractAction {
 				final boolean addOsm = !flags.contains("noosm");
 				final boolean addGpx = flags.contains("gpx");
 
-				AddVisitor adder = new AddVisitor(fromDataSet, flags.contains("include_references"));
+				AddVisitor adder = new AddVisitor(fromDataSet);
+				if (flags.contains("include_references")) {
+					adder = new AddVisitor(fromDataSet){
+						@Override public void visit(Node n) {
+							if (!ds.nodes.contains(n))
+								super.visit(n);
+                        }
+						@Override public void visit(Segment s) {
+	                        super.visit(s);
+	                		if (!s.incomplete) {
+	                			if (!ds.nodes.contains(s.from))
+	                				s.from.visit(this);
+	                			if (!ds.nodes.contains(s.to))
+	                				s.to.visit(this);
+	                		}
+                        }
+						@Override public void visit(Way w) {
+	                        super.visit(w);
+	            			for (Segment s : w.segments)
+	            				if (!ds.segments.contains(s))
+	            					s.visit(this);
+                        }
+					};
+				}
 				if (input.contains("selection")) {
 					Collection<OsmPrimitive> sel = Main.ds.getSelected();
 					if (addOsm) {
