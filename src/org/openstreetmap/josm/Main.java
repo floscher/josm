@@ -30,6 +30,7 @@ import javax.swing.JToolBar;
 import javax.swing.UIManager;
 
 import org.openstreetmap.josm.actions.AboutAction;
+import org.openstreetmap.josm.actions.AlignInCircleAction;
 import org.openstreetmap.josm.actions.DownloadAction;
 import org.openstreetmap.josm.actions.ExitAction;
 import org.openstreetmap.josm.actions.ExternalToolsAction;
@@ -173,6 +174,7 @@ abstract public class Main {
 		annotationTesterAction.putValue(Action.NAME, tr("Annotation Preset Tester"));
 		annotationTesterAction.putValue(Action.SMALL_ICON, ImageProvider.get("annotation-tester"));
 		final Action reverseSegmentAction = new ReverseSegmentAction();
+		final Action alignInCircleAction = new AlignInCircleAction();
 		final Action uploadAction = new UploadAction();
 		final Action saveAction = new SaveAction();
 		final Action saveAsAction = new SaveAsAction();
@@ -210,6 +212,7 @@ abstract public class Main {
 		editMenu.add(redoAction);
 		editMenu.addSeparator();
 		editMenu.add(reverseSegmentAction);
+		editMenu.add(alignInCircleAction);
 		editMenu.addSeparator();
 		editMenu.add(preferencesAction);
 		mainMenu.add(editMenu);
@@ -238,8 +241,6 @@ abstract public class Main {
 		toolBar.addSeparator();
 		toolBar.add(undoAction);
 		toolBar.add(redoAction);
-		toolBar.addSeparator();
-		toolBar.add(reverseSegmentAction);
 		toolBar.addSeparator();
 		toolBar.add(preferencesAction);
 		contentPane.add(toolBar, BorderLayout.NORTH);
