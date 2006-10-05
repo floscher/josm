@@ -20,6 +20,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.plugins.PluginException;
+import org.openstreetmap.josm.plugins.PluginProxy;
 
 /**
  * An exception handler, that ask the user to send a bug report.
@@ -34,6 +36,15 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 			if (e instanceof OutOfMemoryError) {
 				JOptionPane.showMessageDialog(Main.parent, "You are out of memory. Strange things may happen.\nPlease restart JOSM and load smaller data sets.");
 				return;
+			}
+			
+			if (e instanceof PluginException) {
+				PluginProxy plugin = ((PluginException)e).getPlugin();
+				if (plugin != null && !plugin.misbehaving) {
+					JOptionPane.showMessageDialog(Main.parent, tr("The plugin {0} throwed an exception: {1}\nIt may be outdated. Please contact the plugin's autor.\nThis message will not shown again until JOSM is restarted.", plugin.name, e.getMessage()));
+					plugin.misbehaving = true;
+					return;
+				}
 			}
 			
 			Object[] options = new String[]{tr("Do nothing"), tr("Report Bug")};

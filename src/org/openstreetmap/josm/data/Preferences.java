@@ -46,36 +46,36 @@ public class Preferences {
 		return System.getProperty("user.home")+"/.josm/";
 	}
 
-	synchronized final public boolean hasKey(final String key) {
+	synchronized public boolean hasKey(final String key) {
 		return properties.containsKey(key);
 	}
-	synchronized final public String get(final String key) {
+	synchronized public String get(final String key) {
 		if (!properties.containsKey(key))
 			return "";
 		return properties.get(key);
 	}
-	synchronized final public String get(final String key, final String def) {
+	synchronized public String get(final String key, final String def) {
 		final String prop = properties.get(key);
 		if (prop == null || prop.equals(""))
 			return def;
 		return prop;
 	}
-	synchronized final public Map<String, String> getAllPrefix(final String prefix) {
+	synchronized public Map<String, String> getAllPrefix(final String prefix) {
 		final Map<String,String> all = new TreeMap<String,String>();
 		for (final Entry<String,String> e : properties.entrySet())
 			if (e.getKey().startsWith(prefix))
 				all.put(e.getKey(), e.getValue());
 		return all;
 	}
-	synchronized final public boolean getBoolean(final String key) {
+	synchronized public boolean getBoolean(final String key) {
 		return getBoolean(key, false);
 	}
-	synchronized final public boolean getBoolean(final String key, final boolean def) {
+	synchronized public boolean getBoolean(final String key, final boolean def) {
 		return properties.containsKey(key) ? Boolean.parseBoolean(properties.get(key)) : def;
 	}
 
 
-	synchronized final public void put(final String key, final String value) {
+	synchronized public void put(final String key, final String value) {
 		if (value == null)
 			properties.remove(key);
 		else
@@ -83,7 +83,7 @@ public class Preferences {
 		save();
 		firePreferenceChanged(key, value);
 	}
-	synchronized final public void put(final String key, final boolean value) {
+	synchronized public void put(final String key, final boolean value) {
 		properties.put(key, Boolean.toString(value));
 		save();
 		firePreferenceChanged(key, Boolean.toString(value));

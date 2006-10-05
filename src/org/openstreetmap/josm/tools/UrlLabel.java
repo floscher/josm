@@ -13,9 +13,13 @@ public class UrlLabel extends JEditorPane implements HyperlinkListener {
 	private final String url;
 
 	public UrlLabel(String url) {
+		this (url, url);
+	}
+
+	public UrlLabel(String url, String description) {
 		this.url = url;
 		setContentType("text/html");
-		setText("<html><a href=\""+url+"\">"+url+"</a></html>");
+		setText("<html><a href=\""+url+"\">"+description+"</a></html>");
 		setEditable(false);
 		setOpaque(false);
 		addHyperlinkListener(this);

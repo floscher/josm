@@ -56,7 +56,9 @@ import org.openstreetmap.josm.gui.dialogs.SelectionListDialog;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer.CommandQueueListener;
-import org.openstreetmap.josm.plugins.Plugin;
+import org.openstreetmap.josm.plugins.PluginException;
+import org.openstreetmap.josm.plugins.PluginLoader;
+import org.openstreetmap.josm.plugins.PluginProxy;
 import org.openstreetmap.josm.tools.ImageProvider;
 
 abstract public class Main {
@@ -93,7 +95,7 @@ abstract public class Main {
 	/**
 	 * All installed and loaded plugins (resp. their main classes)
 	 */
-	public final Collection<Plugin> plugins = new LinkedList<Plugin>();
+	public final static Collection<PluginProxy> plugins = new LinkedList<PluginProxy>();
 
 	/**
 	 * Set or clear (if passed <code>null</code>) the map.
@@ -126,8 +128,8 @@ abstract public class Main {
 		}
 		redoUndoListener.commandChanged(0,0);
 
-		for (Plugin plugin : plugins)
-			plugin.mapFrameInitialized(old, map);
+		for (PluginProxy plugin : plugins)
+            plugin.mapFrameInitialized(old, map);
 	}
 
 	/**
@@ -247,15 +249,21 @@ abstract public class Main {
 
 		contentPane.updateUI();
 		
+
 		// Plugins
-		if (pref.hasKey("plugins")) {
-			for (String pluginName : pref.get("plugins").split(",")) {
+		if (Main.pref.hasKey("plugins")) {
+			PluginLoader loader = new PluginLoader();
+			for (String pluginName : Main.pref.get("plugins").split(",")) {
 				try {
-	                plugins.add((Plugin)Class.forName(pluginName).newInstance());
-                } catch (Exception e) {
-                	e.printStackTrace();
-                	JOptionPane.showMessageDialog(parent, tr("Could not load plugin {0}.", pluginName));
-                }
+					File pluginFile = new File(pref.getPreferencesDir()+"plugins/"+pluginName+".jar");
+					if (pluginFile.exists())
+						plugins.add(loader.loadPlugin(loader.loadClassName(pluginFile), pluginFile));
+					else
+						JOptionPane.showMessageDialog(Main.parent, tr("Plugin not found: {0}.", pluginName));
+				} catch (PluginException e) {
+					e.printStackTrace();
+					JOptionPane.showMessageDialog(Main.parent, tr("Could not load plugin {0}.", pluginName));
+				}
 			}
 		}
 	}

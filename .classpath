@@ -9,5 +9,8 @@
 	<classpathentry kind="lib" path="lib/metadata-extractor-2.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/gettext-commons-0.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="po"/>
+	<classpathentry kind="lib" path="lib/easymock.jar"/>
+	<classpathentry kind="lib" path="lib/easymockclassextension.jar"/>
+	<classpathentry kind="lib" path="lib/cglib-nodep-2.1_3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
