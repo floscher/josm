@@ -10,6 +10,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,10 +62,10 @@ import org.openstreetmap.josm.tools.UrlLabel;
 public class PreferenceDialog extends JDialog {
 
 	private final class RequireRestartAction implements ActionListener {
-	    public void actionPerformed(ActionEvent e) {
-	    	requiresRestart = true;
-	    }
-    }
+		public void actionPerformed(ActionEvent e) {
+			requiresRestart = true;
+		}
+	}
 	private RequireRestartAction requireRestartAction = new RequireRestartAction();
 
 	/**
@@ -105,6 +106,14 @@ public class PreferenceDialog extends JDialog {
 				Main.pref.put("annotation.sources", sb.toString().substring(1));
 			} else
 				Main.pref.put("annotation.sources", null);
+
+			String plugins = "";
+			for (Entry<String, Boolean> entry : pluginMap.entrySet())
+				if (entry.getValue())
+					plugins += entry.getKey() + ",";
+			if (plugins.endsWith(","))
+				plugins = plugins.substring(0, plugins.length()-1);
+			Main.pref.put("plugins", plugins);
 
 			for (int i = 0; i < colors.getRowCount(); ++i) {
 				String name = (String)colors.getValueAt(i, 0);
@@ -195,7 +204,7 @@ public class PreferenceDialog extends JDialog {
 	 */
 	private JComboBox projectionCombo = new JComboBox(Projection.allProjections);
 	private JList annotationSources = new JList(new DefaultListModel());
-	private Map<PluginProxy, Boolean> pluginMap = new HashMap<PluginProxy, Boolean>();
+	private Map<String, Boolean> pluginMap = new HashMap<String, Boolean>();
 
 
 	/**
@@ -233,8 +242,8 @@ public class PreferenceDialog extends JDialog {
 		}
 		languages.setRenderer(new DefaultListCellRenderer(){
 			@Override public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-	            return super.getListCellRendererComponent(list, ((Locale)value).getDisplayName(), index, isSelected, cellHasFocus);
-            }
+				return super.getListCellRendererComponent(list, ((Locale)value).getDisplayName(), index, isSelected, cellHasFocus);
+			}
 		});
 		languages.addActionListener(requireRestartAction);
 
@@ -276,15 +285,26 @@ public class PreferenceDialog extends JDialog {
 
 		Box pluginPanel = Box.createVerticalBox();
 		Collection<String> availablePlugins = new HashSet<String>();
-		for (File f : new File(Main.pref.getPreferencesDir()+"plugins").listFiles()) {
-			if (!f.isFile() || !f.getName().endsWith(".jar"))
-				continue;
-			availablePlugins.add(f.getName().substring(0, f.getName().length()-4));
+		File[] pluginFiles = new File(Main.pref.getPreferencesDir()+"plugins").listFiles();
+		if (pluginFiles != null) {
+			for (File f : pluginFiles) {
+				if (!f.isFile() || !f.getName().endsWith(".jar"))
+					continue;
+				availablePlugins.add(f.getName().substring(0, f.getName().length()-4));
+			}
 		}
-		for (PluginProxy plugin : Main.plugins) {
-			boolean available = availablePlugins.contains(plugin.name);
-			JCheckBox pluginCheck = new JCheckBox(plugin.name, available);
-			String desc = plugin.getDescription();
+		Collection<String> enabledPlugins = Arrays.asList(Main.pref.get("plugins").split(","));
+		for (final String plugin : availablePlugins) {
+			boolean enabled = enabledPlugins.contains(plugin);
+			String desc = null;
+			for (PluginProxy p : Main.plugins) {
+				if (p.name.equals(plugin)) {
+					desc = p.getDescription();
+					break;
+				}
+			}
+
+			final JCheckBox pluginCheck = new JCheckBox(plugin, enabled);
 			pluginPanel.add(pluginCheck);
 			if (desc != null) {
 				pluginCheck.setToolTipText(desc);
@@ -293,11 +313,17 @@ public class PreferenceDialog extends JDialog {
 				pluginPanel.add(label);
 				pluginPanel.add(Box.createVerticalStrut(5));
 			}
-			pluginMap.put(plugin, available);
+			pluginMap.put(plugin, enabled);
+			pluginCheck.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent e) {
+					pluginMap.put(plugin, pluginCheck.isSelected());
+					requiresRestart = true;
+				}
+			});
 		}
-		JScrollPane pluginPane = new JScrollPane(pluginPanel);
+		JScrollPane pluginPane = new JScrollPane(pluginPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		pluginPane.setBorder(null);
-		
+
 		Map<String,String> allColors = new TreeMap<String, String>(Main.pref.getAllPrefix("color."));
 
 		Vector<Vector<Object>> rows = new Vector<Vector<Object>>();
@@ -465,12 +491,12 @@ public class PreferenceDialog extends JDialog {
 		map.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
 		map.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
 
-		
+
 		// Plugin tab
 		JPanel plugin = createPreferenceTab("plugin", tr("Plugins"), tr("Configure available Plugins."));
 		plugin.add(pluginPane, GBC.eol().fill(GBC.BOTH));
 		plugin.add(GBC.glue(0,10), GBC.eol());
-		plugin.add(new UrlLabel("http://josm.eigenheimstrasse.de/wiki/Plugins", "Get more plugins"), GBC.std());
+		plugin.add(new UrlLabel("http://josm.eigenheimstrasse.de/wiki/Plugins", "Get more plugins"), GBC.std().fill(GBC.HORIZONTAL));
 
 		tabPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 
