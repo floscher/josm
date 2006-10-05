@@ -9,6 +9,10 @@ import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -43,9 +47,11 @@ import javax.swing.table.TableCellRenderer;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.projection.Projection;
+import org.openstreetmap.josm.plugins.PluginProxy;
 import org.openstreetmap.josm.tools.ColorHelper;
 import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.ImageProvider;
+import org.openstreetmap.josm.tools.UrlLabel;
 
 /**
  * The preference settings.
@@ -189,6 +195,7 @@ public class PreferenceDialog extends JDialog {
 	 */
 	private JComboBox projectionCombo = new JComboBox(Projection.allProjections);
 	private JList annotationSources = new JList(new DefaultListModel());
+	private Map<PluginProxy, Boolean> pluginMap = new HashMap<PluginProxy, Boolean>();
 
 
 	/**
@@ -267,7 +274,30 @@ public class PreferenceDialog extends JDialog {
 		while (st.hasMoreTokens())
 			((DefaultListModel)annotationSources.getModel()).addElement(st.nextToken());
 
-
+		Box pluginPanel = Box.createVerticalBox();
+		Collection<String> availablePlugins = new HashSet<String>();
+		for (File f : new File(Main.pref.getPreferencesDir()+"plugins").listFiles()) {
+			if (!f.isFile() || !f.getName().endsWith(".jar"))
+				continue;
+			availablePlugins.add(f.getName().substring(0, f.getName().length()-4));
+		}
+		for (PluginProxy plugin : Main.plugins) {
+			boolean available = availablePlugins.contains(plugin.name);
+			JCheckBox pluginCheck = new JCheckBox(plugin.name, available);
+			String desc = plugin.getDescription();
+			pluginPanel.add(pluginCheck);
+			if (desc != null) {
+				pluginCheck.setToolTipText(desc);
+				JLabel label = new JLabel("<html><i>"+desc+"</i></html>");
+				label.setBorder(BorderFactory.createEmptyBorder(0,20,0,0));
+				pluginPanel.add(label);
+				pluginPanel.add(Box.createVerticalStrut(5));
+			}
+			pluginMap.put(plugin, available);
+		}
+		JScrollPane pluginPane = new JScrollPane(pluginPanel);
+		pluginPane.setBorder(null);
+		
 		Map<String,String> allColors = new TreeMap<String, String>(Main.pref.getAllPrefix("color."));
 
 		Vector<Vector<Object>> rows = new Vector<Vector<Object>>();
@@ -435,6 +465,12 @@ public class PreferenceDialog extends JDialog {
 		map.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
 		map.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
 
+		
+		// Plugin tab
+		JPanel plugin = createPreferenceTab("plugin", tr("Plugins"), tr("Configure available Plugins."));
+		plugin.add(pluginPane, GBC.eol().fill(GBC.BOTH));
+		plugin.add(GBC.glue(0,10), GBC.eol());
+		plugin.add(new UrlLabel("http://josm.eigenheimstrasse.de/wiki/Plugins", "Get more plugins"), GBC.std());
 
 		tabPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 
@@ -466,6 +502,7 @@ public class PreferenceDialog extends JDialog {
 	 */
 	private JPanel createPreferenceTab(String icon, String title, String desc) {
 		JPanel p = new JPanel(new GridBagLayout());
+		p.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 		p.add(new JLabel(title), GBC.eol().anchor(GBC.CENTER).insets(0,5,0,10));
 
 		JLabel descLabel = new JLabel("<html>"+desc+"</html>");
