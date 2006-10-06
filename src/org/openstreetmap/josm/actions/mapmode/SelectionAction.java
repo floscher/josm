@@ -137,7 +137,11 @@ public class SelectionAction extends MapMode implements SelectionEnded {
 	 * Check the state of the keys and buttons and set the selection accordingly.
 	 */
 	public void selectionEnded(Rectangle r, boolean alt, boolean shift, boolean ctrl) {
-		if (shift && ctrl)
+		selectEverythingInRectangle(selectionManager, r, alt, shift, ctrl);
+	}
+
+	public static void selectEverythingInRectangle(SelectionManager selectionManager, Rectangle r, boolean alt, boolean shift, boolean ctrl) {
+	    if (shift && ctrl)
 			return; // not allowed together
 
 		Collection<OsmPrimitive> curSel;
@@ -154,7 +158,7 @@ public class SelectionAction extends MapMode implements SelectionEnded {
 				curSel.add(osm);
 		Main.ds.setSelected(curSel);
 		Main.map.mapView.repaint();
-	}
+    }
 
 	@Override public void mouseDragged(MouseEvent e) {
 		Node old = lastEnd;

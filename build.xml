@@ -1,91 +1,89 @@
 <project name="openstreetmap" default="dist" basedir=".">
 
-	<property name="src" location="src" />
-	<property name="po" location="po" />
-	<property name="build" location="build" />
-	<property name="dist" location="dist" />
-	<property name="lib" location="lib" />
-	
+	<!-- All jar files necessary to run only JOSM (no tests) -->
+	<fileset id="josm_required_libs" dir="lib">
+		<include name="gettext-commons-0.9.jar"/>
+		<include name="metadata-extractor-2.3.1.jar"/>
+		<include name="MinML2.jar"/>
+	</fileset>
+
+	<!-- Java classpath addition (all jar files to compile tests with this) -->
 	<path id="classpath">
-		<fileset dir="${lib}">
+		<fileset dir="lib">
 			<include name="**/*.jar"/>
 		</fileset>
 	</path>
 
-	<path id="srcfiles">
-		<fileset dir="${src}">
-			<include name="**/*.java"/>
-		</fileset>
-	</path>
-
-	<target name="init">
-		<mkdir dir="${build}" />
-		<mkdir dir="${dist}" />
-	</target>
-
-	<target name="compile" depends="init">
-		<javac srcdir="${src}" classpathref="classpath" destdir="${build}">
-			<include name="org/openstreetmap/josm/gui/MainApplication.java"/>
-			<include name="org/openstreetmap/josm/gui/MainApplet.java"/>
-			<include name="org/openstreetmap/josm/plugins/**/*.java"/>
-		</javac>
-	</target>
-
 	<target name="dist" depends="compile">
 		<!-- jars -->
-		<unjar src="${lib}/MinML2.jar" dest="${build}" />
-		<unjar src="${lib}/gettext-commons-0.9.jar" dest="${build}" />
-		<unjar src="${lib}/metadata-extractor-2.3.1.jar" dest="${build}" />
+		<unjar dest="build">
+			<fileset refid="josm_required_libs" />
+		</unjar>
 
 		<!-- images -->
-		<copy todir="${build}/images">
+		<copy todir="build/images">
 			<fileset dir="images" />
 		</copy>
-		<copy todir="${build}/org/openstreetmap/josm">
-		        <fileset dir="${po}/org/openstreetmap/josm" />
+		<copy todir="build/org/openstreetmap/josm">
+		        <fileset dir="po/org/openstreetmap/josm" />
 		</copy>
-		<jar destfile="${dist}/josm-custom.jar" basedir="${build}">
+		
+		<!-- create josm-custom.jar -->
+		<jar destfile="dist/josm-custom.jar" basedir="build">
 			<manifest>
 				<attribute name="Main-class" value="org.openstreetmap.josm.gui.MainApplication" />
 			</manifest>
 		</jar>
 	</target>
 
-	<target name="clean">
-		<delete dir="${build}" />
-		<delete dir="${dist}" />
-	</target>
-
-
 	<target name="gettext" depends="init">
-    	<exec executable="find" output="${build}/alljava.txt">
-    		<arg line="${src} -name '*.java'"/>
+    	<exec executable="find" output="build/alljava.txt">
+    		<arg line="src -name '*.java'"/>
     	</exec>
         <exec executable="xgettext">
-        	<arg line="-ktr -ktrn:1,2 -ktrc -kmarktr -Ljava -o${po}/keys.pot -f${build}/alljava.txt"/>
+        	<arg line="-ktr -ktrn:1,2 -ktrc -kmarktr -Ljava -opo/keys.pot -fbuild/alljava.txt"/>
         </exec>
         <apply executable="msgmerge">
         	<arg value="-U"/>
 			<srcfile/>
-        	<arg file="${po}/keys.pot"/>
-        	<fileset dir="${po}">
+        	<arg file="po/keys.pot"/>
+        	<fileset dir="po">
         		<include name="*.po"/>
         	</fileset>
         </apply>
 
     	<!-- FIXME: somehow iterate the po-directory and create the java files -->
     	<exec executable="msgfmt">
-    		<arg line="--java2 -d${po} -rorg.openstreetmap.josm.Translation -lde ${po}/de.po"/>
+    		<arg line="--java2 -dpo -rorg.openstreetmap.josm.Translation -lde po/de.po"/>
     	</exec>
     	<exec executable="msgfmt">
-    		<arg line="--java2 -d${po} -rorg.openstreetmap.josm.Translation -lfr ${po}/fr.po"/>
+    		<arg line="--java2 -dpo -rorg.openstreetmap.josm.Translation -lfr po/fr.po"/>
     	</exec>
     	<exec executable="msgfmt">
-    		<arg line="--java2 -d${po} -rorg.openstreetmap.josm.Translation -len_GB ${po}/en_GB.po"/>
+    		<arg line="--java2 -dpo -rorg.openstreetmap.josm.Translation -len_GB po/en_GB.po"/>
     	</exec>
     	<exec executable="msgfmt">
-    		<arg line="--java2 -d${po} -rorg.openstreetmap.josm.Translation -lro ${po}/ro.po"/>
+    		<arg line="--java2 -dpo -rorg.openstreetmap.josm.Translation -lro po/ro.po"/>
     	</exec>
     </target>
+
+	<target name="compile" depends="init">
+		<javac srcdir="src" classpathref="classpath" destdir="build" />
+	</target>
+
+    <target name="compile-tests" depends="compile">
+        
+    </target>
+
+
+	<target name="init">
+		<mkdir dir="build" />
+		<mkdir dir="dist" />
+	</target>
+
+	<target name="clean">
+		<delete dir="build" />
+		<delete dir="dist" />
+	</target>
 
 </project>

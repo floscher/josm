@@ -42,7 +42,7 @@ public class PluginLoader {
 			name = name.substring(0, name.length()-4);
 		try {
 			ClassLoader loader = URLClassLoader.newInstance(
-					new URL[]{new URL("file:/"+pluginFile.getAbsolutePath())},
+					new URL[]{new URL("file://"+pluginFile.getAbsolutePath())},
 					getClass().getClassLoader());
 			Object plugin = Class.forName(pluginClass, true, loader).newInstance();
 			return new PluginProxy(plugin, name);
