@@ -4,6 +4,7 @@ import static org.openstreetmap.josm.tools.I18n.tr;
 
 import java.awt.Cursor;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
@@ -18,17 +19,20 @@ import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.visitor.AllNodesVisitor;
 import org.openstreetmap.josm.gui.MapFrame;
+import org.openstreetmap.josm.gui.SelectionManager;
+import org.openstreetmap.josm.gui.SelectionManager.SelectionEnded;
 import org.openstreetmap.josm.tools.ImageProvider;
 /**
  * Move is an action that can move all kind of OsmPrimitives (except Keys for now).
- * 
- * If any object is selected, all selected objects are moved. If no object is 
- * selected, the nearest object will be selected and moved. In this case, the
- * object will be unselected as soon as movement stopped.
+ *
+ * If an selected object is under the mouse when dragging, move all selected objects.
+ * If an unselected object is under the mouse when dragging, it becomes selected
+ * and will be moved.
+ * If no object is under the mouse, move all selected objects (if any)
  * 
  * @author imi
  */
-public class MoveAction extends MapMode {
+public class MoveAction extends MapMode implements SelectionEnded {
 	/**
 	 * The old cursor before the user pressed the mouse button.
 	 */
@@ -37,11 +41,8 @@ public class MoveAction extends MapMode {
 	 * The position of the mouse before the user moves a node.
 	 */
 	private Point mousePos;
-	/**
-	 * Non-<code>null</code>, if no object was selected before movement 
-	 * (and so the object get unselected after mouse release).
-	 */
-	private OsmPrimitive singleOsmPrimitive;
+	private SelectionManager selectionManager;
+	private boolean selectionMode = false;
 
 	/**
 	 * Create a new MoveAction
@@ -49,11 +50,12 @@ public class MoveAction extends MapMode {
 	 */
 	public MoveAction(MapFrame mapFrame) {
 		super(tr("Move"), 
-				"move", 
-				tr("Move selected objects around."), 
-				KeyEvent.VK_M, 
-				mapFrame, 
+				"move",
+				tr("Move around objects that are under the mouse or selected."), 
+				KeyEvent.VK_M,
+				mapFrame,
 				ImageProvider.getCursor("normal", "move"));
+		selectionManager = new SelectionManager(this, false, mapFrame.mapView);
 	}
 
 	@Override public void enterMode() {
@@ -68,30 +70,32 @@ public class MoveAction extends MapMode {
 		Main.map.mapView.removeMouseMotionListener(this);
 	}
 
-	
+
 	/**
 	 * If the left mouse button is pressed, move all currently selected
-	 * objects.
+	 * objects (if one of them is under the mouse) or the current one under the
+	 * mouse (which will become selected).
 	 */
 	@Override public void mouseDragged(MouseEvent e) {
 		if ((e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) == 0)
 			return;
-		
-		if (mousePos == null) {
-			mousePos = e.getPoint();
-			singleOsmPrimitive = null;
-		}
 
-		EastNorth mouseGeo = Main.map.mapView.getEastNorth(e.getX(), e.getY());
-		EastNorth mouseStartGeo = Main.map.mapView.getEastNorth(mousePos.x, mousePos.y);
-		double dx = mouseGeo.east() - mouseStartGeo.east();
-		double dy = mouseGeo.north() - mouseStartGeo.north();
+		if (selectionMode)
+			return;
+		
+		if (mousePos == null)
+			mousePos = e.getPoint();
+
+		EastNorth mouseEN = Main.map.mapView.getEastNorth(e.getX(), e.getY());
+		EastNorth mouseStartEN = Main.map.mapView.getEastNorth(mousePos.x, mousePos.y);
+		double dx = mouseEN.east() - mouseStartEN.east();
+		double dy = mouseEN.north() - mouseStartEN.north();
 		if (dx == 0 && dy == 0)
 			return;
 
 		Collection<OsmPrimitive> selection = Main.ds.getSelected();
 		Collection<Node> affectedNodes = AllNodesVisitor.getAllNodes(selection);
-		
+
 		// check if any coordinate would be outside the world
 		for (OsmPrimitive osm : affectedNodes) {
 			if (osm instanceof Node && ((Node)osm).coor.isOutSideWorld()) {
@@ -99,13 +103,13 @@ public class MoveAction extends MapMode {
 				return;
 			}
 		}
-		
+
 		Command c = !Main.main.editLayer().commands.isEmpty() ? Main.main.editLayer().commands.getLast() : null;
 		if (c instanceof MoveCommand && affectedNodes.equals(((MoveCommand)c).objects))
 			((MoveCommand)c).moveAgain(dx,dy);
 		else
 			Main.main.editLayer().add(new MoveCommand(selection, dx, dy));
-		
+
 		Main.map.mapView.repaint();
 		mousePos = e.getPoint();
 	}
@@ -123,28 +127,36 @@ public class MoveAction extends MapMode {
 		if (e.getButton() != MouseEvent.BUTTON1)
 			return;
 
-		if (Main.ds.getSelected().size() == 0) {
-			OsmPrimitive osm = Main.map.mapView.getNearest(e.getPoint(), (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0);
-			if (osm != null)
-				Main.ds.setSelected(osm);
-			singleOsmPrimitive = osm;
-			Main.map.mapView.repaint();
-		} else
-			singleOsmPrimitive = null;
-		
+		Collection<OsmPrimitive> sel = Main.ds.getSelected();
+		OsmPrimitive osm = Main.map.mapView.getNearest(e.getPoint(), (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0);
+		if (osm != null) {
+	        if (!sel.contains(osm))
+	        	Main.ds.setSelected(osm);
+	        oldCursor = Main.map.mapView.getCursor();
+	        Main.map.mapView.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+        } else {
+        	selectionMode = true;
+			selectionManager.register(Main.map.mapView);
+        }
+
+		Main.map.mapView.repaint();
+
 		mousePos = e.getPoint();
-		oldCursor = Main.map.mapView.getCursor();
-		Main.map.mapView.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
 	}
-	
+
 	/**
 	 * Restore the old mouse cursor.
 	 */
 	@Override public void mouseReleased(MouseEvent e) {
-		Main.map.mapView.setCursor(oldCursor);
-		if (singleOsmPrimitive != null) {
-			Main.ds.clearSelection();
-			Main.map.mapView.repaint();
-		}
+		if (selectionMode) {
+			selectionManager.unregister(Main.map.mapView);
+			selectionMode = false;
+		} else
+			Main.map.mapView.setCursor(oldCursor);
 	}
+
+	
+	public void selectionEnded(Rectangle r, boolean alt, boolean shift, boolean ctrl) {
+		SelectionAction.selectEverythingInRectangle(selectionManager, r, alt, shift, ctrl);
+    }
 }

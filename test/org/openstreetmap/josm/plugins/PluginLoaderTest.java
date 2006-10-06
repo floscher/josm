@@ -1,7 +1,6 @@
 package org.openstreetmap.josm.plugins;
 
 import java.io.File;
-import java.lang.reflect.Field;
 
 import junit.framework.TestCase;
 
@@ -23,9 +22,6 @@ public class PluginLoaderTest extends TestCase {
 	public void testLoadPluginCallsStandardConstructor() throws Exception {
 		PluginProxy plugin = loader.loadPlugin(getClass().getName()+"$TestPlugin", new File("foo.jar"));
 		assertTrue(plugin.plugin instanceof TestPlugin);
-		Field nameField = Plugin.class.getDeclaredField("name");
-		nameField.setAccessible(true);
-		assertEquals("foo", nameField.get(plugin.plugin));
 	}
 	
 	public void testLoadPluginLoadsAllClasses() throws Exception {
