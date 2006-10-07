@@ -13,9 +13,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -31,104 +31,66 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.actions.downloadtasks.DownloadGpsTask;
+import org.openstreetmap.josm.actions.downloadtasks.DownloadOsmTask;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.coor.LatLon;
-import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.gui.BookmarkList;
 import org.openstreetmap.josm.gui.MapView;
-import org.openstreetmap.josm.gui.PleaseWaitRunnable;
 import org.openstreetmap.josm.gui.WorldChooser;
 import org.openstreetmap.josm.gui.BookmarkList.Bookmark;
-import org.openstreetmap.josm.gui.layer.OsmDataLayer;
-import org.openstreetmap.josm.gui.layer.RawGpsLayer;
-import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
-import org.openstreetmap.josm.io.BoundingBoxDownloader;
 import org.openstreetmap.josm.tools.GBC;
-import org.xml.sax.SAXException;
 
 /**
  * Action that opens a connection to the osm server and download map data.
- * 
+ *
  * An dialog is displayed asking the user to specify a rectangle to grab.
  * The url and account settings from the preferences are used.
- *  
+ *
  * @author imi
  */
 public class DownloadAction extends JosmAction {
+
+	public interface DownloadTask {
+		/**
+		 * Execute the download.
+		 */
+		void download(DownloadAction action, double minlat, double minlon, double maxlat, double maxlon);
+		/**
+		 * @return The checkbox presented to the user
+		 */
+		JCheckBox getCheckBox();
+		/**
+		 * @return The name of the preferences suffix to use for storing the
+		 * selection state.
+		 */
+		String getPreferencesSuffix();
+	}
+
 	/**
-	 * Open the download dialog and download the data.
-	 * Run in the worker thread.
+	 * The list of download tasks. First entry should be the osm data entry
+	 * and the second the gps entry. After that, plugins can register additional
+	 * download possibilities.
 	 */
-	private final class DownloadOsmTask extends PleaseWaitRunnable {
-		private final BoundingBoxDownloader reader;
-		private DataSet dataSet;
-
-		private DownloadOsmTask(BoundingBoxDownloader reader) {
-			super(tr("Downloading data"));
-			this.reader = reader;
-			reader.setProgressInformation(currentAction, progress);
-		}
-
-		@Override public void realRun() throws IOException, SAXException {
-			dataSet = reader.parseOsm();
-		}
-
-		@Override protected void finish() {
-			if (dataSet == null)
-				return; // user cancelled download or error occoured
-			if (dataSet.allPrimitives().isEmpty())
-				errorMessage = tr("No data imported.");
-			Main.main.addLayer(new OsmDataLayer(dataSet, tr("Data Layer"), null));
-		}
-
-		@Override protected void cancel() {
-			reader.cancel();
-		}
-	}
-
-
-	private final class DownloadGpsTask extends PleaseWaitRunnable {
-		private final BoundingBoxDownloader reader;
-		private Collection<Collection<GpsPoint>> rawData;
-
-		private DownloadGpsTask(BoundingBoxDownloader reader) {
-			super(tr("Downloading GPS data"));
-			this.reader = reader;
-			reader.setProgressInformation(currentAction, progress);
-		}
-
-		@Override public void realRun() throws IOException, SAXException {
-			rawData = reader.parseRawGps();
-		}
-
-		@Override protected void finish() {
-			if (rawData == null)
-				return;
-			String name = latlon[0].getText() + " " + latlon[1].getText() + " x " + latlon[2].getText() + " " + latlon[3].getText();
-			Main.main.addLayer(new RawGpsLayer(rawData, name, null));
-		}
-
-		@Override protected void cancel() {
-			reader.cancel();
-		}
-	}
-
+	public final List<DownloadTask> downloadTasks = new ArrayList<DownloadTask>(5);
 
 	/**
 	 * minlat, minlon, maxlat, maxlon
 	 */
-	JTextField[] latlon = new JTextField[]{
+	public JTextField[] latlon = new JTextField[]{
 			new JTextField(9),
 			new JTextField(9),
 			new JTextField(9),
 			new JTextField(9)};
-	JCheckBox rawGps = new JCheckBox(tr("Open as raw gps data"), false);
 
 	public DownloadAction() {
 		super(tr("Download from OSM"), "download", tr("Download map data from the OSM server."), KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK);
 		// TODO remove when bug in Java6 is fixed
 		for (JTextField f : latlon)
 			f.setMinimumSize(new Dimension(100,new JTextField().getMinimumSize().height));
+
+		downloadTasks.add(new DownloadOsmTask());
+		downloadTasks.add(new DownloadGpsTask());
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -154,12 +116,17 @@ public class DownloadAction extends JosmAction {
 			setEditBounds(new Bounds(
 					mv.getLatLon(0, mv.getHeight()),
 					mv.getLatLon(mv.getWidth(), 0)));
-			rawGps.setSelected(mv.getActiveLayer() instanceof RawGpsLayer);
 		}
-		dlg.add(rawGps, GBC.eop());
+
+		// adding the download tasks
+		dlg.add(new JLabel(tr("Download the following data:")), GBC.eol().insets(0,5,0,0));
+		for (DownloadTask task : downloadTasks) {
+			dlg.add(task.getCheckBox(), GBC.eol().insets(20,0,0,0));
+			task.getCheckBox().setSelected(Main.pref.getBoolean("download."+task.getPreferencesSuffix()));
+		}
 
 		// OSM url edit
-		dlg.add(new JLabel(tr("URL from www.openstreetmap.org")), GBC.eol());
+		dlg.add(new JLabel(tr("URL from www.openstreetmap.org")), GBC.eol().insets(0,5,0,0));
 		final JTextField osmUrl = new JTextField();
 		dlg.add(osmUrl, GBC.eop().fill(GBC.HORIZONTAL));
 		final KeyListener osmUrlRefresher = new KeyAdapter(){
@@ -203,7 +170,7 @@ public class DownloadAction extends JosmAction {
 						Bounds b = osmurl2bounds(osmUrl.getText());
 						if (b != null)
 							setEditBounds(b);
-						else 
+						else
 							for (JTextField f : latlon)
 								f.setText("");
 					}
@@ -221,7 +188,6 @@ public class DownloadAction extends JosmAction {
 					latlon[i].setText(b == null ? "" : ""+b.latlon[i]);
 					latlon[i].setCaretPosition(0);
 				}
-				rawGps.setSelected(b == null ? false : b.rawgps);
 				osmUrlRefresher.keyTyped(null);
 			}
 		});
@@ -266,6 +232,7 @@ public class DownloadAction extends JosmAction {
 
 		// Finally: the dialog
 		Bookmark b;
+		boolean anySelected = false;
 		do {
 			final JOptionPane pane = new JOptionPane(dlg, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
 			final JDialog panedlg = pane.createDialog(Main.parent, tr("Choose an area"));
@@ -282,15 +249,25 @@ public class DownloadAction extends JosmAction {
 			if (answer == null || answer == JOptionPane.UNINITIALIZED_VALUE || (answer instanceof Integer && (Integer)answer != JOptionPane.OK_OPTION))
 				return;
 			b = readBookmark();
+
+			for (DownloadTask task : downloadTasks) {
+				if (task.getCheckBox().isSelected()) {
+					anySelected = true;
+					break;
+				}
+			}
+
 			if (b == null)
 				JOptionPane.showMessageDialog(Main.parent,tr("Please enter the desired coordinates or click on a bookmark."));
-		} while (b == null);
+			else if (!anySelected)
+				JOptionPane.showMessageDialog(Main.parent,tr("Please select at least one download data type."));
+		} while (b == null && anySelected);
 
 		double minlon = b.latlon[0];
 		double minlat = b.latlon[1];
 		double maxlon = b.latlon[2];
 		double maxlat = b.latlon[3];
-		download(rawGps.isSelected(), minlon, minlat, maxlon, maxlat);
+		download(minlon, minlat, maxlon, maxlat);
 	}
 
 	/**
@@ -308,13 +285,11 @@ public class DownloadAction extends JosmAction {
 					return null;
 				b.latlon[i] = Double.parseDouble(latlon[i].getText());
 			}
-			b.rawgps = rawGps.isSelected();
 			return b;
 		} catch (NumberFormatException x) {
 			return null;
 		}
 	}
-
 
 	public static Bounds osmurl2bounds(String url) {
 		int i = url.indexOf('?');
@@ -328,7 +303,7 @@ public class DownloadAction extends JosmAction {
 				try {
 					map.put(arg.substring(0, eq), Double.parseDouble(arg.substring(eq + 1)));
 				} catch (NumberFormatException e) {
-				}				
+				}
 			}
 		}
 		try {
@@ -362,10 +337,12 @@ public class DownloadAction extends JosmAction {
 	/**
 	 * Do the download for the given area.
 	 */
-	public void download(boolean rawGps, double minlat, double minlon, double maxlat, double maxlon) {
-		BoundingBoxDownloader reader = new BoundingBoxDownloader(minlat, minlon, maxlat, maxlon);
-		PleaseWaitRunnable task = rawGps ? new DownloadGpsTask(reader) : new DownloadOsmTask(reader);
-		Main.worker.execute(task);
-		task.pleaseWaitDlg.setVisible(true);
+	public void download(double minlat, double minlon, double maxlat, double maxlon) {
+		for (DownloadTask task : downloadTasks) {
+			Main.pref.put("download."+task.getPreferencesSuffix(), task.getCheckBox().isSelected());
+			if (task.getCheckBox().isSelected()) {
+				task.download(this, minlat, minlon, maxlat, maxlon);
+			}
+		}
 	}
 }

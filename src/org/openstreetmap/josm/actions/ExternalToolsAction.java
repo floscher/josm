@@ -65,10 +65,10 @@ public class ExternalToolsAction extends AbstractAction {
 		private ExecuteToolRunner(String msg, Process p) {
 			super(msg);
 			this.p = p;
-			currentAction.setText(tr("Executing {0}",getValue(NAME)));
 		}
 
 		@Override protected void realRun() throws SAXException, IOException {
+			Main.pleaseWaitDlg.currentAction.setText(tr("Executing {0}",getValue(NAME)));
 			if (!input.isEmpty()) {
 				fromDataSet = new DataSet();
 				final Collection<GpsPoint> gpxPoints = new LinkedList<GpsPoint>();
@@ -200,7 +200,7 @@ public class ExternalToolsAction extends AbstractAction {
 				});
 			}
 			if (output != null)
-				dataSet = OsmReader.parseDataSet(p.getInputStream(), currentAction, progress);
+				dataSet = OsmReader.parseDataSet(p.getInputStream(), Main.pleaseWaitDlg.currentAction, Main.pleaseWaitDlg.progress);
 		}
 
 		@Override protected void cancel() {
@@ -301,7 +301,6 @@ public class ExternalToolsAction extends AbstractAction {
 			final Process p = new ProcessBuilder(exec).start();
 			PleaseWaitRunnable runner = new ExecuteToolRunner(tr("Executing {0}",getValue(NAME)), p);
 			Main.worker.execute(runner);
-			runner.pleaseWaitDlg.setVisible(true);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			JOptionPane.showMessageDialog(Main.parent, tr("Could not execute command: {0}", exec[0]));

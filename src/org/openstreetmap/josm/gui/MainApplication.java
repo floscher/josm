@@ -25,12 +25,12 @@ import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.tools.BugReportExceptionHandler;
 /**
  * Main window class application.
- *  
+ *
  * @author imi
  */
 public class MainApplication extends Main {
 	/**
-	 * Construct an main frame, ready sized and operating. Does not 
+	 * Construct an main frame, ready sized and operating. Does not
 	 * display the frame.
 	 */
 	public MainApplication(JFrame mainFrame) {
@@ -66,20 +66,19 @@ public class MainApplication extends Main {
 
 	/**
 	 * Main application Startup
-	 * @param args	No parameters accepted.
 	 */
 	public static void main(final String[] argArray) {
 		/////////////////////////////////////////////////////////////////////////
 		//                        TO ALL TRANSLATORS
 		/////////////////////////////////////////////////////////////////////////
 		// Do not translate the early strings below until the locale is set up.
-		// The cannot be translated. That's live. Really. Sorry.
+		// These strings cannot be translated. That's live. Really. Sorry.
 		//
-		// The next sending me a patch translating these strings owe me a beer!
+		// The next one sending me a patch translating these strings owe me a beer!
 		//
 		//                                                                 Imi.
 		/////////////////////////////////////////////////////////////////////////
-		
+
 		Thread.setDefaultUncaughtExceptionHandler(new BugReportExceptionHandler());
 
 		// construct argument table
@@ -138,7 +137,7 @@ public class MainApplication extends Main {
 				}
 			}
 		}
-		
+
 		// Locale is set. From now on, tr(), trn() and trc() may be called.
 
 		if (argList.contains("--help") || argList.contains("-?") || argList.contains("-h")) {

@@ -25,10 +25,10 @@ import org.xml.sax.SAXException;
 
 /**
  * Action that opens a connection to the osm server and download map data.
- * 
+ *
  * An dialog is displayed asking the user to specify a rectangle to grab.
  * The url and account settings from the preferences are used.
- *  
+ *
  * @author imi
  */
 public class DownloadIncompleteAction extends JosmAction {
@@ -45,7 +45,6 @@ public class DownloadIncompleteAction extends JosmAction {
 		private DownloadTask(Collection<OsmPrimitive> toDownload) {
 			super(trn("Downloading {0} segment", "Downloading {0} segments", toDownload.size(), toDownload.size()));
 			reader = new ObjectListDownloader(toDownload);
-			reader.setProgressInformation(currentAction, progress);
 		}
 
 		@Override public void realRun() throws IOException, SAXException {
@@ -70,10 +69,8 @@ public class DownloadIncompleteAction extends JosmAction {
 				nodes.add(s.to);
 			}
 			reader = new ObjectListDownloader(nodes);
-			reader.setProgressInformation(currentAction, progress);
 			nodesLoaded = true;
 			Main.worker.execute(this);
-			pleaseWaitDlg.setVisible(true);
 		}
 
 		@Override protected void cancel() {
@@ -104,6 +101,5 @@ public class DownloadIncompleteAction extends JosmAction {
 			return;
 		PleaseWaitRunnable task = new DownloadTask(toDownload);
 		Main.worker.execute(task);
-		task.pleaseWaitDlg.setVisible(true);
 	}
 }

@@ -31,14 +31,14 @@ import uk.co.wilson.xml.MinML2;
 
 /**
  * Parser for the Osm Api. Read from an input stream and construct a dataset out of it.
- * 
+ *
  * Reading process takes place in three phases. During the first phase (including xml parse),
  * all nodes are read and stored. Other information than nodes are stored in a raw list
- * 
+ *
  * The second phase reads from the raw list all segments and create Segment objects.
- * 
+ *
  * The third phase read all ways out of the remaining objects in the raw list.
- * 
+ *
  * @author Imi
  */
 public class OsmReader {

@@ -78,7 +78,7 @@ public class GeoImageLayer extends Layer {
 		Icon icon;
 		public int compareTo(ImageEntry image) {
 			return time.compareTo(image.time);
-		}		
+		}
 	}
 
 	private static final class Loader extends PleaseWaitRunnable {
@@ -92,7 +92,7 @@ public class GeoImageLayer extends Layer {
 			this.gpsLayer = gpsLayer;
 		}
 		@Override protected void realRun() throws IOException {
-			currentAction.setText(tr("Read GPS..."));
+			Main.pleaseWaitDlg.currentAction.setText(tr("Read GPS..."));
 			LinkedList<TimedPoint> gps = new LinkedList<TimedPoint>();
 
 			// Extract dates and locations from GPS input
@@ -118,12 +118,12 @@ public class GeoImageLayer extends Layer {
 			// read the image files
 			ArrayList<ImageEntry> data = new ArrayList<ImageEntry>(files.size());
 			int i = 0;
-			progress.setMaximum(files.size());
+			Main.pleaseWaitDlg.progress.setMaximum(files.size());
 			for (File f : files) {
 				if (cancelled)
 					break;
-				currentAction.setText(tr("Reading {0}...",f.getName()));
-				progress.setValue(i++);
+				Main.pleaseWaitDlg.currentAction.setText(tr("Reading {0}...",f.getName()));
+				Main.pleaseWaitDlg.progress.setValue(i++);
 
 				ImageEntry e = new ImageEntry();
 				try {
@@ -152,7 +152,7 @@ public class GeoImageLayer extends Layer {
 	private LinkedList<TimedPoint> gps = new LinkedList<TimedPoint>();
 
 	/**
-	 * The delta added to all timestamps in files from the camera 
+	 * The delta added to all timestamps in files from the camera
 	 * to match to the timestamp from the gps receivers tracklog.
 	 */
 	private long delta = Long.parseLong(Main.pref.get("tagimages.delta", "0"));
@@ -184,14 +184,13 @@ public class GeoImageLayer extends Layer {
 
 	public static void create(Collection<File> files, RawGpsLayer gpsLayer) {
 		Loader loader = new Loader(files, gpsLayer);
-		new Thread(loader).start();
-		loader.pleaseWaitDlg.setVisible(true);
+		Main.worker.execute(loader);
 	}
 
 	private GeoImageLayer(final ArrayList<ImageEntry> data, LinkedList<TimedPoint> gps) {
 		super(tr("Geotagged Images"));
 		Collections.sort(data);
-		Collections.sort(gps);					
+		Collections.sort(gps);
 		this.data = data;
 		this.gps = gps;
 		mouseAdapter = new MouseAdapter(){
@@ -366,7 +365,7 @@ public class GeoImageLayer extends Layer {
 				sync,
 				new JSeparator(),
 				new JMenuItem(new RenameLayerAction(null, this)),
-				new JSeparator(), 
+				new JSeparator(),
 				new JMenuItem(new LayerListPopup.InfoAction(this))};
 	}
 

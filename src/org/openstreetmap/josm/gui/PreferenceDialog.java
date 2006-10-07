@@ -48,7 +48,7 @@ import javax.swing.table.TableCellRenderer;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.projection.Projection;
-import org.openstreetmap.josm.plugins.PluginProxy;
+import org.openstreetmap.josm.plugins.PluginInformation;
 import org.openstreetmap.josm.tools.ColorHelper;
 import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.ImageProvider;
@@ -108,9 +108,9 @@ public class PreferenceDialog extends JDialog {
 				Main.pref.put("annotation.sources", null);
 
 			String plugins = "";
-			for (Entry<String, Boolean> entry : pluginMap.entrySet())
+			for (Entry<PluginInformation, Boolean> entry : pluginMap.entrySet())
 				if (entry.getValue())
-					plugins += entry.getKey() + ",";
+					plugins += entry.getKey().name + ",";
 			if (plugins.endsWith(","))
 				plugins = plugins.substring(0, plugins.length()-1);
 			Main.pref.put("plugins", plugins);
@@ -134,7 +134,7 @@ public class PreferenceDialog extends JDialog {
 	class CancelAction extends AbstractAction {
 		private static final String CANCELBUTTON_PROP = "OptionPane.cancelButtonText";
 		public CancelAction() {
-			super(UIManager.getString(CANCELBUTTON_PROP), 
+			super(UIManager.getString(CANCELBUTTON_PROP),
 					UIManager.getIcon("OptionPane.cancelIcon"));
 			try {
 				putValue(MNEMONIC_KEY, new Integer((String)UIManager.get("OptionPane.cancelButtonMnemonic")));
@@ -156,9 +156,9 @@ public class PreferenceDialog extends JDialog {
 	 */
 	private JComboBox lafCombo = new JComboBox(UIManager.getInstalledLookAndFeels());
 	private JComboBox languages = new JComboBox(new Locale[]{
-			new Locale("en", "US"), 
-			new Locale("en", "GB"), 
-			Locale.GERMAN, 
+			new Locale("en", "US"),
+			new Locale("en", "GB"),
+			Locale.GERMAN,
 			Locale.FRENCH,
 			new Locale("ro", "RO")});
 	/**
@@ -167,7 +167,7 @@ public class PreferenceDialog extends JDialog {
 	private JTabbedPane tabPane = new JTabbedPane(JTabbedPane.LEFT);
 
 	/**
-	 * Editfield for the Base url to the REST API from OSM. 
+	 * Editfield for the Base url to the REST API from OSM.
 	 */
 	private JTextField osmDataServer = new JTextField(20);
 	/**
@@ -204,7 +204,7 @@ public class PreferenceDialog extends JDialog {
 	 */
 	private JComboBox projectionCombo = new JComboBox(Projection.allProjections);
 	private JList annotationSources = new JList(new DefaultListModel());
-	private Map<String, Boolean> pluginMap = new HashMap<String, Boolean>();
+	private Map<PluginInformation, Boolean> pluginMap = new HashMap<PluginInformation, Boolean>();
 
 
 	/**
@@ -284,35 +284,25 @@ public class PreferenceDialog extends JDialog {
 			((DefaultListModel)annotationSources.getModel()).addElement(st.nextToken());
 
 		Box pluginPanel = Box.createVerticalBox();
-		Collection<String> availablePlugins = new HashSet<String>();
+		Collection<PluginInformation> availablePlugins = new HashSet<PluginInformation>();
 		File[] pluginFiles = new File(Main.pref.getPreferencesDir()+"plugins").listFiles();
-		if (pluginFiles != null) {
-			for (File f : pluginFiles) {
-				if (!f.isFile() || !f.getName().endsWith(".jar"))
-					continue;
-				availablePlugins.add(f.getName().substring(0, f.getName().length()-4));
-			}
-		}
-		Collection<String> enabledPlugins = Arrays.asList(Main.pref.get("plugins").split(","));
-		for (final String plugin : availablePlugins) {
-			boolean enabled = enabledPlugins.contains(plugin);
-			String desc = null;
-			for (PluginProxy p : Main.plugins) {
-				if (p.name.equals(plugin)) {
-					desc = p.getDescription();
-					break;
-				}
-			}
+		if (pluginFiles != null)
+			for (File f : pluginFiles)
+				if (f.isFile() && f.getName().endsWith(".jar"))
+					availablePlugins.add(new PluginInformation(f));
 
-			final JCheckBox pluginCheck = new JCheckBox(plugin, enabled);
+		Collection<String> enabledPlugins = Arrays.asList(Main.pref.get("plugins").split(","));
+		for (final PluginInformation plugin : availablePlugins) {
+			boolean enabled = enabledPlugins.contains(plugin.name);
+			final JCheckBox pluginCheck = new JCheckBox(plugin.name, enabled);
 			pluginPanel.add(pluginCheck);
-			if (desc != null) {
-				pluginCheck.setToolTipText(desc);
-				JLabel label = new JLabel("<html><i>"+desc+"</i></html>");
-				label.setBorder(BorderFactory.createEmptyBorder(0,20,0,0));
-				pluginPanel.add(label);
-				pluginPanel.add(Box.createVerticalStrut(5));
-			}
+
+			pluginCheck.setToolTipText(plugin.file.getAbsolutePath());
+			JLabel label = new JLabel("<html><i>"+(plugin.description==null?"no description available":plugin.description)+"</i></html>");
+			label.setBorder(BorderFactory.createEmptyBorder(0,20,0,0));
+			pluginPanel.add(label);
+			pluginPanel.add(Box.createVerticalStrut(5));
+
 			pluginMap.put(plugin, enabled);
 			pluginCheck.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e) {

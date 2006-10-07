@@ -25,14 +25,14 @@ import org.xml.sax.SAXException;
 
 /**
  * Class that uploades all changes to the osm server.
- * 
+ *
  * This is done like this: - All objects with id = 0 are uploaded as new, except
  * those in deleted, which are ignored - All objects in deleted list are
  * deleted. - All remaining objects with modified flag set are updated.
- * 
+ *
  * This class implements visitor and will perform the correct upload action on
  * the visited element.
- * 
+ *
  * @author imi
  */
 public class OsmServerWriter extends OsmConnection implements Visitor {
@@ -40,7 +40,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 	/**
 	 * This list contain all sucessfull processed objects. The caller of
 	 * upload* has to check this after the call and update its dataset.
-	 * 
+	 *
 	 * If a server connection error occours, this may contain fewer entries
 	 * than where passed in the list to upload*.
 	 */
@@ -59,8 +59,8 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 		processed = new LinkedList<OsmPrimitive>();
 		initAuthentication();
 
-		progress.setMaximum(list.size());
-		progress.setValue(0);
+		Main.pleaseWaitDlg.progress.setMaximum(list.size());
+		Main.pleaseWaitDlg.progress.setValue(0);
 
 		NameVisitor v = new NameVisitor();
 		try {
@@ -68,9 +68,9 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 				if (cancel)
 					return;
 				osm.visit(v);
-				currentAction.setText(tr("Upload {0} {1} ({2})...", tr(v.className), v.name, osm.id));
+				Main.pleaseWaitDlg.currentAction.setText(tr("Upload {0} {1} ({2})...", tr(v.className), v.name, osm.id));
 				osm.visit(this);
-				progress.setValue(progress.getValue()+1);
+				Main.pleaseWaitDlg.progress.setValue(Main.pleaseWaitDlg.progress.getValue()+1);
 			}
 		} catch (RuntimeException e) {
 			throw new SAXException("An error occoured: ", e);
@@ -141,11 +141,11 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 	/**
 	 * Send the request. The objects id will be replaced if it was 0 before
 	 * (on add requests).
-	 * 
+	 *
 	 * @param requestMethod The http method used when talking with the server.
 	 * @param urlSuffix The suffix to add at the server url.
 	 * @param osm The primitive to encode to the server.
-	 * @param addBody <code>true</code>, if the whole primitive body should be added. 
+	 * @param addBody <code>true</code>, if the whole primitive body should be added.
 	 * 		<code>false</code>, if only the id is encoded.
 	 */
 	@SuppressWarnings("unchecked")

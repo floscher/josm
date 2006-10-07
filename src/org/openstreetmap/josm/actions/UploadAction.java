@@ -25,10 +25,10 @@ import org.xml.sax.SAXException;
 
 /**
  * Action that opens a connection to the osm server and upload all changes.
- * 
+ *
  * An dialog is displayed asking the user to specify a rectangle to grab.
  * The url and account settings from the preferences are used.
- *  
+ *
  * @author imi
  */
 public class UploadAction extends JosmAction {
@@ -74,7 +74,6 @@ public class UploadAction extends JosmAction {
 
 		PleaseWaitRunnable uploadTask = new PleaseWaitRunnable(tr("Uploading data")){
 			@Override protected void realRun() throws SAXException {
-				server.setProgressInformation(currentAction, progress);
 				server.uploadOsm(all);
 			}
 			@Override protected void finish() {
@@ -85,7 +84,6 @@ public class UploadAction extends JosmAction {
 			}
 		};
 		Main.worker.execute(uploadTask);
-		uploadTask.pleaseWaitDlg.setVisible(true);
 	}
 
 	/**
@@ -128,7 +126,7 @@ public class UploadAction extends JosmAction {
 			p.add(new JScrollPane(l), GBC.eol().fill());
 		}
 
-		return JOptionPane.showConfirmDialog(Main.parent, p, tr("Upload this changes?"), 
+		return JOptionPane.showConfirmDialog(Main.parent, p, tr("Upload this changes?"),
 				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
 	}
 }
