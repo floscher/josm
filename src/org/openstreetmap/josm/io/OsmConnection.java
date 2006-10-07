@@ -8,7 +8,6 @@ import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
 
-import javax.swing.BoundedRangeModel;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -22,7 +21,7 @@ import org.openstreetmap.josm.tools.GBC;
 /**
  * Base class that handles common things like authentication for the reader and writer
  * to the osm server.
- * 
+ *
  * @author imi
  */
 public class OsmConnection {
@@ -33,11 +32,9 @@ public class OsmConnection {
 		public OsmParseException(String message) {super(message);}
 		public OsmParseException(Throwable cause) {super(cause);}
 	}
-	
+
 	protected boolean cancel = false;
 	protected HttpURLConnection activeConnection;
-	protected JLabel currentAction;
-	protected BoundedRangeModel progress;
 
 	private static OsmAuth authentication;
 	/**
@@ -115,13 +112,8 @@ public class OsmConnection {
 		return authentication.authCancelled;
 	}
 
-	public void setProgressInformation(JLabel currentAction, BoundedRangeModel progress) {
-		this.currentAction = currentAction;
-		this.progress = progress;
-	}
-
 	public void cancel() {
-		currentAction.setText(tr("Aborting..."));
+		Main.pleaseWaitDlg.currentAction.setText(tr("Aborting..."));
 		cancel = true;
 		if (activeConnection != null) {
 			activeConnection.setConnectTimeout(1);

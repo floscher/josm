@@ -4,8 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 
-import javax.swing.BoundedRangeModel;
-import javax.swing.JLabel;
+import org.openstreetmap.josm.Main;
 
 /**
  * Read from an other reader and increment an progress counter while on the way.
@@ -14,23 +13,19 @@ import javax.swing.JLabel;
 public class ProgressInputStream extends InputStream {
 
 	private final InputStream in;
-	private final BoundedRangeModel progress;
-	private final JLabel currentAction;
 	private int readSoFar = 0;
 	private int lastDialogUpdate = 0;
 	private final URLConnection connection;
 
-	public ProgressInputStream(URLConnection con, BoundedRangeModel progress, JLabel currentAction) throws IOException {
+	public ProgressInputStream(URLConnection con) throws IOException {
 		this.connection = con;
 		this.in = con.getInputStream();
-		this.progress = progress;
-		this.currentAction = currentAction;
 		int contentLength = con.getContentLength();
 		if (contentLength > 0)
-			progress.setMaximum(contentLength);
+			Main.pleaseWaitDlg.progress.setMaximum(contentLength);
 		else
-			progress.setMaximum(0);
-		progress.setValue(0);
+			Main.pleaseWaitDlg.progress.setMaximum(0);
+		Main.pleaseWaitDlg.progress.setValue(0);
 	}
 
 	@Override public void close() throws IOException {
@@ -56,24 +51,24 @@ public class ProgressInputStream extends InputStream {
 	 * @param amount
 	 */
 	private void advanceTicker(int amount) {
-		if (progress.getMaximum() == 0 && connection.getContentLength() != -1)
-			progress.setMaximum(connection.getContentLength());
+		if (Main.pleaseWaitDlg.progress.getMaximum() == 0 && connection.getContentLength() != -1)
+			Main.pleaseWaitDlg.progress.setMaximum(connection.getContentLength());
 
 		readSoFar += amount;
 
 		if (readSoFar / 1024 != lastDialogUpdate) {
 			lastDialogUpdate++;
 			String progStr = " "+readSoFar/1024+"/";
-			progStr += (progress.getMaximum()==0) ? "??? KB" : (progress.getMaximum()/1024)+" KB";
-			progress.setValue(readSoFar);
+			progStr += (Main.pleaseWaitDlg.progress.getMaximum()==0) ? "??? KB" : (Main.pleaseWaitDlg.progress.getMaximum()/1024)+" KB";
+			Main.pleaseWaitDlg.progress.setValue(readSoFar);
 
-			String cur = currentAction.getText();
+			String cur = Main.pleaseWaitDlg.currentAction.getText();
 			int i = cur.indexOf(' ');
 			if (i != -1)
 				cur = cur.substring(0, i) + progStr;
 			else
 				cur += progStr;
-			currentAction.setText(cur);
+			Main.pleaseWaitDlg.currentAction.setText(cur);
 		}
 	}
 }

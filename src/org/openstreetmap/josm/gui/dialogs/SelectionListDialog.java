@@ -48,7 +48,7 @@ import org.xml.sax.SAXException;
  * A small tool dialog for displaying the current selection. The selection manager
  * respects clicks into the selection list. Ctrl-click will remove entries from
  * the list while single click will make the clicked entry the only selection.
- * 
+ *
  * @author imi
  */
 public class SelectionListDialog extends ToggleDialog implements SelectionChangedListener {
@@ -67,12 +67,12 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 			this.url = u;
 		}
 		@Override protected void realRun() {
-			currentAction.setText(tr("Contact {0}...", url.getHost()));
+			Main.pleaseWaitDlg.currentAction.setText(tr("Contact {0}...", url.getHost()));
 			sel = mode != SearchMode.remove ? new LinkedList<OsmPrimitive>() : Main.ds.allNonDeletedPrimitives();
 			try {
 				URLConnection con = url.openConnection();
-				InputStream in = new ProgressInputStream(con, progress, currentAction);
-				currentAction.setText(tr("Downloading..."));
+				InputStream in = new ProgressInputStream(con);
+				Main.pleaseWaitDlg.currentAction.setText(tr("Downloading..."));
 				Map<Long, String> ids = idReader.parseIds(in);
 				for (OsmPrimitive osm : Main.ds.allNonDeletedPrimitives()) {
 					if (ids.containsKey(osm.id) && osm.getClass().getName().toLowerCase().endsWith(ids.get(osm.id))) {
@@ -235,7 +235,6 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 			SelectionWebsiteLoader loader = new SelectionWebsiteLoader(search, mode);
 			if (loader.url != null) {
 				Main.worker.execute(loader);
-				loader.pleaseWaitDlg.setVisible(true);
 				return;
 			}
 		}

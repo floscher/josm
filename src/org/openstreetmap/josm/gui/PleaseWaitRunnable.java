@@ -3,70 +3,54 @@ package org.openstreetmap.josm.gui;
 import static org.openstreetmap.josm.tools.I18n.tr;
 
 import java.awt.EventQueue;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoundedRangeModel;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.tools.GBC;
-import org.openstreetmap.josm.tools.I18n;
 import org.xml.sax.SAXException;
 
 /**
  * Instanced of this thread will display a "Please Wait" message in middle of JOSM
  * to indicate a progress beeing executed.
- *  
+ *
  * @author Imi
  */
 public abstract class PleaseWaitRunnable implements Runnable {
 
-	public final JDialog pleaseWaitDlg;
 	public String errorMessage;
 
-	private final JProgressBar progressBar = new JProgressBar();
 	private boolean closeDialogCalled = false;
+	private boolean cancelled = false;
 
-	protected final JLabel currentAction = new JLabel(I18n.tr("Contacting the OSM server..."));
-	protected final BoundedRangeModel progress = progressBar.getModel();
+	private final String title;
 
 	/**
 	 * Create the runnable object with a given message for the user.
 	 */
-	public PleaseWaitRunnable(String msg) {
-		pleaseWaitDlg = new JDialog(JOptionPane.getFrameForComponent(Main.parent), msg, true);
-		pleaseWaitDlg.setLayout(new GridBagLayout());
-		JPanel pane = new JPanel(new GridBagLayout());
-		pane.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-		pane.add(currentAction, GBC.eol().fill(GBC.HORIZONTAL));
-		pane.add(progressBar, GBC.eop().fill(GBC.HORIZONTAL));
-		JButton cancel = new JButton(tr("Cancel"));
-		pane.add(cancel, GBC.eol().anchor(GBC.CENTER));
-		pleaseWaitDlg.setContentPane(pane);
-		pleaseWaitDlg.setSize(350,100);
-		pleaseWaitDlg.setLocationRelativeTo(Main.parent);
-
-		cancel.addActionListener(new ActionListener(){
+	public PleaseWaitRunnable(String title) {
+		this.title = title;
+		Main.pleaseWaitDlg.cancel.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
-				cancel();
+				if (!cancelled) {
+					cancelled = true;
+					cancel();
+				}
 			}
 		});
-		pleaseWaitDlg.addWindowListener(new WindowAdapter(){
+		Main.pleaseWaitDlg.addWindowListener(new WindowAdapter(){
 			@Override public void windowClosing(WindowEvent e) {
 				if (!closeDialogCalled) {
-					cancel();
+					if (!cancelled) {
+						cancelled = true;
+						cancel();
+					}
 					closeDialog();
 				}
 			}
@@ -75,6 +59,18 @@ public abstract class PleaseWaitRunnable implements Runnable {
 
 	public final void run() {
 		try {
+			if (cancelled)
+				return; // since realRun isn't executed, do not call to finish
+			Main.pleaseWaitDlg.setTitle(title);
+
+			// show the dialog
+			closeDialogCalled = false;
+			EventQueue.invokeLater(new Runnable() {
+				public void run() {
+					Main.pleaseWaitDlg.setVisible(true);
+				}
+			});
+
 			realRun();
 		} catch (SAXException x) {
 			x.printStackTrace();
@@ -115,14 +111,28 @@ public abstract class PleaseWaitRunnable implements Runnable {
 		if (closeDialogCalled)
 			return;
 		closeDialogCalled  = true;
-		EventQueue.invokeLater(new Runnable(){
-			public void run() {
-				finish();
-				pleaseWaitDlg.setVisible(false);
-				pleaseWaitDlg.dispose();
-				if (errorMessage != null)
-					JOptionPane.showMessageDialog(Main.parent, errorMessage);
-			}
-		});
+		try {
+			Runnable runnable = new Runnable(){
+				public void run() {
+					try {
+						finish();
+					} finally {
+						Main.pleaseWaitDlg.setVisible(false);
+					}
+					if (errorMessage != null)
+						JOptionPane.showMessageDialog(Main.parent, errorMessage);
+				}
+			};
+
+			// make sure, this is called in the dispatcher thread ASAP
+			if (EventQueue.isDispatchThread())
+				runnable.run();
+			else
+				EventQueue.invokeAndWait(runnable);
+
+		} catch (InterruptedException e) {
+		} catch (InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

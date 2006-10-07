@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
 import org.xml.sax.SAXException;
@@ -39,9 +40,9 @@ public class BoundingBoxDownloader extends OsmServerReader {
     		String url = "trackpoints?bbox="+lon1+","+lat1+","+lon2+","+lat2+"&page=";
     		Collection<Collection<GpsPoint>> data = new LinkedList<Collection<GpsPoint>>();
     		Collection<GpsPoint> list = new LinkedList<GpsPoint>();
-    
+
     		for (int i = 0;;++i) {
-    			currentAction.setText(tr("Downloading points {0} to {1}...", i * 5000, ((i + 1) * 5000)));
+    			Main.pleaseWaitDlg.currentAction.setText(tr("Downloading points {0} to {1}...", i * 5000, ((i + 1) * 5000)));
     			InputStream in = getInputStream(url+i);
     			if (in == null)
     				break;
@@ -58,7 +59,7 @@ public class BoundingBoxDownloader extends OsmServerReader {
     			in.close();
     			activeConnection = null;
     		}
-    
+
     		data.add(list);
     		return data;
     	} catch (IOException e) {
@@ -85,8 +86,8 @@ public class BoundingBoxDownloader extends OsmServerReader {
     		final InputStream in = getInputStream("map?bbox="+lon1+","+lat1+","+lon2+","+lat2);
     		if (in == null)
     			return null;
-    		currentAction.setText(tr("Downloading OSM data..."));
-    		final DataSet data = OsmReader.parseDataSet(in, currentAction, progress);
+    		Main.pleaseWaitDlg.currentAction.setText(tr("Downloading OSM data..."));
+    		final DataSet data = OsmReader.parseDataSet(in, Main.pleaseWaitDlg.currentAction, Main.pleaseWaitDlg.progress);
     		in.close();
     		activeConnection = null;
     		return data;

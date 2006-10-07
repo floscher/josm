@@ -12,8 +12,8 @@ import org.openstreetmap.josm.gui.MapFrame;
  * For all purposes of loading dynamic resources, the Plugin's class loader should be used
  * (or else, the plugin jar will not be within the class path).
  *
- * All plugins should have at least one class subclassing this abstract base class. 
- * 
+ * All plugins should have at least one class subclassing this abstract base class.
+ *
  * The actual implementation of this interface is optional, as all functions will be called
  * via reflection. This is to be able to change this interface without the need of recompiling
  * or even breaking the plugins. If your class does not provide a function here (or does
@@ -24,7 +24,7 @@ import org.openstreetmap.josm.gui.MapFrame;
  * correct actual plugin architecture of JOSM.
  *
  *
- * The pluginname provided to the constructor is also the name of the directory to 
+ * The pluginname provided to the constructor is also the name of the directory to
  * store the plugin's own stuff (located under the josm preferences directory)
  *
  * @author Immanuel.Scholz
@@ -39,7 +39,7 @@ public abstract class Plugin {
 		int lastSlash = s.lastIndexOf('/');
 		name = s.substring(lastSlash+1, s.length()-4);
     }
-	
+
 	/**
 	 * @return The name of this plugin. This is the name of the .jar file.
 	 */
@@ -53,7 +53,7 @@ public abstract class Plugin {
 		return Main.pref.getPreferencesDir()+"plugins/"+name+"/";
 	}
 
-	
+
 
 	/**
 	 * Called after Main.mapFrame is initalized. (After the first data is loaded).
@@ -61,11 +61,4 @@ public abstract class Plugin {
 	 * an alternative Painter.
 	 */
 	public void mapFrameInitialized(MapFrame oldFrame, MapFrame newFrame) {}
-
-	/**
-	 * Called to retrieve a one-liner description of what this plugin does for tooltips.
-	 * @return <code>null</code>, which means: "no description available".
-	 */
-	public String getDescription() {return null;}
-
 }

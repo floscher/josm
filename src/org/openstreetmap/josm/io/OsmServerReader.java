@@ -9,7 +9,7 @@ import org.openstreetmap.josm.Main;
 
 /**
  * This DataReader read directly from the REST API of the osm server.
- * 
+ *
  * @author imi
  */
 abstract class OsmServerReader extends OsmConnection {
@@ -29,6 +29,6 @@ abstract class OsmServerReader extends OsmConnection {
 		activeConnection.setConnectTimeout(15000);
 		if (isAuthCancelled() && activeConnection.getResponseCode() == 401)
 			return null;
-		return new ProgressInputStream(activeConnection, progress, currentAction);
+		return new ProgressInputStream(activeConnection);
 	}
 }

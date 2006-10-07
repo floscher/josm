@@ -26,13 +26,12 @@ import org.openstreetmap.josm.data.osm.visitor.SimplePaintVisitor;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
-import org.openstreetmap.josm.gui.layer.WmsServerLayer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer.ModifiedChangedListener;
 
 /**
  * This is a component used in the MapFrame for browsing the map. It use is to
- * provide the MapMode's enough capabilities to operate. 
- * 
+ * provide the MapMode's enough capabilities to operate.
+ *
  * MapView hold meta-data about the data set currently displayed, as scale level,
  * center point viewed, what scrolling mode or editing mode is selected or with
  * what projection the map is viewed etc..
@@ -98,7 +97,7 @@ public class MapView extends NavigatableComponent {
 		MapSlider zoomSlider = new MapSlider(this);
 		add(zoomSlider);
 		zoomSlider.setBounds(3, 0, 114, 30);
-		
+
 		MapScaler scaler = new MapScaler(this);
 		add(scaler);
 		scaler.setLocation(10,30);
@@ -127,10 +126,10 @@ public class MapView extends NavigatableComponent {
 		}
 
 		// add as a new layer
-		if (layer instanceof WmsServerLayer)
-			layers.add(layers.size(), layer);
-		else
+		if (layer instanceof OsmDataLayer)
 			layers.add(0, layer);
+		else
+			layers.add(layers.size(), layer);
 
 		for (LayerChangeListener l : listeners)
 			l.layerAdded(layer);
@@ -218,7 +217,7 @@ public class MapView extends NavigatableComponent {
 		}
 	}
 	/**
-	 * Set the new dimension to the projection class. Also adjust the components 
+	 * Set the new dimension to the projection class. Also adjust the components
 	 * scale, if in autoScale mode.
 	 */
 	public void recalculateCenterScale() {
@@ -238,7 +237,7 @@ public class MapView extends NavigatableComponent {
 			double oldScale = this.scale;
 
 			if (v.min == null || v.max == null || v.min.equals(v.max)) {
-				// no bounds means whole world 
+				// no bounds means whole world
 				center = getProjection().latlon2eastNorth(new LatLon(0,0));
 				EastNorth world = getProjection().latlon2eastNorth(new LatLon(Projection.MAX_LAT,Projection.MAX_LON));
 				double scaleX = world.east()*2/w;

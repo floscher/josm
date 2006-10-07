@@ -43,6 +43,7 @@ import org.openstreetmap.josm.actions.SaveAction;
 import org.openstreetmap.josm.actions.SaveAsAction;
 import org.openstreetmap.josm.actions.UndoAction;
 import org.openstreetmap.josm.actions.UploadAction;
+import org.openstreetmap.josm.actions.DownloadAction.DownloadTask;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.Preferences;
@@ -50,6 +51,7 @@ import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.projection.Epsg4326;
 import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.gui.MapFrame;
+import org.openstreetmap.josm.gui.PleaseWaitDialog;
 import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
 import org.openstreetmap.josm.gui.annotation.AnnotationTester;
 import org.openstreetmap.josm.gui.dialogs.SelectionListDialog;
@@ -57,7 +59,7 @@ import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer.CommandQueueListener;
 import org.openstreetmap.josm.plugins.PluginException;
-import org.openstreetmap.josm.plugins.PluginLoader;
+import org.openstreetmap.josm.plugins.PluginInformation;
 import org.openstreetmap.josm.plugins.PluginProxy;
 import org.openstreetmap.josm.tools.ImageProvider;
 
@@ -96,6 +98,11 @@ abstract public class Main {
 	 * All installed and loaded plugins (resp. their main classes)
 	 */
 	public final static Collection<PluginProxy> plugins = new LinkedList<PluginProxy>();
+	/**
+	 * The dialog that gets displayed during background task execution.
+	 */
+	public static PleaseWaitDialog pleaseWaitDlg;
+
 
 	/**
 	 * Set or clear (if passed <code>null</code>) the map.
@@ -129,7 +136,7 @@ abstract public class Main {
 		redoUndoListener.commandChanged(0,0);
 
 		for (PluginProxy plugin : plugins)
-            plugin.mapFrameInitialized(old, map);
+			plugin.mapFrameInitialized(old, map);
 	}
 
 	/**
@@ -248,16 +255,14 @@ abstract public class Main {
 		contentPane.add(toolBar, BorderLayout.NORTH);
 
 		contentPane.updateUI();
-		
 
 		// Plugins
 		if (Main.pref.hasKey("plugins")) {
-			PluginLoader loader = new PluginLoader();
 			for (String pluginName : Main.pref.get("plugins").split(",")) {
 				try {
 					File pluginFile = new File(pref.getPreferencesDir()+"plugins/"+pluginName+".jar");
 					if (pluginFile.exists())
-						plugins.add(loader.loadPlugin(loader.loadClassName(pluginFile), pluginFile));
+						plugins.add(new PluginInformation(pluginFile).load());
 					else
 						JOptionPane.showMessageDialog(Main.parent, tr("Plugin not found: {0}.", pluginName));
 				} catch (PluginException e) {
@@ -267,6 +272,7 @@ abstract public class Main {
 			}
 		}
 	}
+
 	/**
 	 * Add a new layer to the map. If no map exist, create one.
 	 */
@@ -303,15 +309,15 @@ abstract public class Main {
 	////////////////////////////////////////////////////////////////////////////////////////
 
 
-	private static JPanel panel = new JPanel(new BorderLayout());
+	public static JPanel panel = new JPanel(new BorderLayout());
 
 	protected final JMenuBar mainMenu = new JMenuBar();
 	protected static Rectangle bounds;
 
-	private final UndoAction undoAction = new UndoAction();
-	private final RedoAction redoAction = new RedoAction();
-	private final OpenAction openAction = new OpenAction();
-	private final DownloadAction downloadAction = new DownloadAction();
+	public final UndoAction undoAction = new UndoAction();
+	public final RedoAction redoAction = new RedoAction();
+	public final OpenAction openAction = new OpenAction();
+	public final DownloadAction downloadAction = new DownloadAction();
 
 	private final CommandQueueListener redoUndoListener = new CommandQueueListener(){
 		public void commandChanged(final int queueSize, final int redoSize) {
@@ -373,6 +379,8 @@ abstract public class Main {
 		}
 		if (bounds == null)
 			bounds = !args.containsKey("no-fullscreen") ? new Rectangle(0,0,screenDimension.width,screenDimension.height) : new Rectangle(1000,740);
+
+		pleaseWaitDlg = new PleaseWaitDialog();
 	}
 
 	public void postConstructorProcessCmdLine(Map<String, Collection<String>> args) {
@@ -392,8 +400,10 @@ abstract public class Main {
 			final Bounds b = DownloadAction.osmurl2bounds(s);
 			if (b == null)
 				JOptionPane.showMessageDialog(Main.parent, tr("Ignoring malformed url: \"{0}\"", s));
-			else
-				main.downloadAction.download(false, b.min.lat(), b.min.lon(), b.max.lat(), b.max.lon());
+			else {
+				DownloadTask osmTask = main.downloadAction.downloadTasks.get(0);
+				osmTask.download(main.downloadAction, b.min.lat(), b.min.lon(), b.max.lat(), b.max.lon());
+			}
 			return;
 		}
 
@@ -409,7 +419,8 @@ abstract public class Main {
 		final StringTokenizer st = new StringTokenizer(s, ",");
 		if (st.countTokens() == 4) {
 			try {
-				main.downloadAction.download(rawGps, Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()));
+				DownloadTask task = main.downloadAction.downloadTasks.get(rawGps ? 1 : 0);
+				task.download(main.downloadAction, Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()));
 				return;
 			} catch (final NumberFormatException e) {
 			}

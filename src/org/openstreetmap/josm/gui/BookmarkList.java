@@ -2,7 +2,6 @@ package org.openstreetmap.josm.gui;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
 
-import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -11,14 +10,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.StringTokenizer;
 
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * List class that read and save its content from the bookmark file.
@@ -33,7 +29,6 @@ public class BookmarkList extends JList {
 	public static class Bookmark {
 		public String name;
 		public double[] latlon = new double[4]; // minlat, minlon, maxlat, maxlon
-		public boolean rawgps;
 		@Override public String toString() {
 			return name;
 		}
@@ -46,16 +41,6 @@ public class BookmarkList extends JList {
 		setModel(new DefaultListModel());
 		load();
 		setVisibleRowCount(7);
-		setCellRenderer(new DefaultListCellRenderer(){
-			@Override public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-				Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-				if (c instanceof JLabel) {
-					Bookmark b = (Bookmark)value;
-					((JLabel)c).setIcon(ImageProvider.get("layer/"+(b.rawgps?"rawgps_small":"osmdata_small")));
-				}
-				return c;
-			}
-		});
 	}
 
 	/**
@@ -72,14 +57,13 @@ public class BookmarkList extends JList {
 
 			for (String line = in.readLine(); line != null; line = in.readLine()) {
 				StringTokenizer st = new StringTokenizer(line, ",");
-				if (st.countTokens() != 6)
+				if (st.countTokens() != 5)
 					continue;
 				Bookmark b = new Bookmark();
 				b.name = st.nextToken();
 				try {
 					for (int i = 0; i < b.latlon.length; ++i)
 						b.latlon[i] = Double.parseDouble(st.nextToken());
-					b.rawgps = Boolean.parseBoolean(st.nextToken());
 					model.addElement(b);
 				} catch (NumberFormatException x) {
 					// line not parsed
@@ -106,8 +90,8 @@ public class BookmarkList extends JList {
 				b.name.replace(',', '_');
 				out.print(b.name+",");
 				for (int i = 0; i < b.latlon.length; ++i)
-					out.print(b.latlon[i]+",");
-				out.println(b.rawgps);
+					out.print(b.latlon[i]+(i<b.latlon.length-1?",":""));
+				out.println();
 			}
 			out.close();
 		} catch (IOException e) {
