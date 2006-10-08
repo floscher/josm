@@ -26,6 +26,7 @@ import javax.swing.Popup;
 import javax.swing.PopupFactory;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.actions.HelpAction.Helpful;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.visitor.NameVisitor;
@@ -35,19 +36,19 @@ import org.openstreetmap.josm.tools.GBC;
  * A component that manages some status information display about the map.
  * It keeps a status line below the map up to date and displays some tooltip
  * information if the user hold the mouse long enough at some point.
- * 
+ *
  * All this is done in background to not disturb other processes.
- * 
+ *
  * The background thread does not alter any data of the map (read only thread).
  * Also it is rather fail safe. In case of some error in the data, it just do
  * nothing instead of whining and complaining.
- * 
+ *
  * @author imi
  */
-public class MapStatus extends JPanel {
+public class MapStatus extends JPanel implements Helpful {
 
 	/**
-	 * The MapView this status belongs. 
+	 * The MapView this status belongs.
 	 */
 	final MapView mv;
 	/**
@@ -62,7 +63,7 @@ public class MapStatus extends JPanel {
 	/**
 	 * The collector class that waits for notification and then update
 	 * the display objects.
-	 * 
+	 *
 	 * @author imi
 	 */
 	private final class Collector implements Runnable {
@@ -106,7 +107,7 @@ public class MapStatus extends JPanel {
 
 				// This try/catch is a hack to stop the flooding bug reports about this.
 				// The exception needed to handle with in the first place, means that this
-				// access to the data need to be restarted, if the main thread modifies 
+				// access to the data need to be restarted, if the main thread modifies
 				// the data.
 				try {
 					Collection<OsmPrimitive> osms = mv.getAllNearest(ms.mousePos);
@@ -241,4 +242,8 @@ public class MapStatus extends JPanel {
 			}
 		}, AWTEvent.KEY_EVENT_MASK | AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
 	}
+
+	public String helpTopic() {
+	    return "Statusline";
+    }
 }

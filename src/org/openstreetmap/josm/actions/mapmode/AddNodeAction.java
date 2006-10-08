@@ -28,10 +28,10 @@ import org.openstreetmap.josm.tools.ImageProvider;
 /**
  * This mode adds a new node to the dataset. The user clicks on a place to add
  * and there is it. Nothing more, nothing less.
- * 
- * Newly created nodes are selected. Shift modifier does not cancel the old 
+ *
+ * Newly created nodes are selected. Shift modifier does not cancel the old
  * selection as usual.
- * 
+ *
  * @author imi
  *
  */
@@ -43,6 +43,7 @@ public class AddNodeAction extends MapMode {
 	public static class AddNodeGroup extends GroupAction {
 		public AddNodeGroup(MapFrame mf) {
 			super(KeyEvent.VK_N,0);
+			putValue("help", "Action/AddNode");
 			actions.add(new AddNodeAction(mf,tr("Add node"), Mode.node, tr("Add a new node to the map")));
 			actions.add(new AddNodeAction(mf, tr("Add node into segment"), Mode.nodesegment,tr( "Add a node into an existing segment")));
 			setCurrent(0);
@@ -52,6 +53,7 @@ public class AddNodeAction extends MapMode {
 	public AddNodeAction(MapFrame mapFrame, String name, Mode mode, String desc) {
 		super(name, "node/"+mode, desc, mapFrame, ImageProvider.getCursor("crosshair", "node"));
 		this.mode = mode;
+		putValue("help", "Action/AddNode/"+Character.toUpperCase(mode.toString().charAt(0))+mode.toString().substring(1));
 	}
 
 	@Override public void enterMode() {
@@ -69,7 +71,7 @@ public class AddNodeAction extends MapMode {
 	/**
 	 * If user clicked with the left button, add a node at the current mouse
 	 * position.
-	 * 
+	 *
 	 * If in nodesegment mode, add the node to the line segment by splitting the
 	 * segment. The new created segment will be inserted in every way the segment
 	 * was part of.
@@ -101,7 +103,7 @@ public class AddNodeAction extends MapMode {
 				n.eastNorth = new EastNorth(B.east() + q*(A.east()-B.east()), B.north() + q*(A.north()-B.north()));
 				n.coor = Main.proj.eastNorth2latlon(n.eastNorth);
 			}
-			
+
 			Collection<Command> cmds = new LinkedList<Command>();
 			cmds.add(c);
 			Segment s1 = new Segment(s);

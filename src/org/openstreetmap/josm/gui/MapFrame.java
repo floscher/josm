@@ -28,7 +28,7 @@ import org.openstreetmap.josm.actions.mapmode.AddNodeAction.AddNodeGroup;
 import org.openstreetmap.josm.gui.dialogs.CommandStackDialog;
 import org.openstreetmap.josm.gui.dialogs.ConflictDialog;
 import org.openstreetmap.josm.gui.dialogs.HistoryDialog;
-import org.openstreetmap.josm.gui.dialogs.LayerList;
+import org.openstreetmap.josm.gui.dialogs.LayerListDialog;
 import org.openstreetmap.josm.gui.dialogs.PropertiesDialog;
 import org.openstreetmap.josm.gui.dialogs.SelectionListDialog;
 import org.openstreetmap.josm.gui.dialogs.ToggleDialog;
@@ -117,7 +117,7 @@ public class MapFrame extends JPanel {
 		add(toggleDialogs, BorderLayout.EAST);
 		toggleDialogs.setLayout(new BoxLayout(toggleDialogs, BoxLayout.Y_AXIS));
 
-		addIconToggle(toggleDialogs, new LayerList(this));
+		addIconToggle(toggleDialogs, new LayerListDialog(this));
 		addIconToggle(toggleDialogs, new PropertiesDialog(this));
 		addIconToggle(toggleDialogs, new HistoryDialog());
 		addIconToggle(toggleDialogs, new SelectionListDialog());

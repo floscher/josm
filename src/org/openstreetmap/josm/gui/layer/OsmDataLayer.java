@@ -39,7 +39,7 @@ import org.openstreetmap.josm.data.osm.visitor.SimplePaintVisitor;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.dialogs.ConflictDialog;
-import org.openstreetmap.josm.gui.dialogs.LayerList;
+import org.openstreetmap.josm.gui.dialogs.LayerListDialog;
 import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
 import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.ImageProvider;
@@ -326,8 +326,8 @@ public class OsmDataLayer extends Layer {
 
 	@Override public Component[] getMenuEntries() {
 		return new Component[]{
-				new JMenuItem(new LayerList.ShowHideLayerAction(this)),
-				new JMenuItem(new LayerList.DeleteLayerAction(this)),
+				new JMenuItem(new LayerListDialog.ShowHideLayerAction(this)),
+				new JMenuItem(new LayerListDialog.DeleteLayerAction(this)),
 				new JSeparator(),
 				new JMenuItem(new SaveAction()),
 				new JMenuItem(new SaveAsAction()),

@@ -125,27 +125,19 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 
 		JPanel buttonPanel = new JPanel(new GridLayout(1,2));
 
-		JButton button = new JButton(tr("Select"), ImageProvider.get("mapmode/selection/select"));
-		button.setToolTipText(tr("Set the selected elements on the map to the selected items in the list above."));
-		button.addActionListener(new ActionListener(){
+		buttonPanel.add(createButton("Select", "mapmode/selection/select", "Set the selected elements on the map to the selected items in the list above.", new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				updateMap();
 			}
-		});
-		buttonPanel.add(button);
+		}));
 
-		button = new JButton(tr("Reload"), ImageProvider.get("dialogs", "refresh"));
-		button.setToolTipText(tr("Refresh the selection list."));
-		button.addActionListener(new ActionListener(){
+		buttonPanel.add(createButton("Reload", "dialogs/refresh", "Refresh the selection list.", new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				selectionChanged(Main.ds.getSelected());
-			}
-		});
-		buttonPanel.add(button);
+            }
+		}));
 
-		button = new JButton(tr("Search"), ImageProvider.get("dialogs", "search"));
-		button.setToolTipText(tr("Search for objects."));
-		button.addActionListener(new ActionListener(){
+		buttonPanel.add(createButton("Search", "dialogs/search", "Search for objects.", new ActionListener(){
 			private String lastSearch = "";
 			public void actionPerformed(ActionEvent e) {
 				JLabel label = new JLabel(tr("Please enter a search string."));
@@ -184,11 +176,18 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 				SearchMode mode = replace.isSelected() ? SearchMode.replace : (add.isSelected() ? SearchMode.add : SearchMode.remove);
 				search(lastSearch, mode);
 			}
-		});
-		buttonPanel.add(button);
+		}));
 
 		add(buttonPanel, BorderLayout.SOUTH);
 		selectionChanged(Main.ds.getSelected());
+	}
+
+	private JButton createButton(String name, String icon, String tooltip, ActionListener action) {
+		JButton button = new JButton(tr(name), ImageProvider.get(icon));
+		button.setToolTipText(tr(tooltip));
+		button.addActionListener(action);
+		button.putClientProperty("help", "Dialog/SelectionList/"+name);
+		return button;
 	}
 
 	@Override public void setVisible(boolean b) {

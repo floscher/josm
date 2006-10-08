@@ -41,7 +41,7 @@ import org.openstreetmap.josm.tools.ImageProvider.OverlayPosition;
  *
  * @author imi
  */
-public class LayerList extends ToggleDialog implements LayerChangeListener {
+public class LayerListDialog extends ToggleDialog implements LayerChangeListener {
 
 	/**
 	 * The last layerlist created. Used to update the list in the Show/Hide and Delete actions.
@@ -56,6 +56,7 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 		public DeleteLayerAction(Layer layer) {
 			super(tr("Delete"), ImageProvider.get("dialogs", "delete"));
 			putValue(SHORT_DESCRIPTION, tr("Delete the selected layer."));
+			putValue("help", "Dialog/LayerList/Delete");
 			this.layer = layer;
 		}
 
@@ -78,6 +79,7 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 		public ShowHideLayerAction(Layer layer) {
 			super(tr("Show/Hide"), ImageProvider.get("dialogs", "showhide"));
 			putValue(SHORT_DESCRIPTION, tr("Toggle visible state of the selected layer."));
+			putValue("help", "Dialog/LayerList/ShowHide");
 			this.layer = layer;
 		}
 
@@ -95,7 +97,7 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 	DefaultListModel model = new DefaultListModel();
 	/**
 	 * The merge action. This is only called, if the current selection and its
-	 * item below are editable datasets and the merge button is clicked. 
+	 * item below are editable datasets and the merge button is clicked.
 	 */
 	private final JButton mergeButton = new JButton(ImageProvider.get("dialogs", "mergedown"));
 	/**
@@ -114,7 +116,7 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 	/**
 	 * Create an layerlist and attach it to the given mapView.
 	 */
-	public LayerList(MapFrame mapFrame) {
+	public LayerListDialog(MapFrame mapFrame) {
 		super(tr("Layers"), "layerlist", tr("Open a list of all loaded layers."), KeyEvent.VK_L, 100);
 		instance = new JList(model);
 		add(new JScrollPane(instance), BorderLayout.CENTER);
@@ -122,7 +124,7 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 		instance.setCellRenderer(new DefaultListCellRenderer(){
 			@Override public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 				Layer layer = (Layer)value;
-				JLabel label = (JLabel)super.getListCellRendererComponent(list, 
+				JLabel label = (JLabel)super.getListCellRendererComponent(list,
 						layer.name, index, isSelected, cellHasFocus);
 				Icon icon = layer.getIcon();
 				if (!layer.visible)
@@ -157,7 +159,7 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 				int index = instance.locationToIndex(e.getPoint());
 				Layer layer = (Layer)instance.getModel().getElementAt(index);
 				LayerListPopup menu = new LayerListPopup(instance, layer);
-				menu.show(LayerList.this, e.getX(), e.getY());
+				menu.show(LayerListDialog.this, e.getX(), e.getY());
 			}
 			@Override public void mousePressed(MouseEvent e) {
 				if (e.isPopupTrigger())
@@ -190,11 +192,13 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 		upButton.setToolTipText(tr("Move the selected layer one row up."));
 		upButton.addActionListener(upDown);
 		upButton.setActionCommand("up");
+		upButton.putClientProperty("help", "Dialog/LayerList/Up");
 		buttonPanel.add(upButton);
 
 		downButton.setToolTipText(tr("Move the selected layer one row down."));
 		downButton.addActionListener(upDown);
 		downButton.setActionCommand("down");
+		downButton.putClientProperty("help", "Dialog/LayerList/Down");
 		buttonPanel.add(downButton);
 
 		JButton showHideButton = new JButton(new ShowHideLayerAction(null));
@@ -214,7 +218,8 @@ public class LayerList extends ToggleDialog implements LayerChangeListener {
 				instance.setSelectedValue(lTo, true);
 				mapView.removeLayer(lFrom);
 			}
-		});		
+		});
+		mergeButton.putClientProperty("help", "Dialog/LayerList/Merge");
 		buttonPanel.add(mergeButton);
 
 		add(buttonPanel, BorderLayout.SOUTH);

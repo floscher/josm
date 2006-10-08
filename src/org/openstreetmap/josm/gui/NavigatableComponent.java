@@ -7,6 +7,7 @@ import java.util.HashSet;
 import javax.swing.JComponent;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.actions.HelpAction.Helpful;
 import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.Node;
@@ -18,17 +19,17 @@ import org.openstreetmap.josm.data.projection.Projection;
 /**
  * An component that can be navigated by a mapmover. Used as map view and for the
  * zoomer in the download dialog.
- * 
+ *
  * @author imi
  */
-public class NavigatableComponent extends JComponent {
+public class NavigatableComponent extends JComponent implements Helpful {
 
 
 	public static final EastNorth world = Main.proj.latlon2eastNorth(new LatLon(Projection.MAX_LAT, Projection.MAX_LON));
 
 	/**
 	 * The scale factor in x or y-units per pixel. This means, if scale = 10,
-	 * every physical pixel on screen are 10 x or 10 y units in the 
+	 * every physical pixel on screen are 10 x or 10 y units in the
 	 * northing/easting space of the projection.
 	 */
 	protected double scale;
@@ -52,7 +53,7 @@ public class NavigatableComponent extends JComponent {
 				return zoom;
 		return 32;
 	}
-	
+
 	/**
 	 * Return the current scale value.
 	 * @return The scale value currently used in display
@@ -72,7 +73,7 @@ public class NavigatableComponent extends JComponent {
 	/**
 	 * @param x X-Pixelposition to get coordinate from
 	 * @param y Y-Pixelposition to get coordinate from
-	 * 
+	 *
 	 * @return Geographic coordinates from a specific pixel coordination
 	 * 		on the screen.
 	 */
@@ -85,7 +86,7 @@ public class NavigatableComponent extends JComponent {
 	/**
 	 * @param x X-Pixelposition to get coordinate from
 	 * @param y Y-Pixelposition to get coordinate from
-	 * 
+	 *
 	 * @return Geographic unprojected coordinates from a specific pixel coordination
 	 * 		on the screen.
 	 */
@@ -163,7 +164,7 @@ public class NavigatableComponent extends JComponent {
 					minDistanceSq = perDist;
 					minPrimitive = w;
 				}
-			}			
+			}
 		}
 		return minPrimitive;
 	}
@@ -194,22 +195,22 @@ public class NavigatableComponent extends JComponent {
 
 	/**
 	 * Return the object, that is nearest to the given screen point.
-	 * 
+	 *
 	 * First, a node will be searched. If a node within 10 pixel is found, the
 	 * nearest node is returned.
-	 * 
+	 *
 	 * If no node is found, search for pending segments.
-	 * 
-	 * If no such segment is found, and a non-pending segment is 
-	 * within 10 pixel to p, this segment is returned, except when 
-	 * <code>wholeWay</code> is <code>true</code>, in which case the 
+	 *
+	 * If no such segment is found, and a non-pending segment is
+	 * within 10 pixel to p, this segment is returned, except when
+	 * <code>wholeWay</code> is <code>true</code>, in which case the
 	 * corresponding Way is returned.
-	 * 
+	 *
 	 * If no segment is found and the point is within an area, return that
 	 * area.
-	 * 
+	 *
 	 * If no area is found, return <code>null</code>.
-	 * 
+	 *
 	 * @param p				 The point on screen.
 	 * @param segmentInsteadWay Whether the segment (true) or only the whole
 	 * 					 	 way should be returned.
@@ -225,19 +226,19 @@ public class NavigatableComponent extends JComponent {
 	}
 
 	/**
-	 * @return A list of all objects that are nearest to 
-	 * the mouse. To do this, first the nearest object is 
+	 * @return A list of all objects that are nearest to
+	 * the mouse. To do this, first the nearest object is
 	 * determined.
-	 * 
+	 *
 	 * If its a node, return all segments and
 	 * streets the node is part of, as well as all nodes
 	 * (with their segments and ways) with the same
 	 * location.
-	 * 
-	 * If its a segment, return all ways this segment 
+	 *
+	 * If its a segment, return all ways this segment
 	 * belongs to as well as all segments that are between
 	 * the same nodes (in both direction) with all their ways.
-	 * 
+	 *
 	 * @return A collection of all items or <code>null</code>
 	 * 		if no item under or near the point. The returned
 	 * 		list is never empty.
@@ -257,7 +258,7 @@ public class NavigatableComponent extends JComponent {
 				// segments never match nodes, so they are skipped by contains
 				if (!ls.deleted && !ls.incomplete && (c.contains(ls.from) || c.contains(ls.to)))
 					c.add(ls);
-		} 
+		}
 		if (osm instanceof Segment) {
 			Segment line = (Segment)osm;
 			for (Segment ls : Main.ds.segments)
@@ -285,4 +286,9 @@ public class NavigatableComponent extends JComponent {
 	protected Projection getProjection() {
 		return Main.proj;
 	}
+
+	public String helpTopic() {
+	    String n = getClass().getName();
+	    return n.substring(n.lastIndexOf('.')+1);
+    }
 }

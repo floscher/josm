@@ -6,9 +6,10 @@ import java.awt.geom.Rectangle2D;
 import javax.swing.JComponent;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.actions.HelpAction.Helpful;
 import org.openstreetmap.josm.tools.ColorHelper;
 
-public class MapScaler extends JComponent {
+public class MapScaler extends JComponent implements Helpful {
 
 	private final MapView mv;
 
@@ -27,5 +28,9 @@ public class MapScaler extends JComponent {
 		g.drawLine(99, 0, 99, 10);
 		Rectangle2D bound = g.getFontMetrics().getStringBounds(text, g);
 		g.drawString(text, (int)(50-bound.getWidth()/2), 23);
+    }
+
+	public String helpTopic() {
+	    return "MapView/Scaler";
     }
 }
