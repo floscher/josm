@@ -40,7 +40,7 @@ public class PluginInformation {
 	public PluginProxy load() {
 		try {
 			ClassLoader loader = URLClassLoader.newInstance(
-					new URL[]{new URL("file://"+file.getAbsolutePath())},
+					new URL[]{new URL(getURLString())},
 					getClass().getClassLoader());
 			Object plugin = Class.forName(className, true, loader).newInstance();
 			return new PluginProxy(plugin, this);
@@ -48,4 +48,10 @@ public class PluginInformation {
 			throw new PluginException(null, name, e);
 		}
 	}
+
+	private String getURLString() {
+		if (System.getProperty("os.name").startsWith("Windows"))
+			return "file:/"+file.getAbsolutePath();
+		return "file://"+file.getAbsolutePath();
+    }
 }
