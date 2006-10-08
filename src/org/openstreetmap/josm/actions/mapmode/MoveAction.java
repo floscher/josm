@@ -82,7 +82,7 @@ public class MoveAction extends MapMode implements SelectionEnded {
 
 		if (selectionMode)
 			return;
-		
+
 		if (mousePos == null)
 			mousePos = e.getPoint();
 
@@ -130,14 +130,14 @@ public class MoveAction extends MapMode implements SelectionEnded {
 		Collection<OsmPrimitive> sel = Main.ds.getSelected();
 		OsmPrimitive osm = Main.map.mapView.getNearest(e.getPoint(), (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) != 0);
 		if (osm != null) {
-	        if (!sel.contains(osm))
-	        	Main.ds.setSelected(osm);
-	        oldCursor = Main.map.mapView.getCursor();
-	        Main.map.mapView.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
-        } else {
-        	selectionMode = true;
+			if (!sel.contains(osm))
+				Main.ds.setSelected(osm);
+			oldCursor = Main.map.mapView.getCursor();
+			Main.map.mapView.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+		} else {
+			selectionMode = true;
 			selectionManager.register(Main.map.mapView);
-        }
+		}
 
 		Main.map.mapView.repaint();
 
@@ -155,8 +155,8 @@ public class MoveAction extends MapMode implements SelectionEnded {
 			Main.map.mapView.setCursor(oldCursor);
 	}
 
-	
+
 	public void selectionEnded(Rectangle r, boolean alt, boolean shift, boolean ctrl) {
 		SelectionAction.selectEverythingInRectangle(selectionManager, r, alt, shift, ctrl);
-    }
+	}
 }

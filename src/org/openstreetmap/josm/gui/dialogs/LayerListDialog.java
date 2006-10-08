@@ -5,6 +5,7 @@ import static org.openstreetmap.josm.tools.I18n.tr;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -48,7 +49,8 @@ public class LayerListDialog extends ToggleDialog implements LayerChangeListener
 	 * TODO: Replace with Listener-Pattern.
 	 */
 	static JList instance;
-
+	private JScrollPane listScrollPane;
+	
 	public final static class DeleteLayerAction extends AbstractAction {
 
 		private final Layer layer;
@@ -119,7 +121,8 @@ public class LayerListDialog extends ToggleDialog implements LayerChangeListener
 	public LayerListDialog(MapFrame mapFrame) {
 		super(tr("Layers"), "layerlist", tr("Open a list of all loaded layers."), KeyEvent.VK_L, 100);
 		instance = new JList(model);
-		add(new JScrollPane(instance), BorderLayout.CENTER);
+		listScrollPane = new JScrollPane(instance);
+		add(listScrollPane, BorderLayout.CENTER);
 		instance.setBackground(UIManager.getColor("Button.background"));
 		instance.setCellRenderer(new DefaultListCellRenderer(){
 			@Override public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -159,7 +162,8 @@ public class LayerListDialog extends ToggleDialog implements LayerChangeListener
 				int index = instance.locationToIndex(e.getPoint());
 				Layer layer = (Layer)instance.getModel().getElementAt(index);
 				LayerListPopup menu = new LayerListPopup(instance, layer);
-				menu.show(LayerListDialog.this, e.getX(), e.getY());
+				Point p = listScrollPane.getMousePosition();
+				menu.show(listScrollPane, p.x, p.y-3);
 			}
 			@Override public void mousePressed(MouseEvent e) {
 				if (e.isPopupTrigger())

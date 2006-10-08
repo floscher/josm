@@ -89,4 +89,10 @@ public class MotherObject extends TestCase {
 		copy.removeAll(Arrays.asList(all));
 		assertEquals(0, copy.size());
     }
+	
+	/**
+	 * To have JUnit shut up.
+	 */
+	public void test() {
+	}
 }

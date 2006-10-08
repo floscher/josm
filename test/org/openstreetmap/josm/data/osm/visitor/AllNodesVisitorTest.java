@@ -1,7 +1,6 @@
 package org.openstreetmap.josm.data.osm.visitor;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.openstreetmap.josm.data.osm.Node;
@@ -30,9 +29,8 @@ public class AllNodesVisitorTest extends MotherObject {
 		Segment s = createSegment();
 		s.visit(v);
 		assertEquals(2, v.nodes.size());
-		Iterator<Node> it = v.nodes.iterator();
-		assertSame(s.from, it.next());
-		assertSame(s.to, it.next());
+		assertTrue(v.nodes.contains(s.from));
+		assertTrue(v.nodes.contains(s.to));
 	}
 
 	public void testVisitWay() {
@@ -40,10 +38,10 @@ public class AllNodesVisitorTest extends MotherObject {
 		w.visit(v);
 		int numberOfNodes = 2*w.segments.size();
 		assertEquals(numberOfNodes, v.nodes.size());
-		Iterator<Node> itNodes = v.nodes.iterator();
-		Iterator<Segment> it = w.segments.iterator();
-		for (int i = 0; i < numberOfNodes; ++i)
-			assertSame(i%2==0?it.next().from:it.next().to, itNodes.next());
+		for (Segment s : w.segments) {
+			assertTrue(v.nodes.contains(s.from));
+			assertTrue(v.nodes.contains(s.to));
+		}
 	}
 
 	public void testGetAllNodes() {
