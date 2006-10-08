@@ -1,5 +1,9 @@
 package org.openstreetmap.josm.plugins;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 
@@ -61,4 +65,17 @@ public abstract class Plugin {
 	 * an alternative Painter.
 	 */
 	public void mapFrameInitialized(MapFrame oldFrame, MapFrame newFrame) {}
+
+	/**
+	 * Copies the ressource 'from' to the file in the plugin directory named 'to'.
+	 */
+	public void copy(String from, String to) throws FileNotFoundException, IOException {
+    	FileOutputStream out = new FileOutputStream(getPluginDir()+to);
+    	InputStream in = getClass().getResourceAsStream(from);
+    	byte[] buffer = new byte[8192];
+    	for(int len = in.read(buffer); len > 0; len = in.read(buffer))
+    		out.write(buffer, 0, len);
+    	in.close();
+    	out.close();
+    }
 }

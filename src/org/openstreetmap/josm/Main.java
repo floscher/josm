@@ -27,6 +27,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import org.openstreetmap.josm.actions.AboutAction;
@@ -271,6 +272,10 @@ abstract public class Main {
 				}
 			}
 		}
+
+		SwingUtilities.updateComponentTreeUI(parent);
+		for (DownloadTask task : downloadAction.downloadTasks)
+			task.getCheckBox().updateUI();
 	}
 
 	/**
@@ -311,7 +316,7 @@ abstract public class Main {
 
 	public static JPanel panel = new JPanel(new BorderLayout());
 
-	protected final JMenuBar mainMenu = new JMenuBar();
+	public final JMenuBar mainMenu = new JMenuBar();
 	protected static Rectangle bounds;
 
 	public final UndoAction undoAction = new UndoAction();
