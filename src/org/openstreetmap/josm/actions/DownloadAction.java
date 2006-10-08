@@ -261,7 +261,7 @@ public class DownloadAction extends JosmAction {
 				JOptionPane.showMessageDialog(Main.parent,tr("Please enter the desired coordinates or click on a bookmark."));
 			else if (!anySelected)
 				JOptionPane.showMessageDialog(Main.parent,tr("Please select at least one download data type."));
-		} while (b == null && anySelected);
+		} while (b == null || !anySelected);
 
 		double minlon = b.latlon[0];
 		double minlat = b.latlon[1];
