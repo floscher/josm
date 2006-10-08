@@ -24,6 +24,7 @@ public class PluginProxy extends Plugin {
 	@Override public void mapFrameInitialized(MapFrame oldFrame, MapFrame newFrame) {
 		try {
 	        plugin.getClass().getMethod("mapFrameInitialized", MapFrame.class, MapFrame.class).invoke(plugin, oldFrame, newFrame);
+        } catch (NoSuchMethodException e) {
         } catch (Exception e) {
         	throw new PluginException(this, info.name, e);
         }

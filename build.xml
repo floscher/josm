@@ -1,4 +1,4 @@
-<project name="openstreetmap" default="dist" basedir=".">
+<project name="josm" default="dist" basedir=".">
 
 	<!-- All jar files necessary to run only JOSM (no tests) -->
 	<fileset id="josm_required_libs" dir="lib">
@@ -27,7 +27,7 @@
 		<copy todir="build/org/openstreetmap/josm">
 		        <fileset dir="po/org/openstreetmap/josm" />
 		</copy>
-		
+
 		<!-- create josm-custom.jar -->
 		<jar destfile="dist/josm-custom.jar" basedir="build">
 			<manifest>
@@ -72,7 +72,7 @@
 	</target>
 
     <target name="compile-tests" depends="compile">
-        
+
     </target>
 
 
