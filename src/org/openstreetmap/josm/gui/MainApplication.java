@@ -171,6 +171,7 @@ public class MainApplication extends Main {
 		JFrame mainFrame = new JFrame(tr("Java Open Street Map - Editor"));
 		Main.parent = mainFrame;
 		Main main = new MainApplication(mainFrame);
+		main.loadPlugins();
 
 		mainFrame.setVisible(true);
 

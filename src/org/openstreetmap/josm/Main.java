@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,13 +22,14 @@ import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
-import javax.swing.SwingUtilities;
+import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 
 import org.openstreetmap.josm.actions.AboutAction;
@@ -36,6 +38,7 @@ import org.openstreetmap.josm.actions.DownloadAction;
 import org.openstreetmap.josm.actions.ExitAction;
 import org.openstreetmap.josm.actions.ExternalToolsAction;
 import org.openstreetmap.josm.actions.GpxExportAction;
+import org.openstreetmap.josm.actions.HelpAction;
 import org.openstreetmap.josm.actions.OpenAction;
 import org.openstreetmap.josm.actions.PreferencesAction;
 import org.openstreetmap.josm.actions.RedoAction;
@@ -103,6 +106,10 @@ abstract public class Main {
 	 * The dialog that gets displayed during background task execution.
 	 */
 	public static PleaseWaitDialog pleaseWaitDlg;
+	/**
+	 * The access to the help subsystem
+	 */
+	public HelpAction help;
 
 
 	/**
@@ -191,6 +198,7 @@ abstract public class Main {
 		final Action gpxExportAction = new GpxExportAction(null);
 		final Action exitAction = new ExitAction();
 		final Action preferencesAction = new PreferencesAction();
+		help = new HelpAction();
 		final Action aboutAction = new AboutAction();
 
 		final JMenu fileMenu = new JMenu(tr("Files"));
@@ -234,9 +242,10 @@ abstract public class Main {
 		mainMenu.add(new JSeparator());
 		final JMenu helpMenu = new JMenu(tr("Help"));
 		helpMenu.setMnemonic('H');
-		helpMenu.add(annotationTesterAction);
-		helpMenu.addSeparator();
+		helpMenu.add(help);
 		helpMenu.add(aboutAction);
+		helpMenu.addSeparator();
+		helpMenu.add(annotationTesterAction);
 		mainMenu.add(helpMenu);
 
 		// creating toolbar
@@ -255,10 +264,18 @@ abstract public class Main {
 		toolBar.add(preferencesAction);
 		contentPane.add(toolBar, BorderLayout.NORTH);
 
-		contentPane.updateUI();
+        contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0), "Help");
+        contentPane.getActionMap().put("Help", help);
 
-		// Plugins
-		if (Main.pref.hasKey("plugins")) {
+		contentPane.updateUI();
+	}
+
+	/**
+	 * Load all plugins specified in preferences. Has to be called after the complete
+	 * GUI has been set up. (post-constructor)
+	 */
+	public void loadPlugins() {
+	    if (Main.pref.hasKey("plugins")) {
 			for (String pluginName : Main.pref.get("plugins").split(",")) {
 				try {
 					File pluginFile = new File(pref.getPreferencesDir()+"plugins/"+pluginName+".jar");
@@ -272,11 +289,7 @@ abstract public class Main {
 				}
 			}
 		}
-
-		SwingUtilities.updateComponentTreeUI(parent);
-		for (DownloadTask task : downloadAction.downloadTasks)
-			task.getCheckBox().updateUI();
-	}
+    }
 
 	/**
 	 * Add a new layer to the map. If no map exist, create one.

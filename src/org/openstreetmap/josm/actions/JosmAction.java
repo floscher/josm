@@ -17,7 +17,7 @@ abstract public class JosmAction extends AbstractAction {
 
 	/**
 	 * Construct the action as menu action entry.
-	 * 
+	 *
 	 * @param name		Name of the action (entry name in menu)
 	 * @param iconName	Name of the icon (without extension)
 	 * @param tooltip	Short tooltip description
@@ -32,13 +32,21 @@ abstract public class JosmAction extends AbstractAction {
 
 	public JosmAction(String name, String iconName, String tooltip, int shortCut, int modifier) {
 		super(name, ImageProvider.get(iconName));
+		setHelpId();
 		putValue(SHORT_DESCRIPTION, "<html>"+tooltip+" <font size='-2'>"+ShortCutLabel.name(shortCut, modifier)+"</font>&nbsp;</html>");
-		//Main.panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(shortCut, name);
-        //Main.panel.getActionMap().put(name, this);
         Main.contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(shortCut, modifier), name);
         Main.contentPane.getActionMap().put(name, this);
 	}
 
 	public JosmAction() {
+		setHelpId();
+	}
+
+
+	private void setHelpId() {
+		String helpId = "Action/"+getClass().getName().substring(getClass().getName().lastIndexOf('.')+1);
+		if (helpId.endsWith("Action"))
+			helpId = helpId.substring(0, helpId.length()-6);
+		putValue("help", helpId);
 	}
 }

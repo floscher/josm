@@ -26,7 +26,7 @@ import org.openstreetmap.josm.tools.ImageProvider;
 public class AutoScaleAction extends GroupAction {
 
 	private static final String[] modes = {
-		marktr("data"), 
+		marktr("data"),
 		marktr("selection"),
 		marktr("layer"),
 		marktr("conflict")
@@ -38,6 +38,8 @@ public class AutoScaleAction extends GroupAction {
 		private final String mode;
 		public Action(String mode) {
 			super(tr("Auto Scale: {0}", tr(mode)), ImageProvider.get("dialogs/autoscale/"+mode));
+			String modeHelp = Character.toUpperCase(mode.charAt(0))+mode.substring(1);
+			putValue("help", "Action/AutoScale/"+modeHelp);
 			putValue(SHORT_DESCRIPTION, tr("Auto zoom the view (to {0}. Disabled if the view is moved)", tr(mode)));
 			this.mode = mode;
 		}
@@ -72,7 +74,7 @@ public class AutoScaleAction extends GroupAction {
 				l.visitBoundingBox(v);
 		} else if (mode.equals("layer"))
 			mapFrame.mapView.getActiveLayer().visitBoundingBox(v);
-		else if (mode.equals("selection") || mode.equals("conflict")) { 
+		else if (mode.equals("selection") || mode.equals("conflict")) {
 			Collection<OsmPrimitive> sel = mode.equals("selection") ? Main.ds.getSelected() : mapFrame.conflictDialog.conflicts.keySet();
 			for (OsmPrimitive osm : sel)
 				osm.visit(v);

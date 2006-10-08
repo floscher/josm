@@ -9,9 +9,10 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.openstreetmap.josm.actions.HelpAction.Helpful;
 import org.openstreetmap.josm.data.coor.EastNorth;
 
-class MapSlider extends JSlider implements PropertyChangeListener, ChangeListener {
+class MapSlider extends JSlider implements PropertyChangeListener, ChangeListener, Helpful {
 	
     private final MapView mv;
 	boolean clicked = false;
@@ -48,4 +49,8 @@ class MapSlider extends JSlider implements PropertyChangeListener, ChangeListene
 		else
 			this.mv.zoomTo(this.mv.center, pos.north()*2/(this.mv.getHeight()-20));
 	}
+
+	public String helpTopic() {
+	    return "MapView/Slider";
+    }
 }

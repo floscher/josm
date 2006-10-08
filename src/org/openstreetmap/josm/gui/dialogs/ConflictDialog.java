@@ -67,6 +67,7 @@ public final class ConflictDialog extends ToggleDialog {
 				resolve();
 			}
 		});
+		button.putClientProperty("help", "Dialog/Conflict/Resolve");
 		buttonPanel.add(button);
 
 		button = new JButton(tr("Select"), ImageProvider.get("mapmode/selection/select"));
@@ -79,6 +80,7 @@ public final class ConflictDialog extends ToggleDialog {
 				Main.ds.setSelected(sel);
 			}
 		});
+		button.putClientProperty("help", "Dialog/Conflict/Select");
 		buttonPanel.add(button);
 
 		add(buttonPanel, BorderLayout.SOUTH);
@@ -131,14 +133,14 @@ public final class ConflictDialog extends ToggleDialog {
 			if (osm instanceof Way)
 				model.addElement(osm);
 	}
-	
+
 	public final void add(Map<OsmPrimitive, OsmPrimitive> conflicts) {
 		this.conflicts.putAll(conflicts);
 		rebuildList();
 	}
 
 	/**
-	 * Paint all conflicts that can be expressed on the main window. 
+	 * Paint all conflicts that can be expressed on the main window.
 	 */
 	public void paintConflicts(final Graphics g, final NavigatableComponent nc) {
 		Color preferencesColor = SimplePaintVisitor.getPreferencesColor("conflict", Color.gray);

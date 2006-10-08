@@ -43,14 +43,14 @@ public class WorldChooser extends NavigatableComponent {
 	 * Maximum scale level
 	 */
 	private double scaleMax;
-	
+
 	/**
 	 * Mark this rectangle (lat/lon values) when painting.
 	 */
 	private EastNorth markerMin, markerMax;
 
 	private Projection projection;
-	
+
 	/**
 	 * Create the chooser component.
 	 */

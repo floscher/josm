@@ -55,7 +55,7 @@ import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.PleaseWaitRunnable;
 import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
-import org.openstreetmap.josm.gui.dialogs.LayerList;
+import org.openstreetmap.josm.gui.dialogs.LayerListDialog;
 import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
 import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
 import org.openstreetmap.josm.tools.DateParser;
@@ -359,8 +359,8 @@ public class GeoImageLayer extends Layer {
 			}
 		});
 		return new Component[]{
-				new JMenuItem(new LayerList.ShowHideLayerAction(this)),
-				new JMenuItem(new LayerList.DeleteLayerAction(this)),
+				new JMenuItem(new LayerListDialog.ShowHideLayerAction(this)),
+				new JMenuItem(new LayerListDialog.DeleteLayerAction(this)),
 				new JSeparator(),
 				sync,
 				new JSeparator(),

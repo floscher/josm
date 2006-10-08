@@ -23,26 +23,26 @@ import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * This MapMode enables the user to easy make a selection of different objects.
- * 
+ *
  * The selected objects are drawn in a different style.
- * 
- * Holding and dragging the left mouse button draws an selection rectangle. 
- * When releasing the left mouse button, all objects within the rectangle get 
- * selected. 
- * 
+ *
+ * Holding and dragging the left mouse button draws an selection rectangle.
+ * When releasing the left mouse button, all objects within the rectangle get
+ * selected.
+ *
  * When releasing the left mouse button while the right mouse button pressed,
  * nothing happens (the selection rectangle will be cleared, however).
  *
  * When releasing the mouse button and one of the following keys was hold:
  *
- * If Alt key was hold, select all objects that are touched by the 
- * selection rectangle. If the Alt key was not hold, select only those objects 
- * completly within (e.g. for ways mean: only if all nodes of the way are 
- * within).  
+ * If Alt key was hold, select all objects that are touched by the
+ * selection rectangle. If the Alt key was not hold, select only those objects
+ * completly within (e.g. for ways mean: only if all nodes of the way are
+ * within).
  *
  * If Shift key was hold, the objects are added to the current selection. If
  * Shift key wasn't hold, the current selection get replaced.
- * 
+ *
  * If Ctrl key was hold, remove all objects under the current rectangle from
  * the active selection (if there were any). Nothing is added to the current
  * selection.
@@ -50,13 +50,13 @@ import org.openstreetmap.josm.tools.ImageProvider;
  * Alt can be combined with Ctrl or Shift. Ctrl and Shift cannot be combined.
  * If both are pressed, nothing happens when releasing the mouse button.
  *
- * The user can also only click on the map. All total movements of 2 or less 
+ * The user can also only click on the map. All total movements of 2 or less
  * pixel are considered "only click". If that happens, the nearest Node will
  * be selected if there is any within 10 pixel range. If there is no Node within
  * 10 pixel, the nearest Segment (or Street, if user hold down the Alt-Key)
  * within 10 pixel range is selected. If there is no Segment within 10 pixel
- * and the user clicked in or 10 pixel away from an area, this area is selected. 
- * If there is even no area, nothing is selected. Shift and Ctrl key applies to 
+ * and the user clicked in or 10 pixel away from an area, this area is selected.
+ * If there is even no area, nothing is selected. Shift and Ctrl key applies to
  * this as usual. For more, @see MapView#getNearest(Point, boolean)
  *
  * @author imi
@@ -69,6 +69,7 @@ public class SelectionAction extends MapMode implements SelectionEnded {
 	public static class Group extends GroupAction {
 		public Group(MapFrame mf) {
 			super(KeyEvent.VK_S,0);
+			putValue("help", "Action/Selection");
 			actions.add(new SelectionAction(mf, tr("Selection"), Mode.select, tr("Select objects by dragging or clicking.")));
 			actions.add(new SelectionAction(mf, tr("Straight line"), Mode.straight, tr("Select objects in a straight line.")));
 			setCurrent(0);
@@ -95,6 +96,7 @@ public class SelectionAction extends MapMode implements SelectionEnded {
 	public SelectionAction(MapFrame mapFrame, String name, Mode mode, String desc) {
 		super(name, "selection/"+mode, desc, mapFrame, ImageProvider.getCursor("normal", "selection"));
 		this.mode = mode;
+		putValue("help", "Action/Selection/"+Character.toUpperCase(mode.toString().charAt(0))+mode.toString().substring(1));
 		this.selectionManager = new SelectionManager(this, false, mapFrame.mapView);
 	}
 
@@ -148,7 +150,7 @@ public class SelectionAction extends MapMode implements SelectionEnded {
 		if (!ctrl && !shift)
 			curSel = new LinkedList<OsmPrimitive>(); // new selection will replace the old.
 		else
-			curSel = Main.ds.getSelected(); 
+			curSel = Main.ds.getSelected();
 
 		Collection<OsmPrimitive> selectionList = selectionManager.getObjectsInRectangle(r,alt);
 		for (OsmPrimitive osm : selectionList)
@@ -195,7 +197,7 @@ public class SelectionAction extends MapMode implements SelectionEnded {
 	}
 
 	/**
-	 * Get the shortest path by stepping through the node with a common segment with start 
+	 * Get the shortest path by stepping through the node with a common segment with start
 	 * and nearest to the end (greedy algorithm).
 	 */
 	private void calculateShortestPath(Collection<OsmPrimitive> path, Node start, Node end) {

@@ -53,19 +53,19 @@ import org.xml.sax.SAXException;
 
 /**
  * This dialog displays the properties of the current selected primitives.
- * 
- * If no object is selected, the dialog list is empty. 
+ *
+ * If no object is selected, the dialog list is empty.
  * If only one is selected, all properties of this object are selected.
  * If more than one object are selected, the sum of all properties are displayed. If the
  * different objects share the same property, the shared value is displayed. If they have
  * different values, all of them are put in a combo box and the string "&lt;different&gt;"
  * is displayed in italic.
- * 
- * Below the list, the user can click on an add, modify and delete property button to 
+ *
+ * Below the list, the user can click on an add, modify and delete property button to
  * edit the table selection value.
- * 
+ *
  * The command is applied to all selected entries.
- * 
+ *
  * @author imi
  */
 public class PropertiesDialog extends ToggleDialog implements SelectionChangedListener {
@@ -90,7 +90,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 
 	/**
 	 * Edit the value in the table row
-	 * @param row 	The row of the table, from which the value is edited. 
+	 * @param row 	The row of the table, from which the value is edited.
 	 */
 	void edit(int row) {
 		String key = data.getValueAt(row, 0).toString();
@@ -137,7 +137,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 
 		if (value == null)
 			selectionChanged(sel); // update whole table
-		
+
 		Main.parent.repaint(); // repaint all - drawing could have been changed
 	}
 
@@ -329,6 +329,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		b.addActionListener(actionListener);
 		b.setToolTipText(tooltip);
 		b.setMnemonic(mnemonic);
+		b.putClientProperty("help", "Dialog/Properties/"+name);
 		return b;
 	}
 

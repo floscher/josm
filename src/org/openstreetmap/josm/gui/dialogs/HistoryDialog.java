@@ -37,14 +37,14 @@ import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * History dialog works like follows:
- * 
+ *
  * There is a history cache hold in the back for primitives of the last refresh.
  * When the user refreshes, this cache is cleared and all currently selected items
  * are reloaded.
- * If the user has selected at least one primitive not in the cache, the list 
+ * If the user has selected at least one primitive not in the cache, the list
  * is not displayed. Elsewhere, the list of all changes of all currently selected
  * objects are displayed.
- * 
+ *
  * @author imi
  */
 public class HistoryDialog extends ToggleDialog implements SelectionChangedListener {
@@ -129,12 +129,14 @@ public class HistoryDialog extends ToggleDialog implements SelectionChangedListe
 			}
 		});
 		reloadButton.setToolTipText(tr("Reload all currently selected objects and refresh the list."));
+		reloadButton.putClientProperty("help", "Dialog/History/Reload");
 		revertButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				JOptionPane.showMessageDialog(Main.parent, tr("Not implemented yet."));
 			}
 		});
 		revertButton.setToolTipText(tr("Revert the state of all currently selected objects to the version selected in the history list."));
+		revertButton.putClientProperty("help", "Dialog/History/Revert");
 	}
 
 
