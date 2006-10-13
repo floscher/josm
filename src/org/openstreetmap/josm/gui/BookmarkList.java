@@ -57,7 +57,7 @@ public class BookmarkList extends JList {
 
 			for (String line = in.readLine(); line != null; line = in.readLine()) {
 				StringTokenizer st = new StringTokenizer(line, ",");
-				if (st.countTokens() != 5)
+				if (st.countTokens() < 5)
 					continue;
 				Bookmark b = new Bookmark();
 				b.name = st.nextToken();
