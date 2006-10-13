@@ -1,14 +1,6 @@
 package org.openstreetmap.josm.tools;
 
-import java.io.File;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.text.MessageFormat;
-import java.util.Locale;
-import java.util.MissingResourceException;
-
-import org.openstreetmap.josm.Main;
-import org.xnap.commons.i18n.I18nFactory;
 
 /**
  * Internationalisation support.
@@ -16,31 +8,11 @@ import org.xnap.commons.i18n.I18nFactory;
  * @author Immanuel.Scholz
  */
 public class I18n {
-	private static org.xnap.commons.i18n.I18n i18n;
-
-	static {
-		String localeFile = Main.pref.getPreferencesDir()+"lang/"+Locale.getDefault()+".jar";
-		Class<?> klass = Main.class;
-		if (new File(localeFile).exists()) {
-			try {
-				String url = localeFile.replace('\\','/');
-				if (System.getProperty("os.name").startsWith("Windows"))
-					url = "file:/"+url;
-				else
-					url = "file://"+url;
-		        URLClassLoader loader = new URLClassLoader(new URL[]{new URL(url)});
-		        klass = Class.forName("org.openstreetmap.josm.Translation_"+Locale.getDefault(), true, loader);
-	        } catch (Exception e) {
-	        	System.out.println("Couldn't load locale file "+localeFile);
-	        	e.printStackTrace();
-	        }
-		}
-		try {
-			i18n = I18nFactory.getI18n(klass);
-		} catch (MissingResourceException e) {
-			System.out.println("Locale '"+Locale.getDefault()+"' not found. Using default.");
-		}
-	}
+	/**
+	 * Set by MainApplication. Changes here later will probably mess up everything, because
+	 * many strings are already loaded.
+	 */
+	public static org.xnap.commons.i18n.I18n i18n;
 
 	public static String tr(String text, Object... objects) {
 		if (i18n == null)

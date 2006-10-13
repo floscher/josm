@@ -25,7 +25,7 @@ public class MainApplet extends JApplet {
 	private final class MainCaller extends Main {
 		private MainCaller() {
 			setContentPane(contentPane);
-			setJMenuBar(mainMenu);
+			setJMenuBar(menu);
 			setBounds(bounds);
 		}
 	}

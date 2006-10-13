@@ -266,12 +266,12 @@ public class NavigatableComponent extends JComponent implements Helpful {
 					c.add(ls);
 		}
 		if (osm instanceof Node || osm instanceof Segment) {
-			for (Way t : Main.ds.ways) {
-				if (t.deleted)
+			for (Way w : Main.ds.ways) {
+				if (w.deleted)
 					continue;
-				for (Segment ls : t.segments) {
+				for (Segment ls : w.segments) {
 					if (!ls.deleted && !ls.incomplete && c.contains(ls)) {
-						c.add(t);
+						c.add(w);
 						break;
 					}
 				}

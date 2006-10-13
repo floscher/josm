@@ -6,7 +6,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.net.URI;
@@ -20,33 +19,15 @@ import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JComponent;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 
 import org.openstreetmap.josm.actions.AboutAction;
-import org.openstreetmap.josm.actions.AlignInCircleAction;
 import org.openstreetmap.josm.actions.DownloadAction;
-import org.openstreetmap.josm.actions.ExitAction;
-import org.openstreetmap.josm.actions.ExternalToolsAction;
-import org.openstreetmap.josm.actions.GpxExportAction;
-import org.openstreetmap.josm.actions.HelpAction;
-import org.openstreetmap.josm.actions.OpenAction;
-import org.openstreetmap.josm.actions.PreferencesAction;
-import org.openstreetmap.josm.actions.RedoAction;
-import org.openstreetmap.josm.actions.ReverseSegmentAction;
-import org.openstreetmap.josm.actions.SaveAction;
-import org.openstreetmap.josm.actions.SaveAsAction;
-import org.openstreetmap.josm.actions.UndoAction;
-import org.openstreetmap.josm.actions.UploadAction;
 import org.openstreetmap.josm.actions.DownloadAction.DownloadTask;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
 import org.openstreetmap.josm.data.Bounds;
@@ -54,10 +35,10 @@ import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.projection.Epsg4326;
 import org.openstreetmap.josm.data.projection.Projection;
+import org.openstreetmap.josm.gui.MainMenu;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.PleaseWaitDialog;
 import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
-import org.openstreetmap.josm.gui.annotation.AnnotationTester;
 import org.openstreetmap.josm.gui.dialogs.SelectionListDialog;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
@@ -106,10 +87,12 @@ abstract public class Main {
 	 * The dialog that gets displayed during background task execution.
 	 */
 	public static PleaseWaitDialog pleaseWaitDlg;
+
+
 	/**
-	 * The access to the help subsystem
+	 * The main menu bar at top of screen.
 	 */
-	public HelpAction help;
+	public final MainMenu menu;
 
 
 	/**
@@ -152,12 +135,12 @@ abstract public class Main {
 	 */
 	public final void setLayerMenu(Component[] entries) {
 		if (entries == null || entries.length == 0)
-			layerMenu.setVisible(false);
+			menu.layerMenu.setVisible(false);
 		else {
-			layerMenu.removeAll();
+			menu.layerMenu.removeAll();
 			for (Component c : entries)
-				layerMenu.add(c);
-			layerMenu.setVisible(true);
+				menu.layerMenu.add(c);
+			menu.layerMenu.setVisible(true);
 		}
 	}
 
@@ -176,96 +159,26 @@ abstract public class Main {
 	public Main() {
 		main = this;
 		contentPane.add(panel, BorderLayout.CENTER);
-
-		final Action annotationTesterAction = new AbstractAction(){
-			public void actionPerformed(ActionEvent e) {
-				String annotationSources = pref.get("annotation.sources");
-				if (annotationSources.equals("")) {
-					JOptionPane.showMessageDialog(Main.parent, tr("You have to specify annotation sources in the preferences first."));
-					return;
-				}
-				String[] args = annotationSources.split(";");
-				new AnnotationTester(args);
-			}
-		};
-		annotationTesterAction.putValue(Action.NAME, tr("Annotation Preset Tester"));
-		annotationTesterAction.putValue(Action.SMALL_ICON, ImageProvider.get("annotation-tester"));
-		final Action reverseSegmentAction = new ReverseSegmentAction();
-		final Action alignInCircleAction = new AlignInCircleAction();
-		final Action uploadAction = new UploadAction();
-		final Action saveAction = new SaveAction();
-		final Action saveAsAction = new SaveAsAction();
-		final Action gpxExportAction = new GpxExportAction(null);
-		final Action exitAction = new ExitAction();
-		final Action preferencesAction = new PreferencesAction();
-		help = new HelpAction();
-		final Action aboutAction = new AboutAction();
-
-		final JMenu fileMenu = new JMenu(tr("Files"));
-		fileMenu.setMnemonic('F');
-		fileMenu.add(openAction);
-		fileMenu.add(saveAction);
-		fileMenu.add(saveAsAction);
-		fileMenu.add(gpxExportAction);
-		fileMenu.addSeparator();
-		fileMenu.add(exitAction);
-		mainMenu.add(fileMenu);
-
-
-		final JMenu connectionMenu = new JMenu(tr("Connection"));
-		connectionMenu.setMnemonic('C');
-		connectionMenu.add(downloadAction);
-		//connectionMenu.add(new DownloadIncompleteAction());
-		connectionMenu.add(uploadAction);
-		mainMenu.add(connectionMenu);
-
-		layerMenu = new JMenu(tr("Layer"));
-		layerMenu.setMnemonic('L');
-		mainMenu.add(layerMenu);
-		layerMenu.setVisible(false);
-
-		final JMenu editMenu = new JMenu(tr("Edit"));
-		editMenu.setMnemonic('E');
-		editMenu.add(undoAction);
-		editMenu.add(redoAction);
-		editMenu.addSeparator();
-		editMenu.add(reverseSegmentAction);
-		editMenu.add(alignInCircleAction);
-		editMenu.addSeparator();
-		editMenu.add(preferencesAction);
-		mainMenu.add(editMenu);
-
-		JMenu externalMenu = ExternalToolsAction.buildMenu();
-		if (externalMenu != null)
-			mainMenu.add(externalMenu);
-
-		mainMenu.add(new JSeparator());
-		final JMenu helpMenu = new JMenu(tr("Help"));
-		helpMenu.setMnemonic('H');
-		helpMenu.add(help);
-		helpMenu.add(aboutAction);
-		helpMenu.addSeparator();
-		helpMenu.add(annotationTesterAction);
-		mainMenu.add(helpMenu);
+		menu = new MainMenu();
 
 		// creating toolbar
 		final JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
-		toolBar.add(downloadAction);
-		toolBar.add(uploadAction);
+		toolBar.add(menu.download);
+		toolBar.add(menu.upload);
 		toolBar.addSeparator();
-		toolBar.add(openAction);
-		toolBar.add(saveAction);
-		toolBar.add(gpxExportAction);
+		toolBar.add(menu.open);
+		toolBar.add(menu.save);
+		toolBar.add(menu.gpxExport);
 		toolBar.addSeparator();
-		toolBar.add(undoAction);
-		toolBar.add(redoAction);
+		toolBar.add(menu.undo);
+		toolBar.add(menu.redo);
 		toolBar.addSeparator();
-		toolBar.add(preferencesAction);
+		toolBar.add(menu.preferences);
 		contentPane.add(toolBar, BorderLayout.NORTH);
 
         contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0), "Help");
-        contentPane.getActionMap().put("Help", help);
+        contentPane.getActionMap().put("Help", menu.help);
 
 		contentPane.updateUI();
 	}
@@ -279,9 +192,12 @@ abstract public class Main {
 			for (String pluginName : Main.pref.get("plugins").split(",")) {
 				try {
 					File pluginFile = new File(pref.getPreferencesDir()+"plugins/"+pluginName+".jar");
-					if (pluginFile.exists())
-						plugins.add(new PluginInformation(pluginFile).load());
-					else
+					if (pluginFile.exists()) {
+						PluginInformation info = new PluginInformation(pluginFile);
+						Class<?> klass = info.loadClass();
+						ImageProvider.sources.add(0, klass);
+						plugins.add(info.load(klass));
+					} else
 						JOptionPane.showMessageDialog(Main.parent, tr("Plugin not found: {0}.", pluginName));
 				} catch (PluginException e) {
 					e.printStackTrace();
@@ -326,24 +242,17 @@ abstract public class Main {
 	//  Implementation part
 	////////////////////////////////////////////////////////////////////////////////////////
 
-
 	public static JPanel panel = new JPanel(new BorderLayout());
 
-	public final JMenuBar mainMenu = new JMenuBar();
 	protected static Rectangle bounds;
 
-	public final UndoAction undoAction = new UndoAction();
-	public final RedoAction redoAction = new RedoAction();
-	public final OpenAction openAction = new OpenAction();
-	public final DownloadAction downloadAction = new DownloadAction();
 
 	private final CommandQueueListener redoUndoListener = new CommandQueueListener(){
 		public void commandChanged(final int queueSize, final int redoSize) {
-			undoAction.setEnabled(queueSize > 0);
-			redoAction.setEnabled(redoSize > 0);
+			menu.undo.setEnabled(queueSize > 0);
+			menu.redo.setEnabled(redoSize > 0);
 		}
 	};
-	private JMenu layerMenu;
 
 	/**
 	 * Should be called before the main constructor to setup some parameter stuff
@@ -419,15 +328,15 @@ abstract public class Main {
 			if (b == null)
 				JOptionPane.showMessageDialog(Main.parent, tr("Ignoring malformed url: \"{0}\"", s));
 			else {
-				DownloadTask osmTask = main.downloadAction.downloadTasks.get(0);
-				osmTask.download(main.downloadAction, b.min.lat(), b.min.lon(), b.max.lat(), b.max.lon());
+				DownloadTask osmTask = main.menu.download.downloadTasks.get(0);
+				osmTask.download(main.menu.download, b.min.lat(), b.min.lon(), b.max.lat(), b.max.lon());
 			}
 			return;
 		}
 
 		if (s.startsWith("file:")) {
 			try {
-				main.openAction.openFile(new File(new URI(s)));
+				main.menu.open.openFile(new File(new URI(s)));
 			} catch (URISyntaxException e) {
 				JOptionPane.showMessageDialog(Main.parent, tr("Ignoring malformed file url: \"{0}\"", s));
 			}
@@ -437,13 +346,13 @@ abstract public class Main {
 		final StringTokenizer st = new StringTokenizer(s, ",");
 		if (st.countTokens() == 4) {
 			try {
-				DownloadTask task = main.downloadAction.downloadTasks.get(rawGps ? 1 : 0);
-				task.download(main.downloadAction, Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()));
+				DownloadTask task = main.menu.download.downloadTasks.get(rawGps ? 1 : 0);
+				task.download(main.menu.download, Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()));
 				return;
 			} catch (final NumberFormatException e) {
 			}
 		}
 
-		main.openAction.openFile(new File(s));
+		main.menu.open.openFile(new File(s));
 	}
 }

@@ -41,11 +41,11 @@ public class DataSetTestCaseHelper {
 	}
 
 	public static Way createWay(DataSet ds, Segment... segments) {
-		Way t = new Way();
-		t.segments.addAll(Arrays.asList(segments));
+		Way w = new Way();
+		w.segments.addAll(Arrays.asList(segments));
 		if (ds != null)
-			ds.ways.add(t);
-		return t;
+			ds.ways.add(w);
+		return w;
 	}
 	
 	/**

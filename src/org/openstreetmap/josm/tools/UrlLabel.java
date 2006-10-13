@@ -20,6 +20,7 @@ public class UrlLabel extends JEditorPane implements HyperlinkListener {
 		this.url = url;
 		setContentType("text/html");
 		setText("<html><a href=\""+url+"\">"+description+"</a></html>");
+		setToolTipText(url);
 		setEditable(false);
 		setOpaque(false);
 		addHyperlinkListener(this);

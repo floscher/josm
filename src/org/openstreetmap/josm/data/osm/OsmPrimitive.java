@@ -87,12 +87,21 @@ abstract public class OsmPrimitive implements Comparable<OsmPrimitive> {
 	}
 
 	/**
-	 * Return the id as hashcode or supers hashcode if 0.
+	 * Return the id plus the class type encoded as hashcode or supers hashcode if id is 0.
 	 * 
 	 * An primitive has the same hashcode as its incomplete counter part.
 	 */
 	@Override public final int hashCode() {
-		return id == 0 ? super.hashCode() : (int)id;
+		if (id == 0)
+			return super.hashCode();
+		final int[] ret = new int[1];
+		Visitor v = new Visitor(){
+			public void visit(Node n) { ret[0] = 1; }
+			public void visit(Segment s) { ret[0] = 2; }
+			public void visit(Way w) { ret[0] = 3; }
+		};
+		visit(v);
+		return id == 0 ? super.hashCode() : (int)(id<<3)+ret[0];
 	}
 
 	/**
