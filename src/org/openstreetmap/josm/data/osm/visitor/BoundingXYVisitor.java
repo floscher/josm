@@ -27,8 +27,8 @@ public class BoundingXYVisitor implements Visitor {
 		}
 	}
 
-	public void visit(Way t) {
-		for (Segment ls : t.segments)
+	public void visit(Way w) {
+		for (Segment ls : w.segments)
 			visit(ls);
 	}
 

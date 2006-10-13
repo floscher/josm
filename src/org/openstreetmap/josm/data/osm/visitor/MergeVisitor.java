@@ -146,9 +146,9 @@ public class MergeVisitor implements Visitor {
 			return;
 
 		Way my = null;
-		for (Way t : ds.ways) {
-			if (match(other, t)) {
-				my = t;
+		for (Way w : ds.ways) {
+			if (match(other, w)) {
+				my = w;
 				break;
 			}
 		}
@@ -210,20 +210,20 @@ public class MergeVisitor implements Visitor {
 				fixWay((Way)osm);
 	}
 
-	private void fixWay(Way t) {
+	private void fixWay(Way w) {
 	    boolean replacedSomething = false;
 	    LinkedList<Segment> newSegments = new LinkedList<Segment>();
-	    for (Segment ls : t.segments) {
+	    for (Segment ls : w.segments) {
 	    	Segment otherLs = mergedSegments.get(ls);
 	    	newSegments.add(otherLs == null ? ls : otherLs);
 	    	if (otherLs != null)
 	    		replacedSomething = true;
 	    }
 	    if (replacedSomething) {
-	    	t.segments.clear();
-	    	t.segments.addAll(newSegments);
+	    	w.segments.clear();
+	    	w.segments.addAll(newSegments);
 	    }
-	    for (Segment ls : t.segments)
+	    for (Segment ls : w.segments)
 	    	fixSegment(ls);
     }
 
@@ -257,17 +257,17 @@ public class MergeVisitor implements Visitor {
 	/**
 	 * @return Whether the ways matches (in sense of "be mergable").
 	 */
-	private boolean match(Way t1, Way t2) {
-		if (t1.id == 0 || t2.id == 0) {
-			if (t1.segments.size() != t2.segments.size())
+	private boolean match(Way w1, Way w2) {
+		if (w1.id == 0 || w2.id == 0) {
+			if (w1.segments.size() != w2.segments.size())
 				return false;
-			Iterator<Segment> it = t1.segments.iterator();
-			for (Segment ls : t2.segments)
+			Iterator<Segment> it = w1.segments.iterator();
+			for (Segment ls : w2.segments)
 				if (!match(ls, it.next()))
 					return false;
 			return true;
 		}
-		return t1.id == t2.id;
+		return w1.id == w2.id;
 	}
 
 	/**

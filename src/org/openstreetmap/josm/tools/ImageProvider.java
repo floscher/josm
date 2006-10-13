@@ -11,6 +11,8 @@ import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.Icon;
@@ -36,6 +38,12 @@ public class ImageProvider {
 	private static Map<URL, Image> cache = new HashMap<URL, Image>();
 
 	/**
+	 * Add here all ClassLoader whose ressource should be searched.
+	 * Plugin's class loaders are added by main.
+	 */
+	public static final List<Class<?>> sources = new LinkedList<Class<?>>();
+
+	/**
 	 * Return an image from the specified location.
 	 *
 	 * @param subdir	The position of the directory, e.g. "layer"
@@ -46,7 +54,12 @@ public class ImageProvider {
 		if (subdir != "")
 			subdir += "/";
 		String ext = name.indexOf('.') != -1 ? "" : ".png";
-		URL path = Main.class.getResource("/images/"+subdir+name+ext);
+		URL path = null;
+		for (Class<?> source : sources) {
+			path = source.getResource("/images/"+subdir+name+ext);
+			if (path != null)
+				break;
+		}
 		if (path == null)
 			throw new NullPointerException("/images/"+subdir+name+ext+" not found");
 		Image img = cache.get(path);
@@ -106,5 +119,9 @@ public class ImageProvider {
 		}
 		overlay.paintIcon(null, g, x, y);
 		return new ImageIcon(img);
+	}
+
+	static {
+		sources.add(Main.class);
 	}
 }

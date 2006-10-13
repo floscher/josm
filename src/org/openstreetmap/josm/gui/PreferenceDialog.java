@@ -13,8 +13,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
@@ -84,7 +83,6 @@ public class PreferenceDialog extends JDialog {
 		}
 		public void actionPerformed(ActionEvent e) {
 			Main.pref.put("laf", ((LookAndFeelInfo)lafCombo.getSelectedItem()).getClassName());
-			Main.pref.put("language", languages.getSelectedItem().toString());
 			Main.pref.put("projection", projectionCombo.getSelectedItem().getClass().getName());
 			Main.pref.put("osm-server.url", osmDataServer.getText());
 			Main.pref.put("osm-server.username", osmDataUsername.getText());
@@ -155,12 +153,6 @@ public class PreferenceDialog extends JDialog {
 	 * ComboBox with all look and feels.
 	 */
 	private JComboBox lafCombo = new JComboBox(UIManager.getInstalledLookAndFeels());
-	private JComboBox languages = new JComboBox(new Locale[]{
-			new Locale("en", "US"),
-			new Locale("en", "GB"),
-			Locale.GERMAN,
-			Locale.FRENCH,
-			new Locale("ro", "RO")});
 	/**
 	 * The main tab panel.
 	 */
@@ -232,21 +224,6 @@ public class PreferenceDialog extends JDialog {
 		});
 		lafCombo.addActionListener(requireRestartAction);
 
-		// language
-		String lang = Main.pref.get("language");
-		for (int i = 0; i < languages.getItemCount(); ++i) {
-			if (languages.getItemAt(i).toString().equals(lang)) {
-				languages.setSelectedIndex(i);
-				break;
-			}
-		}
-		languages.setRenderer(new DefaultListCellRenderer(){
-			@Override public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-				return super.getListCellRendererComponent(list, ((Locale)value).getDisplayName(), index, isSelected, cellHasFocus);
-			}
-		});
-		languages.addActionListener(requireRestartAction);
-
 		// projection combo box
 		for (int i = 0; i < projectionCombo.getItemCount(); ++i) {
 			if (projectionCombo.getItemAt(i).getClass().getName().equals(Main.pref.get("projection"))) {
@@ -284,12 +261,14 @@ public class PreferenceDialog extends JDialog {
 			((DefaultListModel)annotationSources.getModel()).addElement(st.nextToken());
 
 		Box pluginPanel = Box.createVerticalBox();
-		Collection<PluginInformation> availablePlugins = new HashSet<PluginInformation>();
+		Collection<PluginInformation> availablePlugins = new LinkedList<PluginInformation>();
 		File[] pluginFiles = new File(Main.pref.getPreferencesDir()+"plugins").listFiles();
-		if (pluginFiles != null)
+		if (pluginFiles != null) {
+			Arrays.sort(pluginFiles);
 			for (File f : pluginFiles)
 				if (f.isFile() && f.getName().endsWith(".jar"))
 					availablePlugins.add(new PluginInformation(f));
+		}
 
 		Collection<String> enabledPlugins = Arrays.asList(Main.pref.get("plugins").split(","));
 		for (final PluginInformation plugin : availablePlugins) {
@@ -319,7 +298,7 @@ public class PreferenceDialog extends JDialog {
 		Vector<Vector<Object>> rows = new Vector<Vector<Object>>();
 		for (Entry<String,String> e : allColors.entrySet()) {
 			Vector<Object> row = new Vector<Object>(2);
-			row.add(tr(e.getKey().substring("color.".length())));
+			row.add(e.getKey().substring("color.".length()));
 			row.add(ColorHelper.html2color(e.getValue()));
 			rows.add(row);
 		}
@@ -341,7 +320,7 @@ public class PreferenceDialog extends JDialog {
 					l.setOpaque(true);
 					return l;
 				}
-				return oldColorsRenderer.getTableCellRendererComponent(t,o,selected,focus,row,column);
+				return oldColorsRenderer.getTableCellRendererComponent(t,tr(o.toString()),selected,focus,row,column);
 			}
 		});
 		colors.getColumnModel().getColumn(1).setWidth(100);
@@ -428,9 +407,6 @@ public class PreferenceDialog extends JDialog {
 		display.add(new JLabel(tr("Look and Feel")), GBC.std());
 		display.add(GBC.glue(5,0), GBC.std().fill(GBC.HORIZONTAL));
 		display.add(lafCombo, GBC.eol().fill(GBC.HORIZONTAL));
-		display.add(new JLabel(tr("Language")), GBC.std());
-		display.add(GBC.glue(5,0), GBC.std().fill(GBC.HORIZONTAL));
-		display.add(languages, GBC.eol().fill(GBC.HORIZONTAL));
 		display.add(drawRawGpsLines, GBC.eol().insets(20,0,0,0));
 		display.add(forceRawGpsLines, GBC.eop().insets(40,0,0,0));
 		display.add(largeGpsPoints, GBC.eop().insets(20,0,0,0));
@@ -486,7 +462,7 @@ public class PreferenceDialog extends JDialog {
 		JPanel plugin = createPreferenceTab("plugin", tr("Plugins"), tr("Configure available Plugins."));
 		plugin.add(pluginPane, GBC.eol().fill(GBC.BOTH));
 		plugin.add(GBC.glue(0,10), GBC.eol());
-		plugin.add(new UrlLabel("http://josm.eigenheimstrasse.de/wiki/Plugins", "Get more plugins"), GBC.std().fill(GBC.HORIZONTAL));
+		plugin.add(new UrlLabel("http://josm.eigenheimstrasse.de/wiki/Plugins", tr("Get more plugins")), GBC.std().fill(GBC.HORIZONTAL));
 
 		tabPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 
@@ -504,6 +480,10 @@ public class PreferenceDialog extends JDialog {
 
 		setModal(true);
 		pack();
+		if (getHeight() > 400)
+			setSize(getWidth(), 400);
+		if (getWidth() > 600)
+			setSize(600, getHeight());
 		setLocationRelativeTo(Main.parent);
 	}
 

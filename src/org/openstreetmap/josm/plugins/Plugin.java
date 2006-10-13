@@ -1,5 +1,6 @@
 package org.openstreetmap.josm.plugins;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -70,6 +71,9 @@ public abstract class Plugin {
 	 * Copies the ressource 'from' to the file in the plugin directory named 'to'.
 	 */
 	public void copy(String from, String to) throws FileNotFoundException, IOException {
+		File pluginDir = new File(getPluginDir());
+		if (!pluginDir.exists())
+			pluginDir.mkdirs();
     	FileOutputStream out = new FileOutputStream(getPluginDir()+to);
     	InputStream in = getClass().getResourceAsStream(from);
     	byte[] buffer = new byte[8192];

@@ -40,8 +40,8 @@ public class AllNodesVisitor implements Visitor {
 	/**
 	 * Ways have all nodes from their segments.
 	 */
-	public void visit(Way t) {
-		for (Segment ls : t.segments)
+	public void visit(Way w) {
+		for (Segment ls : w.segments)
 			visit(ls);
 	}
 

@@ -264,28 +264,13 @@ public class MergeVisitorTest extends TestCase {
 	}
 	
 	/**
-	 * Deleted segments should be deleted when merged over unchanged segments.
-	 */
-	public void testMergeDeletedOverUnchangedDeletes() {
-		DataSet ds = new DataSet();
-		Segment oldSegment = createSegment(ds, false, false, 23);
-		Segment s = createSegment(null, false, true, 23);
-		
-		MergeVisitor v = new MergeVisitor(ds);
-		v.visit(s);
-		v.fixReferences();
-		
-		assertEquals(true, oldSegment.deleted);
-	}
-	
-
-	/**
 	 * Deleted segments should raise an conflict when merged over changed segments. 
 	 */
 	public void testMergeDeletedOverChangedConflict() {
 		DataSet ds = new DataSet();
 		createSegment(ds, false, false, 23).modified = true;
 		Segment s = createSegment(null, false, true, 23);
+		s.timestamp = new Date(new Date().getTime()+1);
 		
 		MergeVisitor v = new MergeVisitor(ds);
 		v.visit(s);
@@ -302,6 +287,7 @@ public class MergeVisitorTest extends TestCase {
 		s.incomplete = incomplete;
 		s.id = id;
 		s.deleted = deleted;
+		s.timestamp = new Date();
 		return s;
 	}
 	

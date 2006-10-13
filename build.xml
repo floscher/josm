@@ -25,7 +25,7 @@
 			<fileset dir="images" />
 		</copy>
 		<copy todir="build/org/openstreetmap/josm">
-		        <fileset dir="po/org/openstreetmap/josm" />
+				<fileset dir="po/org/openstreetmap/josm" />
 		</copy>
 
 		<!-- create josm-custom.jar -->
@@ -36,44 +36,10 @@
 		</jar>
 	</target>
 
-	<target name="gettext" depends="init">
-    	<exec executable="find" output="build/alljava.txt">
-    		<arg line="src -name '*.java'"/>
-    	</exec>
-        <exec executable="xgettext">
-        	<arg line="-ktr -ktrn:1,2 -ktrc -kmarktr -Ljava -opo/keys.pot -fbuild/alljava.txt"/>
-        </exec>
-        <apply executable="msgmerge">
-        	<arg value="-U"/>
-			<srcfile/>
-        	<arg file="po/keys.pot"/>
-        	<fileset dir="po">
-        		<include name="*.po"/>
-        	</fileset>
-        </apply>
-
-    	<!-- FIXME: somehow iterate the po-directory and create the java files -->
-    	<exec executable="msgfmt">
-    		<arg line="--java2 -dpo -rorg.openstreetmap.josm.Translation -lde po/de.po"/>
-    	</exec>
-    	<exec executable="msgfmt">
-    		<arg line="--java2 -dpo -rorg.openstreetmap.josm.Translation -lfr po/fr.po"/>
-    	</exec>
-    	<exec executable="msgfmt">
-    		<arg line="--java2 -dpo -rorg.openstreetmap.josm.Translation -len_GB po/en_GB.po"/>
-    	</exec>
-    	<exec executable="msgfmt">
-    		<arg line="--java2 -dpo -rorg.openstreetmap.josm.Translation -lro po/ro.po"/>
-    	</exec>
-    </target>
-
 	<target name="compile" depends="init">
 		<javac srcdir="src" classpathref="classpath" destdir="build" />
 	</target>
 
-    <target name="compile-tests" depends="compile">
-
-    </target>
 
 
 	<target name="init">

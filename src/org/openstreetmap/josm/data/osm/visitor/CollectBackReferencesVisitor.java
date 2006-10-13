@@ -56,12 +56,12 @@ public class CollectBackReferencesVisitor implements Visitor {
 		}
 	}
 	public void visit(Segment ls) {
-		for (Way t : ds.ways) {
-			if (t.deleted)
+		for (Way w : ds.ways) {
+			if (w.deleted)
 				continue;
-			if (t.segments.contains(ls))
-				data.add(t);
+			if (w.segments.contains(ls))
+				data.add(w);
 		}
 	}
-	public void visit(Way t) {}
+	public void visit(Way w) {}
 }

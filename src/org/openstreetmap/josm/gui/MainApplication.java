@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.swing.JFrame;
@@ -22,7 +21,10 @@ import javax.swing.JOptionPane;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
+import org.openstreetmap.josm.plugins.PluginException;
+import org.openstreetmap.josm.plugins.PluginInformation;
 import org.openstreetmap.josm.tools.BugReportExceptionHandler;
+import org.openstreetmap.josm.tools.ImageProvider;
 /**
  * Main window class application.
  *
@@ -35,7 +37,7 @@ public class MainApplication extends Main {
 	 */
 	public MainApplication(JFrame mainFrame) {
 		mainFrame.setContentPane(contentPane);
-		mainFrame.setJMenuBar(mainMenu);
+		mainFrame.setJMenuBar(menu);
 		mainFrame.setBounds(bounds);
 		mainFrame.addWindowListener(new WindowAdapter(){
 			@Override public void windowClosing(final WindowEvent arg0) {
@@ -72,9 +74,9 @@ public class MainApplication extends Main {
 		//                        TO ALL TRANSLATORS
 		/////////////////////////////////////////////////////////////////////////
 		// Do not translate the early strings below until the locale is set up.
-		// These strings cannot be translated. That's live. Really. Sorry.
+		// (By the eager loaded plugins)
 		//
-		// The next one sending me a patch translating these strings owe me a beer!
+		// These strings cannot be translated. That's live. Really. Sorry.
 		//
 		//                                                                 Imi.
 		/////////////////////////////////////////////////////////////////////////
@@ -117,28 +119,26 @@ public class MainApplication extends Main {
 			Main.pref.resetToDefault();
 		}
 
-		// setup the locale
-		if (args.containsKey("language") && !args.get("language").isEmpty() && args.get("language").iterator().next().length() >= 2) {
-			String s = args.get("language").iterator().next();
-			Locale l = null;
-			if (s.length() <= 2 || s.charAt(2) != '_')
-				l = new Locale(s);
-			else if (s.length() <= 5 || s.charAt(5) != '.')
-				l = new Locale(s.substring(0,2), s.substring(3));
-			else
-				l = new Locale(s.substring(0,2), s.substring(3,5), s.substring(6));
-			Locale.setDefault(l);
-		} else if (!Main.pref.get("language").equals("")) {
-			String lang = Main.pref.get("language");
-			for (Locale l : Locale.getAvailableLocales()) {
-				if (l.toString().equals(lang)) {
-					Locale.setDefault(l);
-					break;
+		// load the early plugins
+	    if (Main.pref.hasKey("plugins")) {
+			for (String pluginName : Main.pref.get("plugins").split(",")) {
+				try {
+					File pluginFile = new File(pref.getPreferencesDir()+"plugins/"+pluginName+".jar");
+					if (pluginFile.exists()) {
+						PluginInformation info = new PluginInformation(pluginFile);
+						if (!info.early)
+							continue;
+						Class<?> klass = info.loadClass();
+						ImageProvider.sources.add(0, klass);
+						Main.plugins.add(info.load(klass));
+					} else
+						System.out.println("Plugin not found: "+pluginName);
+				} catch (PluginException e) {
+					System.out.println("Could not load plugin "+pluginName);
+					e.printStackTrace();
 				}
 			}
 		}
-
-		// Locale is set. From now on, tr(), trn() and trc() may be called.
 
 		if (argList.contains("--help") || argList.contains("-?") || argList.contains("-h")) {
 			System.out.println(tr("Java OpenStreetMap Editor")+"\n\n"+
