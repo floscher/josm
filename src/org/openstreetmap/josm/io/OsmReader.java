@@ -12,8 +12,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.swing.BoundedRangeModel;
-import javax.swing.JLabel;
 
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.DataSet;
@@ -23,6 +21,7 @@ import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.AddVisitor;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
+import org.openstreetmap.josm.gui.PleaseWaitDialog;
 import org.openstreetmap.josm.tools.DateParser;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -42,6 +41,12 @@ import uk.co.wilson.xml.MinML2;
  * @author Imi
  */
 public class OsmReader {
+
+	/**
+	 * This is used as (readonly) source for finding missing references when not transferred in the
+	 * file.
+	 */
+	private DataSet references;
 
 	/**
 	 * The dataset to add parsed objects to.
@@ -167,8 +172,8 @@ public class OsmReader {
 
 	private void createSegments() {
 		for (Entry<OsmPrimitiveData, long[]> e : segs.entrySet()) {
-			Node from = nodes.get(e.getValue()[0]);
-			Node to = nodes.get(e.getValue()[1]);
+			Node from = findNode(e.getValue()[0]);
+			Node to = findNode(e.getValue()[1]);
 			if (from == null || to == null)
 				continue; //TODO: implement support for incomplete nodes.
 			Segment s = new Segment(from, to);
@@ -178,11 +183,31 @@ public class OsmReader {
 		}
 	}
 
+	private Node findNode(long id) {
+	    Node n = nodes.get(id);
+	    if (n != null)
+	    	return n;
+	    for (Node node : references.nodes)
+	    	if (node.id == id)
+	    		return node;
+	    return null;
+    }
+
+	private Segment findSegment(long id) {
+		Segment s = segments.get(id);
+		if (s != null)
+			return s;
+		for (Segment seg : references.segments)
+			if (seg.id == id)
+				return seg;
+		return null;
+	}
+
 	private void createWays() {
 		for (Entry<OsmPrimitiveData, Collection<Long>> e : ways.entrySet()) {
 			Way w = new Way();
 			for (long id : e.getValue()) {
-				Segment s = segments.get(id);
+				Segment s = findSegment(id);
 				if (s == null) {
 					s = new Segment(id); // incomplete line segment
 					adder.visit(s);
@@ -201,16 +226,18 @@ public class OsmReader {
 
 	/**
 	 * Parse the given input source and return the dataset.
+	 * @param pleaseWaitDlg TODO
 	 */
-	public static DataSet parseDataSet(InputStream source, JLabel currentAction, BoundedRangeModel progress) throws SAXException, IOException {
+	public static DataSet parseDataSet(InputStream source, DataSet ref, PleaseWaitDialog pleaseWaitDlg) throws SAXException, IOException {
 		OsmReader osm = new OsmReader();
+		osm.references = ref;
 
 		// phase 1: Parse nodes and read in raw segments and ways
 		osm.new Parser().parse(new InputStreamReader(source, "UTF-8"));
-		if (progress != null)
-			progress.setValue(0);
-		if (currentAction != null)
-			currentAction.setText(tr("Preparing data..."));
+		if (pleaseWaitDlg != null) {
+			pleaseWaitDlg.progress.setValue(0);
+			pleaseWaitDlg.currentAction.setText(tr("Preparing data..."));
+		}
 		for (Node n : osm.nodes.values())
 			osm.adder.visit(n);
 

@@ -6,6 +6,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.gui.PleaseWaitDialog;
 
 /**
  * This DataReader read directly from the REST API of the osm server.
@@ -19,7 +20,7 @@ abstract class OsmServerReader extends OsmConnection {
 	 * @param url The exact url to connect to.
 	 * @return An reader reading the input stream (servers answer) or <code>null</code>.
 	 */
-	protected InputStream getInputStream(String urlStr) throws IOException {
+	protected InputStream getInputStream(String urlStr, PleaseWaitDialog pleaseWaitDlg) throws IOException {
 		urlStr = Main.pref.get("osm-server.url")+"/0.3/" + urlStr;
 		System.out.println("download: "+urlStr);
 		initAuthentication();
@@ -29,6 +30,6 @@ abstract class OsmServerReader extends OsmConnection {
 		activeConnection.setConnectTimeout(15000);
 		if (isAuthCancelled() && activeConnection.getResponseCode() == 401)
 			return null;
-		return new ProgressInputStream(activeConnection);
+		return new ProgressInputStream(activeConnection, pleaseWaitDlg);
 	}
 }

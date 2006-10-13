@@ -71,7 +71,7 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 			sel = mode != SearchMode.remove ? new LinkedList<OsmPrimitive>() : Main.ds.allNonDeletedPrimitives();
 			try {
 				URLConnection con = url.openConnection();
-				InputStream in = new ProgressInputStream(con);
+				InputStream in = new ProgressInputStream(con, Main.pleaseWaitDlg);
 				Main.pleaseWaitDlg.currentAction.setText(tr("Downloading..."));
 				Map<Long, String> ids = idReader.parseIds(in);
 				for (OsmPrimitive osm : Main.ds.allNonDeletedPrimitives()) {

@@ -9,18 +9,13 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 
 import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.data.osm.OsmPrimitive;
-import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.gui.PleaseWaitRunnable;
-import org.openstreetmap.josm.gui.layer.OsmDataLayer;
-import org.openstreetmap.josm.io.ObjectListDownloader;
+import org.openstreetmap.josm.io.IncompleteDownloader;
 import org.xml.sax.SAXException;
 
 /**
@@ -38,39 +33,19 @@ public class DownloadIncompleteAction extends JosmAction {
 	 * Run in the worker thread.
 	 */
 	private final class DownloadTask extends PleaseWaitRunnable {
-		private ObjectListDownloader reader;
-		private DataSet dataSet;
-		private boolean nodesLoaded = false;
+		private IncompleteDownloader reader;
 
-		private DownloadTask(Collection<OsmPrimitive> toDownload) {
+		private DownloadTask(Collection<Way> toDownload) {
 			super(trn("Downloading {0} segment", "Downloading {0} segments", toDownload.size(), toDownload.size()));
-			reader = new ObjectListDownloader(toDownload);
+			reader = new IncompleteDownloader(toDownload);
 		}
 
 		@Override public void realRun() throws IOException, SAXException {
-			dataSet = reader.parse();
+			reader.parse();
 		}
 
 		@Override protected void finish() {
-			if (dataSet == null)
-				return; // user cancelled download or error occoured
-			if (dataSet.allPrimitives().isEmpty())
-				errorMessage = tr("No data imported.");
-			if (errorMessage == null && nodesLoaded == false)
-				startDownloadNodes();
-			else if (errorMessage == null)
-				Main.main.addLayer(new OsmDataLayer(dataSet, tr("Data Layer"), null));
-		}
-
-		private void startDownloadNodes() {
-			Collection<OsmPrimitive> nodes = new HashSet<OsmPrimitive>();
-			for (Segment s : dataSet.segments) {
-				nodes.add(s.from);
-				nodes.add(s.to);
-			}
-			reader = new ObjectListDownloader(nodes);
-			nodesLoaded = true;
-			Main.worker.execute(this);
+			Main.parent.repaint();
 		}
 
 		@Override protected void cancel() {
@@ -84,22 +59,16 @@ public class DownloadIncompleteAction extends JosmAction {
 
 	public void actionPerformed(ActionEvent e) {
 		Collection<Way> ways = new HashSet<Way>();
-		boolean sel = false;
-		for (Way w : Main.ds.ways) {
-			if (w.isIncomplete())
+		for (Way w : Main.ds.ways)
+			if (w.isIncomplete() && w.selected)
 				ways.add(w);
-			sel = sel || w.selected;
-		}
-		if (sel)
-			for (Iterator<Way> it = ways.iterator(); it.hasNext();)
-				if (!it.next().selected)
-					it.remove();
-		Collection<OsmPrimitive> toDownload = new HashSet<OsmPrimitive>();
-		for (Way w : ways)
-			toDownload.addAll(w.segments);
-		if (JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(Main.parent, tr("Download {0} ways containing a total of {1} segments?", ways.size(), toDownload.size()), tr("Download?"), JOptionPane.YES_NO_OPTION))
+		if (ways.isEmpty()) {
+			JOptionPane.showMessageDialog(Main.parent, tr("Please select an incomplete way."));
 			return;
-		PleaseWaitRunnable task = new DownloadTask(toDownload);
+		}
+		if (JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(Main.parent, tr("Download {0} incomplete ways?", ways.size()), tr("Download?"), JOptionPane.YES_NO_OPTION))
+			return;
+		PleaseWaitRunnable task = new DownloadTask(ways);
 		Main.worker.execute(task);
 	}
 }

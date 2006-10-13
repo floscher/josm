@@ -200,7 +200,7 @@ public class ExternalToolsAction extends AbstractAction {
 				});
 			}
 			if (output != null)
-				dataSet = OsmReader.parseDataSet(p.getInputStream(), Main.pleaseWaitDlg.currentAction, Main.pleaseWaitDlg.progress);
+				dataSet = OsmReader.parseDataSet(p.getInputStream(), Main.ds, Main.pleaseWaitDlg);
 		}
 
 		@Override protected void cancel() {
