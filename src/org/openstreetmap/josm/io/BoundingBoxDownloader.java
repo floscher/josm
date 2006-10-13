@@ -43,7 +43,7 @@ public class BoundingBoxDownloader extends OsmServerReader {
 
     		for (int i = 0;;++i) {
     			Main.pleaseWaitDlg.currentAction.setText(tr("Downloading points {0} to {1}...", i * 5000, ((i + 1) * 5000)));
-    			InputStream in = getInputStream(url+i);
+    			InputStream in = getInputStream(url+i, Main.pleaseWaitDlg);
     			if (in == null)
     				break;
     			Collection<Collection<GpsPoint>> allWays = RawGpsReader.parse(in);
@@ -83,11 +83,11 @@ public class BoundingBoxDownloader extends OsmServerReader {
      */
     public DataSet parseOsm() throws SAXException, IOException {
     	try {
-    		final InputStream in = getInputStream("map?bbox="+lon1+","+lat1+","+lon2+","+lat2);
+    		final InputStream in = getInputStream("map?bbox="+lon1+","+lat1+","+lon2+","+lat2, Main.pleaseWaitDlg);
     		if (in == null)
     			return null;
     		Main.pleaseWaitDlg.currentAction.setText(tr("Downloading OSM data..."));
-    		final DataSet data = OsmReader.parseDataSet(in, Main.pleaseWaitDlg.currentAction, Main.pleaseWaitDlg.progress);
+    		final DataSet data = OsmReader.parseDataSet(in, Main.ds, Main.pleaseWaitDlg);
     		in.close();
     		activeConnection = null;
     		return data;

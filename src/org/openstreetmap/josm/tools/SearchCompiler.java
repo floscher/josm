@@ -119,6 +119,13 @@ public class SearchCompiler {
 		@Override public String toString() {return "modified";}
 	}
 
+	private static class Incomplete extends Match {
+		@Override public boolean match(OsmPrimitive osm) {
+			return osm instanceof Way && ((Way)osm).isIncomplete();
+		}
+		@Override public String toString() {return "modified";}
+	}
+	
 	public static Match compile(String searchStr) {
 		return new SearchCompiler().parse(new PushbackReader(new StringReader(searchStr)));
 	}
@@ -194,11 +201,11 @@ public class SearchCompiler {
 			Match c = null;
 			if (value.equals("modified"))
 				c = new Modified();
+			else if (value.equals("incomplete"))
+				c = new Incomplete();
 			else
 				c = new Any(value);
-			if (notValue)
-				return new Not(c);
-			return c;
+			return notValue ? new Not(c) : c;
 		}
 		Match c;
 		if (key.equals("type"))

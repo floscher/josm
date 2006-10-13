@@ -10,6 +10,7 @@ import javax.swing.JMenuBar;
 import org.openstreetmap.josm.actions.AboutAction;
 import org.openstreetmap.josm.actions.AlignInCircleAction;
 import org.openstreetmap.josm.actions.DownloadAction;
+import org.openstreetmap.josm.actions.DownloadIncompleteAction;
 import org.openstreetmap.josm.actions.ExitAction;
 import org.openstreetmap.josm.actions.ExternalToolsAction;
 import org.openstreetmap.josm.actions.GpxExportAction;
@@ -54,6 +55,7 @@ public class MainMenu extends JMenuBar {
 	public final JMenu helpMenu = new JMenu(tr("Help"));
 	public final JMenu fileMenu = new JMenu(tr("Files"));
 	public final JMenu connectionMenu = new JMenu(tr("Connection"));
+	private DownloadIncompleteAction downloadIncomplete = new DownloadIncompleteAction();
 
 
 	
@@ -79,7 +81,7 @@ public class MainMenu extends JMenuBar {
 
 		connectionMenu.setMnemonic('C');
 		connectionMenu.add(download);
-		//connectionMenu.add(new DownloadIncompleteAction());
+		connectionMenu.add(downloadIncomplete);
 		connectionMenu.add(upload);
 		add(connectionMenu);
 
