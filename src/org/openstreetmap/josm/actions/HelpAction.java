@@ -9,6 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.io.StringReader;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
@@ -159,7 +161,11 @@ public class HelpAction extends AbstractAction {
 	 */
 	public void setHelpUrl(String url) {
 		this.url = url;
-		help.setText(reader.read(url));
+		try {
+			help.read(new StringReader(reader.read(url)), help.getEditorKit().createDefaultDocument());
+        } catch (IOException e) {
+        	help.setText("Error while loading page "+url);
+        }
 		helpBrowser.setVisible(true);
 	}
 
