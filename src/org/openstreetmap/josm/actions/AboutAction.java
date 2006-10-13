@@ -54,7 +54,7 @@ public class AboutAction extends JosmAction {
 	}
 
 	public AboutAction() {
-		super(tr("About"), "about",tr("Display the about screen."), KeyEvent.VK_A);
+		super(tr("About"), "about",tr("Display the about screen."), KeyEvent.VK_F1, KeyEvent.SHIFT_DOWN_MASK);
 	}
 
 	public void actionPerformed(ActionEvent e) {
