@@ -24,9 +24,6 @@
 		<copy todir="build/images">
 			<fileset dir="images" />
 		</copy>
-		<copy todir="build/org/openstreetmap/josm">
-				<fileset dir="po/org/openstreetmap/josm" />
-		</copy>
 
 		<!-- create josm-custom.jar -->
 		<jar destfile="dist/josm-custom.jar" basedir="build">
