@@ -14,14 +14,14 @@ The gettext-commons-0.9.jar is from Felix Berger and Steffen
 Pingel (http://xnap-commons.sourceforge.net/gettext-commons/).
 The jar-file is licensed under LGPL.
 
-An internationalization-patch was submited 2006 by Sven 
-Anders <sven@anders-hamburg.de>.
-
 Several smaller patches are contributed by community members
 of OSM.
 
+Some plugins are from Nick Whitelegg (currently mappaint and
+landsat).
+
 Internalisation:
-German (not finished): Sven Anders <sven@anders-hamburg.de>
+German: Sven Anders <sven@anders-hamburg.de>
 French: Frédéric Bonifas <fredericbonifas@gmail.com>
 Romanian: Ovidiu Constantin
 British: Bruce Cowan
