@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.jar.Attributes;
@@ -24,9 +26,13 @@ public class PluginInformation {
 	public final String description;
 	public final boolean early;
 	public final String author;
+	public final List<URL> libraries = new ArrayList<URL>();
 
 	public final Map<String, String> attr = new TreeMap<String, String>();
 
+	/**
+	 * @param file the plugin jar file.
+	 */
 	public PluginInformation(File file) {
 		this.file = file;
 		name = file.getName().substring(0, file.getName().length()-4);
@@ -38,6 +44,16 @@ public class PluginInformation {
 			description = attr.getValue("Plugin-Description");
 			early = Boolean.parseBoolean(attr.getValue("Plugin-Early"));
 			author = attr.getValue("Author");
+			libraries.add(new URL(getURLString(file.getAbsolutePath())));
+			String classPath = attr.getValue("Class-Path");
+			if (classPath != null) {
+				for (String s : classPath.split(classPath.contains(";") ? ";" : ":")) {
+					if (!s.startsWith("/") && !s.startsWith("\\") && !s.matches("^.:"))
+						s = file.getParent() + File.separator + s;
+					libraries.add(new URL(getURLString(s)));
+				}
+			}
+
 			for (Object o : attr.keySet())
 				this.attr.put(o.toString(), attr.getValue(o.toString()));
 			jar.close();
@@ -62,9 +78,9 @@ public class PluginInformation {
 	 */
 	public Class<?> loadClass() {
 		try {
-			ClassLoader loader = URLClassLoader.newInstance(
-					new URL[]{new URL(getURLString())},
-					getClass().getClassLoader());
+			URL[] urls = new URL[libraries.size()];
+			urls = libraries.toArray(urls);
+			ClassLoader loader = URLClassLoader.newInstance(urls, getClass().getClassLoader());
 			Class<?> realClass = Class.forName(className, true, loader);
 			return realClass;
 		} catch (Exception e) {
@@ -72,9 +88,9 @@ public class PluginInformation {
 		}
 	}
 
-	private String getURLString() {
+	private String getURLString(String fileName) {
 		if (System.getProperty("os.name").startsWith("Windows"))
-			return "file:/"+file.getAbsolutePath();
-		return "file://"+file.getAbsolutePath();
+			return "file:/"+fileName;
+		return "file://"+fileName;
 	}
 }

@@ -67,7 +67,6 @@ public final class AlignInCircleAction extends JosmAction {
 		}
 
 		Main.main.editLayer().add(new SequenceCommand(tr("Align Nodes in Circle"), cmds));
-		Main.ds.setSelected(avn);
 		Main.map.repaint();
 	}
 }

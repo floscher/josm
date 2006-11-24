@@ -61,11 +61,18 @@ public class OsmWriter extends XmlWriter implements Visitor {
 		public void write(PrintWriter out) {
 			Visitor writer = new OsmWriter(out, osmConform);
 			for (Node n : ds.nodes)
-				writer.visit(n);
+				if (shouldWrite(n))
+					writer.visit(n);
 			for (Segment ls : ds.segments)
-				writer.visit(ls);
+				if (shouldWrite(ls))
+					writer.visit(ls);
 			for (Way w : ds.ways)
-				writer.visit(w);
+				if (shouldWrite(w))
+					writer.visit(w);
+        }
+
+		private boolean shouldWrite(OsmPrimitive osm) {
+	        return osm.id != 0 || !osm.deleted;
         }
 	}
 
