@@ -5,7 +5,9 @@ import java.awt.Graphics;
 import java.awt.Point;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.Node;
+import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.gui.NavigatableComponent;
@@ -33,6 +35,21 @@ public class SimplePaintVisitor implements Visitor {
 	protected NavigatableComponent nc;
 
 	protected static final double PHI = Math.toRadians(20);
+
+	public void visitAll(DataSet data) {
+		for (final OsmPrimitive osm : data.segments)
+			if (!osm.deleted)
+				osm.visit(this);
+		for (final OsmPrimitive osm : data.ways)
+			if (!osm.deleted)
+				osm.visit(this);
+		for (final OsmPrimitive osm : data.nodes)
+			if (!osm.deleted)
+				osm.visit(this);
+		for (final OsmPrimitive osm : data.getSelected())
+			if (!osm.deleted)
+				osm.visit(this);
+	}
 
 	/**
 	 * Draw a small rectangle. 

@@ -45,27 +45,32 @@ public class AnnotationPreset {
 	}
 
 	public static class Text implements Item {
-		String key;
-		String label;
-		JTextField value = new JTextField();
+		private String key;
+		private String label;
+		private JTextField value = new JTextField();
+		private boolean deleteIfEmpty;
 
 		public void addToPanel(JPanel p) {
 			p.add(new JLabel(label), GBC.std().insets(0,0,10,0));
 			p.add(value, GBC.eol().fill(GBC.HORIZONTAL));
 		}
-		public Text(String key, String label, String value) {
+		public Text(String key, String label, String value, boolean deleteIfEmpty) {
 			this.key = key;
 			this.label = label;
 			this.value.setText(value == null ? "" : value);
+			this.deleteIfEmpty = deleteIfEmpty;
 		}
 		public void addCommands(Collection<OsmPrimitive> sel, List<Command> cmds) {
-			cmds.add(new ChangePropertyCommand(sel, key, value.getText()));
+			String v = value.getText();
+			if (deleteIfEmpty && v.length() == 0)
+				v = null;
+			cmds.add(new ChangePropertyCommand(sel, key, v));
 		}
 	}
 
 	public static class Check implements Item {
-		String key;
-		JCheckBox check = new JCheckBox();
+		private String key;
+		private JCheckBox check = new JCheckBox();
 
 		public void addToPanel(JPanel p) {
 			p.add(check, GBC.eol().fill(GBC.HORIZONTAL));
@@ -81,19 +86,21 @@ public class AnnotationPreset {
 	}
 
 	public static class Combo implements Item {
-		String key;
-		String label;
-		JComboBox combo;
+		private String key;
+		private String label;
+		private JComboBox combo;
 		private final String[] values;
+		private boolean deleteIfEmpty;
 
 		public void addToPanel(JPanel p) {
 			p.add(new JLabel(label), GBC.std().insets(0,0,10,0));
 			p.add(combo, GBC.eol().fill(GBC.HORIZONTAL));
 		}
-		public Combo(String key, String label, String def, String[] values, String[] displayedValues, boolean editable) {
+		public Combo(String key, String label, String def, String[] values, String[] displayedValues, boolean editable, boolean deleteIfEmpty) {
 			this.key = key;
 			this.label = label;
 			this.values = values;
+			this.deleteIfEmpty = deleteIfEmpty;
 			combo = new JComboBox(displayedValues);
 			combo.setEditable(editable);
 			combo.setSelectedItem(def);
@@ -101,12 +108,14 @@ public class AnnotationPreset {
 		public void addCommands(Collection<OsmPrimitive> sel, List<Command> cmds) {
 			String v = combo.getSelectedIndex() == -1 ? null : values[combo.getSelectedIndex()];
 			String str = combo.isEditable()?combo.getEditor().getItem().toString() : v;
+			if (deleteIfEmpty && str != null && str.length() == 0)
+				str = null;
 			cmds.add(new ChangePropertyCommand(sel, key, str));
 		}
 	}
 
 	public static class Label implements Item {
-		String text;
+		private String text;
 
 		public void addToPanel(JPanel p) {
 			p.add(new JLabel(text), GBC.eol());
@@ -118,8 +127,8 @@ public class AnnotationPreset {
 	}
 
 	public static class Key implements Item {
-		String key;
-		String value;
+		private String key;
+		private String value;
 
 		public void addToPanel(JPanel p) {}
 		public Key(String key, String value) {
@@ -161,10 +170,10 @@ public class AnnotationPreset {
 					}
 				}
 			} else if (qname.equals("text"))
-				current.add(new Text(a.getValue("key"), a.getValue("text"), a.getValue("default")));
+				current.add(new Text(a.getValue("key"), a.getValue("text"), a.getValue("default"), parseBoolean(a.getValue("delete_if_empty"))));
 			else if (qname.equals("check")) {
 				String s = a.getValue("default");
-				boolean clear = s == null || s.equals("0") || s.startsWith("off") || s.startsWith("false") || s.startsWith("no");
+				boolean clear = parseBoolean(s);
 				current.add(new Check(a.getValue("key"), a.getValue("text"), !clear));
 			} else if (qname.equals("label"))
 				current.add(new Label(a.getValue("text")));
@@ -172,7 +181,7 @@ public class AnnotationPreset {
 				String[] values = a.getValue("values").split(",");
 				String s = a.getValue("readonly");
 				String dvstr = a.getValue("display_values");
-				boolean editable = s == null  || s.equals("0") || s.startsWith("off") || s.startsWith("false") || s.startsWith("no");
+				boolean editable = parseBoolean(s);
 				if (dvstr != null) {
 					if (editable && s != null)
 						throw new SAXException(tr("Cannot have a writable combobox with default values (line {0})", getLineNumber()));
@@ -183,12 +192,16 @@ public class AnnotationPreset {
 					throw new SAXException(tr("display_values ({0}) and values ({1}) must be of same number of elements.",
 							displayValues.length+" "+trn("element", "elements", displayValues.length),
 							values.length+" "+trn("element", "elements", values.length)));
-				current.add(new Combo(a.getValue("key"), a.getValue("text"), a.getValue("default"), values, displayValues, editable));
+				current.add(new Combo(a.getValue("key"), a.getValue("text"), a.getValue("default"), values, displayValues, editable, parseBoolean(a.getValue("delete_if_empty"))));
 			} else if (qname.equals("key"))
 				current.add(new Key(a.getValue("key"), a.getValue("value")));
 			else
 				throw new SAXException(tr("Unknown annotation object {0} at line {1} column {2}", qname, getLineNumber(), getColumnNumber()));
 		}
+
+		private boolean parseBoolean(String s) {
+	        return s == null || s.equals("0") || s.startsWith("off") || s.startsWith("false") || s.startsWith("no");
+        }
 
 		@Override public void endElement(String ns, String lname, String qname) {
 			if (qname.equals("item")) {

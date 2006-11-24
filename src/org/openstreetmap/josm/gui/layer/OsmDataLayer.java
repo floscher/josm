@@ -141,18 +141,7 @@ public class OsmDataLayer extends Layer {
 	@Override public void paint(final Graphics g, final MapView mv) {
 		mapPainter.setGraphics(g);
 		mapPainter.setNavigatableComponent(mv);
-		for (final OsmPrimitive osm : data.segments)
-			if (!osm.deleted)
-				osm.visit(mapPainter);
-		for (final OsmPrimitive osm : data.ways)
-			if (!osm.deleted)
-				osm.visit(mapPainter);
-		for (final OsmPrimitive osm : data.nodes)
-			if (!osm.deleted)
-				osm.visit(mapPainter);
-		for (final OsmPrimitive osm : data.getSelected())
-			if (!osm.deleted)
-				osm.visit(mapPainter);
+		mapPainter.visitAll(data);
 		Main.map.conflictDialog.paintConflicts(g, mv);
 	}
 

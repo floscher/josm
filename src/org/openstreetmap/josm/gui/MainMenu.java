@@ -9,10 +9,10 @@ import javax.swing.JMenuBar;
 
 import org.openstreetmap.josm.actions.AboutAction;
 import org.openstreetmap.josm.actions.AlignInCircleAction;
+import org.openstreetmap.josm.actions.AlignInLineAction;
 import org.openstreetmap.josm.actions.DownloadAction;
 import org.openstreetmap.josm.actions.DownloadIncompleteAction;
 import org.openstreetmap.josm.actions.ExitAction;
-import org.openstreetmap.josm.actions.ExternalToolsAction;
 import org.openstreetmap.josm.actions.GpxExportAction;
 import org.openstreetmap.josm.actions.HelpAction;
 import org.openstreetmap.josm.actions.OpenAction;
@@ -40,6 +40,7 @@ public class MainMenu extends JMenuBar {
 	public final DownloadAction download = new DownloadAction();
 	public final Action reverseSegment = new ReverseSegmentAction();
 	public final Action alignInCircle = new AlignInCircleAction();
+	public final Action alignInLine = new AlignInLineAction();
 	public final Action upload = new UploadAction();
 	public final Action save = new SaveAction();
 	public final Action saveAs = new SaveAsAction();
@@ -51,7 +52,6 @@ public class MainMenu extends JMenuBar {
 	
 	public final JMenu layerMenu = new JMenu(tr("Layer"));
 	public final JMenu editMenu = new JMenu(tr("Edit"));
-	public final JMenu externalMenu = ExternalToolsAction.buildMenu();
 	public final JMenu helpMenu = new JMenu(tr("Help"));
 	public final JMenu fileMenu = new JMenu(tr("Files"));
 	public final JMenu connectionMenu = new JMenu(tr("Connection"));
@@ -75,6 +75,7 @@ public class MainMenu extends JMenuBar {
 		editMenu.addSeparator();
 		editMenu.add(reverseSegment);
 		editMenu.add(alignInCircle);
+		editMenu.add(alignInLine);
 		editMenu.addSeparator();
 		editMenu.add(preferences);
 		add(editMenu);
@@ -89,12 +90,8 @@ public class MainMenu extends JMenuBar {
 		add(layerMenu);
 		layerMenu.setVisible(false);
 
-
-		if (externalMenu != null)
-			add(externalMenu);
-
 		add(Box.createHorizontalGlue());
-		
+
 		helpMenu.setMnemonic('H');
 		helpMenu.add(help);
 		helpMenu.add(about);

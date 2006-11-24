@@ -57,10 +57,12 @@ public class MapFrame extends JPanel {
 	 * The status line below the map
 	 */
 	public MapStatus statusLine;
-	
+
 	public ConflictDialog conflictDialog;
 	private JPanel toggleDialogs = new JPanel();
-	
+
+	public final ButtonGroup toolGroup = new ButtonGroup();
+
 	/**
 	 * Construct a map with a given DataSet. The set cannot be replaced after 
 	 * construction (but of course, the data can be altered using the map's
@@ -86,8 +88,6 @@ public class MapFrame extends JPanel {
 		toolBarActions.add(new IconToggleButton(new AddWayAction(this)));
 		toolBarActions.add(new IconToggleButton(new DeleteAction(this)));
 
-		// all map modes in one button group
-		ButtonGroup toolGroup = new ButtonGroup();
 		for (Component c : toolBarActions.getComponents())
 			toolGroup.add((AbstractButton)c);
 		toolGroup.setSelected(((AbstractButton)toolBarActions.getComponent(0)).getModel(), true);
@@ -111,7 +111,7 @@ public class MapFrame extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				if (!autoScaleButton.groupbutton)
 					autoScaleButton.setSelected(true);
-            }
+			}
 		});
 
 		add(toggleDialogs, BorderLayout.EAST);
@@ -129,8 +129,8 @@ public class MapFrame extends JPanel {
 	}
 
 	public Action getDefaultButtonAction() {
-	    return ((AbstractButton)toolBarActions.getComponent(0)).getAction();
-    }
+		return ((AbstractButton)toolBarActions.getComponent(0)).getAction();
+	}
 
 	/**
 	 * Open all ToggleDialogs that have their preferences property set. Close all others.
@@ -146,13 +146,13 @@ public class MapFrame extends JPanel {
 	}
 
 	private void addIconToggle(JPanel toggleDialogs, ToggleDialog dlg) {
-        IconToggleButton button = new IconToggleButton(dlg.action);
-        dlg.action.button = button;
+		IconToggleButton button = new IconToggleButton(dlg.action);
+		dlg.action.button = button;
 		toolBarActions.add(button);
 		toggleDialogs.add(dlg);
 	}
 
-	
+
 	/**
 	 * Fires an property changed event "visible".
 	 */
