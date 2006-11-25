@@ -1,6 +1,7 @@
 package org.openstreetmap.josm.plugins;
 
 import org.openstreetmap.josm.gui.MapFrame;
+import org.openstreetmap.josm.gui.preferences.PreferenceSetting;
 
 
 /**
@@ -28,5 +29,15 @@ public class PluginProxy extends Plugin {
         } catch (Exception e) {
         	throw new PluginException(this, info.name, e);
         }
+    }
+
+	@Override public PreferenceSetting getPreferenceSetting() {
+		try {
+			return (PreferenceSetting)plugin.getClass().getMethod("getPreferenceSetting").invoke(plugin);
+		} catch (NoSuchMethodException e) {
+			return null;
+		} catch (Exception e) {
+			throw new PluginException(this, info.name, e);
+		}
     }
 }

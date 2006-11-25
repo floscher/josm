@@ -10,6 +10,7 @@ import java.net.URLClassLoader;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.gui.MapFrame;
+import org.openstreetmap.josm.gui.preferences.PreferenceSetting;
 
 /**
  * All plugins *must* have an standard constructor taking no arguments.
@@ -67,6 +68,13 @@ public abstract class Plugin {
 	 */
 	public void mapFrameInitialized(MapFrame oldFrame, MapFrame newFrame) {}
 
+	/**
+	 * Called in the preferences dialog to create a preferences page for the plugin,
+	 * if any available.
+	 */
+	public PreferenceSetting getPreferenceSetting() {return null;}
+	
+	
 	/**
 	 * Copies the ressource 'from' to the file in the plugin directory named 'to'.
 	 */
