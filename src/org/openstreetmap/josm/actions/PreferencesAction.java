@@ -2,10 +2,17 @@ package org.openstreetmap.josm.actions;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
 
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
-import org.openstreetmap.josm.gui.PreferenceDialog;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.gui.preferences.PreferenceDialog;
+import org.openstreetmap.josm.tools.GBC;
 
 /**
  * Open the Preferences dialog.
@@ -25,7 +32,14 @@ public class PreferencesAction extends JosmAction {
 	 * Launch the preferences dialog.
 	 */
 	public void actionPerformed(ActionEvent e) {
-		PreferenceDialog dlg = new PreferenceDialog();
+		PreferenceDialog prefDlg = new PreferenceDialog();
+		JPanel prefPanel = new JPanel(new GridBagLayout());
+		prefPanel.add(prefDlg, GBC.eol().fill(GBC.BOTH));
+		
+		JOptionPane pane = new JOptionPane(prefPanel, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+		JDialog dlg = pane.createDialog(Main.parent, tr("Preferences"));
 		dlg.setVisible(true);
+		if (pane.getValue() instanceof Integer && (Integer)pane.getValue() == JOptionPane.OK_OPTION)
+			prefDlg.ok();
 	}
 }
