@@ -112,6 +112,8 @@ public class MapView extends NavigatableComponent {
 			final OsmDataLayer dataLayer = (OsmDataLayer)layer;
 			if (editLayer != null) {
 				editLayer.mergeFrom(layer);
+				if (autoScale)
+					recalculateCenterScale();
 				repaint();
 				return;
 			}
