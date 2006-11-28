@@ -19,8 +19,6 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.gui.layer.Layer;
-import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.plugins.PluginException;
 import org.openstreetmap.josm.plugins.PluginInformation;
 import org.openstreetmap.josm.tools.BugReportExceptionHandler;
@@ -41,25 +39,8 @@ public class MainApplication extends Main {
 		mainFrame.setBounds(bounds);
 		mainFrame.addWindowListener(new WindowAdapter(){
 			@Override public void windowClosing(final WindowEvent arg0) {
-				if (Main.map != null) {
-					boolean modified = false;
-					boolean uploadedModified = false;
-					for (final Layer l : Main.map.mapView.getAllLayers()) {
-						if (l instanceof OsmDataLayer && ((OsmDataLayer)l).isModified()) {
-							modified = true;
-							uploadedModified = ((OsmDataLayer)l).uploadedModified;
-							break;
-						}
-					}
-					if (modified) {
-						final String msg = uploadedModified ? "\n"+tr("Hint: Some changes came from uploading new data to the server.") : "";
-						final int answer = JOptionPane.showConfirmDialog(
-								Main.parent, tr("There are unsaved changes. Really quit?")+msg,
-								tr("Unsaved Changes"), JOptionPane.YES_NO_OPTION);
-						if (answer != JOptionPane.YES_OPTION)
-							return;
-					}
-				}
+				if (Main.breakBecauseUnsavedChanges())
+					return;
 				System.exit(0);
 			}
 		});

@@ -15,6 +15,7 @@ import org.openstreetmap.josm.actions.DownloadIncompleteAction;
 import org.openstreetmap.josm.actions.ExitAction;
 import org.openstreetmap.josm.actions.GpxExportAction;
 import org.openstreetmap.josm.actions.HelpAction;
+import org.openstreetmap.josm.actions.NewAction;
 import org.openstreetmap.josm.actions.OpenAction;
 import org.openstreetmap.josm.actions.PreferencesAction;
 import org.openstreetmap.josm.actions.RedoAction;
@@ -36,6 +37,7 @@ public class MainMenu extends JMenuBar {
 
 	public final UndoAction undo = new UndoAction();
 	public final RedoAction redo = new RedoAction();
+	public final NewAction newAction = new NewAction();
 	public final OpenAction open = new OpenAction();
 	public final DownloadAction download = new DownloadAction();
 	public final Action reverseSegment = new ReverseSegmentAction();
@@ -61,6 +63,7 @@ public class MainMenu extends JMenuBar {
 	
 	public MainMenu() {
 		fileMenu.setMnemonic('F');
+		fileMenu.add(newAction);
 		fileMenu.add(open);
 		fileMenu.add(save);
 		fileMenu.add(saveAs);

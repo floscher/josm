@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -32,7 +33,9 @@ public class OsmWriter extends XmlWriter implements Visitor {
 
 	public abstract static class Osm implements OsmWriterInterface {
 		public void header(PrintWriter out) {
-			out.println("<osm version='0.3' generator='JOSM'>");
+			out.print("<osm version='");
+			out.print(Main.pref.get("osm-server.version", "0.3"));
+			out.println("' generator='JOSM'>");
 		}
 		public void footer(PrintWriter out) {
 			out.println("</osm>");

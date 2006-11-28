@@ -47,8 +47,18 @@ public class PluginInformation {
 			libraries.add(new URL(getURLString(file.getAbsolutePath())));
 			String classPath = attr.getValue("Class-Path");
 			if (classPath != null) {
-				for (String s : classPath.split(classPath.contains(";") ? ";" : ":")) {
-					if (!s.startsWith("/") && !s.startsWith("\\") && !s.matches("^.:"))
+				String[] cp = classPath.split(" ");
+				StringBuilder entry = new StringBuilder();
+				for (String s : cp) {
+					entry.append(s);
+					if (s.endsWith("\\")) {
+						entry.setLength(entry.length()-1);
+						entry.append("%20"); // append the split character " " as html-encode
+						continue;
+					}
+					s = entry.toString();
+					entry = new StringBuilder();
+					if (!s.startsWith("/") && !s.startsWith("\\") && !s.matches("^.\\:"))
 						s = file.getParent() + File.separator + s;
 					libraries.add(new URL(getURLString(s)));
 				}

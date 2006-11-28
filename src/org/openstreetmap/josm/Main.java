@@ -167,6 +167,7 @@ abstract public class Main {
 		toolBar.add(menu.download);
 		toolBar.add(menu.upload);
 		toolBar.addSeparator();
+		toolBar.add(menu.newAction);
 		toolBar.add(menu.open);
 		toolBar.add(menu.save);
 		toolBar.add(menu.gpxExport);
@@ -322,6 +323,29 @@ abstract public class Main {
 				SelectionListDialog.search(s, SelectionListDialog.SearchMode.add);
 	}
 
+	public static boolean breakBecauseUnsavedChanges() {
+	    if (map != null) {
+	    	boolean modified = false;
+	    	boolean uploadedModified = false;
+	    	for (final Layer l : map.mapView.getAllLayers()) {
+	    		if (l instanceof OsmDataLayer && ((OsmDataLayer)l).isModified()) {
+	    			modified = true;
+	    			uploadedModified = ((OsmDataLayer)l).uploadedModified;
+	    			break;
+	    		}
+	    	}
+	    	if (modified) {
+	    		final String msg = uploadedModified ? "\n"+tr("Hint: Some changes came from uploading new data to the server.") : "";
+	    		final int answer = JOptionPane.showConfirmDialog(
+	    				parent, tr("There are unsaved changes. Discard the changes and continue?")+msg,
+	    				tr("Unsaved Changes"), JOptionPane.YES_NO_OPTION);
+	    		if (answer != JOptionPane.YES_OPTION)
+	    			return true;
+	    	}
+	    }
+	    return false;
+    }
+	
 	private static void downloadFromParamString(final boolean rawGps, String s) {
 		if (s.startsWith("http:")) {
 			final Bounds b = DownloadAction.osmurl2bounds(s);
