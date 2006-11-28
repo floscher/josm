@@ -20,6 +20,7 @@ import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.SequenceCommand;
 import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.osm.Node;
+import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.gui.MapFrame;
@@ -37,7 +38,7 @@ import org.openstreetmap.josm.tools.ImageProvider;
  */
 public class AddNodeAction extends MapMode {
 
-	enum Mode {node, nodesegment}
+	enum Mode {node, nodesegment, autonode}
 	private final Mode mode;
 
 	public static class AddNodeGroup extends GroupAction {
@@ -46,6 +47,7 @@ public class AddNodeAction extends MapMode {
 			putValue("help", "Action/AddNode");
 			actions.add(new AddNodeAction(mf,tr("Add node"), Mode.node, tr("Add a new node to the map")));
 			actions.add(new AddNodeAction(mf, tr("Add node into segment"), Mode.nodesegment,tr( "Add a node into an existing segment")));
+			actions.add(new AddNodeAction(mf, tr("Add node and connect"), Mode.autonode,tr( "Add a node and connect it to the selected (previous added) node")));
 			setCurrent(0);
 		}
 	}
@@ -131,10 +133,54 @@ public class AddNodeAction extends MapMode {
 				}
 			}
 
-			c = new SequenceCommand(tr("Add Node into Segment"), cmds);
+			c = new SequenceCommand(tr("Add node into segment"), cmds);
 		}
+
+		if (mode == Mode.autonode) {
+			Collection<OsmPrimitive> selection = Main.ds.getSelected();
+			if (selection.size() == 1 && selection.iterator().next() instanceof Node) {
+				Node n1 = (Node)selection.iterator().next();
+				Collection<Command> cmds = new LinkedList<Command>();
+				Segment s = new Segment(n1, n);
+				cmds.add(c);				
+				cmds.add(new AddCommand(s));			
+
+				Way way = getWayForNode(n1);
+				if (way != null) {
+					Way newWay = new Way(way);
+					if (way.segments.get(0).from == n1)
+						newWay.segments.add(0, s);
+					else
+						newWay.segments.add(s);
+					cmds.add(new ChangeCommand(way, newWay));
+				}
+
+				c = new SequenceCommand(tr("Add node and connect"), cmds);
+			}	
+		}		
+	
 		Main.main.editLayer().add(c);
 		Main.ds.setSelected(n);
 		Main.map.mapView.repaint();
+	}
+	
+	/**
+	 * @return If the node is part of exactly one way, return this. 
+	 * 	<code>null</code> otherwise.
+	 */
+	private Way getWayForNode(Node n) {
+		Way way = null;
+		for (Way w : Main.ds.ways) {
+			for (Segment s : w.segments) {
+				if (s.from == n || s.to == n) {
+					if (way != null)
+						return null;
+					if (s.from == s.to)
+						return null;
+					way = w;
+				}
+			}
+		}
+		return way;
 	}
 }
