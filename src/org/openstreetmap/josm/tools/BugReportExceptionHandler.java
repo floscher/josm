@@ -65,6 +65,8 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 						File f = new File("org/openstreetmap/josm/Main.class");
 						if (!f.exists())
 							f = new File("bin/org/openstreetmap/josm/Main.class");
+						if (!f.exists())
+							f = new File("build/org/openstreetmap/josm/Main.class");
 						if (f.exists()) {
 							DateFormat sdf = SimpleDateFormat.getDateTimeInstance();
 							sb.append("\nMain.class build on "+sdf.format(new Date(f.lastModified())));

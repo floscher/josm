@@ -56,7 +56,7 @@ public class MapFrame extends JPanel {
 	/**
 	 * The status line below the map
 	 */
-	public MapStatus statusLine;
+	private MapStatus statusLine;
 
 	public ConflictDialog conflictDialog;
 	private JPanel toggleDialogs = new JPanel();
@@ -125,7 +125,8 @@ public class MapFrame extends JPanel {
 		addIconToggle(toggleDialogs, new CommandStackDialog(this));
 
 		// status line below the map
-		statusLine = new MapStatus(this);
+		if (!Main.applet)
+	        statusLine = new MapStatus(this);
 	}
 
 	public Action getDefaultButtonAction() {
@@ -188,6 +189,7 @@ public class MapFrame extends JPanel {
 	public void fillPanel(Container panel) {
 		panel.add(this, BorderLayout.CENTER);
 		panel.add(toolBarActions, BorderLayout.WEST);
-		panel.add(statusLine, BorderLayout.SOUTH);
+		if (statusLine != null)
+			panel.add(statusLine, BorderLayout.SOUTH);
 	}
 }

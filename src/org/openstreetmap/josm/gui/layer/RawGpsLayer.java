@@ -55,7 +55,7 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 	public class ConvertToDataLayerAction extends AbstractAction {
 		public ConvertToDataLayerAction() {
 			super(tr("Convert to data layer"), ImageProvider.get("converttoosm"));
-        }
+		}
 		public void actionPerformed(ActionEvent e) {
 			DataSet ds = new DataSet();
 			for (Collection<GpsPoint> c : data) {
@@ -75,8 +75,8 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 			}
 			Main.main.addLayer(new OsmDataLayer(ds, tr("Data Layer"), null));
 			Main.main.removeLayer(RawGpsLayer.this);
-        }
-    }
+		}
+	}
 
 	public static class GpsPoint {
 		public final LatLon latlon;
@@ -88,7 +88,7 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 			time = t;
 		}
 	}
-	
+
 	/**
 	 * A list of ways which containing a list of points.
 	 */
@@ -108,7 +108,7 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 						Main.pref.listener.remove(RawGpsLayer.this);
 					}
 				});
-            }
+			}
 		});
 	}
 
@@ -129,7 +129,7 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 		else
 			g.setColor(Color.GRAY);
 		Point old = null;
-		
+
 		boolean force = Main.pref.getBoolean("draw.rawgps.lines.force");
 		boolean lines = Main.pref.getBoolean("draw.rawgps.lines");
 		String linesKey = "draw.rawgps.lines.layer "+name;
@@ -239,7 +239,7 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 				Main.map.repaint();
 			}
 		});
-		
+
 		JMenuItem tagimage = new JMenuItem(tr("Import images"), ImageProvider.get("tagimages"));
 		tagimage.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
@@ -263,7 +263,7 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 				addRecursiveFiles(files, sel);
 				Main.pref.put("tagimages.lastdirectory", fc.getCurrentDirectory().getPath());
 				GeoImageLayer.create(files, RawGpsLayer.this);
-            }
+			}
 
 			private void addRecursiveFiles(LinkedList<File> files, File[] sel) {
 				for (File f : sel) {
@@ -272,9 +272,21 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 					else if (f.getName().toLowerCase().endsWith(".jpg"))
 						files.add(f);
 				}
-            }
+			}
 		});
-		
+
+		if (Main.applet)
+			return new Component[]{
+				new JMenuItem(new LayerListDialog.ShowHideLayerAction(this)),
+				new JMenuItem(new LayerListDialog.DeleteLayerAction(this)),
+				new JSeparator(),
+				color,
+				line,
+				new JMenuItem(new ConvertToDataLayerAction()),
+				new JSeparator(),
+				new JMenuItem(new RenameLayerAction(associatedFile, this)),
+				new JSeparator(),
+				new JMenuItem(new LayerListPopup.InfoAction(this))};
 		return new Component[]{
 				new JMenuItem(new LayerListDialog.ShowHideLayerAction(this)),
 				new JMenuItem(new LayerListDialog.DeleteLayerAction(this)),
@@ -288,7 +300,7 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 				new JMenuItem(new RenameLayerAction(associatedFile, this)),
 				new JSeparator(),
 				new JMenuItem(new LayerListPopup.InfoAction(this))};
-    }
+	}
 
 	public void preferenceChanged(String key, String newValue) {
 		if (Main.map != null && (key.equals("draw.rawgps.lines") || key.equals("draw.rawgps.lines.force")))

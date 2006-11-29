@@ -42,8 +42,13 @@ public class RenameLayerAction extends AbstractAction {
 		final JTextField name = new JTextField(layer.name);
 		panel.add(name);
 		JCheckBox filerename = new JCheckBox(tr("Also rename the file"));
-		panel.add(filerename);
-		filerename.setEnabled(file != null);
+		if (Main.applet) {
+			filerename.setEnabled(false);
+			filerename.setSelected(false);
+		} else {
+			panel.add(filerename);
+			filerename.setEnabled(file != null);
+		}
 		if (filerename.isEnabled())
 			filerename.setSelected(Main.pref.getBoolean("layer.rename-file", true));
 

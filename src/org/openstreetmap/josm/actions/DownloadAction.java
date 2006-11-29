@@ -34,11 +34,11 @@ import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.downloadtasks.DownloadGpsTask;
 import org.openstreetmap.josm.actions.downloadtasks.DownloadOsmTask;
 import org.openstreetmap.josm.data.Bounds;
+import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.gui.BookmarkList;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.WorldChooser;
-import org.openstreetmap.josm.gui.BookmarkList.Bookmark;
 import org.openstreetmap.josm.tools.GBC;
 
 /**
@@ -183,7 +183,7 @@ public class DownloadAction extends JosmAction {
 		final BookmarkList bookmarks = new BookmarkList();
 		bookmarks.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
 			public void valueChanged(ListSelectionEvent e) {
-				Bookmark b = (Bookmark)bookmarks.getSelectedValue();
+				Preferences.Bookmark b = (Preferences.Bookmark)bookmarks.getSelectedValue();
 				for (int i = 0; i < 4; ++i) {
 					latlon[i].setText(b == null ? "" : ""+b.latlon[i]);
 					latlon[i].setCaretPosition(0);
@@ -198,7 +198,7 @@ public class DownloadAction extends JosmAction {
 		JButton add = new JButton(tr("Add"));
 		add.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
-				Bookmark b = readBookmark();
+				Preferences.Bookmark b = readBookmark();
 				if (b == null) {
 					JOptionPane.showMessageDialog(Main.parent, tr("Please enter the desired coordinates first."));
 					return;
@@ -231,7 +231,7 @@ public class DownloadAction extends JosmAction {
 		wc.addInputFields(latlon, osmUrl, osmUrlRefresher);
 
 		// Finally: the dialog
-		Bookmark b;
+		Preferences.Bookmark b;
 		boolean anySelected = false;
 		do {
 			final JOptionPane pane = new JOptionPane(dlg, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
@@ -277,9 +277,9 @@ public class DownloadAction extends JosmAction {
 	 * @return A bookmark containing information from the edit fields and rawgps
 	 * 		checkbox.
 	 */
-	Bookmark readBookmark() {
+	Preferences.Bookmark readBookmark() {
 		try {
-			Bookmark b = new Bookmark();
+			Preferences.Bookmark b = new Preferences.Bookmark();
 			for (int i = 0; i < 4; ++i) {
 				if (latlon[i].getText().equals(""))
 					return null;
