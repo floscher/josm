@@ -118,12 +118,19 @@ public class SearchCompiler {
 		}
 		@Override public String toString() {return "modified";}
 	}
+	
+	private static class Selected extends Match {
+		@Override public boolean match(OsmPrimitive osm) {
+			return osm.selected;
+		}
+		@Override public String toString() {return "selected";}
+	}
 
 	private static class Incomplete extends Match {
 		@Override public boolean match(OsmPrimitive osm) {
 			return osm instanceof Way && ((Way)osm).isIncomplete();
 		}
-		@Override public String toString() {return "modified";}
+		@Override public String toString() {return "incomplete";}
 	}
 	
 	public static Match compile(String searchStr) {
@@ -203,6 +210,8 @@ public class SearchCompiler {
 				c = new Modified();
 			else if (value.equals("incomplete"))
 				c = new Incomplete();
+			else if (value.equals("selected"))
+				c = new Selected();
 			else
 				c = new Any(value);
 			return notValue ? new Not(c) : c;
@@ -210,7 +219,15 @@ public class SearchCompiler {
 		Match c;
 		if (key.equals("type"))
 			c = new ExactType(value);
-		else if (key.equals("id")) {
+		else if (key.equals("property")) {
+			String realKey = "", realValue = value;
+			int eqPos = value.indexOf("=");
+			if (eqPos != -1) {
+				realKey = value.substring(0,eqPos);
+				realValue = value.substring(eqPos+1);
+			}
+			c = new KeyValue(realKey, realValue, notValue);
+		} else if (key.equals("id")) {
 			try {
 				c = new Id(Long.parseLong(value));
 			} catch (NumberFormatException x) {

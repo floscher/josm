@@ -48,7 +48,7 @@ public class AdvancedPreference implements PreferenceSetting {
 
 		for (String s : new TreeSet<String>(orig.keySet()))
 			model.addRow(new String[]{s, Main.pref.get(s)});
-		
+
 		JButton add = new JButton(tr("Add"));
 		p.add(Box.createHorizontalGlue(), GBC.std().fill(GBC.HORIZONTAL));
 		p.add(add, GBC.std().insets(0,5,0,0));
@@ -64,17 +64,17 @@ public class AdvancedPreference implements PreferenceSetting {
 				int answer = JOptionPane.showConfirmDialog(gui, p, tr("Enter a new key/value pair"), JOptionPane.OK_CANCEL_OPTION);
 				if (answer == JOptionPane.OK_OPTION)
 					model.addRow(new String[]{key.getText(), value.getText()});
-            }
+			}
 		});
-		
+
 		JButton edit = new JButton(tr("Edit"));
 		p.add(edit, GBC.std().insets(5,5,5,0));
 		edit.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				edit(gui, list);
-            }
+			}
 		});
-		
+
 		JButton delete = new JButton(tr("Delete"));
 		p.add(delete, GBC.std().insets(0,5,0,0));
 		delete.addActionListener(new ActionListener(){
@@ -85,14 +85,14 @@ public class AdvancedPreference implements PreferenceSetting {
 				}
 				while (list.getSelectedRow() != -1)
 					model.removeRow(list.getSelectedRow());
-            }
+			}
 		});
-		
+
 		list.addMouseListener(new MouseAdapter(){
 			@Override public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2)
 					edit(gui, list);
-            }
+			}
 		});
 	}
 
@@ -106,17 +106,17 @@ public class AdvancedPreference implements PreferenceSetting {
 			orig.remove(key); // processed.
 		}
 		for (Entry<String, String> e : orig.entrySet())
-			Main.pref.put(e.getKey(), e.getValue());
+			Main.pref.put(e.getKey(), null);
 	}
 
 
 	private void edit(final PreferenceDialog gui, final JTable list) {
-	    if (list.getSelectedRowCount() != 1) {
-	    	JOptionPane.showMessageDialog(gui, tr("Please select the row to edit."));
-	    	return;
-	    }
-	    String v = JOptionPane.showInputDialog(tr("New value for {0}", model.getValueAt(list.getSelectedRow(), 0)), model.getValueAt(list.getSelectedRow(), 1));
-	    if (v != null)
-	    	model.setValueAt(v, list.getSelectedRow(), 1);
-    }
+		if (list.getSelectedRowCount() != 1) {
+			JOptionPane.showMessageDialog(gui, tr("Please select the row to edit."));
+			return;
+		}
+		String v = JOptionPane.showInputDialog(tr("New value for {0}", model.getValueAt(list.getSelectedRow(), 0)), model.getValueAt(list.getSelectedRow(), 1));
+		if (v != null)
+			model.setValueAt(v, list.getSelectedRow(), 1);
+	}
 }

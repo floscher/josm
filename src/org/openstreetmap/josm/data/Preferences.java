@@ -101,8 +101,7 @@ public class Preferences {
 	 */
 	protected void save() {
 		try {
-			final PrintWriter out = new PrintWriter(new FileWriter(
-					getPreferencesDir() + "preferences"));
+			final PrintWriter out = new PrintWriter(new FileWriter(getPreferencesDir() + "preferences"), false);
 			for (final Entry<String, String> e : properties.entrySet())
 				if (!e.getValue().equals(""))
 					out.println(e.getKey() + "=" + e.getValue());
