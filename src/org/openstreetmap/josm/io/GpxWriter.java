@@ -188,7 +188,7 @@ public class GpxWriter extends XmlWriter {
 			for (Collection<GpsPoint> c : data)
 				for (GpsPoint p : c)
 					b.extend(p.latlon);
-			out.println("  </metadata>");
+			out.println("  <metadata>");
 			out.println("    <bounds minlat='"+b.min.lat()+"' minlon='"+b.min.lon()+"' maxlat='"+b.max.lat()+"' maxlon='"+b.max.lon()+"' />");
 			out.println("  </metadata>");
 
