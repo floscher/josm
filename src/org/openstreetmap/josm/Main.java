@@ -22,7 +22,6 @@ import java.util.regex.Pattern;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 
@@ -43,6 +42,7 @@ import org.openstreetmap.josm.gui.dialogs.SelectionListDialog;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer.CommandQueueListener;
+import org.openstreetmap.josm.gui.preferences.ToolbarPreferences;
 import org.openstreetmap.josm.plugins.PluginException;
 import org.openstreetmap.josm.plugins.PluginInformation;
 import org.openstreetmap.josm.plugins.PluginProxy;
@@ -87,6 +87,16 @@ abstract public class Main {
 	 * The dialog that gets displayed during background task execution.
 	 */
 	public static PleaseWaitDialog pleaseWaitDlg;
+
+	/**
+	 * True, when in applet mode
+	 */
+	public static boolean applet = false;
+
+	/**
+	 * The toolbar preference control to register new actions.
+	 */
+	public static ToolbarPreferences toolbar = new ToolbarPreferences();
 
 
 	/**
@@ -162,26 +172,15 @@ abstract public class Main {
 		menu = new MainMenu();
 
 		// creating toolbar
-		final JToolBar toolBar = new JToolBar();
-		toolBar.setFloatable(false);
-		toolBar.add(menu.download);
-		toolBar.add(menu.upload);
-		toolBar.addSeparator();
-		toolBar.add(menu.newAction);
-		toolBar.add(menu.open);
-		toolBar.add(menu.save);
-		toolBar.add(menu.gpxExport);
-		toolBar.addSeparator();
-		toolBar.add(menu.undo);
-		toolBar.add(menu.redo);
-		toolBar.addSeparator();
-		toolBar.add(menu.preferences);
-		contentPane.add(toolBar, BorderLayout.NORTH);
+		contentPane.add(toolbar.control, BorderLayout.NORTH);
 
         contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0), "Help");
         contentPane.getActionMap().put("Help", menu.help);
 
-		contentPane.updateUI();
+        toolbar.refreshToolbarControl();
+
+        toolbar.control.updateUI();
+        contentPane.updateUI();
 	}
 
 	/**
@@ -246,7 +245,6 @@ abstract public class Main {
 	public static JPanel panel = new JPanel(new BorderLayout());
 
 	protected static Rectangle bounds;
-
 
 	private final CommandQueueListener redoUndoListener = new CommandQueueListener(){
 		public void commandChanged(final int queueSize, final int redoSize) {
@@ -345,7 +343,7 @@ abstract public class Main {
 	    }
 	    return false;
     }
-	
+
 	private static void downloadFromParamString(final boolean rawGps, String s) {
 		if (s.startsWith("http:")) {
 			final Bounds b = DownloadAction.osmurl2bounds(s);

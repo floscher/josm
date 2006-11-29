@@ -39,7 +39,7 @@ public class MainApplet extends JApplet {
 		{"selection", tr("string;string;..."), tr("Add each to the initial selection. Can be a google-like search string or an url which returns osm-xml")},
 		{"reset-preferences", tr("any"),tr("If specified, reset the configuration instead of reading it.")}
 	};
-	
+
 	private Map<String, Collection<String>> args = new HashMap<String, Collection<String>>(); 
 
 	@Override public String[][] getParameterInfo() {
@@ -74,12 +74,23 @@ public class MainApplet extends JApplet {
 			args.put("password", Arrays.asList(new String[]{password}));
 		}
 
+		Main.applet = true;
 		Main.pref = new ServerSidePreferences(getCodeBase(), username);
-		
+
 		Main.preConstructorInit(args);
 		Main.parent = this;
 		new MainCaller().postConstructorProcessCmdLine(args);
-    }
+		
+		MainMenu m = Main.main.menu; // shortcut
+
+		// remove offending stuff from JOSM (that would break the SecurityManager)
+		m.remove(m.fileMenu);
+		m.open.setEnabled(false);
+		m.exit.setEnabled(false);
+		m.save.setEnabled(false);
+		m.saveAs.setEnabled(false);
+		m.gpxExport.setEnabled(false);
+	}
 
 	private Collection<String> readParameter(String s, Collection<String> v) {
 		String param = getParameter(s);

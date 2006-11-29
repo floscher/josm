@@ -18,10 +18,10 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.coor.LatLon;
+import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.coor.EastNorth;
+import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.projection.Projection;
-import org.openstreetmap.josm.gui.BookmarkList.Bookmark;
 import org.openstreetmap.josm.gui.SelectionManager.SelectionEnded;
 
 /**
@@ -135,7 +135,7 @@ public class WorldChooser extends NavigatableComponent {
 	public void addListMarker(final BookmarkList list) {
 		list.addListSelectionListener(new ListSelectionListener(){
 			public void valueChanged(ListSelectionEvent e) {
-				Bookmark b = (Bookmark)list.getSelectedValue();
+				Preferences.Bookmark b = (Preferences.Bookmark)list.getSelectedValue();
 				if (b != null) {
 					markerMin = getProjection().latlon2eastNorth(new LatLon(b.latlon[0],b.latlon[1]));
 					markerMax = getProjection().latlon2eastNorth(new LatLon(b.latlon[2],b.latlon[3]));

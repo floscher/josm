@@ -231,16 +231,16 @@ public class MapStatus extends JPanel implements Helpful {
 
 		// Listen to keyboard/mouse events for pressing/releasing alt key and
 		// inform the collector.
-		Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener(){
-			public void eventDispatched(AWTEvent event) {
-				synchronized (collector) {
-					mouseState.modifiers = ((InputEvent)event).getModifiersEx();
-					if (event instanceof MouseEvent)
-						mouseState.mousePos = ((MouseEvent)event).getPoint();
-					collector.notify();
-				}
-			}
-		}, AWTEvent.KEY_EVENT_MASK | AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
+        Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener(){
+        	public void eventDispatched(AWTEvent event) {
+        		synchronized (collector) {
+        			mouseState.modifiers = ((InputEvent)event).getModifiersEx();
+        			if (event instanceof MouseEvent)
+        				mouseState.mousePos = ((MouseEvent)event).getPoint();
+        			collector.notify();
+        		}
+        	}
+        }, AWTEvent.KEY_EVENT_MASK | AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
 	}
 
 	public String helpTopic() {

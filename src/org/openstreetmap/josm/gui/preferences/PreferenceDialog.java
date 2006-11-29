@@ -7,6 +7,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import javax.swing.BorderFactory;
@@ -83,8 +84,13 @@ public class PreferenceDialog extends JTabbedPane {
 	 */
 	public PreferenceDialog() {
 		super(JTabbedPane.LEFT, JTabbedPane.SCROLL_TAB_LAYOUT);
-		for (PreferenceSetting setting : settings)
-			setting.addGui(this);
+		for (Iterator<PreferenceSetting> it = settings.iterator(); it.hasNext();) {
+			try {
+	            it.next().addGui(this);
+            } catch (SecurityException e) {
+            	it.remove();
+            }
+		}
 	}
 
 	static {
@@ -97,6 +103,7 @@ public class PreferenceDialog extends JTabbedPane {
 		settings.add(new ProjectionPreference());
 		settings.add(new AnnotationPresetPreference());
 		settings.add(new PluginPreference());
+		settings.add(Main.toolbar);
 		
 		for (PluginProxy plugin : Main.plugins) {
 			PreferenceSetting p = plugin.getPreferenceSetting();

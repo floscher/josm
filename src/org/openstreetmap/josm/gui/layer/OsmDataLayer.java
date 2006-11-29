@@ -314,6 +314,15 @@ public class OsmDataLayer extends Layer {
 	}
 
 	@Override public Component[] getMenuEntries() {
+		if (Main.applet) {
+			return new Component[]{
+					new JMenuItem(new LayerListDialog.ShowHideLayerAction(this)),
+					new JMenuItem(new LayerListDialog.DeleteLayerAction(this)),
+					new JSeparator(),
+					new JMenuItem(new RenameLayerAction(associatedFile, this)),
+					new JSeparator(),
+					new JMenuItem(new LayerListPopup.InfoAction(this))};
+		}
 		return new Component[]{
 				new JMenuItem(new LayerListDialog.ShowHideLayerAction(this)),
 				new JMenuItem(new LayerListDialog.DeleteLayerAction(this)),

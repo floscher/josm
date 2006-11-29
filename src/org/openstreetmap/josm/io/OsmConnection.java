@@ -36,13 +36,17 @@ public class OsmConnection {
 	protected boolean cancel = false;
 	protected HttpURLConnection activeConnection;
 
-	private static OsmAuth authentication;
+	private static OsmAuth authentication = new OsmAuth();
 	/**
 	 * Initialize the http defaults and the authenticator.
 	 */
 	static {
-		HttpURLConnection.setFollowRedirects(true);
-		Authenticator.setDefault(authentication = new OsmAuth());
+		//TODO: refactor this crap (maybe just insert the damn auth http-header by yourself)
+		try {
+	        HttpURLConnection.setFollowRedirects(true);
+	        Authenticator.setDefault(authentication);
+        } catch (SecurityException e) {
+        }
 	}
 
 	/**

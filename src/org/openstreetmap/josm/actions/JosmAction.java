@@ -27,6 +27,8 @@ abstract public class JosmAction extends AbstractAction {
 		super(name, ImageProvider.get(iconName));
 		putValue(SHORT_DESCRIPTION, tooltip);
 		putValue(MNEMONIC_KEY, mnemonic);
+		putValue("toolbar", iconName);
+		Main.toolbar.register(this);
 	}
 
 
@@ -36,6 +38,8 @@ abstract public class JosmAction extends AbstractAction {
 		putValue(SHORT_DESCRIPTION, "<html>"+tooltip+" <font size='-2'>"+ShortCutLabel.name(shortCut, modifier)+"</font>&nbsp;</html>");
         Main.contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(shortCut, modifier), name);
         Main.contentPane.getActionMap().put(name, this);
+        putValue("toolbar", iconName);
+        Main.toolbar.register(this);
 	}
 
 	public JosmAction() {
