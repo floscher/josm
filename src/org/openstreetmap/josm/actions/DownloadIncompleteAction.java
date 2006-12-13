@@ -13,7 +13,9 @@ import java.util.HashSet;
 import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Way;
+import org.openstreetmap.josm.data.osm.visitor.MergeVisitor;
 import org.openstreetmap.josm.gui.PleaseWaitRunnable;
 import org.openstreetmap.josm.io.IncompleteDownloader;
 import org.xml.sax.SAXException;
@@ -45,6 +47,9 @@ public class DownloadIncompleteAction extends JosmAction {
 		}
 
 		@Override protected void finish() {
+			MergeVisitor merger = new MergeVisitor(Main.ds);
+			for (OsmPrimitive osm : reader.data.allPrimitives())
+				osm.visit(merger);
 			Main.parent.repaint();
 		}
 

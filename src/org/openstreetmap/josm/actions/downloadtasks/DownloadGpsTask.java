@@ -16,37 +16,41 @@ import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
 import org.openstreetmap.josm.io.BoundingBoxDownloader;
 import org.xml.sax.SAXException;
 
-public class DownloadGpsTask extends PleaseWaitRunnable implements DownloadTask {
-	private DownloadAction action;
-	private BoundingBoxDownloader reader;
-	private Collection<Collection<GpsPoint>> rawData;
+public class DownloadGpsTask implements DownloadTask {
+
+	private static class Task extends PleaseWaitRunnable {
+		private BoundingBoxDownloader reader;
+		private DownloadAction action;
+		private Collection<Collection<GpsPoint>> rawData;
+
+		public Task(BoundingBoxDownloader reader, DownloadAction action) {
+			super(tr("Downloading GPS data"));
+			this.reader = reader;
+			this.action = action;
+		}
+
+		@Override public void realRun() throws IOException, SAXException {
+			rawData = reader.parseRawGps();
+		}
+
+		@Override protected void finish() {
+			if (rawData == null)
+				return;
+			String name = action.latlon[0].getText() + " " + action.latlon[1].getText() + " x " + this.action.latlon[2].getText() + " " + this.action.latlon[3].getText();
+			Main.main.addLayer(new RawGpsLayer(rawData, name, null));
+		}
+
+		@Override protected void cancel() {
+			if (reader != null)
+				reader.cancel();
+		}
+	}
+
 	private JCheckBox checkBox = new JCheckBox(tr("Raw GPS data"));
 
-	public DownloadGpsTask() {
-		super(tr("Downloading GPS data"));
-	}
-
-	@Override public void realRun() throws IOException, SAXException {
-		rawData = reader.parseRawGps();
-	}
-
-	@Override protected void finish() {
-		if (rawData == null)
-			return;
-		String name = action.latlon[0].getText() + " " + action.latlon[1].getText() + " x " + this.action.latlon[2].getText() + " " + this.action.latlon[3].getText();
-		Main.main.addLayer(new RawGpsLayer(rawData, name, null));
-	}
-
-	@Override protected void cancel() {
-		if (reader != null)
-			reader.cancel();
-	}
-
-
 	public void download(DownloadAction action, double minlat, double minlon, double maxlat, double maxlon) {
-		this.action = action;
-		reader = new BoundingBoxDownloader(minlat, minlon, maxlat, maxlon);
-		Main.worker.execute(this);
+		Task task = new Task(new BoundingBoxDownloader(minlat, minlon, maxlat, maxlon), action);
+		Main.worker.execute(task);
 	}
 
 	public JCheckBox getCheckBox() {

@@ -65,11 +65,18 @@ public abstract class PleaseWaitRunnable implements Runnable {
 
 			// show the dialog
 			closeDialogCalled = false;
-			EventQueue.invokeLater(new Runnable() {
-				public void run() {
-					Main.pleaseWaitDlg.setVisible(true);
-				}
-			});
+			synchronized (this) {
+	            EventQueue.invokeLater(new Runnable() {
+	            	public void run() {
+	            		synchronized (PleaseWaitRunnable.this) {
+	            			PleaseWaitRunnable.this.notifyAll();
+	            		}
+	            		Main.pleaseWaitDlg.setVisible(true);
+	            	}
+	            });
+	            try {wait();} catch (InterruptedException e) {}
+			}
+
 
 			realRun();
 		} catch (SAXException x) {
@@ -118,6 +125,7 @@ public abstract class PleaseWaitRunnable implements Runnable {
 						finish();
 					} finally {
 						Main.pleaseWaitDlg.setVisible(false);
+						Main.pleaseWaitDlg.dispose();
 					}
 					if (errorMessage != null)
 						JOptionPane.showMessageDialog(Main.parent, errorMessage);

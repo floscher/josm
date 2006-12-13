@@ -36,6 +36,7 @@ public class BoundingBoxDownloader extends OsmServerReader {
      * 		ways.
      */
     public Collection<Collection<GpsPoint>> parseRawGps() throws IOException, SAXException {
+		Main.pleaseWaitDlg.currentAction.setText(tr("Contacting OSM Server..."));
     	try {
     		String url = "trackpoints?bbox="+lon1+","+lat1+","+lon2+","+lat2+"&page=";
     		Collection<Collection<GpsPoint>> data = new LinkedList<Collection<GpsPoint>>();
@@ -83,11 +84,12 @@ public class BoundingBoxDownloader extends OsmServerReader {
      */
     public DataSet parseOsm() throws SAXException, IOException {
     	try {
+    		Main.pleaseWaitDlg.currentAction.setText(tr("Contacting OSM Server..."));
     		final InputStream in = getInputStream("map?bbox="+lon1+","+lat1+","+lon2+","+lat2, Main.pleaseWaitDlg);
     		if (in == null)
     			return null;
     		Main.pleaseWaitDlg.currentAction.setText(tr("Downloading OSM data..."));
-    		final DataSet data = OsmReader.parseDataSet(in, Main.ds, Main.pleaseWaitDlg);
+    		final DataSet data = OsmReader.parseDataSet(in, null, Main.pleaseWaitDlg);
     		in.close();
     		activeConnection = null;
     		return data;

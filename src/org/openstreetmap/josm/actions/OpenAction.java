@@ -68,7 +68,7 @@ public class OpenAction extends DiskAccessAction {
 			} else {
 				DataSet dataSet;
 				if (ExtensionFileFilter.filters[ExtensionFileFilter.OSM].acceptName(fn)) {
-					dataSet = OsmReader.parseDataSet(new FileInputStream(file), Main.ds, Main.pleaseWaitDlg);
+					dataSet = OsmReader.parseDataSet(new FileInputStream(file), null, Main.pleaseWaitDlg);
 				} else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
 					JOptionPane.showMessageDialog(Main.parent, fn+": "+tr("CSV Data import for non-GPS data is not implemented yet."));
 					return;

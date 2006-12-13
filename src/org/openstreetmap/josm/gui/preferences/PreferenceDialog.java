@@ -104,7 +104,7 @@ public class PreferenceDialog extends JTabbedPane {
 		settings.add(new AnnotationPresetPreference());
 		settings.add(new PluginPreference());
 		settings.add(Main.toolbar);
-		
+
 		for (PluginProxy plugin : Main.plugins) {
 			PreferenceSetting p = plugin.getPreferenceSetting();
 			if (p != null)
