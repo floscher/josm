@@ -19,35 +19,39 @@ import org.xml.sax.SAXException;
  * Open the download dialog and download the data.
  * Run in the worker thread.
  */
-public class DownloadOsmTask extends PleaseWaitRunnable implements DownloadTask {
-	private BoundingBoxDownloader reader;
-	private DataSet dataSet;
+public class DownloadOsmTask implements DownloadTask {
+
+	private static class Task extends PleaseWaitRunnable {
+		private BoundingBoxDownloader reader;
+		private DataSet dataSet;
+
+		public Task(BoundingBoxDownloader reader) {
+			super(tr("Downloading data"));
+			this.reader = reader;
+		}
+
+		@Override public void realRun() throws IOException, SAXException {
+			dataSet = reader.parseOsm();
+		}
+
+		@Override protected void finish() {
+			if (dataSet == null)
+				return; // user cancelled download or error occoured
+			if (dataSet.allPrimitives().isEmpty())
+				errorMessage = tr("No data imported.");
+			Main.main.addLayer(new OsmDataLayer(dataSet, tr("Data Layer"), null));
+		}
+
+		@Override protected void cancel() {
+			if (reader != null)
+				reader.cancel();
+		}
+	}
 	private JCheckBox checkBox = new JCheckBox(tr("OpenStreetMap data"));
 
-	public DownloadOsmTask() {
-		super(tr("Downloading data"));
-	}
-
-	@Override public void realRun() throws IOException, SAXException {
-		dataSet = reader.parseOsm();
-	}
-
-	@Override protected void finish() {
-		if (dataSet == null)
-			return; // user cancelled download or error occoured
-		if (dataSet.allPrimitives().isEmpty())
-			errorMessage = tr("No data imported.");
-		Main.main.addLayer(new OsmDataLayer(dataSet, tr("Data Layer"), null));
-	}
-
-	@Override protected void cancel() {
-		if (reader != null)
-			reader.cancel();
-	}
-
 	public void download(DownloadAction action, double minlat, double minlon, double maxlat, double maxlon) {
-		reader = new BoundingBoxDownloader(minlat, minlon, maxlat, maxlon);
-		Main.worker.execute(this);
+		Task task = new Task(new BoundingBoxDownloader(minlat, minlon, maxlat, maxlon));
+		Main.worker.execute(task);
     }
 
 	public JCheckBox getCheckBox() {

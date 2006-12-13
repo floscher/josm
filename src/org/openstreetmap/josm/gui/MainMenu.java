@@ -28,9 +28,9 @@ import org.openstreetmap.josm.actions.UploadAction;
 /**
  * This is the JOSM main menu bar. It is overwritten to initialize itself and provide
  * all menu entries as member variables (sort of collect them).
- * 
+ *
  * It also provides possibilities to attach new menu entries (used by plugins).
- * 
+ *
  * @author Immanuel.Scholz
  */
 public class MainMenu extends JMenuBar {
@@ -51,7 +51,7 @@ public class MainMenu extends JMenuBar {
 	public final Action preferences = new PreferencesAction();
 	public final HelpAction help = new HelpAction();
 	public final Action about = new AboutAction();
-	
+
 	public final JMenu layerMenu = new JMenu(tr("Layer"));
 	public final JMenu editMenu = new JMenu(tr("Edit"));
 	public final JMenu helpMenu = new JMenu(tr("Help"));
@@ -60,7 +60,7 @@ public class MainMenu extends JMenuBar {
 	private DownloadIncompleteAction downloadIncomplete = new DownloadIncompleteAction();
 
 
-	
+
 	public MainMenu() {
 		fileMenu.setMnemonic('F');
 		fileMenu.add(newAction);

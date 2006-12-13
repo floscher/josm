@@ -6,17 +6,18 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.openstreetmap.josm.data.SelectionChangedListener;
 
 /**
  * DataSet is the data behind the application. It can consists of only a few
- * points up to the whole osm database. DataSet's can be merged together, 
+ * points up to the whole osm database. DataSet's can be merged together,
  * saved, (up/down/disk)loaded etc.
  *
- * Note, that DataSet is not an osm-primitive and so has no key association 
+ * Note, that DataSet is not an osm-primitive and so has no key association
  * but a few members to store some information.
- * 
+ *
  * @author imi
  */
 public class DataSet {
@@ -34,10 +35,10 @@ public class DataSet {
 	public Collection<Segment> segments = new LinkedList<Segment>();
 
 	/**
-	 * All ways (Streets etc.) in the DataSet. 
-	 * 
-	 * The nodes of the way segments of this way must be objects from 
-	 * the nodes list, however the way segments are stored only in the 
+	 * All ways (Streets etc.) in the DataSet.
+	 *
+	 * The nodes of the way segments of this way must be objects from
+	 * the nodes list, however the way segments are stored only in the
 	 * way list.
 	 */
 	public Collection<Way> ways = new LinkedList<Way>();
@@ -48,11 +49,12 @@ public class DataSet {
 	transient Collection<SelectionChangedListener> listeners = new LinkedList<SelectionChangedListener>();
 
 	/**
-	 * @return A collection containing all primitives (except keys) of the
-	 * dataset.
+	 * @return A collection containing all primitives of the dataset. The
+	 * data is ordered after: first comes nodes, then segments, then ways.
+	 * Ordering in between the categories is not guaranteed.
 	 */
-	public Collection<OsmPrimitive> allPrimitives() {
-		Collection<OsmPrimitive> o = new LinkedList<OsmPrimitive>();
+	public List<OsmPrimitive> allPrimitives() {
+		List<OsmPrimitive> o = new LinkedList<OsmPrimitive>();
 		o.addAll(nodes);
 		o.addAll(segments);
 		o.addAll(ways);
@@ -152,7 +154,7 @@ public class DataSet {
 	}
 
 	/**
-	 * Remove a listener from the selection changed listener list. 
+	 * Remove a listener from the selection changed listener list.
 	 * If <code>null</code> is passed, nothing happens.
 	 * @param listener The listener to remove from the list.
 	 */

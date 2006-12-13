@@ -26,6 +26,10 @@ abstract class OsmServerReader extends OsmConnection {
 		initAuthentication();
 		URL url = new URL(urlStr);
 		activeConnection = (HttpURLConnection)url.openConnection();
+		if (cancel) {
+			activeConnection.disconnect();
+			return null;
+		}
 		System.out.println("got return: "+activeConnection.getResponseCode());
 		activeConnection.setConnectTimeout(15000);
 		if (isAuthCancelled() && activeConnection.getResponseCode() == 401)

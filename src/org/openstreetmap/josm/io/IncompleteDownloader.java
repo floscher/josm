@@ -11,6 +11,7 @@ import java.io.StringReader;
 import java.util.Collection;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
@@ -22,17 +23,22 @@ import uk.co.wilson.xml.MinML2;
 
 /**
  * Capable of downloading ways without having to fully parse their segments.
- * 
+ *
  * @author Imi
  */
 public class IncompleteDownloader extends OsmServerReader {
 
 	/**
+	 * The new downloaded data will be inserted here.
+	 */
+	public final DataSet data = new DataSet();
+
+	/**
 	 * The list of incomplete Ways to download. The ways will be filled and are complete after download.
 	 */
 	private final Collection<Way> toDownload;
-	private MergeVisitor merger = new MergeVisitor(Main.ds);
-	
+	private MergeVisitor merger = new MergeVisitor(data);
+
 	public IncompleteDownloader(Collection<Way> toDownload) {
 		this.toDownload = toDownload;
 	}
@@ -84,10 +90,8 @@ public class IncompleteDownloader extends OsmServerReader {
 				segBuilder.append(line+"\n");
 			SegmentParser segmentParser = new SegmentParser();
 			segmentParser.parse(new StringReader(segBuilder.toString()));
-			if (segmentParser.from == 0 || segmentParser.to == 0) {
-				System.out.println(segBuilder.toString());
+			if (segmentParser.from == 0 || segmentParser.to == 0)
 				throw new SAXException("Invalid segment response.");
-			}
 			if (!hasNode(segmentParser.from))
 				readNode(segmentParser.from, s.id).visit(merger);
 			if (!hasNode(segmentParser.to))
@@ -104,12 +108,12 @@ public class IncompleteDownloader extends OsmServerReader {
     }
 
 	private Segment readSegment(String seg) throws SAXException, IOException {
-        return OsmReader.parseDataSet(new ByteArrayInputStream(seg.getBytes("UTF-8")), Main.ds, null).segments.iterator().next();
+        return OsmReader.parseDataSet(new ByteArrayInputStream(seg.getBytes("UTF-8")), data, null).segments.iterator().next();
     }
 
 	private Node readNode(long id, long segId) throws SAXException, IOException {
 		try {
-	        return OsmReader.parseDataSet(getInputStream("node/"+id, null), Main.ds, null).nodes.iterator().next();
+	        return OsmReader.parseDataSet(getInputStream("node/"+id, null), data, null).nodes.iterator().next();
         } catch (FileNotFoundException e) {
 	        e.printStackTrace();
 	        throw new IOException(tr("Data error: Node {0} is deleted but part of Segment {1}", id, segId));

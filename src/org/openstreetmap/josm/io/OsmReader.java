@@ -191,6 +191,9 @@ public class OsmReader {
 	    for (Node node : references.nodes)
 	    	if (node.id == id)
 	    		return node;
+	    for (Node node : Main.ds.nodes)
+	    	if (node.id == id)
+	    		return node;
 	    return null;
     }
 
@@ -199,6 +202,9 @@ public class OsmReader {
 		if (s != null)
 			return s;
 		for (Segment seg : references.segments)
+			if (seg.id == id)
+				return seg;
+		for (Segment seg : Main.ds.segments)
 			if (seg.id == id)
 				return seg;
 		return null;
@@ -227,11 +233,12 @@ public class OsmReader {
 
 	/**
 	 * Parse the given input source and return the dataset.
-	 * @param pleaseWaitDlg TODO
+	 * @param ref The dataset that is search in for references first. If
+	 * 	the Reference is not found here, Main.ds is searched.
 	 */
 	public static DataSet parseDataSet(InputStream source, DataSet ref, PleaseWaitDialog pleaseWaitDlg) throws SAXException, IOException {
 		OsmReader osm = new OsmReader();
-		osm.references = ref;
+		osm.references = ref == null ? new DataSet() : ref;
 
 		// phase 1: Parse nodes and read in raw segments and ways
 		osm.new Parser().parse(new InputStreamReader(source, "UTF-8"));
