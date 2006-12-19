@@ -38,11 +38,11 @@ public class PreferencesAction extends JosmAction {
 
 		JOptionPane pane = new JOptionPane(prefPanel, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
 		JDialog dlg = pane.createDialog(Main.parent, tr("Preferences"));
-		
+
 		if (dlg.getWidth() > 600)
 			dlg.setSize(600, dlg.getHeight());
-		if (dlg.getHeight() > 450)
-			dlg.setSize(dlg.getWidth(), 450);
+		if (dlg.getHeight() > 600)
+			dlg.setSize(dlg.getWidth(),600);
 
 		dlg.setVisible(true);
 		if (pane.getValue() instanceof Integer && (Integer)pane.getValue() == JOptionPane.OK_OPTION)
