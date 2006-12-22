@@ -19,6 +19,7 @@ import javax.swing.JTabbedPane;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.plugins.PluginProxy;
 import org.openstreetmap.josm.tools.GBC;
+import org.openstreetmap.josm.tools.I18n;
 import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
@@ -35,8 +36,8 @@ public class PreferenceDialog extends JTabbedPane {
 
 	// some common tabs
 	public final JPanel display = createPreferenceTab("display", tr("Display Settings"), tr("Various settings that influence the visual representation of the whole program."));
-	public final JPanel connection = createPreferenceTab("connection", tr("Connection Settings"), tr("Connection Settings to the OSM server."));
-	public final JPanel map = createPreferenceTab("map", tr("Map Settings"), tr("Settings for the map projection and data interpretation."));
+	public final JPanel connection = createPreferenceTab("connection", I18n.tr("Connection Settings"), I18n.tr("Connection Settings to the OSM server."));
+	public final JPanel map = createPreferenceTab("map", I18n.tr("Map Settings"), I18n.tr("Settings for the map projection and data interpretation."));
 
 	/**
 	 * Construct a JPanel for the preference settings. Layout is GridBagLayout
