@@ -81,6 +81,10 @@ public class ToolbarPreferences implements PreferenceSetting {
 	}
 	private Move moveAction = new Move();
 
+	/**
+	 * Key: Registered name (property "toolbar" of action).
+	 * Value: The action to execute.
+	 */
 	private Map<String, Action> actions = new HashMap<String, Action>();
 
 	private DefaultListModel selected = new DefaultListModel();

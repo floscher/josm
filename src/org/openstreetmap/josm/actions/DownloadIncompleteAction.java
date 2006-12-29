@@ -59,7 +59,7 @@ public class DownloadIncompleteAction extends JosmAction {
 	}
 
 	public DownloadIncompleteAction() {
-		super(tr("Download incomplete objects"), "downloadincomplete", tr("Download all (selected) incomplete ways from the OSM server."), KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK | InputEvent.ALT_DOWN_MASK);
+		super(tr("Download incomplete objects"), "downloadincomplete", tr("Download all (selected) incomplete ways from the OSM server."), KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK | InputEvent.ALT_DOWN_MASK, true);
 	}
 
 	public void actionPerformed(ActionEvent e) {

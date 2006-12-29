@@ -4,21 +4,30 @@ import static org.openstreetmap.josm.tools.I18n.tr;
 import static org.openstreetmap.josm.tools.I18n.trn;
 
 import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.StringTokenizer;
 
+import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.ChangePropertyCommand;
 import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.SequenceCommand;
@@ -37,7 +46,7 @@ import uk.co.wilson.xml.MinML2;
  * 
  * It is also able to construct dialogs out of preset definitions.
  */
-public class AnnotationPreset {
+public class AnnotationPreset extends AbstractAction {
 
 	private static interface Item {
 		void addToPanel(JPanel p);
@@ -145,6 +154,7 @@ public class AnnotationPreset {
 		List<Item> current;
 		String currentName;
 		Collection<Class<?>> currentTypes;
+		ImageIcon currentIcon;
 		private static int unknownCounter = 1;
 
 		@Override public void startElement(String ns, String lname, String qname, Attributes a) throws SAXException {
@@ -169,6 +179,7 @@ public class AnnotationPreset {
 						throw new SAXException(tr("Unknown type at line {0}", getLineNumber()));
 					}
 				}
+				currentIcon = (a.getValue("icon") == null) ? null : new ImageIcon(a.getValue("icon"));
 			} else if (qname.equals("text"))
 				current.add(new Text(a.getValue("key"), a.getValue("text"), a.getValue("default"), parseBoolean(a.getValue("delete_if_empty"))));
 			else if (qname.equals("check")) {
@@ -200,27 +211,29 @@ public class AnnotationPreset {
 		}
 
 		private boolean parseBoolean(String s) {
-	        return s == null || s.equals("0") || s.startsWith("off") || s.startsWith("false") || s.startsWith("no");
-        }
+			return s == null || s.equals("0") || s.startsWith("off") || s.startsWith("false") || s.startsWith("no");
+		}
 
 		@Override public void endElement(String ns, String lname, String qname) {
 			if (qname.equals("item")) {
-				data.add(new AnnotationPreset(current, currentName, currentTypes));
+				data.add(new AnnotationPreset(current, currentName, currentIcon, currentTypes));
 				current = null;
 				currentName = null;
 				currentTypes = null;
+				currentIcon = null;
 			}
 		}
 	}
 
 	private List<Item> data;
-	public String name;
 	public Collection<Class<?>> types;
-
-	public AnnotationPreset(List<Item> data, String name, Collection<Class<?>> currentTypes) {
+	
+	public AnnotationPreset(List<Item> data, String name, ImageIcon icon, Collection<Class<?>> currentTypes) {
+		super(name, icon == null ? null : new ImageIcon(icon.getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH)));
+		putValue("toolbar", "annotation_"+name);
 		this.data = data;
-		this.name = name;
 		this.types = currentTypes;
+		Main.toolbar.register(this);
 	}
 
 	/**
@@ -243,6 +256,34 @@ public class AnnotationPreset {
 		return p.data;
 	}
 
+	public static Collection<AnnotationPreset> readFromPreferences() {
+		LinkedList<AnnotationPreset> allPresets = new LinkedList<AnnotationPreset>();
+		String allAnnotations = Main.pref.get("annotation.sources");
+		StringTokenizer st = new StringTokenizer(allAnnotations, ";");
+		while (st.hasMoreTokens()) {
+			InputStream in = null;
+			String source = st.nextToken();
+			try {
+				if (source.startsWith("http") || source.startsWith("ftp") || source.startsWith("file"))
+					in = new URL(source).openStream();
+				else if (source.startsWith("resource://"))
+					in = Main.class.getResourceAsStream(source.substring("resource:/".length()));
+				else
+					in = new FileInputStream(source);
+				allPresets.addAll(AnnotationPreset.readAll(in));
+				in.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(Main.parent, tr("Could not read annotation preset source: {0}",source));
+			} catch (SAXException e) {
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(Main.parent, tr("Error parsing {0}: ", source)+e.getMessage());
+			}
+		}
+		return allPresets;
+	}
+
+	
 	public JPanel createPanel() {
 		if (data == null)
 			return null;
@@ -252,7 +293,25 @@ public class AnnotationPreset {
 		return p;
 	}
 
-	public Command createCommand(Collection<OsmPrimitive> participants) {
+	public void actionPerformed(ActionEvent e) {
+		Collection<OsmPrimitive> sel = Main.ds.getSelected();
+		JPanel p = createPanel();
+		if (p == null)
+			return;
+		int answer;
+		if (p.getComponentCount() == 0)
+			answer = JOptionPane.OK_OPTION;
+		else
+			answer = JOptionPane.showConfirmDialog(Main.parent, p, trn("Change {0} object", "Change {0} objects", sel.size(), sel.size()), JOptionPane.OK_CANCEL_OPTION);
+		if (answer == JOptionPane.OK_OPTION) {
+			Command cmd = createCommand(Main.ds.getSelected());
+			if (cmd != null)
+				Main.main.editLayer().add(cmd);
+		}
+		Main.ds.setSelected(Main.ds.getSelected()); // force update
+	}
+
+	private Command createCommand(Collection<OsmPrimitive> participants) {
 		Collection<OsmPrimitive> sel = new LinkedList<OsmPrimitive>();
 		for (OsmPrimitive osm : participants)
 			if (types == null || types.contains(osm.getClass()))

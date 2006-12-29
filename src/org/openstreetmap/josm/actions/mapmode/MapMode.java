@@ -27,7 +27,7 @@ abstract public class MapMode extends JosmAction implements MouseListener, Mouse
 	 * Constructor for mapmodes without an menu
 	 */
 	public MapMode(String name, String iconName, String tooltip, int keystroke, MapFrame mapFrame, Cursor cursor) {
-		super(name, "mapmode/"+iconName, tooltip, keystroke, 0);
+		super(name, "mapmode/"+iconName, tooltip, keystroke, 0, false);
 //		this.cursor = cursor;
 		putValue("active", false);
 	}

@@ -15,31 +15,15 @@ import org.openstreetmap.josm.tools.ShortCutLabel;
  */
 abstract public class JosmAction extends AbstractAction {
 
-	/**
-	 * Construct the action as menu action entry.
-	 *
-	 * @param name		Name of the action (entry name in menu)
-	 * @param iconName	Name of the icon (without extension)
-	 * @param tooltip	Short tooltip description
-	 * @param mnemonic	Mnemonic in the menu
-	 */
-	public JosmAction(String name, String iconName, String tooltip, int mnemonic) {
-		super(name, ImageProvider.get(iconName));
-		putValue(SHORT_DESCRIPTION, tooltip);
-		putValue(MNEMONIC_KEY, mnemonic);
-		putValue("toolbar", iconName);
-		Main.toolbar.register(this);
-	}
-
-
-	public JosmAction(String name, String iconName, String tooltip, int shortCut, int modifier) {
+	public JosmAction(String name, String iconName, String tooltip, int shortCut, int modifier, boolean register) {
 		super(name, ImageProvider.get(iconName));
 		setHelpId();
 		putValue(SHORT_DESCRIPTION, "<html>"+tooltip+" <font size='-2'>"+ShortCutLabel.name(shortCut, modifier)+"</font>&nbsp;</html>");
         Main.contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(shortCut, modifier), name);
         Main.contentPane.getActionMap().put(name, this);
         putValue("toolbar", iconName);
-        Main.toolbar.register(this);
+        if (register)
+        	Main.toolbar.register(this);
 	}
 
 	public JosmAction() {

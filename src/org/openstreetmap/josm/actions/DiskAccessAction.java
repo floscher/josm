@@ -38,7 +38,7 @@ abstract public class DiskAccessAction extends JosmAction {
 
 
 	public DiskAccessAction(String name, String iconName, String tooltip, int shortCut, int modifiers) {
-		super(name, iconName, tooltip, shortCut, modifiers);
+		super(name, iconName, tooltip, shortCut, modifiers, true);
 	}
 	
 	

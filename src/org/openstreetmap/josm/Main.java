@@ -42,6 +42,7 @@ import org.openstreetmap.josm.gui.dialogs.SelectionListDialog;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer.CommandQueueListener;
+import org.openstreetmap.josm.gui.preferences.AnnotationPresetPreference;
 import org.openstreetmap.josm.gui.preferences.ToolbarPreferences;
 import org.openstreetmap.josm.plugins.PluginException;
 import org.openstreetmap.josm.plugins.PluginInformation;
@@ -174,13 +175,15 @@ abstract public class Main {
 		// creating toolbar
 		contentPane.add(toolbar.control, BorderLayout.NORTH);
 
-        contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0), "Help");
-        contentPane.getActionMap().put("Help", menu.help);
+		contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0), "Help");
+		contentPane.getActionMap().put("Help", menu.help);
 
-        toolbar.refreshToolbarControl();
+		AnnotationPresetPreference.initialize();
 
-        toolbar.control.updateUI();
-        contentPane.updateUI();
+		toolbar.refreshToolbarControl();
+
+		toolbar.control.updateUI();
+		contentPane.updateUI();
 	}
 
 	/**
@@ -188,7 +191,7 @@ abstract public class Main {
 	 * GUI has been set up. (post-constructor)
 	 */
 	public void loadPlugins() {
-	    if (Main.pref.hasKey("plugins")) {
+		if (Main.pref.hasKey("plugins")) {
 			for (String pluginName : Main.pref.get("plugins").split(",")) {
 				try {
 					File pluginFile = new File(pref.getPreferencesDir()+"plugins/"+pluginName+".jar");
@@ -205,7 +208,7 @@ abstract public class Main {
 				}
 			}
 		}
-    }
+	}
 
 	/**
 	 * Add a new layer to the map. If no map exist, create one.
@@ -306,7 +309,7 @@ abstract public class Main {
 		if (bounds == null)
 			bounds = !args.containsKey("no-fullscreen") ? new Rectangle(0,0,screenDimension.width,screenDimension.height) : new Rectangle(1000,740);
 
-		pleaseWaitDlg = new PleaseWaitDialog();
+			pleaseWaitDlg = new PleaseWaitDialog();
 	}
 
 	public void postConstructorProcessCmdLine(Map<String, Collection<String>> args) {
@@ -322,27 +325,27 @@ abstract public class Main {
 	}
 
 	public static boolean breakBecauseUnsavedChanges() {
-	    if (map != null) {
-	    	boolean modified = false;
-	    	boolean uploadedModified = false;
-	    	for (final Layer l : map.mapView.getAllLayers()) {
-	    		if (l instanceof OsmDataLayer && ((OsmDataLayer)l).isModified()) {
-	    			modified = true;
-	    			uploadedModified = ((OsmDataLayer)l).uploadedModified;
-	    			break;
-	    		}
-	    	}
-	    	if (modified) {
-	    		final String msg = uploadedModified ? "\n"+tr("Hint: Some changes came from uploading new data to the server.") : "";
-	    		final int answer = JOptionPane.showConfirmDialog(
-	    				parent, tr("There are unsaved changes. Discard the changes and continue?")+msg,
-	    				tr("Unsaved Changes"), JOptionPane.YES_NO_OPTION);
-	    		if (answer != JOptionPane.YES_OPTION)
-	    			return true;
-	    	}
-	    }
-	    return false;
-    }
+		if (map != null) {
+			boolean modified = false;
+			boolean uploadedModified = false;
+			for (final Layer l : map.mapView.getAllLayers()) {
+				if (l instanceof OsmDataLayer && ((OsmDataLayer)l).isModified()) {
+					modified = true;
+					uploadedModified = ((OsmDataLayer)l).uploadedModified;
+					break;
+				}
+			}
+			if (modified) {
+				final String msg = uploadedModified ? "\n"+tr("Hint: Some changes came from uploading new data to the server.") : "";
+				final int answer = JOptionPane.showConfirmDialog(
+						parent, tr("There are unsaved changes. Discard the changes and continue?")+msg,
+						tr("Unsaved Changes"), JOptionPane.YES_NO_OPTION);
+				if (answer != JOptionPane.YES_OPTION)
+					return true;
+			}
+		}
+		return false;
+	}
 
 	private static void downloadFromParamString(final boolean rawGps, String s) {
 		if (s.startsWith("http:")) {

@@ -11,7 +11,7 @@ import org.openstreetmap.josm.Main;
 public class NewAction extends JosmAction {
 
 	public NewAction() {
-		super(tr("New"), "new", tr("Create a new map."), KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK);
+		super(tr("New"), "new", tr("Create a new map."), KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK, true);
 	}
 
 	public void actionPerformed(ActionEvent e) {

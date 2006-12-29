@@ -33,7 +33,7 @@ import org.xml.sax.SAXException;
  */
 public class UploadAction extends JosmAction {
 	public UploadAction() {
-		super(tr("Upload to OSM"), "upload", tr("Upload all changes to the OSM server."), KeyEvent.VK_U, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK);
+		super(tr("Upload to OSM"), "upload", tr("Upload all changes to the OSM server."), KeyEvent.VK_U, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK, true);
 	}
 
 	public void actionPerformed(ActionEvent e) {
