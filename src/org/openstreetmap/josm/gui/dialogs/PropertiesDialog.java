@@ -13,14 +13,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -42,14 +37,14 @@ import javax.swing.table.DefaultTableModel;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.ChangePropertyCommand;
-import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.data.SelectionChangedListener;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.annotation.AnnotationCellRenderer;
 import org.openstreetmap.josm.gui.annotation.AnnotationPreset;
+import org.openstreetmap.josm.gui.annotation.ForwardActionListener;
+import org.openstreetmap.josm.gui.preferences.AnnotationPresetPreference;
 import org.openstreetmap.josm.tools.ImageProvider;
-import org.xml.sax.SAXException;
 
 /**
  * This dialog displays the properties of the current selected primitives.
@@ -213,7 +208,8 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	 * The properties list.
 	 */
 	private final JTable propertyTable = new JTable(data);
-	private JComboBox annotationPresets = new JComboBox();
+	public JComboBox annotationPresets = new JComboBox();
+
 
 	/**
 	 * Create a new PropertiesDialog
@@ -221,54 +217,19 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	public PropertiesDialog(MapFrame mapFrame) {
 		super(tr("Properties"), "propertiesdialog", tr("Property for selected objects."), KeyEvent.VK_P, 150);
 
-		Vector<AnnotationPreset> allPresets = new Vector<AnnotationPreset>();
-		String allAnnotations = Main.pref.get("annotation.sources");
-		StringTokenizer st = new StringTokenizer(allAnnotations, ";");
-		while (st.hasMoreTokens()) {
-			InputStream in = null;
-			String source = st.nextToken();
-			try {
-				if (source.startsWith("http") || source.startsWith("ftp") || source.startsWith("file"))
-					in = new URL(source).openStream();
-				else if (source.startsWith("resource://"))
-					in = Main.class.getResourceAsStream(source.substring("resource:/".length()));
-				else
-					in = new FileInputStream(source);
-				allPresets.addAll(AnnotationPreset.readAll(in));
-				in.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-				JOptionPane.showMessageDialog(Main.parent, tr("Could not read annotation preset source: {0}",source));
-			} catch (SAXException e) {
-				e.printStackTrace();
-				JOptionPane.showMessageDialog(Main.parent, tr("Error parsing {0}: ", source)+e.getMessage());
-			}
-		}
-		if (allPresets.size() > 0) {
-			allPresets.add(0, new AnnotationPreset());
+		if (AnnotationPresetPreference.annotationPresets.size() > 0) {
+			Vector<ActionListener> allPresets = new Vector<ActionListener>();
+			for (final AnnotationPreset p : AnnotationPresetPreference.annotationPresets)
+				allPresets.add(new ForwardActionListener(this, p));
+
+			allPresets.add(0, new ForwardActionListener(this, new AnnotationPreset()));
 			annotationPresets.setModel(new DefaultComboBoxModel(allPresets));
 			add(annotationPresets, BorderLayout.NORTH);
 		}
 		annotationPresets.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
-				Collection<OsmPrimitive> sel = Main.ds.getSelected();
-				AnnotationPreset preset = (AnnotationPreset)annotationPresets.getSelectedItem();
-				JPanel p = preset.createPanel();
-				if (p == null)
-					return;
-				int answer;
-				if (p.getComponentCount() == 0)
-					answer = JOptionPane.OK_OPTION;
-				else
-					answer = JOptionPane.showConfirmDialog(Main.parent, p, trn("Change {0} object", "Change {0} objects", sel.size(), sel.size()), JOptionPane.OK_CANCEL_OPTION);
-				if (answer == JOptionPane.OK_OPTION) {
-					Command cmd = preset.createCommand(sel);
-					if (cmd != null) {
-						Main.main.editLayer().add(cmd);
-						selectionChanged(sel); // update whole table
-					}
-				}
-				annotationPresets.setSelectedIndex(0);
+				AnnotationPreset preset = ((ForwardActionListener)annotationPresets.getSelectedItem()).preset;
+				preset.actionPerformed(e);
 			}
 		});
 		annotationPresets.setRenderer(new AnnotationCellRenderer());

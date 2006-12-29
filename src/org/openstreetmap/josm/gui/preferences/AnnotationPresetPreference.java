@@ -5,6 +5,7 @@ import static org.openstreetmap.josm.tools.I18n.tr;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collection;
 import java.util.StringTokenizer;
 
 import javax.swing.Box;
@@ -17,13 +18,16 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.gui.annotation.AnnotationPreset;
 import org.openstreetmap.josm.tools.GBC;
 
 public class AnnotationPresetPreference implements PreferenceSetting {
 
-	private JList annotationSources = new JList(new DefaultListModel());
+	public static Collection<AnnotationPreset> annotationPresets;
+	private JList annotationSources;
 
 	public void addGui(final PreferenceDialog gui) {
+		annotationSources = new JList(new DefaultListModel());
 		String annos = Main.pref.get("annotation.sources");
 		StringTokenizer st = new StringTokenizer(annos, ";");
 		while (st.hasMoreTokens())
@@ -90,5 +94,12 @@ public class AnnotationPresetPreference implements PreferenceSetting {
 			Main.pref.put("annotation.sources", sb.toString().substring(1));
 		} else
 			Main.pref.put("annotation.sources", null);
+	}
+
+	/** 
+	 * Initialize the annotation presets (load and may display error)
+	 */
+	public static void initialize() {
+		annotationPresets = AnnotationPreset.readFromPreferences();
 	}
 }

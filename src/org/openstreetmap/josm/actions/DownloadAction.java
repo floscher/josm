@@ -84,7 +84,7 @@ public class DownloadAction extends JosmAction {
 			new JTextField(9)};
 
 	public DownloadAction() {
-		super(tr("Download from OSM"), "download", tr("Download map data from the OSM server."), KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK);
+		super(tr("Download from OSM"), "download", tr("Download map data from the OSM server."), KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK, true);
 		// TODO remove when bug in Java6 is fixed
 		for (JTextField f : latlon)
 			f.setMinimumSize(new Dimension(100,new JTextField().getMinimumSize().height));

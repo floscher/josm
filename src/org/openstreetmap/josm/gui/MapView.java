@@ -322,7 +322,7 @@ public class MapView extends NavigatableComponent {
 
 		recalculateCenterScale();
 
-		if (!oldCenter.equals(center))
+		if ((oldCenter == null && center != null) || !oldCenter.equals(center))
 			firePropertyChange("center", oldCenter, center);
 		if (oldAutoScale != autoScale)
 			firePropertyChange("autoScale", oldAutoScale, autoScale);

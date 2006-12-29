@@ -23,21 +23,21 @@ import org.openstreetmap.josm.actions.HelpAction.Helpful;
 public class ToggleDialog extends JPanel implements Helpful {
 
 	public final class ToggleDialogAction extends JosmAction {
-	    public final String prefname;
-	    public AbstractButton button;
+		public final String prefname;
+		public AbstractButton button;
 
-	    private ToggleDialogAction(String name, String iconName, String tooltip, int shortCut, int modifier, String prefname) {
-		    super(name, iconName, tooltip, shortCut, modifier);
-		    this.prefname = prefname;
-	    }
+		private ToggleDialogAction(String name, String iconName, String tooltip, int shortCut, int modifier, String prefname) {
+			super(name, iconName, tooltip, shortCut, modifier, false);
+			this.prefname = prefname;
+		}
 
-	    public void actionPerformed(ActionEvent e) {
-	    	if (e != null && !(e.getSource() instanceof AbstractButton))
-	    		button.setSelected(!button.isSelected());
-	    	setVisible(button.isSelected());
-	        Main.pref.put(prefname+".visible", button.isSelected());
-	    }
-    }
+		public void actionPerformed(ActionEvent e) {
+			if (e != null && !(e.getSource() instanceof AbstractButton))
+				button.setSelected(!button.isSelected());
+			setVisible(button.isSelected());
+			Main.pref.put(prefname+".visible", button.isSelected());
+		}
+	}
 
 	/**
 	 * The action to toggle this dialog.
@@ -60,6 +60,6 @@ public class ToggleDialog extends JPanel implements Helpful {
 	public String helpTopic() {
 		String help = getClass().getName();
 		help = help.substring(help.lastIndexOf('.')+1, help.length()-6);
-	    return "Dialog/"+help;
-    }
+		return "Dialog/"+help;
+	}
 }

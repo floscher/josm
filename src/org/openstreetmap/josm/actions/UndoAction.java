@@ -20,7 +20,7 @@ public class UndoAction extends JosmAction {
 	 * Construct the action with "Undo" as label.
 	 */
 	public UndoAction() {
-		super(tr("Undo"), "undo", tr("Undo the last action."), KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK);
+		super(tr("Undo"), "undo", tr("Undo the last action."), KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK, true);
 		setEnabled(false);
 	}
 

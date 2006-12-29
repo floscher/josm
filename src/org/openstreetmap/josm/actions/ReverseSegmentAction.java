@@ -23,7 +23,7 @@ import org.openstreetmap.josm.data.osm.Segment;
 public final class ReverseSegmentAction extends JosmAction {
 
     public ReverseSegmentAction() {
-    	super(tr("Reverse Segments"), "segmentflip", tr("Revert the direction of all selected Segments."), KeyEvent.VK_R, KeyEvent.CTRL_MASK | KeyEvent.SHIFT_MASK);
+    	super(tr("Reverse Segments"), "segmentflip", tr("Revert the direction of all selected Segments."), KeyEvent.VK_R, KeyEvent.CTRL_MASK | KeyEvent.SHIFT_MASK, true);
     }
 
 	public void actionPerformed(ActionEvent e) {
