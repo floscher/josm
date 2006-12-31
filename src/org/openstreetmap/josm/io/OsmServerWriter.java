@@ -73,7 +73,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 				Main.pleaseWaitDlg.progress.setValue(Main.pleaseWaitDlg.progress.getValue()+1);
 			}
 		} catch (RuntimeException e) {
-			throw new SAXException("An error occoured: ", e);
+			throw new SAXException("An error occoured: "+e.getMessage());
 		}
 	}
 
