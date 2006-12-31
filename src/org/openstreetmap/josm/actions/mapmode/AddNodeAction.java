@@ -148,9 +148,12 @@ public class AddNodeAction extends MapMode {
 				Way way = getWayForNode(n1);
 				if (way != null) {
 					Way newWay = new Way(way);
-					if (way.segments.get(0).from == n1)
+					if (way.segments.get(0).from == n1) {
+						Node tmp = s.from;
+						s.from = s.to;
+						s.to = tmp;
 						newWay.segments.add(0, s);
-					else
+					} else
 						newWay.segments.add(s);
 					cmds.add(new ChangeCommand(way, newWay));
 				}

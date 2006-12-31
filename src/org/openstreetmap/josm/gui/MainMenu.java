@@ -19,6 +19,7 @@ import org.openstreetmap.josm.actions.NewAction;
 import org.openstreetmap.josm.actions.OpenAction;
 import org.openstreetmap.josm.actions.PreferencesAction;
 import org.openstreetmap.josm.actions.RedoAction;
+import org.openstreetmap.josm.actions.ReorderAction;
 import org.openstreetmap.josm.actions.ReverseSegmentAction;
 import org.openstreetmap.josm.actions.SaveAction;
 import org.openstreetmap.josm.actions.SaveAsAction;
@@ -47,6 +48,7 @@ public class MainMenu extends JMenuBar {
 	public final Action reverseSegment = new ReverseSegmentAction();
 	public final Action alignInCircle = new AlignInCircleAction();
 	public final Action alignInLine = new AlignInLineAction();
+	public final Action reorder = new ReorderAction();
 	public final Action upload = new UploadAction();
 	public final Action save = new SaveAction();
 	public final Action saveAs = new SaveAsAction();
@@ -86,6 +88,7 @@ public class MainMenu extends JMenuBar {
 		editMenu.add(reverseSegment);
 		editMenu.add(alignInCircle);
 		editMenu.add(alignInLine);
+		editMenu.add(reorder);
 		editMenu.addSeparator();
 		editMenu.add(preferences);
 		add(editMenu);
