@@ -8,12 +8,12 @@ import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.actions.ReorderAction;
 import org.openstreetmap.josm.command.AddCommand;
 import org.openstreetmap.josm.command.ChangeCommand;
 import org.openstreetmap.josm.command.DeleteCommand;
@@ -188,37 +188,7 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 		if (segmentSet.isEmpty())
 			return null;
 
-		// sort the segments in best possible order. This is done by:
-		// 0  if no elements in list, quit
-		// 1  taking the first ls as pivot, remove it from list
-		// 2  searching for a connection at from or to of pivot
-		// 3  if found, attach it, remove it from list, goto 2
-		// 4  if not found, save the pivot-string and goto 0
-		LinkedList<Segment> sortedSegments = new LinkedList<Segment>();
-		LinkedList<Segment> segments = new LinkedList<Segment>(segmentSet);
-		while (!segments.isEmpty()) {
-			LinkedList<Segment> pivotList = new LinkedList<Segment>();
-			pivotList.add(segments.getFirst());
-			segments.removeFirst();
-			for (boolean found = true; found;) {
-				found = false;
-				for (Iterator<Segment> it = segments.iterator(); it.hasNext();) {
-					Segment ls = it.next();
-					if (ls.incomplete)
-						continue; // incomplete segments are never added to a new way
-					if (ls.from == pivotList.getLast().to) {
-						pivotList.addLast(ls);
-						it.remove();
-						found = true;
-					} else if (ls.to == pivotList.getFirst().from) {
-						pivotList.addFirst(ls);
-						it.remove();
-						found = true;
-					}
-				}
-			}
-			sortedSegments.addAll(pivotList);
-		}
+		LinkedList<Segment> sortedSegments = ReorderAction.sortSegments(segmentSet);
 
 		if (wayToAdd != null) {
 			Way w = new Way(wayToAdd);
