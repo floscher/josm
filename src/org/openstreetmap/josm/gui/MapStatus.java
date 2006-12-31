@@ -4,6 +4,7 @@ import static org.openstreetmap.josm.tools.I18n.tr;
 
 import java.awt.AWTEvent;
 import java.awt.Cursor;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.Point;
@@ -13,6 +14,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.Map.Entry;
@@ -132,8 +134,18 @@ public class MapStatus extends JPanel implements Helpful {
 
 					// Popup Information
 					if ((ms.modifiers & MouseEvent.BUTTON2_DOWN_MASK) != 0 && osms != null) {
-						if (popup != null)
-							popup.hide();
+						if (popup != null) {
+							try {
+	                            EventQueue.invokeAndWait(new Runnable() {
+	                                public void run() {
+	                                	popup.hide();
+	                                }
+	                            });
+                            } catch (InterruptedException e) {
+                            } catch (InvocationTargetException e) {
+                            	throw new RuntimeException(e);
+                            }
+						}
 
 						JPanel c = new JPanel(new GridBagLayout());
 						for (final OsmPrimitive osm : osms) {
@@ -168,10 +180,20 @@ public class MapStatus extends JPanel implements Helpful {
 
 						Point p = mv.getLocationOnScreen();
 						popup = PopupFactory.getSharedInstance().getPopup(mv, c, p.x+ms.mousePos.x+16, p.y+ms.mousePos.y+16);
-						popup.show();
+						final Popup staticPopup = popup;
+						EventQueue.invokeLater(new Runnable(){
+							public void run() {
+								staticPopup.show();
+                            }
+						});
 					} else if (popup != null) {
-						popup.hide();
+						final Popup staticPopup = popup;
 						popup = null;
+						EventQueue.invokeLater(new Runnable(){
+							public void run() {
+								staticPopup.hide();
+                            }
+						});
 					}
 				} catch (ConcurrentModificationException x) {
 				} catch (NullPointerException x) {

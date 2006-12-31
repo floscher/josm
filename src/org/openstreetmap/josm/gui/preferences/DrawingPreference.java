@@ -16,6 +16,7 @@ public class DrawingPreference implements PreferenceSetting {
 	private JCheckBox forceRawGpsLines = new JCheckBox(tr("Force lines if no segments imported."));
 	private JCheckBox largeGpsPoints = new JCheckBox(tr("Draw large GPS points."));
 	private JCheckBox directionHint = new JCheckBox(tr("Draw Direction Arrows"));
+	private JCheckBox segmentOrderNumber = new JCheckBox(tr("Draw segment order numbers"));
 
 	public void addGui(PreferenceDialog gui) {
 		// drawRawGpsLines
@@ -45,6 +46,11 @@ public class DrawingPreference implements PreferenceSetting {
 		directionHint.setToolTipText(tr("Draw direction hints for all segments."));
 		directionHint.setSelected(Main.pref.getBoolean("draw.segment.direction"));
 		gui.display.add(directionHint, GBC.eop().insets(20,0,0,0));
+		
+		// segment order number
+		segmentOrderNumber.setToolTipText(tr("Draw the order numbers of all segments within their way."));
+		segmentOrderNumber.setSelected(Main.pref.getBoolean("draw.segment.order_number"));
+		gui.display.add(segmentOrderNumber, GBC.eop().insets(20,0,0,0));
 	}
 
 	public void ok() {
@@ -52,5 +58,6 @@ public class DrawingPreference implements PreferenceSetting {
 		Main.pref.put("draw.rawgps.lines.force", forceRawGpsLines.isSelected());
 		Main.pref.put("draw.rawgps.large", largeGpsPoints.isSelected());
 		Main.pref.put("draw.segment.direction", directionHint.isSelected());
+		Main.pref.put("draw.segment.order_number", segmentOrderNumber.isSelected());
     }
 }

@@ -84,10 +84,31 @@ public class SimplePaintVisitor implements Visitor {
 			}
 		}
 
-		for (Segment ls : w.segments)
+		int orderNumber = 0;
+		for (Segment ls : w.segments) {
+			orderNumber++;
 			if (!ls.selected) // selected already in good color
 				drawSegment(ls, w.selected ? getPreferencesColor("selected", Color.WHITE) : wayColor);
+			if (Main.pref.getBoolean("draw.segment.order_number"))
+				drawOrderNumber(ls, orderNumber);
+		}
 	}
+
+	/**
+	 * Draw an number of the order of the segment within the parents way
+	 */
+	private void drawOrderNumber(Segment ls, int orderNumber) {
+		int strlen = (""+orderNumber).length();
+		Point p1 = nc.getPoint(ls.from.eastNorth);
+		Point p2 = nc.getPoint(ls.to.eastNorth);
+		int x = (p1.x+p2.x)/2 - 4*strlen;
+		int y = (p1.y+p2.y)/2 + 4;
+		Color c = g.getColor();
+		g.setColor(Color.black);
+		g.fillRect(x-1,y-12,8*strlen+1,14);
+		g.setColor(c);
+		g.drawString(""+orderNumber,x,y);
+    }
 
 	/**
 	 * Draw the node as small rectangle with the given color.

@@ -22,7 +22,9 @@ import org.openstreetmap.josm.actions.RedoAction;
 import org.openstreetmap.josm.actions.ReverseSegmentAction;
 import org.openstreetmap.josm.actions.SaveAction;
 import org.openstreetmap.josm.actions.SaveAsAction;
+import org.openstreetmap.josm.actions.SelectAllAction;
 import org.openstreetmap.josm.actions.UndoAction;
+import org.openstreetmap.josm.actions.UnselectAllAction;
 import org.openstreetmap.josm.actions.UploadAction;
 
 /**
@@ -37,6 +39,8 @@ public class MainMenu extends JMenuBar {
 
 	public final UndoAction undo = new UndoAction();
 	public final RedoAction redo = new RedoAction();
+	public final Action selectAll = new SelectAllAction();
+	public final Action unselectAll = new UnselectAllAction();
 	public final NewAction newAction = new NewAction();
 	public final OpenAction open = new OpenAction();
 	public final DownloadAction download = new DownloadAction();
@@ -75,6 +79,9 @@ public class MainMenu extends JMenuBar {
 		editMenu.setMnemonic('E');
 		editMenu.add(undo);
 		editMenu.add(redo);
+		editMenu.addSeparator();
+		editMenu.add(selectAll);
+		editMenu.add(unselectAll);
 		editMenu.addSeparator();
 		editMenu.add(reverseSegment);
 		editMenu.add(alignInCircle);

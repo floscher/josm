@@ -6,12 +6,17 @@ import java.awt.Container;
 import java.awt.GridBagLayout;
 
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.openstreetmap.josm.Main;
 
 public class DontShowAgainInfo {
+
+	public static boolean show(String prefKey, String msg) {
+		return show(prefKey, new JLabel(msg));
+	}
 
 	public static boolean show(String prefKey, Container msg) {
 		if (!Main.pref.getBoolean("message."+prefKey)) {
