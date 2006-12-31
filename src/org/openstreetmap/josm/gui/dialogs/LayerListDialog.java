@@ -33,6 +33,8 @@ import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
 import org.openstreetmap.josm.gui.layer.Layer;
+import org.openstreetmap.josm.gui.layer.OsmDataLayer;
+import org.openstreetmap.josm.tools.DontShowAgainInfo;
 import org.openstreetmap.josm.tools.ImageProvider;
 import org.openstreetmap.josm.tools.ImageProvider.OverlayPosition;
 
@@ -64,10 +66,10 @@ public class LayerListDialog extends ToggleDialog implements LayerChangeListener
 
 		public void actionPerformed(ActionEvent e) {
 			int sel = instance.getSelectedIndex();
-			if (layer != null)
-				Main.main.removeLayer(layer);
-			else
-				Main.main.removeLayer((Layer)instance.getSelectedValue());
+			Layer l = layer != null ? layer : (Layer)instance.getSelectedValue();
+			if (l instanceof OsmDataLayer && !DontShowAgainInfo.show("delete_layer", tr("Do you really want to delete the whole layer?")))
+				return;
+			Main.main.removeLayer(l);
 			if (sel >= instance.getModel().getSize())
 				sel = instance.getModel().getSize()-1;
 			if (instance.getSelectedValue() == null)

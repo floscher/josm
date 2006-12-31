@@ -26,9 +26,10 @@ import org.openstreetmap.josm.tools.UrlLabel;
 
 public class PluginPreference implements PreferenceSetting {
 
-	private Map<PluginInformation, Boolean> pluginMap = new HashMap<PluginInformation, Boolean>();
+	private Map<PluginInformation, Boolean> pluginMap;
 
 	public void addGui(final PreferenceDialog gui) {
+		pluginMap = new HashMap<PluginInformation, Boolean>();
 		Box pluginPanel = Box.createVerticalBox();
 		Collection<PluginInformation> availablePlugins = new LinkedList<PluginInformation>();
 		File[] pluginFiles = new File(Main.pref.getPreferencesDir()+"plugins").listFiles();
