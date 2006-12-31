@@ -7,6 +7,7 @@ import static org.xnap.commons.i18n.I18n.marktr;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -44,6 +45,7 @@ import org.openstreetmap.josm.gui.annotation.AnnotationCellRenderer;
 import org.openstreetmap.josm.gui.annotation.AnnotationPreset;
 import org.openstreetmap.josm.gui.annotation.ForwardActionListener;
 import org.openstreetmap.josm.gui.preferences.AnnotationPresetPreference;
+import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
@@ -224,12 +226,16 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 
 			allPresets.add(0, new ForwardActionListener(this, new AnnotationPreset()));
 			annotationPresets.setModel(new DefaultComboBoxModel(allPresets));
-			add(annotationPresets, BorderLayout.NORTH);
+			JPanel north = new JPanel(new GridBagLayout());
+			north.add(getComponent(0),GBC.eol().fill(GBC.HORIZONTAL));
+			north.add(annotationPresets,GBC.eol().fill(GBC.HORIZONTAL));
+			add(north, BorderLayout.NORTH);
 		}
 		annotationPresets.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				AnnotationPreset preset = ((ForwardActionListener)annotationPresets.getSelectedItem()).preset;
 				preset.actionPerformed(e);
+				annotationPresets.setSelectedItem(null);
 			}
 		});
 		annotationPresets.setRenderer(new AnnotationCellRenderer());

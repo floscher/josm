@@ -6,6 +6,7 @@ import static org.openstreetmap.josm.tools.I18n.trn;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
+import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,8 +20,10 @@ import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.SwingUtilities;
@@ -42,7 +45,10 @@ import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
 import org.openstreetmap.josm.gui.dialogs.LayerListDialog;
 import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
 import org.openstreetmap.josm.tools.ColorHelper;
+import org.openstreetmap.josm.tools.DontShowAgainInfo;
+import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.ImageProvider;
+import org.openstreetmap.josm.tools.UrlLabel;
 
 /**
  * A layer holding data from a gps source.
@@ -57,6 +63,11 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 			super(tr("Convert to data layer"), ImageProvider.get("converttoosm"));
 		}
 		public void actionPerformed(ActionEvent e) {
+			JPanel msg = new JPanel(new GridBagLayout());
+			msg.add(new JLabel(tr("<html>Upload of unprocessed GPS data as map data is considered harmfull.<br>If you want to upload traces, look here:")), GBC.eol());
+			msg.add(new UrlLabel(tr("http://www.openstreetmap.org/traces")), GBC.eop());
+			if (!DontShowAgainInfo.show("convert_to_data", msg))
+				return;
 			DataSet ds = new DataSet();
 			for (Collection<GpsPoint> c : data) {
 				Way w = new Way();
