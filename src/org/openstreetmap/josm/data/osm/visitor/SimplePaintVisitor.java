@@ -89,7 +89,7 @@ public class SimplePaintVisitor implements Visitor {
 			orderNumber++;
 			if (!ls.selected) // selected already in good color
 				drawSegment(ls, w.selected ? getPreferencesColor("selected", Color.WHITE) : wayColor);
-			if (Main.pref.getBoolean("draw.segment.order_number"))
+			if (!ls.incomplete && Main.pref.getBoolean("draw.segment.order_number"))
 				drawOrderNumber(ls, orderNumber);
 		}
 	}
