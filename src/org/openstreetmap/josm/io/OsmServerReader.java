@@ -21,7 +21,8 @@ abstract class OsmServerReader extends OsmConnection {
 	 * @return An reader reading the input stream (servers answer) or <code>null</code>.
 	 */
 	protected InputStream getInputStream(String urlStr, PleaseWaitDialog pleaseWaitDlg) throws IOException {
-		urlStr = Main.pref.get("osm-server.url")+"/0.3/" + urlStr;
+		String version = Main.pref.get("osm-server.version", "0.3");
+		urlStr = Main.pref.get("osm-server.url")+"/"+version+"/" + urlStr;
 		System.out.println("download: "+urlStr);
 		initAuthentication();
 		URL url = new URL(urlStr);
