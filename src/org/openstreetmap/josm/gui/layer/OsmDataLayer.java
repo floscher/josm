@@ -200,8 +200,7 @@ public class OsmDataLayer extends Layer {
 		final Command c = commands.removeLast();
 		c.undoCommand();
 		redoCommands.push(c);
-		//TODO: Replace with listener scheme
-		setModified(uploadedModified);
+		setModified(uploadedModified || !commands.isEmpty());
 		Main.ds.clearSelection();
 		fireCommandsChanged();
 	}

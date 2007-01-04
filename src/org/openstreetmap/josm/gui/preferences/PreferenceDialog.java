@@ -75,7 +75,7 @@ public class PreferenceDialog extends JTabbedPane {
 		for (PreferenceSetting setting : settings)
 			setting.ok();
 		if (requiresRestart)
-			JOptionPane.showMessageDialog(PreferenceDialog.this,tr("You have to restart JOSM for some settings to take effect."));
+			JOptionPane.showMessageDialog(Main.parent,tr("You have to restart JOSM for some settings to take effect."));
 		Main.parent.repaint();
 	}
 

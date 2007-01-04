@@ -24,6 +24,7 @@ import org.openstreetmap.josm.actions.ReverseSegmentAction;
 import org.openstreetmap.josm.actions.SaveAction;
 import org.openstreetmap.josm.actions.SaveAsAction;
 import org.openstreetmap.josm.actions.SelectAllAction;
+import org.openstreetmap.josm.actions.SplitWayAction;
 import org.openstreetmap.josm.actions.UndoAction;
 import org.openstreetmap.josm.actions.UnselectAllAction;
 import org.openstreetmap.josm.actions.UploadAction;
@@ -46,6 +47,7 @@ public class MainMenu extends JMenuBar {
 	public final OpenAction open = new OpenAction();
 	public final DownloadAction download = new DownloadAction();
 	public final Action reverseSegment = new ReverseSegmentAction();
+	public final Action splitWay = new SplitWayAction();
 	public final Action alignInCircle = new AlignInCircleAction();
 	public final Action alignInLine = new AlignInLineAction();
 	public final Action reorder = new ReorderAction();
@@ -86,6 +88,7 @@ public class MainMenu extends JMenuBar {
 		editMenu.add(unselectAll);
 		editMenu.addSeparator();
 		editMenu.add(reverseSegment);
+		editMenu.add(splitWay);
 		editMenu.add(alignInCircle);
 		editMenu.add(alignInLine);
 		editMenu.add(reorder);
