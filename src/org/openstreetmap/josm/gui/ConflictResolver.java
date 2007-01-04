@@ -11,7 +11,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -22,6 +21,7 @@ import java.util.Map.Entry;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -33,6 +33,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.conflict.ConflictItem;
 import org.openstreetmap.josm.data.conflict.DeleteConflict;
 import org.openstreetmap.josm.data.conflict.FromConflict;
@@ -159,8 +160,17 @@ public class ConflictResolver extends JPanel {
 			}
 		}
 		
-		if (this.conflicts.isEmpty())
-			throw new RuntimeException("No conflicts but in conflict list:\n"+Arrays.toString(conflicts.entrySet().toArray()));
+		if (this.conflicts.isEmpty()) {
+			JOptionPane.showMessageDialog(Main.parent,
+					"The ConflictResolver and the Merger disagree about conflicts in your dataset.\n"+
+					"Of course, this is a bug.\n"+
+					"The bug is very old, but unfortunatly, Imi (programmer) was not able to catch it.\n"+
+					"If you know exactly what bounding boxes you downloaded (bookmarks?) and/or what\n"+
+					"files you opened (have them ready?) to display this message again, pretty please\n"+
+					"inform Imi at josm@eigenheimstrasse.de about the details.\n"+
+					"Thanks.");
+			//throw new RuntimeException("No conflicts but in conflict list:\n"+Arrays.toString(conflicts.entrySet().toArray()));
+		}
 
 		// have to initialize the JTables here and not in the declaration, because its constructor
 		// may access this.conflicts (indirectly)
