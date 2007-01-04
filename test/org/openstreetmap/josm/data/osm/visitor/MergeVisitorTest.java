@@ -29,6 +29,33 @@ public class MergeVisitorTest extends TestCase {
 	}
 
 
+	private Segment createSegment(DataSet ds, boolean incomplete, boolean deleted, int id) {
+    	Node n1 = DataSetTestCaseHelper.createNode(ds);
+    	Node n2 = DataSetTestCaseHelper.createNode(ds);
+    	Segment s = DataSetTestCaseHelper.createSegment(ds, n1, n2);
+    	s.incomplete = incomplete;
+    	s.id = id;
+    	s.deleted = deleted;
+    	s.timestamp = new Date();
+    	return s;
+    }
+
+
+	/**
+     * Create that amount of nodes and add them to the dataset. The id will be 1,2,3,4...
+     * @param amount Number of nodes to create.
+     * @return The created nodes.
+     */
+    private Node[] createNodes(DataSet ds, int amount) {
+    	Node[] nodes = new Node[amount];
+    	for (int i = 0; i < amount; ++i) {
+    		nodes[i] = DataSetTestCaseHelper.createNode(ds);
+    		nodes[i].id = i+1;
+    	}
+    	return nodes;
+    }
+
+
 	public void testNodesMergeUpdate() {
 		dsNode.id = 1;
 		n.id = 1;
@@ -278,30 +305,5 @@ public class MergeVisitorTest extends TestCase {
 		
 		assertEquals(1, v.conflicts.size());
 	}
-
-
-	private Segment createSegment(DataSet ds, boolean incomplete, boolean deleted, int id) {
-		Node n1 = DataSetTestCaseHelper.createNode(ds);
-		Node n2 = DataSetTestCaseHelper.createNode(ds);
-		Segment s = DataSetTestCaseHelper.createSegment(ds, n1, n2);
-		s.incomplete = incomplete;
-		s.id = id;
-		s.deleted = deleted;
-		s.timestamp = new Date();
-		return s;
-	}
 	
-	/**
-	 * Create that amount of nodes and add them to the dataset. The id will be 1,2,3,4...
-	 * @param amount Number of nodes to create.
-	 * @return The created nodes.
-	 */
-	private Node[] createNodes(DataSet ds, int amount) {
-		Node[] nodes = new Node[amount];
-		for (int i = 0; i < amount; ++i) {
-			nodes[i] = DataSetTestCaseHelper.createNode(ds);
-			nodes[i].id = i+1;
-		}
-		return nodes;
-	}
 }
