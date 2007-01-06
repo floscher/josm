@@ -47,7 +47,9 @@ public class BoundingBoxDownloader extends OsmServerReader {
     			InputStream in = getInputStream(url+i, Main.pleaseWaitDlg);
     			if (in == null)
     				break;
-    			Collection<Collection<GpsPoint>> allWays = RawGpsReader.parse(in);
+    			// Use only track points, since the server mix everything together 
+    			Collection<Collection<GpsPoint>> allWays = new RawGpsReader(in).trackData;
+
     			boolean foundSomething = false;
     			for (Collection<GpsPoint> t : allWays) {
     				if (!t.isEmpty()) {
