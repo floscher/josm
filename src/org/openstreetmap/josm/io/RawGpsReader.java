@@ -5,11 +5,13 @@ import static org.openstreetmap.josm.tools.I18n.tr;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Stack;
 
 import org.openstreetmap.josm.data.coor.LatLon;
+import org.openstreetmap.josm.gui.layer.MarkerLayer.Marker;
 import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -23,15 +25,25 @@ import uk.co.wilson.xml.MinML2;
  */
 public class RawGpsReader {
 
-	private static class Parser extends MinML2 {
+	/**
+	 * Hold the resulting gps data (tracks and their track points)
+	 */
+	public Collection<Collection<GpsPoint>> trackData = new LinkedList<Collection<GpsPoint>>();
+
+	/**
+	 * Hold the waypoints of the gps data.
+	 */
+	public Collection<Marker> markerData = new ArrayList<Marker>();
+
+	private class Parser extends MinML2 {
 		/**
 		 * Current track to be read. The last entry is the current trkpt.
 		 * If in wpt-mode, it contain only one GpsPoint.
 		 */
 		private Collection<GpsPoint> current = new LinkedList<GpsPoint>();
-		public Collection<Collection<GpsPoint>> data = new LinkedList<Collection<GpsPoint>>();
 		private LatLon currentLatLon;
 		private String currentTime = "";
+		private String currentName = "";
 		private Stack<String> tags = new Stack<String>();
 
 		@Override public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
@@ -49,48 +61,56 @@ public class RawGpsReader {
 	                throw new SAXException(e);
                 }
                 currentTime = "";
+                currentName = "";
 			}
 			tags.push(qName);
 		}
 
 		@Override public void characters(char[] ch, int start, int length) {
-			if (tags.peek().equals("time")) {
-				String time = tags.pop();
+			String peek = tags.peek();
+			if (peek.equals("time") || peek.equals("name")) {
+				String tag = tags.pop();
 				if (tags.empty() || (!tags.peek().equals("wpt") && !tags.peek().equals("trkpt"))) {
-					tags.push(time);
+					tags.push(tag);
 					return;
 				}
-				String ct = new String(ch, start, length);
-				currentTime += ct;
-				tags.push(time);
+				String contents = new String(ch, start, length);
+				if (peek.equals("time")) currentTime += contents; else currentName += contents;
+				tags.push(tag);
 			}
 		}
 
 		@Override public void endElement(String namespaceURI, String localName, String qName) {
-			if (qName.equals("wpt") || qName.equals("trkpt")) {
+			if (qName.equals("trkpt")) {
 				current.add(new GpsPoint(currentLatLon, currentTime));
 				currentTime = "";
+				currentName = "";
+			} else if (qName.equals("wpt")) {
+				markerData.add(new Marker(currentLatLon, currentName, null));
+				currentTime = "";
+				currentName = "";
 			} else if (qName.equals("trkseg") || qName.equals("trk") || qName.equals("gpx")) {
 				newTrack();
 				currentTime = "";
+				currentName = "";
 			}
 			tags.pop();
         }
 
 		private void newTrack() {
 			if (!current.isEmpty()) {
-				data.add(current);
+				trackData.add(current);
 				current = new LinkedList<GpsPoint>();
 			}
 		}
 	}
 
+
 	/**
-	 * Parse and return the read data
+	 * Parse the input stream and store the result in trackData and markerData 
 	 */
-	public static Collection<Collection<GpsPoint>> parse(InputStream source) throws SAXException, IOException {
+	public RawGpsReader(InputStream source) throws SAXException, IOException {
 		Parser parser = new Parser();
 		parser.parse(new InputStreamReader(source, "UTF-8"));
-		return parser.data;
 	}
 }
