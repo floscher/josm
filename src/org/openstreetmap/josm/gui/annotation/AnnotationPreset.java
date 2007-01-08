@@ -183,16 +183,15 @@ public class AnnotationPreset extends AbstractAction {
 			} else if (qname.equals("text"))
 				current.add(new Text(a.getValue("key"), a.getValue("text"), a.getValue("default"), parseBoolean(a.getValue("delete_if_empty"))));
 			else if (qname.equals("check")) {
-				String s = a.getValue("default");
-				boolean clear = parseBoolean(s);
-				current.add(new Check(a.getValue("key"), a.getValue("text"), !clear));
+				boolean checked = parseBoolean(a.getValue("default"));
+				current.add(new Check(a.getValue("key"), a.getValue("text"), checked));
 			} else if (qname.equals("label"))
 				current.add(new Label(a.getValue("text")));
 			else if (qname.equals("combo")) {
 				String[] values = a.getValue("values").split(",");
 				String s = a.getValue("readonly");
 				String dvstr = a.getValue("display_values");
-				boolean editable = parseBoolean(s);
+				boolean editable = !parseBoolean(s);
 				if (dvstr != null) {
 					if (editable && s != null)
 						throw new SAXException(tr("Cannot have a writable combobox with default values (line {0})", getLineNumber()));
@@ -211,7 +210,11 @@ public class AnnotationPreset extends AbstractAction {
 		}
 
 		private boolean parseBoolean(String s) {
-			return s == null || s.equals("0") || s.startsWith("off") || s.startsWith("false") || s.startsWith("no");
+			return s != null && 
+				!s.equals("0") && 
+				!s.startsWith("off") && 
+				!s.startsWith("false") &&
+				!s.startsWith("no");
 		}
 
 		@Override public void endElement(String ns, String lname, String qname) {
