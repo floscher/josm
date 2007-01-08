@@ -29,6 +29,7 @@ import org.openstreetmap.josm.actions.AboutAction;
 import org.openstreetmap.josm.actions.DownloadAction;
 import org.openstreetmap.josm.actions.DownloadAction.DownloadTask;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
+import org.openstreetmap.josm.actions.search.SearchAction;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.osm.DataSet;
@@ -38,7 +39,6 @@ import org.openstreetmap.josm.gui.MainMenu;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.PleaseWaitDialog;
 import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
-import org.openstreetmap.josm.gui.dialogs.SelectionListDialog;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer.CommandQueueListener;
@@ -321,7 +321,7 @@ abstract public class Main {
 				downloadFromParamString(true, s);
 		if (args.containsKey("selection"))
 			for (String s : args.get("selection"))
-				SelectionListDialog.search(s, SelectionListDialog.SearchMode.add);
+				SearchAction.search(s, SearchAction.SearchMode.add);
 	}
 
 	public static boolean breakBecauseUnsavedChanges() {

@@ -28,6 +28,7 @@ import org.openstreetmap.josm.actions.SplitWayAction;
 import org.openstreetmap.josm.actions.UndoAction;
 import org.openstreetmap.josm.actions.UnselectAllAction;
 import org.openstreetmap.josm.actions.UploadAction;
+import org.openstreetmap.josm.actions.search.SearchAction;
 
 /**
  * This is the JOSM main menu bar. It is overwritten to initialize itself and provide
@@ -43,6 +44,7 @@ public class MainMenu extends JMenuBar {
 	public final RedoAction redo = new RedoAction();
 	public final Action selectAll = new SelectAllAction();
 	public final Action unselectAll = new UnselectAllAction();
+	public final Action search = new SearchAction();
 	public final NewAction newAction = new NewAction();
 	public final OpenAction open = new OpenAction();
 	public final DownloadAction download = new DownloadAction();
@@ -86,6 +88,8 @@ public class MainMenu extends JMenuBar {
 		editMenu.addSeparator();
 		editMenu.add(selectAll);
 		editMenu.add(unselectAll);
+		editMenu.addSeparator();
+		editMenu.add(search);
 		editMenu.addSeparator();
 		editMenu.add(reverseSegment);
 		editMenu.add(splitWay);
