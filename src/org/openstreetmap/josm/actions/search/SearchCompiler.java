@@ -1,4 +1,4 @@
-package org.openstreetmap.josm.tools;
+package org.openstreetmap.josm.actions.search;
 
 import java.io.IOException;
 import java.io.PushbackReader;
