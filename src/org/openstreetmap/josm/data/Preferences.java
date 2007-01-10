@@ -160,12 +160,6 @@ public class Preferences {
 		save();
 	}
 
-	public final void upgrade(int oldVersion) {
-		if (oldVersion > 117) return;
-		if (!properties.containsKey("color.scale"))
-			properties.put("color.scale", ColorHelper.color2html(Color.white));
-	}
-
 	public Collection<Bookmark> loadBookmarks() throws IOException {
 		File bookmarkFile = new File(getPreferencesDir()+"bookmarks");
 		if (!bookmarkFile.exists())

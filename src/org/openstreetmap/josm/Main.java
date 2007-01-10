@@ -25,7 +25,6 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 
-import org.openstreetmap.josm.actions.AboutAction;
 import org.openstreetmap.josm.actions.DownloadAction;
 import org.openstreetmap.josm.actions.DownloadAction.DownloadTask;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
@@ -262,11 +261,6 @@ abstract public class Main {
 	 */
 	public static void preConstructorInit(Map<String, Collection<String>> args) {
 		try {
-			Main.pref.upgrade(Integer.parseInt(AboutAction.version));
-		} catch (NumberFormatException e1) {
-		}
-
-		try {
 			Main.proj = (Projection)Class.forName(Main.pref.get("projection")).newInstance();
 		} catch (final Exception e) {
 			e.printStackTrace();
@@ -309,7 +303,7 @@ abstract public class Main {
 		if (bounds == null)
 			bounds = !args.containsKey("no-fullscreen") ? new Rectangle(0,0,screenDimension.width,screenDimension.height) : new Rectangle(1000,740);
 
-			pleaseWaitDlg = new PleaseWaitDialog();
+		pleaseWaitDlg = new PleaseWaitDialog();
 	}
 
 	public void postConstructorProcessCmdLine(Map<String, Collection<String>> args) {

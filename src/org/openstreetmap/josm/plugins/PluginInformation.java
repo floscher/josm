@@ -20,6 +20,19 @@ import java.util.jar.Manifest;
  * @author imi
  */
 public class PluginInformation {
+	
+	/**
+	 * Whether to use the standard classloader to load the plugins or
+	 * an seperate class loader. Note that in case of the standard classloader,
+	 * all plugin files has to be included in the main josm.jar classpath
+	 * 
+	 * Set via command line parameter to true.
+	 * 
+	 * This switch is intended for debugging JOSM (or prepackaging plugins
+	 * together with JOSM).
+	 */
+	public static boolean useJosmClassloader = false;
+	
 	public final File file;
 	public final String name;
 	public final String className;
@@ -88,6 +101,9 @@ public class PluginInformation {
 	 */
 	public Class<?> loadClass() {
 		try {
+			if (useJosmClassloader)
+				return Class.forName(className);
+
 			URL[] urls = new URL[libraries.size()];
 			urls = libraries.toArray(urls);
 			ClassLoader loader = URLClassLoader.newInstance(urls, getClass().getClassLoader());
