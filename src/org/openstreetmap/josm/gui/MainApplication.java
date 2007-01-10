@@ -100,6 +100,10 @@ public class MainApplication extends Main {
 			Main.pref.resetToDefault();
 		}
 
+		// determine what classloader to be used for plugins
+		if (args.containsKey("default-classloader"))
+			PluginInformation.useJosmClassloader = true;
+		
 		// load the early plugins
 	    if (Main.pref.hasKey("plugins")) {
 			for (String pluginName : Main.pref.get("plugins").split(",")) {
@@ -133,6 +137,7 @@ public class MainApplication extends Main {
 					"\t[--download=]<filename>                   "+tr("Open file (as raw gps, if .gpx or .csv)")+"\n"+
 					"\t--downloadgps=minlat,minlon,maxlat,maxlon "+tr("Download the bounding box as raw gps")+"\n"+
 					"\t--selection=<searchstring>                "+tr("Select with the given search")+"\n"+
+					"\t--default-classloader                     "+tr("Load all plugins with the default class loader")+"\n"+
 					"\t--no-fullscreen                           "+tr("Don't launch in fullscreen mode")+"\n"+
 					"\t--reset-preferences                       "+tr("Reset the preferences to default")+"\n\n"+
 					"\t--language=<language>                     "+tr("Set the language. Example: ")+"\n\n"+
