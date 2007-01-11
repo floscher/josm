@@ -14,7 +14,11 @@ import org.openstreetmap.josm.tools.ImageProvider;
 
 final public class AnnotationCellRenderer extends DefaultListCellRenderer {
 	@Override public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-		AnnotationPreset a = value == null ? null : ((ForwardActionListener)value).preset;
+		AnnotationPreset a = null;
+		if (value instanceof ForwardActionListener)
+			a = ((ForwardActionListener)value).preset;
+		else if (value instanceof AnnotationPreset)
+			a = (AnnotationPreset)value;
 		String name = a == null ? null : (String)a.getValue(Action.NAME);
 		if (name == null)
 			return super.getListCellRendererComponent(list, "", index, false, false);
