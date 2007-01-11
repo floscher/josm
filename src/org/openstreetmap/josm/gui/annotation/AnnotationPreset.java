@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -33,10 +34,8 @@ import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.SequenceCommand;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.tools.GBC;
-import org.xml.sax.Attributes;
+import org.openstreetmap.josm.tools.XmlObjectParser;
 import org.xml.sax.SAXException;
-
-import uk.co.wilson.xml.MinML2;
 
 
 /**
@@ -52,42 +51,39 @@ public class AnnotationPreset extends AbstractAction {
 		void addToPanel(JPanel p);
 		void addCommands(Collection<OsmPrimitive> sel, List<Command> cmds);
 	}
-
+	
 	public static class Text implements Item {
-		private String key;
-		private String label;
+		public String key;
+		public String text;
+		public String default_;
+		public boolean delete_if_empty = false;
+
 		private JTextField value = new JTextField();
-		private boolean deleteIfEmpty;
 
 		public void addToPanel(JPanel p) {
-			p.add(new JLabel(label), GBC.std().insets(0,0,10,0));
+			value.setText(default_ == null ? "" : default_);
+			p.add(new JLabel(text), GBC.std().insets(0,0,10,0));
 			p.add(value, GBC.eol().fill(GBC.HORIZONTAL));
-		}
-		public Text(String key, String label, String value, boolean deleteIfEmpty) {
-			this.key = key;
-			this.label = label;
-			this.value.setText(value == null ? "" : value);
-			this.deleteIfEmpty = deleteIfEmpty;
 		}
 		public void addCommands(Collection<OsmPrimitive> sel, List<Command> cmds) {
 			String v = value.getText();
-			if (deleteIfEmpty && v.length() == 0)
+			if (delete_if_empty && v.length() == 0)
 				v = null;
 			cmds.add(new ChangePropertyCommand(sel, key, v));
 		}
 	}
 
 	public static class Check implements Item {
-		private String key;
+		public String key;
+		public String text;
+		public boolean default_ = false;
+		
 		private JCheckBox check = new JCheckBox();
 
 		public void addToPanel(JPanel p) {
+			check.setSelected(default_);
+			check.setText(text);
 			p.add(check, GBC.eol().fill(GBC.HORIZONTAL));
-		}
-		public Check(String key, String label, boolean check) {
-			this.key = key;
-			this.check.setText(label);
-			this.check.setSelected(check);
 		}
 		public void addCommands(Collection<OsmPrimitive> sel, List<Command> cmds) {
 			cmds.add(new ChangePropertyCommand(sel, key, check.isSelected() ? "true" : null));
@@ -95,149 +91,56 @@ public class AnnotationPreset extends AbstractAction {
 	}
 
 	public static class Combo implements Item {
-		private String key;
-		private String label;
+		public String key;
+		public String text;
+		public String values;
+		public String display_values = "";
+		public String default_;
+		public boolean delete_if_empty = false;
+		public boolean editable = true;
+
 		private JComboBox combo;
-		private final String[] values;
-		private boolean deleteIfEmpty;
 
 		public void addToPanel(JPanel p) {
-			p.add(new JLabel(label), GBC.std().insets(0,0,10,0));
+			combo = new JComboBox(display_values.split(","));
+			combo.setEditable(editable);
+			combo.setSelectedItem(default_);
+			p.add(new JLabel(text), GBC.std().insets(0,0,10,0));
 			p.add(combo, GBC.eol().fill(GBC.HORIZONTAL));
 		}
-		public Combo(String key, String label, String def, String[] values, String[] displayedValues, boolean editable, boolean deleteIfEmpty) {
-			this.key = key;
-			this.label = label;
-			this.values = values;
-			this.deleteIfEmpty = deleteIfEmpty;
-			combo = new JComboBox(displayedValues);
-			combo.setEditable(editable);
-			combo.setSelectedItem(def);
-		}
 		public void addCommands(Collection<OsmPrimitive> sel, List<Command> cmds) {
-			String v = combo.getSelectedIndex() == -1 ? null : values[combo.getSelectedIndex()];
+			String v = combo.getSelectedIndex() == -1 ? null : values.split(",")[combo.getSelectedIndex()];
 			String str = combo.isEditable()?combo.getEditor().getItem().toString() : v;
-			if (deleteIfEmpty && str != null && str.length() == 0)
+			if (delete_if_empty && str != null && str.length() == 0)
 				str = null;
 			cmds.add(new ChangePropertyCommand(sel, key, str));
 		}
 	}
 
 	public static class Label implements Item {
-		private String text;
+		public String text;
 
 		public void addToPanel(JPanel p) {
 			p.add(new JLabel(text), GBC.eol());
-		}
-		public Label(String text) {
-			this.text = text;
 		}
 		public void addCommands(Collection<OsmPrimitive> sel, List<Command> cmds) {}
 	}
 
 	public static class Key implements Item {
-		private String key;
-		private String value;
+		public String key;
+		public String value;
 
 		public void addToPanel(JPanel p) {}
-		public Key(String key, String value) {
-			this.key = key;
-			this.value = value;
-		}
 		public void addCommands(Collection<OsmPrimitive> sel, List<Command> cmds) {
 			cmds.add(new ChangePropertyCommand(sel, key, value != null && !value.equals("") ? value : null));
 		}
 	}
 
-	private static class Parser extends MinML2 {
-		List<AnnotationPreset> data = new LinkedList<AnnotationPreset>();
-		List<Item> current;
-		String currentName;
-		Collection<Class<?>> currentTypes;
-		ImageIcon currentIcon;
-		private static int unknownCounter = 1;
-
-		@Override public void startElement(String ns, String lname, String qname, Attributes a) throws SAXException {
-			if (qname.equals("annotations"))
-				return;
-			if (qname.equals("item")) {
-				current = new LinkedList<Item>();
-				currentName = a.getValue("name");
-				if (currentName == null)
-					currentName = "Unnamed Preset #"+(unknownCounter++);
-				if (a.getValue("type") != null) {
-					String s = a.getValue("type");
-					try {
-						for (String type : s.split(",")) {
-							type = Character.toUpperCase(type.charAt(0))+type.substring(1);
-							if (currentTypes == null)
-								currentTypes = new LinkedList<Class<?>>();
-							currentTypes.add(Class.forName("org.openstreetmap.josm.data.osm."+type));
-						}
-					} catch (ClassNotFoundException e) {
-						e.printStackTrace();
-						throw new SAXException(tr("Unknown type at line {0}", getLineNumber()));
-					}
-				}
-				currentIcon = (a.getValue("icon") == null) ? null : new ImageIcon(a.getValue("icon"));
-			} else if (qname.equals("text"))
-				current.add(new Text(a.getValue("key"), a.getValue("text"), a.getValue("default"), parseBoolean(a.getValue("delete_if_empty"))));
-			else if (qname.equals("check")) {
-				boolean checked = parseBoolean(a.getValue("default"));
-				current.add(new Check(a.getValue("key"), a.getValue("text"), checked));
-			} else if (qname.equals("label"))
-				current.add(new Label(a.getValue("text")));
-			else if (qname.equals("combo")) {
-				String[] values = a.getValue("values").split(",");
-				String s = a.getValue("readonly");
-				String dvstr = a.getValue("display_values");
-				boolean editable = !parseBoolean(s);
-				if (dvstr != null) {
-					if (editable && s != null)
-						throw new SAXException(tr("Cannot have a writable combobox with default values (line {0})", getLineNumber()));
-					editable = false; // for combos with display_value readonly default to false
-				}
-				String[] displayValues = dvstr == null ? values : dvstr.split(",");
-				if (displayValues.length != values.length)
-					throw new SAXException(tr("display_values ({0}) and values ({1}) must be of same number of elements.",
-							displayValues.length+" "+trn("element", "elements", displayValues.length),
-							values.length+" "+trn("element", "elements", values.length)));
-				current.add(new Combo(a.getValue("key"), a.getValue("text"), a.getValue("default"), values, displayValues, editable, parseBoolean(a.getValue("delete_if_empty"))));
-			} else if (qname.equals("key"))
-				current.add(new Key(a.getValue("key"), a.getValue("value")));
-			else
-				throw new SAXException(tr("Unknown annotation object {0} at line {1} column {2}", qname, getLineNumber(), getColumnNumber()));
-		}
-
-		private boolean parseBoolean(String s) {
-			return s != null && 
-				!s.equals("0") && 
-				!s.startsWith("off") && 
-				!s.startsWith("false") &&
-				!s.startsWith("no");
-		}
-
-		@Override public void endElement(String ns, String lname, String qname) {
-			if (qname.equals("item")) {
-				data.add(new AnnotationPreset(current, currentName, currentIcon, currentTypes));
-				current = null;
-				currentName = null;
-				currentTypes = null;
-				currentIcon = null;
-			}
-		}
-	}
-
-	private List<Item> data;
-	public Collection<Class<?>> types;
-	
-	public AnnotationPreset(List<Item> data, String name, ImageIcon icon, Collection<Class<?>> currentTypes) {
-		super(name, icon == null ? null : new ImageIcon(icon.getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH)));
-		putValue("toolbar", "annotation_"+name);
-		this.data = data;
-		this.types = currentTypes;
-		Main.toolbar.register(this);
-	}
+	/**
+     * The types as preparsed collection.
+     */
+    public Collection<Class<?>> types;
+	private List<Item> data = new LinkedList<Item>();
 
 	/**
 	 * Create an empty annotation preset. This will not have any items and
@@ -246,7 +149,39 @@ public class AnnotationPreset extends AbstractAction {
 	 */
 	public AnnotationPreset() {}
 
-	public static List<AnnotationPreset> readAll(InputStream inStream) throws IOException, SAXException {
+	/**
+	 * Called from the XML parser to set the name of the annotation preset
+	 */
+	public void setName(String name) {
+		putValue(Action.NAME, name);
+		putValue("toolbar", "annotation_"+name);
+	}
+
+	/**
+	 * Called from the XML parser to set the icon
+	 */
+	public void setIcon(String icon) {
+		putValue(Action.SMALL_ICON, new ImageIcon(new ImageIcon(icon).getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH)));
+	}
+	
+	/**
+	 * Called from the XML parser to set the types, this preset affects
+	 */
+	public void setType(String types) throws SAXException {
+		try {
+			for (String type : types.split(",")) {
+				type = Character.toUpperCase(type.charAt(0))+type.substring(1);
+				if (this.types == null)
+					this.types = new LinkedList<Class<?>>();
+				this.types.add(Class.forName("org.openstreetmap.josm.data.osm."+type));
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			throw new SAXException(tr("Unknown type"));
+		}
+	}
+	
+	public static List<AnnotationPreset> readAll(InputStream inStream) throws SAXException {
 		BufferedReader in = null;
 		try {
 			in = new BufferedReader(new InputStreamReader(inStream, "UTF-8"));
@@ -254,9 +189,24 @@ public class AnnotationPreset extends AbstractAction {
 			e.printStackTrace();
 			in = new BufferedReader(new InputStreamReader(inStream));
 		}
-		Parser p = new Parser();
-		p.parse(in);
-		return p.data;
+		XmlObjectParser parser = new XmlObjectParser();
+		parser.mapOnStart("item", AnnotationPreset.class);
+		parser.map("text", Text.class);
+		parser.map("check", Check.class);
+		parser.map("combo", Combo.class);
+		parser.map("label", Label.class);
+		parser.map("key", Key.class);
+		LinkedList<AnnotationPreset> all = new LinkedList<AnnotationPreset>();
+		parser.start(in);
+		while(parser.hasNext()) {
+			Object o = parser.next();
+			if (o instanceof AnnotationPreset) {
+				all.add((AnnotationPreset)o);
+				Main.toolbar.register((AnnotationPreset)o);
+			} else
+				all.getLast().data.add((Item)o);
+		}
+		return all;
 	}
 
 	public static Collection<AnnotationPreset> readFromPreferences() {
@@ -286,7 +236,7 @@ public class AnnotationPreset extends AbstractAction {
 		return allPresets;
 	}
 
-	
+
 	public JPanel createPanel() {
 		if (data == null)
 			return null;
