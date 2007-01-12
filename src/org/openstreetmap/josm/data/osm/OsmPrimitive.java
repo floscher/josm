@@ -33,6 +33,11 @@ abstract public class OsmPrimitive implements Comparable<OsmPrimitive> {
 	 * Unique identifier in OSM. This is used to reidentify objects in the server.
 	 * An id of 0 means an unknown id. The object has not been uploaded yet to 
 	 * know what id it will get.
+	 * 
+	 * Do not write to this attribute except you know exactly what you are doing.
+	 * More specific, it is not good to set this to 0 and think the object is now
+	 * new to the server! To create a new object, call the default constructor of
+	 * the respective class.
 	 */
 	public long id = 0;
 
