@@ -54,7 +54,7 @@ public class Preferences {
 	/**
 	 * Map the property name to the property object.
 	 */
-	private final SortedMap<String, String> properties = new TreeMap<String, String>();
+	protected final SortedMap<String, String> properties = new TreeMap<String, String>();
 
 	/**
 	 * Return the location of the preferences file

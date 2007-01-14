@@ -16,6 +16,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.tools.Base64;
 import org.openstreetmap.josm.tools.GBC;
 
 /**
@@ -125,4 +126,8 @@ public class OsmConnection {
 			activeConnection.disconnect();
 		}
 	}
+
+	protected void addAuth(HttpURLConnection con) {
+        con.addRequestProperty("Authorization", "Basic "+Base64.encode(Main.pref.get("osm-server.username")+":"+Main.pref.get("osm-server.password")));
+    }
 }
