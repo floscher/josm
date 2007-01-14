@@ -229,6 +229,7 @@ public class XmlObjectParser implements Iterable<Object> {
 				try {
 					return XmlObjectParser.this.hasNext();
 				} catch (SAXException e) {
+					e.printStackTrace();
 					throw new RuntimeException(e);
 				}
 			}
@@ -236,6 +237,7 @@ public class XmlObjectParser implements Iterable<Object> {
 				try {
 					return XmlObjectParser.this.next();
 				} catch (SAXException e) {
+					e.printStackTrace();
 					throw new RuntimeException(e);
 				}
 			}

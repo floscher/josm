@@ -3,6 +3,8 @@ package org.openstreetmap.josm.gui;
 import static org.openstreetmap.josm.tools.I18n.tr;
 
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,12 +19,22 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.actions.JosmAction;
 import org.openstreetmap.josm.data.ServerSidePreferences;
 import org.openstreetmap.josm.tools.GBC;
 
 public class MainApplet extends JApplet {
 
-	private final class MainCaller extends Main {
+	public static final class UploadPreferencesAction extends JosmAction {
+		public UploadPreferencesAction() {
+			super(tr("Upload Preferences"), "upload-preferences", tr("Upload the current preferences to the server"), KeyEvent.VK_U, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK, true);
+        }
+	    public void actionPerformed(ActionEvent e) {
+	    	((ServerSidePreferences)Main.pref).upload();
+	    }
+    }
+
+    private final class MainCaller extends Main {
 		private MainCaller() {
 			setContentPane(contentPane);
 			setJMenuBar(menu);
@@ -75,7 +87,8 @@ public class MainApplet extends JApplet {
 		}
 
 		Main.applet = true;
-		Main.pref = new ServerSidePreferences(getCodeBase(), username);
+		Main.pref = new ServerSidePreferences(getCodeBase());
+		((ServerSidePreferences)Main.pref).download(username, password);
 
 		Main.preConstructorInit(args);
 		Main.parent = this;
@@ -85,6 +98,7 @@ public class MainApplet extends JApplet {
 
 		// remove offending stuff from JOSM (that would break the SecurityManager)
 		m.remove(m.fileMenu);
+		m.editMenu.add(new UploadPreferencesAction());
 		m.open.setEnabled(false);
 		m.exit.setEnabled(false);
 		m.save.setEnabled(false);
