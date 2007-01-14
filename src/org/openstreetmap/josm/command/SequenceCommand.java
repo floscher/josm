@@ -2,6 +2,7 @@ package org.openstreetmap.josm.command;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -30,6 +31,13 @@ public class SequenceCommand extends Command {
 		this.name = name;
 		this.sequence = new Command[sequenz.size()];
 		this.sequence = sequenz.toArray(this.sequence);
+	}
+
+	/**
+	 * Convinient constructor, if the commands are known at compile time.
+	 */
+	public SequenceCommand(String name, Command... sequenz) {
+		this(name, Arrays.asList(sequenz));
 	}
 	
 	@Override public void executeCommand() {

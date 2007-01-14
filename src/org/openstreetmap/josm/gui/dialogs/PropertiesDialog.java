@@ -22,6 +22,7 @@ import java.util.TreeSet;
 import java.util.Vector;
 import java.util.Map.Entry;
 
+import javax.swing.Box;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -38,6 +39,7 @@ import javax.swing.table.DefaultTableModel;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.ChangePropertyCommand;
+import org.openstreetmap.josm.command.SequenceCommand;
 import org.openstreetmap.josm.data.SelectionChangedListener;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.MapFrame;
@@ -96,13 +98,25 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 			JOptionPane.showMessageDialog(Main.parent, tr("Please select the objects you want to change properties for."));
 			return;
 		}
-		String msg = "<html>"+trn("This will change {0} object.", "This will change {0} objects.", sel.size(), sel.size())+"<br><br> "+tr("Please select a new value for \"{0}\".<br>(Empty string deletes the key.)", key)+"</html>";
-		final JComboBox combo = (JComboBox)data.getValueAt(row, 1);
-		JPanel p = new JPanel(new BorderLayout());
-		p.add(new JLabel(msg), BorderLayout.NORTH);
-		p.add(combo, BorderLayout.CENTER);
+		String msg = "<html>"+trn("This will change {0} object.", "This will change {0} objects.", sel.size(), sel.size())+"<br><br>("+tr("An empty value deletes the key.", key)+")</html>";
+		
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.add(new JLabel(msg), BorderLayout.NORTH);
 
-		final JOptionPane optionPane = new JOptionPane(p, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION){
+		JPanel p = new JPanel(new GridBagLayout());
+		panel.add(p, BorderLayout.CENTER);
+		
+		final JTextField keyField = new JTextField(key);
+		p.add(new JLabel(tr("Key")), GBC.std());
+		p.add(Box.createHorizontalStrut(10), GBC.std());
+		p.add(keyField, GBC.eol().fill(GBC.HORIZONTAL));
+				
+		final JComboBox combo = (JComboBox)data.getValueAt(row, 1);
+		p.add(new JLabel(tr("Value")), GBC.std());
+		p.add(Box.createHorizontalStrut(10), GBC.std());
+		p.add(combo, GBC.eol().fill(GBC.HORIZONTAL));
+
+		final JOptionPane optionPane = new JOptionPane(panel, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION){
 			@Override public void selectInitialValue() {
 				combo.requestFocusInWindow();
 				combo.getEditor().selectAll();
@@ -130,9 +144,20 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 			return;
 		if (value.equals(""))
 			value = null; // delete the key
-		Main.main.editLayer().add(new ChangePropertyCommand(sel, key, value));
+		String newkey = keyField.getText();
+		if (newkey.equals("")) {
+			newkey = key;
+			value = null; // delete the key instead
+		}
+		if (key.equals(newkey) || value == null)
+			Main.main.editLayer().add(new ChangePropertyCommand(sel, newkey, value));
+		else {
+			Main.main.editLayer().add(new SequenceCommand(trn("Change properties of {0} object", "Change properties of {0} objects", sel.size(), sel.size()),
+					new ChangePropertyCommand(sel, key, null),
+					new ChangePropertyCommand(sel, newkey, value)));
+		}
 
-		if (value == null)
+		if (!key.equals(newkey) || value == null)
 			selectionChanged(sel); // update whole table
 
 		Main.parent.repaint(); // repaint all - drawing could have been changed

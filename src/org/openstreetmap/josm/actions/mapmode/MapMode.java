@@ -20,15 +20,15 @@ import org.openstreetmap.josm.tools.ImageProvider;
  * control. 
  */
 abstract public class MapMode extends JosmAction implements MouseListener, MouseMotionListener {
-//	private final Cursor cursor;
-//	private Cursor oldCursor;
+	private final Cursor cursor;
+	private Cursor oldCursor;
 
 	/**
 	 * Constructor for mapmodes without an menu
 	 */
 	public MapMode(String name, String iconName, String tooltip, int keystroke, MapFrame mapFrame, Cursor cursor) {
 		super(name, "mapmode/"+iconName, tooltip, keystroke, 0, false);
-//		this.cursor = cursor;
+		this.cursor = cursor;
 		putValue("active", false);
 	}
 
@@ -39,18 +39,18 @@ abstract public class MapMode extends JosmAction implements MouseListener, Mouse
 		putValue(NAME, name);
 		putValue(SMALL_ICON, ImageProvider.get("mapmode", iconName));
 		putValue(SHORT_DESCRIPTION, tooltip);
-//		this.cursor = cursor;
+		this.cursor = cursor;
 	}
 
 	public void enterMode() {
 		putValue("active", true);
-//		oldCursor = Main.map.mapView.getCursor();
-//		Main.map.mapView.setCursor(cursor);
+		oldCursor = Main.map.mapView.getCursor();
+		Main.map.mapView.setCursor(cursor);
 		
 	}
 	public void exitMode() {
 		putValue("active", false);
-//		Main.map.mapView.setCursor(oldCursor);
+		Main.map.mapView.setCursor(oldCursor);
 	}
 
 	/**

@@ -87,4 +87,14 @@ abstract public class Layer {
 	abstract public Object getInfoComponent();
 	
 	abstract public Component[] getMenuEntries();
+	
+	/**
+	 * Called, when the layer is removed from the mapview and is going to be
+	 * destroyed.
+	 * 
+	 * This is because the Layer constructor can not add itself safely as listener
+	 * to the layerlist dialog, because there may be no such dialog yet (loaded
+	 * via command line parameter).
+	 */
+	public void destroy() {}
 }
