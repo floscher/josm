@@ -1,5 +1,6 @@
 package org.openstreetmap.josm.data.osm.visitor;
 
+import java.util.Arrays;
 import java.util.Date;
 
 import junit.framework.TestCase;
@@ -40,6 +41,13 @@ public class MergeVisitorTest extends TestCase {
     	return s;
     }
 
+	private Way createWay(long id, Date timestamp, Segment... segments) {
+		Way w = new Way();
+		w.id = id;
+		w.segments.addAll(Arrays.asList(segments));
+		w.timestamp = timestamp;
+		return w;
+	}
 
 	/**
      * Create that amount of nodes and add them to the dataset. The id will be 1,2,3,4...
@@ -305,5 +313,12 @@ public class MergeVisitorTest extends TestCase {
 		
 		assertEquals(1, v.conflicts.size());
 	}
+	
+	public void testMergeIncompleteSegmentsAddToDataSet() throws Exception {
+		DataSet ds = new DataSet();
+		MergeVisitor v = new MergeVisitor(ds);
+		v.visit(createSegment(null, true, false, 1));
+		assertEquals(1, ds.segments.size());
+    }
 	
 }

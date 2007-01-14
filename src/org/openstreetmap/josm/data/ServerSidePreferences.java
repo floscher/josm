@@ -98,7 +98,7 @@ public class ServerSidePreferences extends Preferences {
 	/**
 	 * Do nothing on load. Preferences are loaded with download().
 	 */
-	@Override public void load() throws IOException {
+	@Override public void load() {
 	}
 
 	/**

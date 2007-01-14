@@ -81,9 +81,6 @@ public class MergeVisitor implements Visitor {
 	 * id is zero of either segment). Nodes are the "same" when they @see match
 	 */
 	public void visit(Segment other) {
-		if (other.incomplete)
-			return; // won't merge in an incomplete line segment!
-		
 		if (mergeAfterId(mergedSegments, ds.segments, other))
 			return;
 
