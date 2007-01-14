@@ -152,6 +152,7 @@ public class MapView extends NavigatableComponent {
 			editLayer = null;
 			Main.ds.clearSelection();
 		}
+		layer.destroy();
 	}
 
 	/**

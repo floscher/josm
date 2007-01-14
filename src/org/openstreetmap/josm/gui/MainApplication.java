@@ -3,6 +3,7 @@ package org.openstreetmap.josm.gui;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
 
+import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -66,7 +67,7 @@ public class MainApplication extends Main {
 
 		// construct argument table
 		List<String> argList = Arrays.asList(argArray);
-		Map<String, Collection<String>> args = new HashMap<String, Collection<String>>();
+		final Map<String, Collection<String>> args = new HashMap<String, Collection<String>>();
 		for (String arg : argArray) {
 			if (!arg.startsWith("--"))
 				arg = "--download="+arg;
@@ -156,7 +157,7 @@ public class MainApplication extends Main {
 		preConstructorInit(args);
 		JFrame mainFrame = new JFrame(tr("Java Open Street Map - Editor"));
 		Main.parent = mainFrame;
-		Main main = new MainApplication(mainFrame);
+		final Main main = new MainApplication(mainFrame);
 		main.loadPlugins();
 
 		mainFrame.setVisible(true);
@@ -164,6 +165,10 @@ public class MainApplication extends Main {
 		if (!args.containsKey("no-fullscreen") && !args.containsKey("geometry") && Toolkit.getDefaultToolkit().isFrameStateSupported(JFrame.MAXIMIZED_BOTH))
 			mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
-		main.postConstructorProcessCmdLine(args);
+		EventQueue.invokeLater(new Runnable(){
+			public void run() {
+				main.postConstructorProcessCmdLine(args);
+            }
+		});
 	}
 }

@@ -149,6 +149,7 @@ public class MapFrame extends JPanel {
 	private void addIconToggle(JPanel toggleDialogs, ToggleDialog dlg) {
 		IconToggleButton button = new IconToggleButton(dlg.action);
 		dlg.action.button = button;
+		dlg.parent = toggleDialogs;
 		toolBarActions.add(button);
 		toggleDialogs.add(dlg);
 	}
