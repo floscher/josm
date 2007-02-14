@@ -41,9 +41,11 @@ public abstract class Plugin {
 
 	public Plugin() {
 		URL[] urls = ((URLClassLoader)getClass().getClassLoader()).getURLs();
-		String s = urls[urls.length-1].toString();
-		int lastSlash = s.lastIndexOf('/');
-		name = s.substring(lastSlash+1, s.length()-4);
+		name = urls[urls.length-1].toString();
+		if (name.toLowerCase().endsWith(".jar")) {
+			int lastSlash = name.lastIndexOf('/');
+			name = name.substring(lastSlash+1, name.length()-4);
+		}
     }
 
 	/**

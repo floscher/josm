@@ -14,6 +14,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
+import java.util.StringTokenizer;
 import java.util.Map.Entry;
 
 import javax.swing.JOptionPane;
@@ -118,14 +120,14 @@ public class ServerSidePreferences extends Preferences {
 			properties.put("osm-server.username", userName);
 		if (!properties.containsKey("osm-server.password") && password != null)
 			properties.put("osm-server.password", password);
-        Reader in = new StringReader(connection.download());
+		Reader in = new StringReader(connection.download());
 		try {
-	        XmlObjectParser.Uniform<Prop> parser = new XmlObjectParser.Uniform<Prop>(in, "tag", Prop.class);
-	        for (Prop p : parser)
-	        	properties.put(p.key, p.value);
-        } catch (RuntimeException e) {
-	        e.printStackTrace();
-        }
+			XmlObjectParser.Uniform<Prop> parser = new XmlObjectParser.Uniform<Prop>(in, "tag", Prop.class);
+			for (Prop p : parser)
+				properties.put(p.key, p.value);
+		} catch (RuntimeException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -137,6 +139,8 @@ public class ServerSidePreferences extends Preferences {
 	public void upload() {
 		StringBuilder b = new StringBuilder("<preferences>\n");
 		for (Entry<String, String> p : properties.entrySet()) {
+			if (p.getKey().equals("osm-server.password"))
+				continue; // do not upload password. It would get stored in plain!
 			b.append("<tag key='");
 			b.append(XmlWriter.encode(p.getKey()));
 			b.append("' value='");
@@ -148,7 +152,32 @@ public class ServerSidePreferences extends Preferences {
 	}
 
 	@Override public Collection<Bookmark> loadBookmarks() {
-		return Collections.<Bookmark>emptyList();
+		try {
+			Collection<Bookmark> bookmarks;
+			BufferedReader in = new BufferedReader(new InputStreamReader(new URL("http://"+connection.serverUrl.getHost()+"/josm/bookmarks").openStream()));
+			bookmarks = new LinkedList<Bookmark>();
+			for (String line = in.readLine(); line != null; line = in.readLine()) {
+				StringTokenizer st = new StringTokenizer(line, ",");
+				if (st.countTokens() < 5)
+					continue;
+				Bookmark b = new Bookmark();
+				b.name = st.nextToken();
+				try {
+					for (int i = 0; i < b.latlon.length; ++i)
+						b.latlon[i] = Double.parseDouble(st.nextToken());
+					bookmarks.add(b);
+				} catch (NumberFormatException x) {
+					// line not parsed
+				}
+			}
+			in.close();
+			return bookmarks;
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return Collections.emptyList();
 	}
 
 	@Override public void saveBookmarks(Collection<Bookmark> bookmarks) {
