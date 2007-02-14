@@ -101,7 +101,7 @@ public class LayerListDialog extends ToggleDialog implements LayerChangeListener
 		public ShowHideMarkerText(Layer layer) {
 			super(tr("Show/Hide Text"), ImageProvider.get("dialogs", "showhide"));
 			putValue(SHORT_DESCRIPTION, tr("Toggle visible state of the marker text."));
-			putValue("help", "Dialog/LayerList/ShowHideText");
+			putValue("help", "Dialog/LayerList/ShowHideMarkerText");
 			this.layer = layer;
 		}
 
