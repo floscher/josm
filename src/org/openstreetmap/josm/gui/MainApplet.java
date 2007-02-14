@@ -52,7 +52,8 @@ public class MainApplet extends JApplet {
 		{"reset-preferences", tr("any"),tr("If specified, reset the configuration instead of reading it.")}
 	};
 
-	private Map<String, Collection<String>> args = new HashMap<String, Collection<String>>(); 
+	private Map<String, Collection<String>> args = new HashMap<String, Collection<String>>();
+	private UploadPreferencesAction uploadPreferences = new UploadPreferencesAction(); 
 
 	@Override public String[][] getParameterInfo() {
 		return paramInfo;
@@ -98,7 +99,7 @@ public class MainApplet extends JApplet {
 
 		// remove offending stuff from JOSM (that would break the SecurityManager)
 		m.remove(m.fileMenu);
-		m.editMenu.add(new UploadPreferencesAction());
+		m.editMenu.add(uploadPreferences);
 		m.open.setEnabled(false);
 		m.exit.setEnabled(false);
 		m.save.setEnabled(false);
