@@ -1,4 +1,4 @@
-package org.openstreetmap.josm.gui.layer;
+package org.openstreetmap.josm.gui.layer.markerlayer;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
 import static org.openstreetmap.josm.tools.I18n.trn;
@@ -9,6 +9,8 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.Collection;
 
@@ -21,13 +23,12 @@ import javax.swing.SwingUtilities;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.RenameLayerAction;
-import org.openstreetmap.josm.data.coor.EastNorth;
-import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
 import org.openstreetmap.josm.gui.dialogs.LayerListDialog;
 import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
+import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.tools.ColorHelper;
 import org.openstreetmap.josm.tools.ImageProvider;
 
@@ -44,37 +45,43 @@ import org.openstreetmap.josm.tools.ImageProvider;
  */
 public class MarkerLayer extends Layer {
 
-	public static class Marker {
-		public final EastNorth eastNorth;
-		public final String text;
-		public final Icon symbol;
-		public Marker(LatLon ll, String t, String s) {
-			eastNorth = Main.proj.latlon2eastNorth(ll); 
-			text = t;
-			Icon symbol = null;
-			try {
-                symbol = ImageProvider.get("symbols",s);
-            } catch (RuntimeException e) {
-    			try {
-                    symbol = ImageProvider.get("nodes",s);
-                } catch (RuntimeException e2) {
-                }
-            }
-            this.symbol = symbol;
-		}
-	}
-
 	/**
 	 * A list of markers.
 	 */
 	public final Collection<Marker> data;
-
-	public MarkerLayer(Collection<Marker> data, String name, File associatedFile) {
+	private boolean mousePressed = false;
+	
+	public MarkerLayer(Collection<Marker> indata, String name, File associatedFile) {
 		super(name);
 		this.associatedFile = associatedFile;
-		this.data = data;
+		this.data = indata;
+		
 		SwingUtilities.invokeLater(new Runnable(){
 			public void run() {
+				Main.map.mapView.addMouseListener(new MouseAdapter() {
+					@Override public void mousePressed(MouseEvent e) {
+						if (e.getButton() != MouseEvent.BUTTON1)
+							return;
+						mousePressed  = true;
+						if (visible)
+							Main.map.mapView.repaint();
+					}
+					@Override public void mouseReleased(MouseEvent ev) {
+						if (ev.getButton() != MouseEvent.BUTTON1)
+							return;
+						mousePressed = false;
+						if (!visible)
+							return;
+						if (ev.getPoint() != null) {
+							for (Marker mkr : data) {
+								if (mkr.containsPoint(ev.getPoint()))
+									mkr.actionPerformed(new ActionEvent(this, 0, null));
+							}
+						}
+						Main.map.mapView.repaint();
+					}
+				});
+
 				Main.map.mapView.addLayerChangeListener(new LayerChangeListener(){
 					public void activeLayerChange(Layer oldLayer, Layer newLayer) {}
 					public void layerAdded(Layer newLayer) {}
@@ -94,8 +101,12 @@ public class MarkerLayer extends Layer {
 	}
 
 	@Override public void paint(Graphics g, MapView mv) {
+		boolean mousePressedTmp = mousePressed;
+		Point mousePos = mv.getMousePosition();
 		String mkrCol = Main.pref.get("color.gps marker");
 		String mkrColSpecial = Main.pref.get("color.layer "+name);
+        String mkrTextShow = Main.pref.get("marker.show "+name, "show");
+
 		if (!mkrColSpecial.equals(""))
 			g.setColor(ColorHelper.html2color(mkrColSpecial));
 		else if (!mkrCol.equals(""))
@@ -104,14 +115,12 @@ public class MarkerLayer extends Layer {
 			g.setColor(Color.GRAY);
 
 		for (Marker mkr : data) {
-			Point screen = mv.getPoint(mkr.eastNorth);
-			if (mkr.symbol != null)
-				mkr.symbol.paintIcon(Main.map.mapView, g, screen.x-mkr.symbol.getIconWidth()/2, screen.y-mkr.symbol.getIconHeight()/2);
-			else {
-				g.drawLine(screen.x-2, screen.y-2, screen.x+2, screen.y+2);
-				g.drawLine(screen.x+2, screen.y-2, screen.x-2, screen.y+2);
+			if (mousePos != null && mkr.containsPoint(mousePos)) {
+				mkr.paint(g, mv, mousePressedTmp, mkrTextShow);
+				mousePressedTmp = false;
+			} else {
+				mkr.paint(g, mv, false, mkrTextShow);
 			}
-			g.drawString(mkr.text, screen.x+4, screen.y+2);
 		}
 	}
 
@@ -161,6 +170,7 @@ public class MarkerLayer extends Layer {
 
 		return new Component[] {
 			new JMenuItem(new LayerListDialog.ShowHideLayerAction(this)),
+            new JMenuItem(new LayerListDialog.ShowHideMarkerText(this)),
 			new JMenuItem(new LayerListDialog.DeleteLayerAction(this)),
 			new JSeparator(),
 			color,

@@ -17,11 +17,11 @@ import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.DataSet;
-import org.openstreetmap.josm.gui.layer.MarkerLayer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.RawGpsLayer;
-import org.openstreetmap.josm.gui.layer.MarkerLayer.Marker;
 import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
+import org.openstreetmap.josm.gui.layer.markerlayer.Marker;
+import org.openstreetmap.josm.gui.layer.markerlayer.MarkerLayer;
 import org.openstreetmap.josm.io.OsmReader;
 import org.openstreetmap.josm.io.RawCsvReader;
 import org.openstreetmap.josm.io.RawGpsReader;
