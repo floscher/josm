@@ -52,7 +52,7 @@ public class LayerListDialog extends ToggleDialog implements LayerChangeListener
 	 */
 	static JList instance;
 	private JScrollPane listScrollPane;
-	
+
 	public final static class DeleteLayerAction extends AbstractAction {
 
 		private final Layer layer;
@@ -90,6 +90,25 @@ public class LayerListDialog extends ToggleDialog implements LayerChangeListener
 		public void actionPerformed(ActionEvent e) {
 			Layer l = layer == null ? (Layer)instance.getSelectedValue() : layer;
 			l.visible = !l.visible;
+			Main.map.mapView.repaint();
+			instance.repaint();
+		}
+	}
+
+	public final static class ShowHideMarkerText extends AbstractAction {
+		private final Layer layer;
+
+		public ShowHideMarkerText(Layer layer) {
+			super(tr("Show/Hide Text"), ImageProvider.get("dialogs", "showhide"));
+			putValue(SHORT_DESCRIPTION, tr("Toggle visible state of the marker text."));
+			putValue("help", "Dialog/LayerList/ShowHideText");
+			this.layer = layer;
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			Layer l = layer == null ? (Layer)instance.getSelectedValue() : layer;
+			String current = Main.pref.get("marker.show "+l.name,"show");
+			Main.pref.put("marker.show "+l.name, current.equalsIgnoreCase("show") ? "hide" : "show");
 			Main.map.mapView.repaint();
 			instance.repaint();
 		}

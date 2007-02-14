@@ -1,6 +1,12 @@
 package org.openstreetmap.josm.tools;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import javax.swing.JApplet;
+
+import org.openstreetmap.josm.Main;
 
 /**
  * Helper to open platform web browser on different platforms
@@ -12,6 +18,16 @@ public class OpenBrowser {
 	 * @return <code>null</code> for success or a string in case of an error.
 	 */
 	public static String displayUrl(String url) {
+		if (Main.applet) {
+			try {
+				JApplet applet = (JApplet) Main.parent;
+				applet.getAppletContext().showDocument(new URL(url));
+				return null;
+			} catch (MalformedURLException mue) {
+				return mue.getMessage();
+			}
+		}
+
 		String os = System.getProperty("os.name");
 		if (os == null)
 			return "unknown operating system";
@@ -36,10 +52,10 @@ public class OpenBrowser {
 
 	private static void linux(String url) throws IOException {
 		try {
-	        Runtime.getRuntime().exec("gnome-open " + url);
-        } catch (IOException e) {
-        	Runtime.getRuntime().exec("kfmclient openURL " + url);
-        }
+			Runtime.getRuntime().exec("gnome-open " + url);
+		} catch (IOException e) {
+			Runtime.getRuntime().exec("kfmclient openURL " + url);
+		}
 	}
 
 	private static void mac(String url) throws IOException {

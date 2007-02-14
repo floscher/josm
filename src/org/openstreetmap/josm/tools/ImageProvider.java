@@ -51,7 +51,22 @@ public class ImageProvider {
 	 * @return The requested Image.
 	 */
 	public static ImageIcon get(String subdir, String name) {
-		if (subdir != "")
+		ImageIcon icon = getIfAvailable(subdir, name);
+		if (icon == null) {
+			String ext = name.indexOf('.') != -1 ? "" : ".png";
+			throw new NullPointerException("/images/"+subdir+name+ext+" not found");
+		}
+		return icon;
+	}
+
+	/**
+	 * Like {@link #get(String)}, but does not throw and return <code>null</code>
+	 * in case of nothing is found. Use this, if the image to retrieve is optional.
+	 */
+	public static ImageIcon getIfAvailable(String subdir, String name) {
+		if (name == null)
+			return null;
+		if (subdir == null || subdir != "")
 			subdir += "/";
 		String ext = name.indexOf('.') != -1 ? "" : ".png";
 		URL path = null;
