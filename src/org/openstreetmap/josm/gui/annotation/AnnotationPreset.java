@@ -94,7 +94,7 @@ public class AnnotationPreset extends AbstractAction {
 		public String key;
 		public String text;
 		public String values;
-		public String display_values = "";
+		public String display_values;
 		public String default_;
 		public boolean delete_if_empty = false;
 		public boolean editable = true;
@@ -102,7 +102,7 @@ public class AnnotationPreset extends AbstractAction {
 		private JComboBox combo;
 
 		public void addToPanel(JPanel p) {
-			combo = new JComboBox(display_values.split(","));
+			combo = new JComboBox((display_values != null ? display_values : values).split(","));
 			combo.setEditable(editable);
 			combo.setSelectedItem(default_);
 			p.add(new JLabel(text), GBC.std().insets(0,0,10,0));
