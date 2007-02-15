@@ -11,7 +11,9 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedList;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -38,6 +40,7 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 				return;
 			}
 
+			// Check for an explicit problem when calling a plugin function
 			if (e instanceof PluginException) {
 				PluginProxy plugin = ((PluginException)e).getPlugin();
 				if (plugin != null && !plugin.misbehaving) {
@@ -47,12 +50,39 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 				}
 			}
 
+			// Try a heuristic to guess whether the problem may be within a plugin
+			String pluginName = guessPlugin(e);
+			if (pluginName != null) {
+				LinkedList<String> plugins = new LinkedList<String>(Arrays.asList(Main.pref.get("plugins").split(",")));
+				if (plugins.contains(pluginName)) {
+					String author = findPluginAuthor(pluginName);
+					int answer = JOptionPane.showConfirmDialog(
+							Main.parent, 
+							tr("An unexpected exception occoured, that may come from in the ''{0}'' plugin.", pluginName)+"\n"+
+								(author != null ? tr("According to the information within the plugin, the author is {0}.", author) : "")+"\n"+
+								tr("Should the plugin be disabled?"),
+							tr("Disable plugin"),
+							JOptionPane.YES_NO_OPTION);
+					if (answer == JOptionPane.OK_OPTION) {
+						plugins.remove(pluginName);
+						String p = "";
+						for (String s : plugins)
+							p += ","+s;
+						if (p.length() > 0)
+							p = p.substring(1);
+						Main.pref.put("plugins", p);
+						JOptionPane.showMessageDialog(Main.parent, tr("The plugin has been removed from the configuration. Please restart JOSM to unload the plugin."));
+						return;
+					}
+				}
+			}
+
 			Object[] options = new String[]{tr("Do nothing"), tr("Report Bug")};
 			int answer = JOptionPane.showOptionDialog(Main.parent, tr("An unexpected exception occoured.\n\n" +
 					"This is always a coding error. If you are running the latest\n" +
-					"version of JOSM, please consider be kind and file a bug report."),
-					tr("Unexpected Exception"), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE,
-					null, options, options[0]);
+			"version of JOSM, please consider be kind and file a bug report."),
+			tr("Unexpected Exception"), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE,
+			null, options, options[0]);
 			if (answer == 1) {
 				try {
 					StringWriter stack = new StringWriter();
@@ -95,5 +125,42 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 				}
 			}
 		}
+	}
+
+	/**
+	 * Try to find the author of the given plugin. Return <code>null</code>
+	 * if no author specified or the plugin is not found.
+	 */
+	private String findPluginAuthor(String pluginName) {
+		for (PluginProxy proxy : Main.plugins)
+			if (pluginName.equals(proxy.info.name))
+				return proxy.info.author;
+		return null;
+	}
+
+	/**
+	 * Analyze the stack of the argument and return a name of a plugin, if
+	 * some known problem pattern has been found or <code>null</code>, if
+	 * the stack does not contain plugin-code.
+	 * 
+	 * Note: This heuristic is not meant as discrimination against specific
+	 * plugins, but only to stop the flood of similar bug reports about plugins.
+	 * Of course, plugin writers are free to install their own version of 
+	 * an exception handler with their email address listed to receive 
+	 * bug reports ;-). 
+	 */
+	private String guessPlugin(Throwable e) {
+		for (StackTraceElement element : e.getStackTrace()) {
+			String c = element.getClassName();
+			if (c.contains("wmsplugin.") || c.contains(".WMSLayer"))
+				return "wmsplugin";
+			if (c.contains("landsat.") || c.contains(".LandsatLayer"))
+				return "landsat";
+			if (c.contains("mappaint."))
+				return "mappaint";
+			if (c.contains("annotationtester."))
+				return "annotation-tester";
+		}
+		return null;
 	}
 }
