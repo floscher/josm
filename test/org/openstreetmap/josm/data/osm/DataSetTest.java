@@ -76,41 +76,23 @@ public class DataSetTest extends MotherObject {
 
 	public void testFireSelectionChanged() {
 		TestSelectionChangeListener l = new TestSelectionChangeListener();
-		ds.addSelectionChangedListener(l);
+		ds.listeners.add(l);
 		ds.setSelected(segment);
 		assertNotNull(l.called);
 		assertEquals(1, l.called.size());
 		assertSame(segment, l.called.iterator().next());
 	}
 
-	public void testAddRemoveSelectionChangedListener() {
-		TestSelectionChangeListener l = new TestSelectionChangeListener();
-		ds.addSelectionChangedListener(l);
-		ds.removeSelectionChangedListener(l);
-		ds.setSelected(way);
-		assertNull(l.called);
-	}
-
 	public void testAddAllSelectionListener() {
 		DataSet ds2 = new DataSet();
 		TestSelectionChangeListener l1 = new TestSelectionChangeListener();
 		TestSelectionChangeListener l2 = new TestSelectionChangeListener();
-		ds2.addSelectionChangedListener(l1);
-		ds2.addSelectionChangedListener(l2);
-		ds.addAllSelectionListener(ds2);
-		ds2.removeSelectionChangedListener(l1);
+		ds2.listeners.add(l1);
+		ds2.listeners.add(l2);
+		ds.listeners.addAll(ds2.listeners);
+		ds2.listeners.remove(l1);
 		ds.setSelected(node2);
 		assertNotNull(l1.called);
 		assertNotNull(l2.called);
-	}
-
-	public void testRealEqual() {
-		Collection<OsmPrimitive> all = new LinkedList<OsmPrimitive>();
-		all.add(new Node(node1));
-		all.add(new Node(node2));
-		all.add(new Node(node3));
-		all.add(createSegment(segment.id, node1, node2));
-		all.add(createWay(way.id, way.segments.iterator().next()));
-		assertTrue(ds.realEqual(all));
 	}
 }

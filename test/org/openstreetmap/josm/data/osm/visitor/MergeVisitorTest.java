@@ -196,7 +196,7 @@ public class MergeVisitorTest extends TestCase {
 		s1.incomplete = true;
 		s2.timestamp = new Date();
 		v.visit(s2);
-		assertTrue(s1.realEqual(s2));
+		assertTrue(s1.realEqual(s2, false));
 	}
 	/**
 	 * Incomplete segments should extend existing ways.
@@ -311,5 +311,29 @@ public class MergeVisitorTest extends TestCase {
 		v.visit(createSegment(null, true, false, 1));
 		assertEquals(1, ds.segments.size());
     }
-	
+
+	/**
+	 * The merger should auto-resolve items, that have not changed but are marked as
+	 * changed. In the case where an unmodified newer item is merged over an modified
+	 * older, the modified-flag should be removed and the newer timestamp is used.
+	 */
+	public void testMergeModifiedWithOlderTimestampOverUnmodifiedNewerDoesNotConflict() throws Exception {
+		DataSet ds = new DataSet();
+
+		Node oldNode = createNodes(ds, 1)[0];
+		oldNode.modified = true;
+		oldNode.timestamp = new Date();
+		
+		Node newNode = new Node(oldNode);
+		Date date = new Date(oldNode.timestamp.getTime()+10000);
+		newNode.modified = false;
+		newNode.timestamp = new Date(date.getTime());
+		
+		MergeVisitor v = new MergeVisitor(ds);
+		v.visit(newNode);
+
+		assertEquals(0, v.conflicts.size());
+		assertEquals(date, ds.nodes.iterator().next().timestamp);
+		assertFalse(ds.nodes.iterator().next().modified);
+	}
 }

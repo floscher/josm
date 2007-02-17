@@ -20,15 +20,15 @@ public class SegmentTest extends MotherObject {
 	public void testCloneFromRealEqual() {
 		Segment s2 = createSegment(23, createNode(1,2,3), createNode(2,3,4));
 		segment.cloneFrom(s2);
-		assertTrue(segment.realEqual(s2));
-		assertTrue(s2.realEqual(segment));
+		assertTrue(segment.realEqual(s2, false));
+		assertTrue(s2.realEqual(segment, false));
 		assertSame(segment.from, s2.from);
 		assertSame(segment.to, s2.to);
 	}
 
 	public void testSegmentSegment() {
 		Segment s = new Segment(segment);
-		assertTrue(s.realEqual(segment));
+		assertTrue(s.realEqual(segment, false));
 	}
 
 	public void testSegmentNodeNode() {

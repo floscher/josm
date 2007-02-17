@@ -142,10 +142,10 @@ public class HistoryDialog extends ToggleDialog implements SelectionChangedListe
 
 	@Override public void setVisible(boolean b) {
 		if (b) {
-			Main.ds.addSelectionChangedListener(this);
+			Main.ds.listeners.add(this);
 			selectionChanged(Main.ds.getSelected());
 		} else {
-			Main.ds.removeSelectionChangedListener(this);
+			Main.ds.listeners.remove(this);
 		}
 		super.setVisible(b);
 	}

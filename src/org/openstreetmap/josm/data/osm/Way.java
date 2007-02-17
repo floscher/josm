@@ -42,8 +42,8 @@ public class Way extends OsmPrimitive {
         return "{Way id="+id+" segments="+Arrays.toString(segments.toArray())+"}";
     }
 
-	@Override public boolean realEqual(OsmPrimitive osm) {
-		return osm instanceof Way ? super.realEqual(osm) && segments.equals(((Way)osm).segments) : false;
+	@Override public boolean realEqual(OsmPrimitive osm, boolean semanticOnly) {
+		return osm instanceof Way ? super.realEqual(osm, semanticOnly) && segments.equals(((Way)osm).segments) : false;
     }
 
 	public int compareTo(OsmPrimitive o) {

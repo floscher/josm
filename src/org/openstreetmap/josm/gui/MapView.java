@@ -88,7 +88,7 @@ public class MapView extends NavigatableComponent {
 		new MapMover(this);
 
 		// listend to selection changes to redraw the map
-		Main.ds.addSelectionChangedListener(new SelectionChangedListener(){
+		Main.ds.listeners.add(new SelectionChangedListener(){
 			public void selectionChanged(Collection<? extends OsmPrimitive> newSelection) {
 				repaint();
 			}
@@ -118,7 +118,7 @@ public class MapView extends NavigatableComponent {
 				return;
 			}
 			editLayer = dataLayer;
-			dataLayer.data.addAllSelectionListener(Main.ds);
+			dataLayer.data.listeners.addAll(Main.ds.listeners);
 			Main.ds = dataLayer.data;
 			dataLayer.listenerModified.add(new ModifiedChangedListener(){
 				public void modifiedChanged(boolean value, OsmDataLayer source) {

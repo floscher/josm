@@ -78,12 +78,12 @@ public class Segment extends OsmPrimitive {
 		return "{Segment id="+id+" from="+from+" to="+to+"}";
 	}
 
-	@Override public boolean realEqual(OsmPrimitive osm) {
+	@Override public boolean realEqual(OsmPrimitive osm, boolean semanticOnly) {
 		if (!(osm instanceof Segment))
-			return super.realEqual(osm); 
+			return super.realEqual(osm, semanticOnly); 
 		if (incomplete)
 			return ((Segment)osm).incomplete;
-		return super.realEqual(osm) && from.equals(((Segment)osm).from) && to.equals(((Segment)osm).to);
+		return super.realEqual(osm, semanticOnly) && from.equals(((Segment)osm).from) && to.equals(((Segment)osm).to);
 	}
 
 	public int compareTo(OsmPrimitive o) {

@@ -294,17 +294,27 @@ public class MergeVisitor implements Visitor {
 	}
 
 	/**
-	 * @return <code>true</code>, if no merge is needed.
+	 * @return <code>true</code>, if no merge is needed or merge is performed already.
 	 */
 	private <P extends OsmPrimitive> boolean mergeAfterId(Map<P,P> merged, Collection<P> primitives, P other) {
 		for (P my : primitives) {
-			if (my.realEqual(other))
+			Date d1 = my.timestamp == null ? new Date(0) : my.timestamp;
+			Date d2 = other.timestamp == null ? new Date(0) : other.timestamp;
+			if (my.realEqual(other, false))
 				return true; // no merge needed.
+			if (my.realEqual(other, true)) {
+				// they differ in modified/timestamp combination only. Auto-resolve it.
+				if (merged != null)
+					merged.put(other, my);
+				if (d1.before(d2)) {
+					my.modified = other.modified;
+					my.timestamp = other.timestamp;
+				}
+				return true; // merge done.
+			}
 			if (my.id == other.id && my.id != 0) {
 				if (my instanceof Segment && ((Segment)my).incomplete)
 					return false; // merge always over an incomplete
-				Date d1 = my.timestamp == null ? new Date(0) : my.timestamp;
-				Date d2 = other.timestamp == null ? new Date(0) : other.timestamp;
 				if (my.modified && other.modified) {
 					conflicts.put(my, other);
 					if (merged != null)

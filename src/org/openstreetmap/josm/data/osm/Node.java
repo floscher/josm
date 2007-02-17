@@ -42,8 +42,8 @@ public class Node extends OsmPrimitive {
 		return "{Node id="+id+",lat="+coor.lat()+",lon="+coor.lon()+"}";
 	}
 
-	@Override public boolean realEqual(OsmPrimitive osm) {
-		return osm instanceof Node ? super.realEqual(osm) && coor.equals(((Node)osm).coor) : false;
+	@Override public boolean realEqual(OsmPrimitive osm, boolean semanticOnly) {
+		return osm instanceof Node ? super.realEqual(osm, semanticOnly) && coor.equals(((Node)osm).coor) : false;
     }
 
 	public int compareTo(OsmPrimitive o) {

@@ -20,16 +20,16 @@ public class NodeTest extends MotherObject {
 
 	public void testCloneFromRealEqual() {
 		Node node2 = createNode(23,3,4);
-		assertFalse(node2.realEqual(node));
-		assertFalse(node.realEqual(node2));
+		assertFalse(node2.realEqual(node, false));
+		assertFalse(node.realEqual(node2, false));
 		node.cloneFrom(node2);
-		assertTrue(node2.realEqual(node));
-		assertTrue(node.realEqual(node2));
+		assertTrue(node2.realEqual(node, false));
+		assertTrue(node.realEqual(node2, false));
 	}
 
 	public void testNodeNode() {
 		Node node2 = new Node(node);
-		assertTrue(node2.realEqual(node));
+		assertTrue(node2.realEqual(node, false));
 	}
 
 	public void testNodeLatLon() {

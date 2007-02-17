@@ -20,14 +20,14 @@ public class WayTest extends MotherObject {
 	public void testCloneFromRealEqual() {
 		Way w2 = createWay(42);
 		way.cloneFrom(w2);
-		assertTrue(way.realEqual(w2));
+		assertTrue(way.realEqual(w2, false));
 		assertEquals(w2.segments.size(), way.segments.size());
 	}
 
 	public void testWayWay() {
 		Way w = new Way(way);
 		assertEquals(way.id, w.id);
-		assertTrue(way.realEqual(w));
+		assertTrue(way.realEqual(w, false));
 	}
 
 	public void testWay() {
