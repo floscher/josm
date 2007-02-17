@@ -97,7 +97,7 @@ public class SplitWayAction extends JosmAction implements SelectionChangedListen
 	 */
 	public SplitWayAction() {
 		super(tr("Split Way"), "splitway", tr("Split a way at the selected node."), KeyEvent.VK_P, KeyEvent.CTRL_MASK | KeyEvent.SHIFT_MASK, true);
-		Main.ds.addSelectionChangedListener(this);
+		Main.ds.listeners.add(this);
 	}
 
 	/**
@@ -229,11 +229,9 @@ public class SplitWayAction extends JosmAction implements SelectionChangedListen
 		}
 
 		// finally check if the selected way is complete.
-		for (Segment s : selectedWay.segments) {
-			if (s.incomplete) {
-				JOptionPane.showMessageDialog(Main.parent, tr("Warning: This way is incomplete. Try to download it before splitting."));
-				return;
-			}
+		if (selectedWay.isIncomplete()) {
+			JOptionPane.showMessageDialog(Main.parent, tr("Warning: This way is incomplete. Try to download it before splitting."));
+			return;
 		}
 
 		// and then do the work.
@@ -310,7 +308,7 @@ public class SplitWayAction extends JosmAction implements SelectionChangedListen
 				// reach another split node. Segment moving is done recursively by
 				// the moveSegments method.
 				if (split) {
-					ArrayList<Segment> subSegments = new ArrayList<Segment>();
+					LinkedList<Segment> subSegments = new LinkedList<Segment>();
 					moveSegments(allSegments, subSegments, splitSeg, selectedNodes);
 					segmentSets.add(subSegments);
 				}
@@ -355,7 +353,7 @@ public class SplitWayAction extends JosmAction implements SelectionChangedListen
 			// after the removal of the segments, that is also an error.
 			partThatContainsSegments.removeAll(selectedSegments);
 			if (!partThatContainsSegments.isEmpty()) {
-				ArrayList<Segment> contiguousSubpart = new ArrayList<Segment>();
+				LinkedList<Segment> contiguousSubpart = new LinkedList<Segment>();
 				moveSegments(partThatContainsSegments, contiguousSubpart, partThatContainsSegments.get(0), null);
 				// if partThatContainsSegments was contiguous before, it will now be empty as all segments
 				// connected to the first segment therein have been moved
@@ -379,7 +377,7 @@ public class SplitWayAction extends JosmAction implements SelectionChangedListen
 			// segments remain in the original way, we repeat the procedure.
 
 			while (!allSegments.isEmpty()) {
-				List<Segment> subSegments = new LinkedList<Segment>();
+				LinkedList<Segment> subSegments = new LinkedList<Segment>();
 				moveSegments(allSegments, subSegments, allSegments.get(0), null);
 				segmentSets.add(subSegments);
 			}			
@@ -464,15 +462,19 @@ public class SplitWayAction extends JosmAction implements SelectionChangedListen
 	 * @param start the first segment to be moved
 	 * @param stopNodes collection of nodes which should be considered end points for moving (may be null).
 	 */
-	private void moveSegments(Collection<Segment> source, Collection<Segment> destination, Segment start, Collection<Node> stopNodes) {
+	private void moveSegments(Collection<Segment> source, LinkedList<Segment> destination, Segment start, Collection<Node> stopNodes) {
 		source.remove(start);
-		destination.add(start);
+		if (destination.isEmpty() || destination.iterator().next().from.equals(start.to))
+			destination.addFirst(start);
+		else
+			destination.addLast(start);
 		Segment moveSeg = start;
 		while(moveSeg != null) {
 			moveSeg = null;
 
 			for (Node node : new Node[] { start.from, start.to }) {
-				if (stopNodes != null && stopNodes.contains(node)) continue;
+				if (stopNodes != null && stopNodes.contains(node))
+					continue;
 				for (Segment sourceSeg : source) {
 					if (sourceSeg.from.equals(node) || sourceSeg.to.equals(node)) {
 						moveSeg = sourceSeg;

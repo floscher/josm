@@ -159,8 +159,11 @@ abstract public class Main {
 	 */
 	public final void removeLayer(final Layer layer) {
 		map.mapView.removeLayer(layer);
-		if (layer instanceof OsmDataLayer)
-			ds = new DataSet();
+		if (layer instanceof OsmDataLayer) {
+			DataSet newDs = new DataSet();
+			newDs.listeners.addAll(ds.listeners);
+			ds = newDs;
+		}
 		if (map.mapView.getAllLayers().isEmpty())
 			setMapFrame(null);
 	}

@@ -59,7 +59,7 @@ public class AutoScaleAction extends GroupAction {
 			actions.add(new Action(mode));
 		setCurrent(0);
 		this.mapFrame = mapFrame;
-		Main.ds.addSelectionChangedListener(new SelectionChangedListener(){
+		Main.ds.listeners.add(new SelectionChangedListener(){
 			public void selectionChanged(Collection<? extends OsmPrimitive> newSelection) {
 				if (mode.equals("selection"))
 					mapFrame.mapView.recalculateCenterScale();

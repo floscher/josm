@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -46,7 +45,7 @@ public class DataSet {
 	/**
 	 * A list of listeners to selection changed events.
 	 */
-	transient Collection<SelectionChangedListener> listeners = new LinkedList<SelectionChangedListener>();
+	transient public Collection<SelectionChangedListener> listeners = new LinkedList<SelectionChangedListener>();
 
 	/**
 	 * @return A collection containing all primitives of the dataset. The
@@ -141,47 +140,5 @@ public class DataSet {
 	public void fireSelectionChanged(Collection<? extends OsmPrimitive> sel) {
 		for (SelectionChangedListener l : listeners)
 			l.selectionChanged(sel);
-	}
-
-	/**
-	 * Add a listener to the selection changed listener list. If <code>null</code>
-	 * is passed, nothing happens.
-	 * @param listener The listener to add to the list.
-	 */
-	public void addSelectionChangedListener(SelectionChangedListener listener) {
-		if (listener != null)
-			listeners.add(listener);
-	}
-
-	/**
-	 * Remove a listener from the selection changed listener list.
-	 * If <code>null</code> is passed, nothing happens.
-	 * @param listener The listener to remove from the list.
-	 */
-	public void removeSelectionChangedListener(SelectionChangedListener listener) {
-		if (listener != null)
-			listeners.remove(listener);
-	}
-
-	public void addAllSelectionListener(DataSet ds) {
-		listeners.addAll(ds.listeners);
-	}
-
-	/**
-	 * Compares this and the parameter dataset and return <code>true</code> if both
-	 * contain the same data primitives (ignoring the selection)
-	 */
-	public boolean realEqual(Collection<OsmPrimitive> other) {
-		Collection<OsmPrimitive> my = allPrimitives();
-
-		if (my.size() != other.size())
-			return false;
-
-		Iterator<OsmPrimitive> it = other.iterator();
-		for (OsmPrimitive osm : my)
-			if (!osm.realEqual(it.next()))
-				return false;
-
-		return true;
 	}
 }

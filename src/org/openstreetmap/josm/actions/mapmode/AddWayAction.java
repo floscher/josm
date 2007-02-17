@@ -59,8 +59,7 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 	 */
 	public AddWayAction(MapFrame mapFrame) {
 		super(tr("Add Way"), "addway", tr("Add a new way to the data."), KeyEvent.VK_W, mapFrame, ImageProvider.getCursor("normal", "way"));
-		
-		Main.ds.addSelectionChangedListener(this);
+		Main.ds.listeners.add(this);
 	}
 
 	@Override public void enterMode() {

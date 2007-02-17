@@ -165,15 +165,16 @@ abstract public class OsmPrimitive implements Comparable<OsmPrimitive> {
 
 	/**
 	 * Perform an equality compare for all non-volatile fields not only for the id 
-	 * but for the whole object (for conflict resolving etc)
+	 * but for the whole object (for conflict resolving)
+	 * @param semanticOnly if <code>true</code>, modified flag and timestamp are not compared
 	 */
-	public boolean realEqual(OsmPrimitive osm) {
+	public boolean realEqual(OsmPrimitive osm, boolean semanticOnly) {
 		return
-		id == osm.id && 
-		modified == osm.modified && 
-		deleted == osm.deleted &&
-		(timestamp == null ? osm.timestamp==null : timestamp.equals(osm.timestamp)) &&
-		(keys == null ? osm.keys==null : keys.equals(osm.keys));
+			id == osm.id && 
+			(semanticOnly || (modified == osm.modified)) && 
+			deleted == osm.deleted &&
+			(semanticOnly || (timestamp == null ? osm.timestamp==null : timestamp.equals(osm.timestamp))) &&
+			(keys == null ? osm.keys==null : keys.equals(osm.keys));
 	}
 	
 	public String getTimeStr() {

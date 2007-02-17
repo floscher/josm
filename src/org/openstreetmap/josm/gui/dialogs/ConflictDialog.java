@@ -85,7 +85,7 @@ public final class ConflictDialog extends ToggleDialog {
 
 		add(buttonPanel, BorderLayout.SOUTH);
 
-		Main.ds.addSelectionChangedListener(new SelectionChangedListener(){
+		Main.ds.listeners.add(new SelectionChangedListener(){
 			public void selectionChanged(Collection<? extends OsmPrimitive> newSelection) {
 				displaylist.clearSelection();
 				for (OsmPrimitive osm : newSelection) {
