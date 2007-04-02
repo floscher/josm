@@ -76,7 +76,7 @@ public class ImageProvider {
 				break;
 		}
 		if (path == null)
-			throw new NullPointerException("/images/"+subdir+name+ext+" not found");
+			return null;
 		Image img = cache.get(path);
 		if (img == null) {
 			img = Toolkit.getDefaultToolkit().createImage(path);

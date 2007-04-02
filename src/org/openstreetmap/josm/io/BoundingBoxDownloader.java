@@ -65,6 +65,11 @@ public class BoundingBoxDownloader extends OsmServerReader {
 
     		data.add(list);
     		return data;
+    	} catch (IllegalArgumentException e) {
+    		// caused by HttpUrlConnection in case of illegal stuff in the response
+    		if (cancel)
+    			return null;
+    		throw e;
     	} catch (IOException e) {
     		if (cancel)
     			return null;
