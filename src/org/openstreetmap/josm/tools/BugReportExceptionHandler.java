@@ -64,7 +64,7 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 							tr("Disable plugin"),
 							JOptionPane.YES_NO_OPTION);
 					if (answer == JOptionPane.OK_OPTION) {
-						plugins.remove(pluginName);
+						while (plugins.remove(pluginName)) {}
 						String p = "";
 						for (String s : plugins)
 							p += ","+s;
@@ -156,6 +156,8 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 				return "wmsplugin";
 			if (c.contains("landsat.") || c.contains(".LandsatLayer"))
 				return "landsat";
+			if (c.contains("livegps."))
+				return "livegps";
 			if (c.contains("mappaint."))
 				return "mappaint";
 			if (c.contains("annotationtester."))
