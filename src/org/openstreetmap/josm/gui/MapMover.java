@@ -71,7 +71,7 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 	/**
 	 * Create a new MapMover
 	 */
-	MapMover(NavigatableComponent navComp) {
+	MapMover(NavigatableComponent navComp, boolean registerKeys) {
 		this.nc = navComp;
 		nc.addMouseListener(this);
 		nc.addMouseMotionListener(this);
@@ -80,9 +80,11 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 		String[] n = {",",".","up","right","down","left"};
 		int[] k = {KeyEvent.VK_COMMA, KeyEvent.VK_PERIOD, KeyEvent.VK_UP, KeyEvent.VK_RIGHT, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT};
 
-		for (int i = 0; i < n.length; ++i) {
-			Main.contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(k[i], KeyEvent.CTRL_DOWN_MASK), "MapMover.Zoomer."+n[i]);
-			Main.contentPane.getActionMap().put("MapMover.Zoomer."+n[i], new ZoomerAction(n[i]));
+		if (registerKeys) {
+			for (int i = 0; i < n.length; ++i) {
+				Main.contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(k[i], KeyEvent.CTRL_DOWN_MASK), "MapMover.Zoomer."+n[i]);
+				Main.contentPane.getActionMap().put("MapMover.Zoomer."+n[i], new ZoomerAction(n[i]));
+			}
 		}
 	}
 

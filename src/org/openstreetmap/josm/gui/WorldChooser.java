@@ -59,7 +59,7 @@ public class WorldChooser extends NavigatableComponent {
 		world = new ImageIcon(path);
 		center = new EastNorth(world.getIconWidth()/2, world.getIconHeight()/2);
 		setPreferredSize(new Dimension(200, 100));
-		new MapMover(this);
+		new MapMover(this, false);
 		projection = new Projection() {
 			public EastNorth latlon2eastNorth(LatLon p) {
 				return new EastNorth(

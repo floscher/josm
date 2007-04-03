@@ -85,7 +85,7 @@ public class MapView extends NavigatableComponent {
 				recalculateCenterScale();
 			}
 		});
-		new MapMover(this);
+		new MapMover(this, true);
 
 		// listend to selection changes to redraw the map
 		Main.ds.listeners.add(new SelectionChangedListener(){
