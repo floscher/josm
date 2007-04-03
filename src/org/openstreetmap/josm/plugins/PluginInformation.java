@@ -39,6 +39,7 @@ public class PluginInformation {
 	public final String description;
 	public final boolean early;
 	public final String author;
+	public final int stage;
 	public final List<URL> libraries = new ArrayList<URL>();
 
 	public final Map<String, String> attr = new TreeMap<String, String>();
@@ -56,6 +57,8 @@ public class PluginInformation {
 			className = attr.getValue("Plugin-Class");
 			description = attr.getValue("Plugin-Description");
 			early = Boolean.parseBoolean(attr.getValue("Plugin-Early"));
+			String stageStr = attr.getValue("Plugin-Stage");
+			stage = stageStr == null ? 50 : Integer.parseInt(stageStr);
 			author = attr.getValue("Author");
 			libraries.add(new URL(getURLString(file.getAbsolutePath())));
 			String classPath = attr.getValue("Class-Path");

@@ -8,6 +8,7 @@ import java.awt.event.KeyEvent;
 import java.util.Collection;
 
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -50,13 +51,16 @@ public class SearchAction extends JosmAction {
     	bg.add(replace);
     	bg.add(add);
     	bg.add(remove);
+    	
+    	JCheckBox caseSensitive = new JCheckBox(tr("case sensitive"), false);
     
     	JPanel p = new JPanel(new GridBagLayout());
     	p.add(label, GBC.eop());
     	p.add(input, GBC.eop().fill(GBC.HORIZONTAL));
     	p.add(replace, GBC.eol());
     	p.add(add, GBC.eol());
-    	p.add(remove, GBC.eol());
+    	p.add(remove, GBC.eop());
+    	p.add(caseSensitive, GBC.eol());
     	JOptionPane pane = new JOptionPane(p, JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null){
     		@Override public void selectInitialValue() {
     			input.requestFocusInWindow();
@@ -68,10 +72,10 @@ public class SearchAction extends JosmAction {
     		return;
     	lastSearch = input.getText();
     	SearchAction.SearchMode mode = replace.isSelected() ? SearchAction.SearchMode.replace : (add.isSelected() ? SearchAction.SearchMode.add : SearchAction.SearchMode.remove);
-    	search(lastSearch, mode);
+    	search(lastSearch, mode, caseSensitive.isSelected());
     }
 
-	public static void search(String search, SearchMode mode) {
+	public static void search(String search, SearchMode mode, boolean caseSensitive) {
     	if (search.startsWith("http://") || search.startsWith("ftp://") || search.startsWith("https://") || search.startsWith("file:/")) {
     		SelectionWebsiteLoader loader = new SelectionWebsiteLoader(search, mode);
     		if (loader.url != null) {
@@ -80,7 +84,7 @@ public class SearchAction extends JosmAction {
     		}
     	}
     	Collection<OsmPrimitive> sel = Main.ds.getSelected();
-    	SearchCompiler.Match matcher = SearchCompiler.compile(search);
+    	SearchCompiler.Match matcher = SearchCompiler.compile(search, caseSensitive);
     	for (OsmPrimitive osm : Main.ds.allNonDeletedPrimitives()) {
     		if (mode == SearchMode.replace) {
     			if (matcher.match(osm))
