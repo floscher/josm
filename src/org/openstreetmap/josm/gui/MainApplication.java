@@ -83,6 +83,18 @@ public class MainApplication extends Main {
 
 		// get the preferences.
 		final File prefDir = new File(Main.pref.getPreferencesDir());
+
+		// check if preferences directory has moved (TODO: Update code. Remove this after some time)
+		File oldPrefDir = new File(System.getProperty("user.home")+"/.josm");
+		if (!prefDir.isDirectory() && oldPrefDir.isDirectory()) {
+			if (oldPrefDir.renameTo(prefDir)) {
+				// do not translate this
+				JOptionPane.showMessageDialog(null, "The preference directory has been moved to "+prefDir);
+			} else {
+				JOptionPane.showMessageDialog(null, "The preference directory location has changed. Please move "+oldPrefDir+" to "+prefDir);
+			}
+		}
+
 		if (prefDir.exists() && !prefDir.isDirectory()) {
 			JOptionPane.showMessageDialog(null, "Cannot open preferences directory: "+Main.pref.getPreferencesDir());
 			return;
@@ -104,9 +116,9 @@ public class MainApplication extends Main {
 		// determine what classloader to be used for plugins
 		if (args.containsKey("default-classloader"))
 			PluginInformation.useJosmClassloader = true;
-		
+
 		// load the early plugins
-	    if (Main.pref.hasKey("plugins")) {
+		if (Main.pref.hasKey("plugins")) {
 			for (String pluginName : Main.pref.get("plugins").split(",")) {
 				try {
 					File pluginFile = new File(pref.getPreferencesDir()+"plugins/"+pluginName+".jar");
@@ -168,7 +180,7 @@ public class MainApplication extends Main {
 		EventQueue.invokeLater(new Runnable(){
 			public void run() {
 				main.postConstructorProcessCmdLine(args);
-            }
+			}
 		});
 	}
 }

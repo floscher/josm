@@ -358,7 +358,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		for (Entry<String, Collection<String>> e : props.entrySet()) {
 			JComboBox value = new JComboBox(e.getValue().toArray());
 			value.setEditable(true);
-			value.getEditor().setItem(valueCount.get(e.getKey()) != newSelection.size() ? tr("<different>") : e.getValue().iterator().next());
+			value.getEditor().setItem(e.getValue().size() > 1 || valueCount.get(e.getKey()) != newSelection.size() ? tr("<different>") : e.getValue().iterator().next());
 			data.addRow(new Object[]{e.getKey(), value});
 		}
 	}

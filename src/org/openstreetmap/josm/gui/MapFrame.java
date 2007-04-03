@@ -50,7 +50,8 @@ public class MapFrame extends JPanel {
 	 */
 	public MapView mapView;
 	/**
-	 * The toolbar with the action icons
+	 * The toolbar with the action icons. To add new toggle dialog actions, use addToggleDialog
+	 * instead of adding directly to this list.
 	 */
 	public JToolBar toolBarActions = new JToolBar(JToolBar.VERTICAL);
 	/**
@@ -59,7 +60,11 @@ public class MapFrame extends JPanel {
 	private MapStatus statusLine;
 
 	public ConflictDialog conflictDialog;
-	private JPanel toggleDialogs = new JPanel();
+	/**
+	 * The panel list of all toggle dialog icons. To add new toggle dialog actions, use addToggleDialog
+	 * instead of adding directly to this list.
+	 */
+	public JPanel toggleDialogs = new JPanel();
 
 	public final ButtonGroup toolGroup = new ButtonGroup();
 
@@ -117,12 +122,12 @@ public class MapFrame extends JPanel {
 		add(toggleDialogs, BorderLayout.EAST);
 		toggleDialogs.setLayout(new BoxLayout(toggleDialogs, BoxLayout.Y_AXIS));
 
-		addIconToggle(toggleDialogs, new LayerListDialog(this));
-		addIconToggle(toggleDialogs, new PropertiesDialog(this));
-		addIconToggle(toggleDialogs, new HistoryDialog());
-		addIconToggle(toggleDialogs, new SelectionListDialog());
-		addIconToggle(toggleDialogs, conflictDialog = new ConflictDialog());
-		addIconToggle(toggleDialogs, new CommandStackDialog(this));
+		addToggleDialog(new LayerListDialog(this));
+		addToggleDialog(new PropertiesDialog(this));
+		addToggleDialog(new HistoryDialog());
+		addToggleDialog(new SelectionListDialog());
+		addToggleDialog(conflictDialog = new ConflictDialog());
+		addToggleDialog(new CommandStackDialog(this));
 
 		// status line below the map
 		if (!Main.applet)
@@ -146,7 +151,11 @@ public class MapFrame extends JPanel {
 		}
 	}
 
-	private void addIconToggle(JPanel toggleDialogs, ToggleDialog dlg) {
+	/**
+	 * Call this to add new toggle dialogs to the left button-list
+	 * @param dlg The toggle dialog. It must not be in the list already.
+	 */
+	public void addToggleDialog(ToggleDialog dlg) {
 		IconToggleButton button = new IconToggleButton(dlg.action);
 		dlg.action.button = button;
 		dlg.parent = toggleDialogs;

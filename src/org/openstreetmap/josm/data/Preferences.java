@@ -60,6 +60,8 @@ public class Preferences {
 	 * Return the location of the preferences file
 	 */
 	public String getPreferencesDir() {
+		if (System.getenv("APPDATA") != null)
+			return System.getenv("APPDATA")+"/JOSM/";
 		return System.getProperty("user.home")+"/.josm/";
 	}
 
