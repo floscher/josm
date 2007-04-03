@@ -13,7 +13,9 @@ import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
@@ -189,24 +191,42 @@ abstract public class Main {
 	}
 
 	/**
-	 * Load all plugins specified in preferences. Has to be called after the complete
-	 * GUI has been set up. (post-constructor)
+	 * Load all plugins specified in preferences. If the parameter is <code>true</code>, all
+	 * early plugins are loaded (before constructor).
 	 */
-	public void loadPlugins() {
-		if (Main.pref.hasKey("plugins")) {
-			for (String pluginName : Main.pref.get("plugins").split(",")) {
+	public static void loadPlugins(boolean early) {
+		if (!Main.pref.hasKey("plugins"))
+			return;
+		SortedMap<Integer, Collection<PluginInformation>> p = new TreeMap<Integer, Collection<PluginInformation>>();
+		for (String pluginName : Main.pref.get("plugins").split(",")) {
+			File pluginFile = new File(pref.getPreferencesDir()+"plugins/"+pluginName+".jar");
+			if (pluginFile.exists()) {
+				PluginInformation info = new PluginInformation(pluginFile);
+				if (info.early != early)
+					continue;
+				if (!p.containsKey(info.stage))
+					p.put(info.stage, new LinkedList<PluginInformation>());
+				p.get(info.stage).add(info);
+			} else {
+				if (early)
+					System.out.println("Plugin not found: "+pluginName); // do not translate
+				else	
+					JOptionPane.showMessageDialog(Main.parent, tr("Plugin not found: {0}.", pluginName));
+			}
+		}
+		for (Collection<PluginInformation> c : p.values()) {
+			for (PluginInformation info : c) {
 				try {
-					File pluginFile = new File(pref.getPreferencesDir()+"plugins/"+pluginName+".jar");
-					if (pluginFile.exists()) {
-						PluginInformation info = new PluginInformation(pluginFile);
-						Class<?> klass = info.loadClass();
-						ImageProvider.sources.add(0, klass);
-						plugins.add(info.load(klass));
-					} else
-						JOptionPane.showMessageDialog(Main.parent, tr("Plugin not found: {0}.", pluginName));
+					Class<?> klass = info.loadClass();
+					ImageProvider.sources.add(0, klass);
+					System.out.println("loading "+info.name);
+					plugins.add(info.load(klass));
 				} catch (PluginException e) {
 					e.printStackTrace();
-					JOptionPane.showMessageDialog(Main.parent, tr("Could not load plugin {0}.", pluginName));
+					if (early)
+						System.out.println("Could not load plugin: "+info.name); // do not translate
+					else
+						JOptionPane.showMessageDialog(Main.parent, tr("Could not load plugin {0}.", info.name));
 				}
 			}
 		}
@@ -306,7 +326,7 @@ abstract public class Main {
 		if (bounds == null)
 			bounds = !args.containsKey("no-fullscreen") ? new Rectangle(0,0,screenDimension.width,screenDimension.height) : new Rectangle(1000,740);
 
-		pleaseWaitDlg = new PleaseWaitDialog();
+			pleaseWaitDlg = new PleaseWaitDialog();
 	}
 
 	public void postConstructorProcessCmdLine(Map<String, Collection<String>> args) {
@@ -318,7 +338,7 @@ abstract public class Main {
 				downloadFromParamString(true, s);
 		if (args.containsKey("selection"))
 			for (String s : args.get("selection"))
-				SearchAction.search(s, SearchAction.SearchMode.add);
+				SearchAction.search(s, SearchAction.SearchMode.add, false);
 	}
 
 	public static boolean breakBecauseUnsavedChanges() {

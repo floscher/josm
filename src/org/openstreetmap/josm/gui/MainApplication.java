@@ -20,10 +20,8 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.plugins.PluginException;
 import org.openstreetmap.josm.plugins.PluginInformation;
 import org.openstreetmap.josm.tools.BugReportExceptionHandler;
-import org.openstreetmap.josm.tools.ImageProvider;
 /**
  * Main window class application.
  *
@@ -118,25 +116,7 @@ public class MainApplication extends Main {
 			PluginInformation.useJosmClassloader = true;
 
 		// load the early plugins
-		if (Main.pref.hasKey("plugins")) {
-			for (String pluginName : Main.pref.get("plugins").split(",")) {
-				try {
-					File pluginFile = new File(pref.getPreferencesDir()+"plugins/"+pluginName+".jar");
-					if (pluginFile.exists()) {
-						PluginInformation info = new PluginInformation(pluginFile);
-						if (!info.early)
-							continue;
-						Class<?> klass = info.loadClass();
-						ImageProvider.sources.add(0, klass);
-						Main.plugins.add(info.load(klass));
-					} else
-						System.out.println("Plugin not found: "+pluginName);
-				} catch (PluginException e) {
-					System.out.println("Could not load plugin "+pluginName);
-					e.printStackTrace();
-				}
-			}
-		}
+		Main.loadPlugins(true);
 
 		if (argList.contains("--help") || argList.contains("-?") || argList.contains("-h")) {
 			System.out.println(tr("Java OpenStreetMap Editor")+"\n\n"+
@@ -170,7 +150,7 @@ public class MainApplication extends Main {
 		JFrame mainFrame = new JFrame(tr("Java Open Street Map - Editor"));
 		Main.parent = mainFrame;
 		final Main main = new MainApplication(mainFrame);
-		main.loadPlugins();
+		Main.loadPlugins(false);
 
 		mainFrame.setVisible(true);
 

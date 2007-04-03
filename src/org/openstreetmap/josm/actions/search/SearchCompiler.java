@@ -16,6 +16,8 @@ import org.openstreetmap.josm.data.osm.Way;
  */
 public class SearchCompiler {
 
+	boolean caseSensitive = false;
+	
 	abstract public static class Match {
 		abstract public boolean match(OsmPrimitive osm);
 	}
@@ -64,7 +66,7 @@ public class SearchCompiler {
 		@Override public String toString() {return "id="+id;}
 	}
 
-	private static class KeyValue extends Match {
+	private class KeyValue extends Match {
 		private String key;
 		private String value;
 		boolean notValue;
@@ -77,21 +79,26 @@ public class SearchCompiler {
 				value = osm.get(key);
 			if (value == null)
 				return notValue;
-			return (value.toLowerCase().indexOf(this.value.toLowerCase()) != -1) != notValue;
+			String v1 = caseSensitive ? value : value.toLowerCase();
+			String v2 = caseSensitive ? this.value : this.value.toLowerCase();
+			return (v1.indexOf(v2) != -1) != notValue;
 		}
 		@Override public String toString() {return key+"="+(notValue?"!":"")+value;}
 	}
 
-	private static class Any extends Match {
+	private class Any extends Match {
 		private String s;
 		public Any(String s) {this.s = s;}
 		@Override public boolean match(OsmPrimitive osm) {
 			if (osm.keys == null)
 				return s.equals("");
-			for (Entry<String, String> e : osm.keys.entrySet())
-				if (e.getKey().toLowerCase().indexOf(s.toLowerCase()) != -1 
-						|| e.getValue().toLowerCase().indexOf(s.toLowerCase()) != -1)
+			for (Entry<String, String> e : osm.keys.entrySet()) {
+				String key = caseSensitive ? e.getKey() : e.getKey().toLowerCase();
+				String value = caseSensitive ? e.getValue() : e.getValue().toLowerCase();
+				String search = caseSensitive ? s : s.toLowerCase();
+				if (key.indexOf(search) != -1 || value.indexOf(search) != -1)
 					return true;
+			}
 			return false;
 		}
 		@Override public String toString() {return s;}
@@ -133,8 +140,10 @@ public class SearchCompiler {
 		@Override public String toString() {return "incomplete";}
 	}
 	
-	public static Match compile(String searchStr) {
-		return new SearchCompiler().parse(new PushbackReader(new StringReader(searchStr)));
+	public static Match compile(String searchStr, boolean caseSensitive) {
+		SearchCompiler searchCompiler = new SearchCompiler();
+		searchCompiler.caseSensitive = caseSensitive;
+		return searchCompiler.parse(new PushbackReader(new StringReader(searchStr)));
 	}
 
 
