@@ -61,10 +61,13 @@ public abstract class PleaseWaitRunnable implements Runnable {
 		try {
 			if (cancelled)
 				return; // since realRun isn't executed, do not call to finish
+
+			// reset dialog state
 			Main.pleaseWaitDlg.setTitle(title);
+			errorMessage = null;
+			closeDialogCalled = false;
 
 			// show the dialog
-			closeDialogCalled = false;
 			synchronized (this) {
 	            EventQueue.invokeLater(new Runnable() {
 	            	public void run() {
@@ -76,7 +79,6 @@ public abstract class PleaseWaitRunnable implements Runnable {
 	            });
 	            try {wait();} catch (InterruptedException e) {}
 			}
-
 
 			realRun();
 		} catch (SAXException x) {

@@ -10,7 +10,9 @@ import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.Node;
+import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.tools.ImageProvider;
@@ -49,6 +51,7 @@ public class NameVisitor implements Visitor {
 			else
 				name = (ls.id==0?"":ls.id+" ")+"("+ls.from.coor.lat()+","+ls.from.coor.lon()+") -> ("+ls.to.coor.lat()+","+ls.to.coor.lon()+")";
 		}
+		addId(ls);
 		icon = ImageProvider.get("data", "segment");
 		trn("segment", "segments", 0); // no marktrn available
 		className = "segment";
@@ -62,6 +65,7 @@ public class NameVisitor implements Visitor {
 		name = n.get("name");
 		if (name == null)
 			name = (n.id==0?"":""+n.id)+" ("+n.coor.lat()+","+n.coor.lon()+")";
+		addId(n);
 		icon = ImageProvider.get("data", "node");
 		trn("node", "nodes", 0); // no marktrn available
 		className = "node";
@@ -88,6 +92,7 @@ public class NameVisitor implements Visitor {
 			if (incomplete)
 				name += " ("+tr("incomplete")+")";
 		}
+		addId(w);
 		icon = ImageProvider.get("data", "way");
 		trn("way", "ways", 0); // no marktrn available
 		className = "way";
@@ -96,4 +101,10 @@ public class NameVisitor implements Visitor {
 	public JLabel toLabel() {
 		return new JLabel(name, icon, JLabel.HORIZONTAL);
 	}
+
+
+	private void addId(OsmPrimitive osm) {
+	    if (Main.pref.getBoolean("osm-primitives.showid"))
+			name += " (id: "+osm.id+")";
+    }
 }
