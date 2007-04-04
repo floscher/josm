@@ -82,7 +82,7 @@ public class Segment extends OsmPrimitive {
 		if (!(osm instanceof Segment))
 			return super.realEqual(osm, semanticOnly); 
 		if (incomplete)
-			return ((Segment)osm).incomplete;
+			return super.realEqual(osm, semanticOnly) && ((Segment)osm).incomplete;
 		return super.realEqual(osm, semanticOnly) && from.equals(((Segment)osm).from) && to.equals(((Segment)osm).to);
 	}
 
