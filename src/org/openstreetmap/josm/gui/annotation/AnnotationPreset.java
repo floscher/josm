@@ -47,12 +47,14 @@ import org.xml.sax.SAXException;
  */
 public class AnnotationPreset extends AbstractAction {
 
-	private static interface Item {
-		void addToPanel(JPanel p);
-		void addCommands(Collection<OsmPrimitive> sel, List<Command> cmds);
+	public static abstract class Item {
+		public boolean focus = false;
+		abstract void addToPanel(JPanel p);
+		abstract void addCommands(Collection<OsmPrimitive> sel, List<Command> cmds);
+		boolean requestFocusInWindow() {return false;}
 	}
 	
-	public static class Text implements Item {
+	public static class Text extends Item {
 		public String key;
 		public String text;
 		public String default_;
@@ -60,37 +62,39 @@ public class AnnotationPreset extends AbstractAction {
 
 		private JTextField value = new JTextField();
 
-		public void addToPanel(JPanel p) {
+		@Override public void addToPanel(JPanel p) {
 			value.setText(default_ == null ? "" : default_);
 			p.add(new JLabel(text), GBC.std().insets(0,0,10,0));
 			p.add(value, GBC.eol().fill(GBC.HORIZONTAL));
 		}
-		public void addCommands(Collection<OsmPrimitive> sel, List<Command> cmds) {
+		@Override public void addCommands(Collection<OsmPrimitive> sel, List<Command> cmds) {
 			String v = value.getText();
 			if (delete_if_empty && v.length() == 0)
 				v = null;
 			cmds.add(new ChangePropertyCommand(sel, key, v));
 		}
+		@Override boolean requestFocusInWindow() {return value.requestFocusInWindow();}
 	}
 
-	public static class Check implements Item {
+	public static class Check extends Item {
 		public String key;
 		public String text;
 		public boolean default_ = false;
 		
 		private JCheckBox check = new JCheckBox();
 
-		public void addToPanel(JPanel p) {
+		@Override public void addToPanel(JPanel p) {
 			check.setSelected(default_);
 			check.setText(text);
 			p.add(check, GBC.eol().fill(GBC.HORIZONTAL));
 		}
-		public void addCommands(Collection<OsmPrimitive> sel, List<Command> cmds) {
+		@Override public void addCommands(Collection<OsmPrimitive> sel, List<Command> cmds) {
 			cmds.add(new ChangePropertyCommand(sel, key, check.isSelected() ? "true" : null));
 		}
+		@Override boolean requestFocusInWindow() {return check.requestFocusInWindow();}
 	}
 
-	public static class Combo implements Item {
+	public static class Combo extends Item {
 		public String key;
 		public String text;
 		public String values;
@@ -101,37 +105,38 @@ public class AnnotationPreset extends AbstractAction {
 
 		private JComboBox combo;
 
-		public void addToPanel(JPanel p) {
+		@Override public void addToPanel(JPanel p) {
 			combo = new JComboBox((display_values != null ? display_values : values).split(","));
 			combo.setEditable(editable);
 			combo.setSelectedItem(default_);
 			p.add(new JLabel(text), GBC.std().insets(0,0,10,0));
 			p.add(combo, GBC.eol().fill(GBC.HORIZONTAL));
 		}
-		public void addCommands(Collection<OsmPrimitive> sel, List<Command> cmds) {
+		@Override public void addCommands(Collection<OsmPrimitive> sel, List<Command> cmds) {
 			String v = combo.getSelectedIndex() == -1 ? null : values.split(",")[combo.getSelectedIndex()];
 			String str = combo.isEditable()?combo.getEditor().getItem().toString() : v;
 			if (delete_if_empty && str != null && str.length() == 0)
 				str = null;
 			cmds.add(new ChangePropertyCommand(sel, key, str));
 		}
+		@Override boolean requestFocusInWindow() {return combo.requestFocusInWindow();}
 	}
 
-	public static class Label implements Item {
+	public static class Label extends Item {
 		public String text;
 
-		public void addToPanel(JPanel p) {
+		@Override public void addToPanel(JPanel p) {
 			p.add(new JLabel(text), GBC.eol());
 		}
-		public void addCommands(Collection<OsmPrimitive> sel, List<Command> cmds) {}
+		@Override public void addCommands(Collection<OsmPrimitive> sel, List<Command> cmds) {}
 	}
 
-	public static class Key implements Item {
+	public static class Key extends Item {
 		public String key;
 		public String value;
 
-		public void addToPanel(JPanel p) {}
-		public void addCommands(Collection<OsmPrimitive> sel, List<Command> cmds) {
+		@Override public void addToPanel(JPanel p) {}
+		@Override public void addCommands(Collection<OsmPrimitive> sel, List<Command> cmds) {
 			cmds.add(new ChangePropertyCommand(sel, key, value != null && !value.equals("") ? value : null));
 		}
 	}
@@ -251,11 +256,24 @@ public class AnnotationPreset extends AbstractAction {
 		JPanel p = createPanel();
 		if (p == null)
 			return;
-		int answer;
-		if (p.getComponentCount() == 0)
-			answer = JOptionPane.OK_OPTION;
-		else
-			answer = JOptionPane.showConfirmDialog(Main.parent, p, trn("Change {0} object", "Change {0} objects", sel.size(), sel.size()), JOptionPane.OK_CANCEL_OPTION);
+		int answer = JOptionPane.OK_OPTION;
+		if (p.getComponentCount() != 0) {
+			final JOptionPane optionPane = new JOptionPane(p, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION){
+				@Override public void selectInitialValue() {
+					for (Item i : data) {
+						if (i.focus) {
+							System.out.println(i.requestFocusInWindow());
+							return;
+						}
+					}
+				}
+			};
+			optionPane.createDialog(Main.parent, trn("Change {0} object", "Change {0} objects", sel.size(), sel.size())).setVisible(true);
+			Object answerObj = optionPane.getValue();
+			if (answerObj == null || answerObj == JOptionPane.UNINITIALIZED_VALUE ||
+					(answerObj instanceof Integer && (Integer)answerObj != JOptionPane.OK_OPTION))
+				answer = JOptionPane.CANCEL_OPTION;
+		}
 		if (answer == JOptionPane.OK_OPTION) {
 			Command cmd = createCommand(Main.ds.getSelected());
 			if (cmd != null)

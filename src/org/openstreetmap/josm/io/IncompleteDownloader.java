@@ -44,6 +44,7 @@ public class IncompleteDownloader extends OsmServerReader {
 	}
 
 	public void parse() throws SAXException, IOException {
+		Main.pleaseWaitDlg.currentAction.setText(tr("Downloading incomplete ways..."));
 		Main.pleaseWaitDlg.progress.setMaximum(toDownload.size());
 		Main.pleaseWaitDlg.progress.setValue(0);
 		int i = 0;
