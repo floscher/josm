@@ -97,7 +97,7 @@ public class SimplePaintVisitor implements Visitor {
 	/**
 	 * Draw an number of the order of the segment within the parents way
 	 */
-	private void drawOrderNumber(Segment ls, int orderNumber) {
+	protected void drawOrderNumber(Segment ls, int orderNumber) {
 		int strlen = (""+orderNumber).length();
 		Point p1 = nc.getPoint(ls.from.eastNorth);
 		Point p2 = nc.getPoint(ls.to.eastNorth);

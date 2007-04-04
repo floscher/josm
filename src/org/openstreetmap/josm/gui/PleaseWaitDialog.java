@@ -1,5 +1,6 @@
 package org.openstreetmap.josm.gui;
 
+import java.awt.Component;
 import java.awt.GridBagLayout;
 
 import javax.swing.BorderFactory;
@@ -23,8 +24,8 @@ public class PleaseWaitDialog extends JDialog {
 	public final BoundedRangeModel progress = progressBar.getModel();
 	public final JButton cancel = new JButton(I18n.tr("Cancel"));
 
-	public PleaseWaitDialog() {
-		super(JOptionPane.getFrameForComponent(Main.parent), true);
+	public PleaseWaitDialog(Component parent) {
+		super(JOptionPane.getFrameForComponent(parent), true);
 		setLayout(new GridBagLayout());
 		JPanel pane = new JPanel(new GridBagLayout());
 		pane.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));

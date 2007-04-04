@@ -327,10 +327,14 @@ abstract public class Main {
 		if (bounds == null)
 			bounds = !args.containsKey("no-fullscreen") ? new Rectangle(0,0,screenDimension.width,screenDimension.height) : new Rectangle(1000,740);
 
-			pleaseWaitDlg = new PleaseWaitDialog();
+			// preinitialize a wait dialog for all early downloads (e.g. via command line)
+			pleaseWaitDlg = new PleaseWaitDialog(null);
 	}
 
 	public void postConstructorProcessCmdLine(Map<String, Collection<String>> args) {
+		// initialize the pleaseWaitDialog with the application as parent to handle focus stuff
+		pleaseWaitDlg = new PleaseWaitDialog(parent);
+
 		if (args.containsKey("download"))
 			for (String s : args.get("download"))
 				downloadFromParamString(false, s);

@@ -29,7 +29,7 @@ public class IncompleteDownloaderTest extends MotherObject {
             }
 		};
 
-		Main.pleaseWaitDlg = new PleaseWaitDialog();
+		Main.pleaseWaitDlg = new PleaseWaitDialog(null);
 
 		downloader.parse();
 
