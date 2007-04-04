@@ -1,5 +1,6 @@
 package org.openstreetmap.josm.gui.layer.markerlayer;
 
+import java.io.File;
 import java.util.Map;
 
 import org.openstreetmap.josm.data.coor.LatLon;
@@ -19,7 +20,9 @@ public interface MarkerProducers {
 	 * 
 	 * @param ll lat/lon for the marker position
 	 * @param data A map of all tags found in the <wpt> node of the gpx file. 
+	 * @param relativePath An path to use for constructing relative URLs or 
+	 *        <code>null</code> for no relative URLs
 	 * @return A Marker object, or <code>null</code>.
 	 */
-	public Marker createMarker(LatLon ll, Map<String,String> data);
+	public Marker createMarker(LatLon ll, Map<String,String> data, File relativePath);
 }

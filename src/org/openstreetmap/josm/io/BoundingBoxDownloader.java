@@ -48,7 +48,7 @@ public class BoundingBoxDownloader extends OsmServerReader {
     			if (in == null)
     				break;
     			// Use only track points, since the server mix everything together 
-    			Collection<Collection<GpsPoint>> allWays = new RawGpsReader(in).trackData;
+    			Collection<Collection<GpsPoint>> allWays = new RawGpsReader(in, null).trackData;
 
     			boolean foundSomething = false;
     			for (Collection<GpsPoint> t : allWays) {
@@ -69,7 +69,7 @@ public class BoundingBoxDownloader extends OsmServerReader {
     		// caused by HttpUrlConnection in case of illegal stuff in the response
     		if (cancel)
     			return null;
-    		throw e;
+    		throw new SAXException("Illegal characters within the HTTP-header response", e);
     	} catch (IOException e) {
     		if (cancel)
     			return null;
