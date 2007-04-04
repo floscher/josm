@@ -33,9 +33,9 @@ public class RawCsvReader {
 	public Collection<GpsPoint> parse() throws SAXException, IOException {
 		Collection<GpsPoint> data = new LinkedList<GpsPoint>();
 		String formatStr = Main.pref.get("csv.importstring");
-		if (formatStr == null)
+		if (formatStr == null || formatStr.equals(""))
 			formatStr = in.readLine();
-		if (formatStr == null)
+		if (formatStr == null || formatStr.equals(""))
 			throw new SAXException(tr("Could not detect data format string."));
 
 		// get delimiter

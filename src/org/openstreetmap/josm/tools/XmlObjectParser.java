@@ -114,6 +114,7 @@ public class XmlObjectParser implements Iterable<Object> {
 					}
 				}
 			} catch (Exception e) {
+				e.printStackTrace(); // !"§%$!"§ SAXException does not dump inner exceptions.
 				throw new SAXException(e);
 			}
 		}
