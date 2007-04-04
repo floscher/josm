@@ -22,9 +22,9 @@ public class DeleteCommand extends Command {
 	/**
 	 * The primitive that get deleted.
 	 */
-	private final Collection<OsmPrimitive> data;
+	private final Collection<? extends OsmPrimitive> data;
 
-	public DeleteCommand(Collection<OsmPrimitive> data) {
+	public DeleteCommand(Collection<? extends OsmPrimitive> data) {
 		this.data = data;
 	}
 

@@ -10,6 +10,7 @@ import javax.swing.JMenuBar;
 import org.openstreetmap.josm.actions.AboutAction;
 import org.openstreetmap.josm.actions.AlignInCircleAction;
 import org.openstreetmap.josm.actions.AlignInLineAction;
+import org.openstreetmap.josm.actions.CombineWayAction;
 import org.openstreetmap.josm.actions.DownloadAction;
 import org.openstreetmap.josm.actions.DownloadIncompleteAction;
 import org.openstreetmap.josm.actions.ExitAction;
@@ -50,6 +51,7 @@ public class MainMenu extends JMenuBar {
 	public final DownloadAction download = new DownloadAction();
 	public final Action reverseSegment = new ReverseSegmentAction();
 	public final Action splitWay = new SplitWayAction();
+	public final Action combineWay = new CombineWayAction();
 	public final Action alignInCircle = new AlignInCircleAction();
 	public final Action alignInLine = new AlignInLineAction();
 	public final Action reorder = new ReorderAction();
@@ -61,14 +63,14 @@ public class MainMenu extends JMenuBar {
 	public final Action preferences = new PreferencesAction();
 	public final HelpAction help = new HelpAction();
 	public final Action about = new AboutAction();
+	public final DownloadIncompleteAction downloadIncomplete = new DownloadIncompleteAction();
 
 	public final JMenu layerMenu = new JMenu(tr("Layer"));
 	public final JMenu editMenu = new JMenu(tr("Edit"));
 	public final JMenu helpMenu = new JMenu(tr("Help"));
 	public final JMenu fileMenu = new JMenu(tr("Files"));
 	public final JMenu connectionMenu = new JMenu(tr("Connection"));
-	private DownloadIncompleteAction downloadIncomplete = new DownloadIncompleteAction();
-
+	public final JMenu toolsMenu = new JMenu(tr("Tools"));
 
 
 	public MainMenu() {
@@ -91,14 +93,19 @@ public class MainMenu extends JMenuBar {
 		editMenu.addSeparator();
 		editMenu.add(search);
 		editMenu.addSeparator();
-		editMenu.add(reverseSegment);
-		editMenu.add(splitWay);
-		editMenu.add(alignInCircle);
-		editMenu.add(alignInLine);
-		editMenu.add(reorder);
-		editMenu.addSeparator();
 		editMenu.add(preferences);
 		add(editMenu);
+
+		toolsMenu.setMnemonic('T');
+		toolsMenu.add(alignInCircle);
+		toolsMenu.add(alignInLine);
+		toolsMenu.addSeparator();
+		toolsMenu.add(reverseSegment);
+		toolsMenu.add(reorder);
+		toolsMenu.addSeparator();
+		toolsMenu.add(splitWay);
+		toolsMenu.add(combineWay);
+		add(toolsMenu);
 
 		connectionMenu.setMnemonic('C');
 		connectionMenu.add(download);
