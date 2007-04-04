@@ -57,7 +57,8 @@ abstract public class MapMode extends JosmAction implements MouseListener, Mouse
 	 * Call selectMapMode(this) on the parent mapFrame.
 	 */
 	public void actionPerformed(ActionEvent e) {
-		Main.map.selectMapMode(this);
+		if (Main.map != null)
+			Main.map.selectMapMode(this);
 	}
 
 	public void mouseReleased(MouseEvent e) {}

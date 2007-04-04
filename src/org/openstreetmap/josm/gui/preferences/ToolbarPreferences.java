@@ -251,6 +251,12 @@ public class ToolbarPreferences implements PreferenceSetting {
 		return action;
 	}
 
+	/**
+	 * Parse the toolbar preference setting and construct the toolbar GUI control.
+	 * 
+	 * Call this, if anything has changed in the toolbar settings and you want to refresh 
+	 * the toolbar content (e.g. after registering actions in a plugin)
+	 */
 	public void refreshToolbarControl() {
 		control.removeAll();
 		for (String s : getToolString()) {

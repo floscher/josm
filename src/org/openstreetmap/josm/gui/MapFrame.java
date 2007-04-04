@@ -32,6 +32,7 @@ import org.openstreetmap.josm.gui.dialogs.LayerListDialog;
 import org.openstreetmap.josm.gui.dialogs.PropertiesDialog;
 import org.openstreetmap.josm.gui.dialogs.SelectionListDialog;
 import org.openstreetmap.josm.gui.dialogs.ToggleDialog;
+import org.openstreetmap.josm.tools.Destroyable;
 
 /**
  * One Map frame with one dataset behind. This is the container gui class whose
@@ -39,7 +40,7 @@ import org.openstreetmap.josm.gui.dialogs.ToggleDialog;
  * 
  * @author imi
  */
-public class MapFrame extends JPanel {
+public class MapFrame extends JPanel implements Destroyable {
 
 	/**
 	 * The current mode, this frame operates.
@@ -133,6 +134,16 @@ public class MapFrame extends JPanel {
 		if (!Main.applet)
 	        statusLine = new MapStatus(this);
 	}
+
+	/**
+	 * Called as some kind of destructor when the last layer has been removed.
+	 * Delegates the call to all Destroyables within this component (e.g. MapModes)
+	 */
+	public void destroy() {
+		for (int i = 0; i < toolBarActions.getComponentCount(); ++i)
+			if (toolBarActions.getComponent(i) instanceof Destroyable)
+				((Destroyable)toolBarActions).destroy();
+    }
 
 	public Action getDefaultButtonAction() {
 		return ((AbstractButton)toolBarActions.getComponent(0)).getAction();
