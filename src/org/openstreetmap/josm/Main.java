@@ -135,7 +135,8 @@ abstract public class Main {
 			});
 			if (map.mapView.editLayer != null)
 				map.mapView.editLayer.listenerCommands.add(redoUndoListener);
-		}
+		} else
+			old.destroy();
 		redoUndoListener.commandChanged(0,0);
 
 		for (PluginProxy plugin : plugins)

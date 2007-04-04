@@ -8,6 +8,7 @@ import javax.swing.Icon;
 
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.gui.MapView;
+import org.openstreetmap.josm.tools.Destroyable;
 
 /**
  * A layer encapsulates the gui componente of one dataset and its representation.
@@ -24,7 +25,7 @@ import org.openstreetmap.josm.gui.MapView;
  * 
  * @author imi
  */
-abstract public class Layer {
+abstract public class Layer implements Destroyable {
 
 	/**
 	 * The visibility state of the layer.
