@@ -4,6 +4,7 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -15,6 +16,8 @@ import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.tools.ImageProvider;
+
+import com.sun.org.apache.xerces.internal.util.URI;
 
 /**
  * Basic marker class. Requires a position, and supports 
@@ -67,8 +70,13 @@ public class Marker implements ActionListener {
 	// Add one Maker specifying the default behaviour.
 	static {
 		Marker.markerProducers.add(new MarkerProducers() {
-			public Marker createMarker(LatLon ll, Map<String,String> data) {
+			public Marker createMarker(LatLon ll, Map<String,String> data, File relativePath) {
 				String link = data.get("link");
+
+				// Try a relative file:// url, if the link is not in an URL-compatible form
+				if (relativePath != null && !URI.isWellFormedAddress(link))
+					link = new File(relativePath, link).toURI().toString();
+
 				if (link == null)
 					return new Marker(ll, data.get("name"), data.get("symbol"));
 				if (link.endsWith(".wav"))
@@ -137,11 +145,13 @@ public class Marker implements ActionListener {
 	 *
 	 * @param ll lat/lon for marker
 	 * @param data hash containing keys and values from the GPX waypoint structure
+	 * @param relativePath An path to use for constructing relative URLs or 
+	 *        <code>null</code> for no relative URLs
 	 * @return a new Marker object
 	 */
-	public static Marker createMarker(LatLon ll, HashMap<String,String> data) {
+	public static Marker createMarker(LatLon ll, HashMap<String,String> data, File relativePath) {
 		for (MarkerProducers maker : Marker.markerProducers) {
-			Marker marker = maker.createMarker(ll, data);
+			Marker marker = maker.createMarker(ll, data, relativePath);
 			if (marker != null)
 				return marker;
 		}

@@ -61,7 +61,7 @@ public class OpenAction extends DiskAccessAction {
 				Collection<Collection<GpsPoint>> gpsData = null;
 				Collection<Marker> markerData = null;
 				if (ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn)) {
-					RawGpsReader r = new RawGpsReader(new FileInputStream(file));
+					RawGpsReader r = new RawGpsReader(new FileInputStream(file), file.getAbsoluteFile().getParentFile());
 					gpsData = r.trackData;
 					markerData = r.markerData;
 				} else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {

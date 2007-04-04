@@ -2,6 +2,7 @@ package org.openstreetmap.josm.io;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -14,6 +15,7 @@ import java.util.Stack;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
 import org.openstreetmap.josm.gui.layer.markerlayer.Marker;
+import org.openstreetmap.josm.gui.layer.markerlayer.MarkerProducers;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -25,6 +27,12 @@ import uk.co.wilson.xml.MinML2;
  * @author imi
  */
 public class RawGpsReader {
+
+	/**
+	 * The relative path when constructing markers from wpt-tags. Passed to 
+	 * {@link MarkerProducers#createMarker(LatLon, java.util.Map, String)}
+	 */
+	private File relativeMarkerPath;
 
 	/**
 	 * Hold the resulting gps data (tracks and their track points)
@@ -89,7 +97,7 @@ public class RawGpsReader {
 				current.add(new GpsPoint(currentLatLon, currentTagValues.get("time")));
 				currentTagValues.clear();
 			} else if (qName.equals("wpt")) {
-				markerData.add(Marker.createMarker(currentLatLon, currentTagValues));
+				markerData.add(Marker.createMarker(currentLatLon, currentTagValues, relativeMarkerPath));
 				currentTagValues.clear();
 			} else if (qName.equals("trkseg") || qName.equals("trk") || qName.equals("gpx")) {
 				newTrack();
@@ -106,11 +114,14 @@ public class RawGpsReader {
 		}
 	}
 
-
 	/**
-	 * Parse the input stream and store the result in trackData and markerData 
+	 * Parse the input stream and store the result in trackData and markerData
+	 * 
+	 * @param relativeMarkerPath The directory to use as relative path for all &lt;wpt&gt; 
+	 *    marker tags. Maybe <code>null</code>, in which case no relative urls are constructed for the markers. 
 	 */
-	public RawGpsReader(InputStream source) throws SAXException, IOException {
+	public RawGpsReader(InputStream source, File relativeMarkerPath) throws SAXException, IOException {
+		this.relativeMarkerPath = relativeMarkerPath;
 		Parser parser = new Parser();
 		parser.parse(new InputStreamReader(source, "UTF-8"));
 	}
