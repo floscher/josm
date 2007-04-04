@@ -336,4 +336,17 @@ public class MergeVisitorTest extends TestCase {
 		assertEquals(date, ds.nodes.iterator().next().timestamp);
 		assertFalse(ds.nodes.iterator().next().modified);
 	}
+	
+	public void testMergeTwoIncompleteWaysMergesSecondAsWell() throws Exception {
+		DataSet ds = new DataSet();
+		Segment s1 = new Segment(23);
+		Segment s2 = new Segment(42);
+		
+		MergeVisitor v = new MergeVisitor(ds);
+		v.visit(s1);
+		v.visit(s2);
+		
+		assertEquals(2, ds.segments.size());
+		assertEquals(23, ds.segments.iterator().next().id);
+	}
 }
