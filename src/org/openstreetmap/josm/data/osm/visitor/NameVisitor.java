@@ -79,19 +79,17 @@ public class NameVisitor implements Visitor {
 		name = w.get("name");
 		if (name == null) {
 			AllNodesVisitor.getAllNodes(w.segments);
-			boolean incomplete = false;
 			Set<Node> nodes = new HashSet<Node>();
 			for (Segment ls : w.segments) {
 				if (!ls.incomplete) {
 					nodes.add(ls.from);
 					nodes.add(ls.to);
-				} else
-					incomplete = true;
+				}
 			}
 			name = trn("{0} node", "{0} nodes", nodes.size(), nodes.size());
-			if (incomplete)
-				name += " ("+tr("incomplete")+")";
 		}
+		if (w.isIncomplete())
+			name += " ("+tr("incomplete")+")";
 		addId(w);
 		icon = ImageProvider.get("data", "way");
 		trn("way", "ways", 0); // no marktrn available

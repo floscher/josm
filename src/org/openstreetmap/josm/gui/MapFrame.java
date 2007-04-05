@@ -3,10 +3,6 @@ package org.openstreetmap.josm.gui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import javax.swing.AbstractButton;
 import javax.swing.Action;
@@ -16,7 +12,6 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.actions.AutoScaleAction;
 import org.openstreetmap.josm.actions.mapmode.AddSegmentAction;
 import org.openstreetmap.josm.actions.mapmode.AddWayAction;
 import org.openstreetmap.josm.actions.mapmode.DeleteAction;
@@ -80,8 +75,10 @@ public class MapFrame extends JPanel implements Destroyable {
 		setSize(400,400);
 		setLayout(new BorderLayout());
 
-		final AutoScaleAction autoScaleAction = new AutoScaleAction(this);
-		add(mapView = new MapView(autoScaleAction), BorderLayout.CENTER);
+		add(mapView = new MapView(), BorderLayout.CENTER);
+
+		// show menu entry
+		Main.main.menu.viewMenu.setVisible(true);
 
 		// toolbar
 		toolBarActions.setFloatable(false);
@@ -97,29 +94,9 @@ public class MapFrame extends JPanel implements Destroyable {
 		for (Component c : toolBarActions.getComponents())
 			toolGroup.add((AbstractButton)c);
 		toolGroup.setSelected(((AbstractButton)toolBarActions.getComponent(0)).getModel(), true);
-
-		// autoScale
+		
 		toolBarActions.addSeparator();
-		final IconToggleButton autoScaleButton = new IconToggleButton(autoScaleAction);
-		toolBarActions.add(autoScaleButton);
-		autoScaleButton.setText(null);
-		autoScaleButton.setSelected(mapView.isAutoScale());
-		autoScaleAction.putValue("active", true);
-		mapView.addPropertyChangeListener(new PropertyChangeListener(){
-			public void propertyChange(PropertyChangeEvent evt) {
-				if (evt.getPropertyName().equals("autoScale")) {
-					autoScaleAction.putValue("active", evt.getNewValue());
-					autoScaleButton.setSelected((Boolean)evt.getNewValue());
-				}
-			}
-		});
-		autoScaleButton.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e) {
-				if (!autoScaleButton.groupbutton)
-					autoScaleButton.setSelected(true);
-			}
-		});
-
+		
 		add(toggleDialogs, BorderLayout.EAST);
 		toggleDialogs.setLayout(new BoxLayout(toggleDialogs, BoxLayout.Y_AXIS));
 
@@ -143,6 +120,9 @@ public class MapFrame extends JPanel implements Destroyable {
 		for (int i = 0; i < toolBarActions.getComponentCount(); ++i)
 			if (toolBarActions.getComponent(i) instanceof Destroyable)
 				((Destroyable)toolBarActions).destroy();
+		
+		// remove menu entries
+		Main.main.menu.viewMenu.setVisible(false);
     }
 
 	public Action getDefaultButtonAction() {

@@ -15,7 +15,6 @@ import java.util.LinkedList;
 import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.actions.AutoScaleAction;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.SelectionChangedListener;
 import org.openstreetmap.josm.data.coor.EastNorth;
@@ -54,11 +53,6 @@ public class MapView extends NavigatableComponent {
 	}
 
 	/**
-	 * Whether to adjust the scale property on every resize.
-	 */
-	private boolean autoScale = true;
-
-	/**
 	 * A list of all layers currently loaded.
 	 */
 	private ArrayList<Layer> layers = new ArrayList<Layer>();
@@ -75,16 +69,14 @@ public class MapView extends NavigatableComponent {
 	 */
 	private Collection<LayerChangeListener> listeners = new LinkedList<LayerChangeListener>();
 
-	private final AutoScaleAction autoScaleAction;
-
-
-	public MapView(AutoScaleAction autoScaleAction) {
-		this.autoScaleAction = autoScaleAction;
+	public MapView() {
 		addComponentListener(new ComponentAdapter(){
 			@Override public void componentResized(ComponentEvent e) {
-				recalculateCenterScale();
+				recalculateCenterScale(null);
+				removeComponentListener(this);
 			}
 		});
+
 		new MapMover(this, true);
 
 		// listend to selection changes to redraw the map
@@ -112,8 +104,6 @@ public class MapView extends NavigatableComponent {
 			final OsmDataLayer dataLayer = (OsmDataLayer)layer;
 			if (editLayer != null) {
 				editLayer.mergeFrom(layer);
-				if (autoScale)
-					recalculateCenterScale();
 				repaint();
 				return;
 			}
@@ -203,63 +193,39 @@ public class MapView extends NavigatableComponent {
 	}
 
 	/**
-	 * @return Returns the autoScale.
-	 */
-	public boolean isAutoScale() {
-		return autoScale;
-	}
-
-	/**
-	 * @param autoScale The autoScale to set.
-	 */
-	public void setAutoScale(boolean autoScale) {
-		if (this.autoScale != autoScale) {
-			this.autoScale = autoScale;
-			firePropertyChange("autoScale", !autoScale, autoScale);
-			recalculateCenterScale();
-		}
-	}
-	/**
 	 * Set the new dimension to the projection class. Also adjust the components
 	 * scale, if in autoScale mode.
 	 */
-	public void recalculateCenterScale() {
-		if (autoScale) {
-			// -20 to leave some border
-			int w = getWidth()-20;
-			if (w < 20)
-				w = 20;
-			int h = getHeight()-20;
-			if (h < 20)
-				h = 20;
+	public void recalculateCenterScale(BoundingXYVisitor box) {
+		// -20 to leave some border
+		int w = getWidth()-20;
+		if (w < 20)
+			w = 20;
+		int h = getHeight()-20;
+		if (h < 20)
+			h = 20;
 
-			BoundingXYVisitor v = autoScaleAction.getBoundingBox();
+		EastNorth oldCenter = center;
+		double oldScale = this.scale;
 
-			boolean oldAutoScale = autoScale;
-			EastNorth oldCenter = center;
-			double oldScale = this.scale;
-
-			if (v.min == null || v.max == null || v.min.equals(v.max)) {
-				// no bounds means whole world
-				center = getProjection().latlon2eastNorth(new LatLon(0,0));
-				EastNorth world = getProjection().latlon2eastNorth(new LatLon(Projection.MAX_LAT,Projection.MAX_LON));
-				double scaleX = world.east()*2/w;
-				double scaleY = world.north()*2/h;
-				scale = Math.max(scaleX, scaleY); // minimum scale to see all of the screen
-			} else {
-				center = new EastNorth(v.min.east()/2+v.max.east()/2, v.min.north()/2+v.max.north()/2);
-				double scaleX = (v.max.east()-v.min.east())/w;
-				double scaleY = (v.max.north()-v.min.north())/h;
-				scale = Math.max(scaleX, scaleY); // minimum scale to see all of the screen
-			}
-
-			if (!center.equals(oldCenter))
-				firePropertyChange("center", oldCenter, center);
-			if (oldAutoScale != autoScale)
-				firePropertyChange("autoScale", oldAutoScale, autoScale);
-			if (oldScale != scale)
-				firePropertyChange("scale", oldScale, scale);
+		if (box == null || box.min == null || box.max == null || box.min.equals(box.max)) {
+			// no bounds means whole world
+			center = getProjection().latlon2eastNorth(new LatLon(0,0));
+			EastNorth world = getProjection().latlon2eastNorth(new LatLon(Projection.MAX_LAT,Projection.MAX_LON));
+			double scaleX = world.east()*2/w;
+			double scaleY = world.north()*2/h;
+			scale = Math.max(scaleX, scaleY); // minimum scale to see all of the screen
+		} else {
+			center = new EastNorth(box.min.east()/2+box.max.east()/2, box.min.north()/2+box.max.north()/2);
+			double scaleX = (box.max.east()-box.min.east())/w;
+			double scaleY = (box.max.north()-box.min.north())/h;
+			scale = Math.max(scaleX, scaleY); // minimum scale to see all of the screen
 		}
+
+		if (!center.equals(oldCenter))
+			firePropertyChange("center", oldCenter, center);
+		if (oldScale != scale)
+			firePropertyChange("scale", oldScale, scale);
 		repaint();
 	}
 
@@ -295,11 +261,9 @@ public class MapView extends NavigatableComponent {
 			throw new IllegalArgumentException("Layer must be in layerlist");
 		Layer old = activeLayer;
 		activeLayer = layer;
-		if (old != layer) {
+		if (old != layer)
 			for (LayerChangeListener l : listeners)
 				l.activeLayerChange(old, layer);
-			recalculateCenterScale();
-		}
 	}
 
 	/**
@@ -314,19 +278,11 @@ public class MapView extends NavigatableComponent {
 	 * feature.
 	 */
 	@Override public void zoomTo(EastNorth newCenter, double scale) {
-		boolean oldAutoScale = autoScale;
 		EastNorth oldCenter = center;
 		double oldScale = this.scale;
-		autoScale = false;
-
 		super.zoomTo(newCenter, scale);
-
-		recalculateCenterScale();
-
 		if ((oldCenter == null && center != null) || !oldCenter.equals(center))
 			firePropertyChange("center", oldCenter, center);
-		if (oldAutoScale != autoScale)
-			firePropertyChange("autoScale", oldAutoScale, autoScale);
 		if (oldScale != scale)
 			firePropertyChange("scale", oldScale, scale);
 	}

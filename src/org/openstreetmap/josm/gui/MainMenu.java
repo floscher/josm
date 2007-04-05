@@ -10,6 +10,7 @@ import javax.swing.JMenuBar;
 import org.openstreetmap.josm.actions.AboutAction;
 import org.openstreetmap.josm.actions.AlignInCircleAction;
 import org.openstreetmap.josm.actions.AlignInLineAction;
+import org.openstreetmap.josm.actions.AutoScaleAction;
 import org.openstreetmap.josm.actions.CombineWayAction;
 import org.openstreetmap.josm.actions.DownloadAction;
 import org.openstreetmap.josm.actions.DownloadIncompleteAction;
@@ -64,13 +65,16 @@ public class MainMenu extends JMenuBar {
 	public final HelpAction help = new HelpAction();
 	public final Action about = new AboutAction();
 	public final DownloadIncompleteAction downloadIncomplete = new DownloadIncompleteAction();
-
+	
 	public final JMenu layerMenu = new JMenu(tr("Layer"));
 	public final JMenu editMenu = new JMenu(tr("Edit"));
+	public final JMenu viewMenu = new JMenu(tr("View"));
 	public final JMenu helpMenu = new JMenu(tr("Help"));
 	public final JMenu fileMenu = new JMenu(tr("Files"));
 	public final JMenu connectionMenu = new JMenu(tr("Connection"));
 	public final JMenu toolsMenu = new JMenu(tr("Tools"));
+
+	public final JMenu zoomToMenu = new JMenu(tr("Zoom To"));
 
 
 	public MainMenu() {
@@ -95,6 +99,13 @@ public class MainMenu extends JMenuBar {
 		editMenu.addSeparator();
 		editMenu.add(preferences);
 		add(editMenu);
+		
+		viewMenu.setMnemonic('V');
+		viewMenu.setVisible(false);
+		viewMenu.add(zoomToMenu);
+		for (String mode : AutoScaleAction.modes)
+			zoomToMenu.add(new AutoScaleAction(mode));
+		add(viewMenu);
 
 		toolsMenu.setMnemonic('T');
 		toolsMenu.add(alignInCircle);

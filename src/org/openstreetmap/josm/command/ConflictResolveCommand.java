@@ -54,7 +54,6 @@ public class ConflictResolveCommand extends Command {
 			for (OsmPrimitive k : completed)
 				conflictDialog.conflicts.remove(k);
 			conflictDialog.rebuildList();
-			Main.map.mapView.recalculateCenterScale(); // in case of auto-zoom
  		}
 	}
 
