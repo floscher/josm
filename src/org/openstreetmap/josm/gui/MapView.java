@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.actions.AutoScaleAction;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.SelectionChangedListener;
 import org.openstreetmap.josm.data.coor.EastNorth;
@@ -72,7 +73,7 @@ public class MapView extends NavigatableComponent {
 	public MapView() {
 		addComponentListener(new ComponentAdapter(){
 			@Override public void componentResized(ComponentEvent e) {
-				recalculateCenterScale(null);
+				new AutoScaleAction("data").actionPerformed(null);
 				removeComponentListener(this);
 			}
 		});

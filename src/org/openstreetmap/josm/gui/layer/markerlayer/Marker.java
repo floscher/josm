@@ -74,7 +74,7 @@ public class Marker implements ActionListener {
 				String link = data.get("link");
 
 				// Try a relative file:// url, if the link is not in an URL-compatible form
-				if (relativePath != null && !URI.isWellFormedAddress(link))
+				if (relativePath != null && link != null && !URI.isWellFormedAddress(link))
 					link = new File(relativePath, link).toURI().toString();
 
 				if (link == null)

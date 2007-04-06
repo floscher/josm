@@ -20,6 +20,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.plugins.PluginException;
 import org.openstreetmap.josm.plugins.PluginInformation;
 import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.UrlLabel;
@@ -35,9 +36,14 @@ public class PluginPreference implements PreferenceSetting {
 		File[] pluginFiles = new File(Main.pref.getPreferencesDir()+"plugins").listFiles();
 		if (pluginFiles != null) {
 			Arrays.sort(pluginFiles);
-			for (File f : pluginFiles)
-				if (f.isFile() && f.getName().endsWith(".jar"))
-					availablePlugins.add(new PluginInformation(f));
+			for (File f : pluginFiles) {
+				if (f.isFile() && f.getName().endsWith(".jar")) {
+					try {
+	                    availablePlugins.add(new PluginInformation(f));
+                    } catch (PluginException x) {
+                    }
+				}
+			}
 		}
 
 		Collection<String> enabledPlugins = Arrays.asList(Main.pref.get("plugins").split(","));

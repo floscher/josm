@@ -97,7 +97,9 @@ public class RawGpsReader {
 				current.add(new GpsPoint(currentLatLon, currentTagValues.get("time")));
 				currentTagValues.clear();
 			} else if (qName.equals("wpt")) {
-				markerData.add(Marker.createMarker(currentLatLon, currentTagValues, relativeMarkerPath));
+				Marker m = Marker.createMarker(currentLatLon, currentTagValues, relativeMarkerPath);
+				if (m != null)
+					markerData.add(m);
 				currentTagValues.clear();
 			} else if (qName.equals("trkseg") || qName.equals("trk") || qName.equals("gpx")) {
 				newTrack();
