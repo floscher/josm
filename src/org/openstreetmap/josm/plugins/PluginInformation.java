@@ -53,6 +53,8 @@ public class PluginInformation {
 		try {
 			JarInputStream jar = new JarInputStream(new FileInputStream(file));
 			Manifest manifest = jar.getManifest();
+			if (manifest == null)
+				throw new IOException(file+" contains no manifest.");
 			Attributes attr = manifest.getMainAttributes();
 			className = attr.getValue("Plugin-Class");
 			description = attr.getValue("Plugin-Description");
