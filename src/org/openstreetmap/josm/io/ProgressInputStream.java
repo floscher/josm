@@ -18,9 +18,23 @@ public class ProgressInputStream extends InputStream {
 	private final URLConnection connection;
 	private PleaseWaitDialog pleaseWaitDlg;
 
-	public ProgressInputStream(URLConnection con, PleaseWaitDialog pleaseWaitDlg) throws IOException {
+	public class OsmServerException extends IOException {
+		private OsmServerException(String e) {
+			super(e);
+		}
+	}
+
+	public ProgressInputStream(URLConnection con, PleaseWaitDialog pleaseWaitDlg) throws IOException, OsmServerException {
 		this.connection = con;
-		this.in = con.getInputStream();
+
+		try {
+			this.in = con.getInputStream();
+		} catch (IOException e) {
+			if (con.getHeaderField("Error") != null)
+				throw new OsmServerException(con.getHeaderField("Error"));
+			throw e;
+		}
+
 		int contentLength = con.getContentLength();
 		this.pleaseWaitDlg = pleaseWaitDlg;
 		if (pleaseWaitDlg == null)
