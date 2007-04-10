@@ -149,7 +149,6 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 	 * @param addBody <code>true</code>, if the whole primitive body should be added.
 	 * 		<code>false</code>, if only the id is encoded.
 	 */
-	@SuppressWarnings("unchecked")
 	private void sendRequest(String requestMethod, String urlSuffix,
 			OsmPrimitive osm, boolean addBody) {
 		try {
@@ -182,6 +181,11 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 			if (retCode == 410 && requestMethod.equals("DELETE"))
 				return; // everything fine.. was already deleted.
 			if (retCode != 200) {
+				// Look for a detailed error message from the server
+				if (activeConnection.getHeaderField("Error") != null)
+					retMsg += "\n" + activeConnection.getHeaderField("Error");
+
+				// Report our error
 				ByteArrayOutputStream o = new ByteArrayOutputStream();
 				OsmWriter.output(o, new OsmWriter.Single(osm, true));
 				System.out.println(new String(o.toByteArray(), "UTF-8").toString());
