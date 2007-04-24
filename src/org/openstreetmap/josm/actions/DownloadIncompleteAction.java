@@ -38,7 +38,7 @@ public class DownloadIncompleteAction extends JosmAction {
 		private IncompleteDownloader reader;
 
 		private DownloadTask(Collection<Way> toDownload) {
-			super(trn("Downloading {0} segment", "Downloading {0} segments", toDownload.size(), toDownload.size()));
+			super(trn("Downloading {0} way", "Downloading {0} ways", toDownload.size(), toDownload.size()));
 			reader = new IncompleteDownloader(toDownload);
 		}
 
