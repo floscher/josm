@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.Collection;
+import java.util.ArrayList;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.DataSet;
@@ -18,6 +19,11 @@ import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.MergeVisitor;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+
+import javax.swing.JOptionPane;
+import org.openstreetmap.josm.command.ChangeCommand;
+import org.openstreetmap.josm.command.Command;
+import org.openstreetmap.josm.command.SequenceCommand;
 
 import uk.co.wilson.xml.MinML2;
 
@@ -47,10 +53,16 @@ public class IncompleteDownloader extends OsmServerReader {
 		Main.pleaseWaitDlg.currentAction.setText(tr("Downloading incomplete ways..."));
 		Main.pleaseWaitDlg.progress.setMaximum(toDownload.size());
 		Main.pleaseWaitDlg.progress.setValue(0);
+		ArrayList<Command> cmds = new ArrayList<Command>();
 		int i = 0;
 		try {
 			for (Way w : toDownload) {
-				download(w);
+				// if some of the way's segments fail to download and the user
+				// decides to delete them, the download method will return an
+				// "edit way" command.
+				Command cmd = download(w); 
+				if (cmd != null)
+					cmds.add(cmd);
 				Main.pleaseWaitDlg.progress.setValue(++i);
 			}
 		} catch (IOException e) {
@@ -62,6 +74,8 @@ public class IncompleteDownloader extends OsmServerReader {
 			if (!cancel)
 				throw (e instanceof RuntimeException) ? (RuntimeException)e : new RuntimeException(e);
 		}
+		if (cmds.size() > 0)
+			Main.main.editLayer().add(new SequenceCommand(tr("Fix data errors"), cmds));
 	}
 
 	private static class SegmentParser extends MinML2 {
@@ -74,18 +88,45 @@ public class IncompleteDownloader extends OsmServerReader {
 		}
 	}
 
-	private void download(Way w) throws IOException, SAXException {
+	/**
+	 * Downloads all missing segments from the given way. If segments fail do download, 
+	 * offers the user a chance to delete those segments from the way.
+	 * 
+	 * @param w way to complete
+	 * @return an "edit way" command if the user decided to delete segments
+	 * @throws IOException
+	 * @throws SAXException
+	 */
+	private Command download(Way w) throws IOException, SAXException {
 		// get all the segments
+		Way newway = null;
 		for (Segment s : w.segments) {
 			if (!s.incomplete)
 				continue;
 			BufferedReader segReader;
-		    try {
-		    	segReader = new BufferedReader(new InputStreamReader(getInputStream("segment/"+s.id, null), "UTF-8"));
-	        } catch (FileNotFoundException e) {
-		        e.printStackTrace();
-		        throw new IOException(tr("Data error: Segment {0} is deleted but part of Way {1}", s.id, w.id));
-	        }
+			try {
+				segReader = new BufferedReader(new InputStreamReader(getInputStream("segment/"+s.id, null), "UTF-8"));
+			} catch (FileNotFoundException e) {
+				Object[] options = {"Delete", "Ignore", "Abort"};
+				int n = JOptionPane.showOptionDialog(Main.parent,
+						tr("Segment {0} is deleted but part of Way {1}",s.id, w.id),
+						tr("Data error"),
+						JOptionPane.YES_NO_CANCEL_OPTION,
+						JOptionPane.ERROR_MESSAGE,
+						null, options, options[2]);
+				if (n == 0)
+				{
+					if( newway == null )
+						newway = new Way(w);
+					newway.segments.remove(s);
+				}
+				else if (n == 2)
+				{
+					e.printStackTrace();
+					throw new IOException(tr("Data error: Segment {0} is deleted but part of Way {1}", s.id, w.id));
+				}
+				continue;
+			}
 			StringBuilder segBuilder = new StringBuilder();
 			for (String line = segReader.readLine(); line != null; line = segReader.readLine())
 				segBuilder.append(line+"\n");
@@ -99,6 +140,9 @@ public class IncompleteDownloader extends OsmServerReader {
 				readNode(segmentParser.to, s.id).visit(merger);
 			readSegment(segBuilder.toString()).visit(merger);
 		}
+		if( newway != null )
+			return new ChangeCommand(w, newway);
+		return null;
 	}
 
 	private boolean hasNode(long id) {
