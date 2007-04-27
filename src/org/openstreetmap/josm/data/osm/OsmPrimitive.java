@@ -55,6 +55,13 @@ abstract public class OsmPrimitive implements Comparable<OsmPrimitive> {
 	public boolean deleted = false;
 
 	/**
+	 * <code>true</code>, if the object has been shown. This property is not used
+	 * internally by JOSM, but can be used by plugins that take over the object
+	 * rendering.
+	 */
+	public volatile boolean shown = false;
+
+	/**
 	 * If set to true, this object is currently selected.
 	 */
 	public volatile boolean selected = false;
