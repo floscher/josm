@@ -91,7 +91,7 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 				Main.ds.setSelected(way);
 				for (Segment seg : way.segments) {
 					if (seg.incomplete) {
-						JOptionPane.showMessageDialog(Main.parent,tr("Warning: This way is incomplete. Try to download it, before adding segments."));
+						JOptionPane.showMessageDialog(Main.parent,tr("Warning: This way is incomplete. Try to download it before adding segments."));
 						return;
 					}
 				}
@@ -139,7 +139,7 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 			Way way = (Way)selection.iterator().next();
 			for (Segment seg : way.segments) {
 				if (seg.incomplete) {
-					JOptionPane.showMessageDialog(Main.parent, tr("Warning: This way is incomplete. Try to download it, before adding segments."));
+					JOptionPane.showMessageDialog(Main.parent, tr("Warning: This way is incomplete. Try to download it before adding segments."));
 					break;
 				}
 			}
@@ -187,7 +187,8 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 		if (segmentSet.isEmpty())
 			return null;
 
-		LinkedList<Segment> sortedSegments = ReorderAction.sortSegments(segmentSet);
+		LinkedList<Segment> rawSegments = new LinkedList<Segment>(segmentSet);
+		LinkedList<Segment> sortedSegments = ReorderAction.sortSegments(rawSegments);
 
 		if (wayToAdd != null) {
 			Way w = new Way(wayToAdd);
