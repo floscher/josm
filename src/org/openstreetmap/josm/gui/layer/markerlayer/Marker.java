@@ -5,6 +5,8 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -16,8 +18,6 @@ import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.tools.ImageProvider;
-
-import com.sun.org.apache.xerces.internal.util.URI;
 
 /**
  * Basic marker class. Requires a position, and supports 
@@ -74,7 +74,7 @@ public class Marker implements ActionListener {
 				String link = data.get("link");
 
 				// Try a relative file:// url, if the link is not in an URL-compatible form
-				if (relativePath != null && link != null && !URI.isWellFormedAddress(link))
+				if (relativePath != null && link != null && !isWellFormedAddress(link))
 					link = new File(relativePath, link).toURI().toString();
 
 				if (link == null)
@@ -86,6 +86,15 @@ public class Marker implements ActionListener {
 				else
 					return WebMarker.create(ll, link);
 			}
+
+			private boolean isWellFormedAddress(String link) {
+				try {
+					new URL(link);
+					return true;
+				} catch (MalformedURLException x) {
+					return false;
+				}
+            }
 		});
 	}
 
