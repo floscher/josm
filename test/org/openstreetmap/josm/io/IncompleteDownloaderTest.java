@@ -24,7 +24,7 @@ public class IncompleteDownloaderTest extends MotherObject {
 		l.add(w);
 		IncompleteDownloader downloader = new IncompleteDownloader(l) {
 			@Override protected InputStream getInputStream(String urlStr, PleaseWaitDialog pleaseWaitDlg) {
-				String xml = "<osm version='0.3'><segment id='23' from='1' to='2'/></osm>";
+				String xml = "<osm version='0.4'><segment id='23' from='1' to='2'/></osm>";
 	            return new ByteArrayInputStream(xml.getBytes());
             }
 		};

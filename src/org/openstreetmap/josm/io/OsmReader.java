@@ -100,7 +100,7 @@ public class OsmReader {
 				if (qName.equals("osm")) {
 					if (atts == null)
 						throw new SAXException(tr("Unknown version"));
-					if (!Main.pref.get("osm-server.version", "0.3").equals(atts.getValue("version")))
+					if (!Main.pref.get("osm-server.version", "0.4").equals(atts.getValue("version")))
 						throw new SAXException(tr("Unknown version")+": "+atts.getValue("version"));
 				} else if (qName.equals("node")) {
 					current = new Node(new LatLon(getDouble(atts, "lat"), getDouble(atts, "lon")));
