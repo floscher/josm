@@ -28,6 +28,7 @@ public class MergeVisitor implements Visitor {
 	public Map<OsmPrimitive, OsmPrimitive> conflicts = new HashMap<OsmPrimitive, OsmPrimitive>();
 
 	private final DataSet ds;
+	private final DataSet mergeds;
 
 	/**
 	 * A list of all nodes that got replaced with other nodes.
@@ -42,8 +43,9 @@ public class MergeVisitor implements Visitor {
 	 */
 	private final Map<Segment, Segment> mergedSegments = new HashMap<Segment, Segment>();
 
-	public MergeVisitor(DataSet ds) {
+	public MergeVisitor(DataSet ds, DataSet mergeds) {
 		this.ds = ds;
+		this.mergeds = mergeds;
 	}
 
 	/**
@@ -56,7 +58,7 @@ public class MergeVisitor implements Visitor {
 
 		Node my = null;
 		for (Node n : ds.nodes) {
-			if (match(n, other)) {
+			if (match(n, other) && ((mergeds == null) || (!mergeds.nodes.contains(n)))) {
 				my = n;
 				break;
 			}
@@ -86,11 +88,12 @@ public class MergeVisitor implements Visitor {
 
 		Segment my = null;
 		for (Segment ls : ds.segments) {
-			if (match(other, ls)) {
+			if (match(other, ls) && ((mergeds == null) || (!mergeds.segments.contains(ls)))) {
 				my = ls;
 				break;
 			}
 		}
+		
 		if (my == null)
 			ds.segments.add(other);
 		else if (my.incomplete && !other.incomplete) {
@@ -144,7 +147,7 @@ public class MergeVisitor implements Visitor {
 
 		Way my = null;
 		for (Way w : ds.ways) {
-			if (match(other, w)) {
+			if (match(other, w) && ((mergeds == null) || (!mergeds.ways.contains(w)))) {
 				my = w;
 				break;
 			}
@@ -290,6 +293,7 @@ public class MergeVisitor implements Visitor {
 			my.keys = other.keys;
 		else
 			my.keys.putAll(other.keys);
+		
 		my.modified = true;
 	}
 
