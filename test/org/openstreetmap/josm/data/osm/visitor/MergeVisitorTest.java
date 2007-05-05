@@ -24,7 +24,7 @@ public class MergeVisitorTest extends TestCase {
 	@Override protected void setUp() throws Exception {
 		ds = new DataSet();
 		dsNode = DataSetTestCaseHelper.createNode(ds);
-		v = new MergeVisitor(ds);
+		v = new MergeVisitor(ds, null);
 		n = DataSetTestCaseHelper.createNode(null);
 	}
 
@@ -234,7 +234,7 @@ public class MergeVisitorTest extends TestCase {
 		n2[1].id = 42;
 
 		Segment ls2 = DataSetTestCaseHelper.createSegment(ds, n2[0], n2[1]);
-		v = new MergeVisitor(ds);
+		v = new MergeVisitor(ds, null);
 		for (OsmPrimitive osm : ds2.allPrimitives())
 			osm.visit(v);
 		v.fixReferences();
@@ -248,7 +248,7 @@ public class MergeVisitorTest extends TestCase {
 		Node[] n = createNodes(ds, 2);
 		Segment s = DataSetTestCaseHelper.createSegment(ds, n[0], n[1]);
 		Way w = DataSetTestCaseHelper.createWay(ds, s);
-		MergeVisitor v = new MergeVisitor(ds);
+		MergeVisitor v = new MergeVisitor(ds, null);
 		v.visit(n[0]);
 		v.visit(n[1]);
 		v.visit(s);
@@ -280,7 +280,7 @@ public class MergeVisitorTest extends TestCase {
 		w.segments.add(incompleteSegment);
 		w.id = 42;
 		// merge both
-		MergeVisitor v = new MergeVisitor(ds);
+		MergeVisitor v = new MergeVisitor(ds, null);
 		v.visit(w);
 		v.fixReferences();
 		
@@ -298,7 +298,7 @@ public class MergeVisitorTest extends TestCase {
 		Segment s = createSegment(null, false, true, 23);
 		s.timestamp = new Date(new Date().getTime()+1);
 		
-		MergeVisitor v = new MergeVisitor(ds);
+		MergeVisitor v = new MergeVisitor(ds, null);
 		v.visit(s);
 		v.fixReferences();
 		
@@ -307,7 +307,7 @@ public class MergeVisitorTest extends TestCase {
 	
 	public void testMergeIncompleteSegmentsAddToDataSet() throws Exception {
 		DataSet ds = new DataSet();
-		MergeVisitor v = new MergeVisitor(ds);
+		MergeVisitor v = new MergeVisitor(ds, null);
 		v.visit(createSegment(null, true, false, 1));
 		assertEquals(1, ds.segments.size());
     }
@@ -329,7 +329,7 @@ public class MergeVisitorTest extends TestCase {
 		newNode.modified = false;
 		newNode.timestamp = new Date(date.getTime());
 		
-		MergeVisitor v = new MergeVisitor(ds);
+		MergeVisitor v = new MergeVisitor(ds, null);
 		v.visit(newNode);
 
 		assertEquals(0, v.conflicts.size());
@@ -342,7 +342,7 @@ public class MergeVisitorTest extends TestCase {
 		Segment s1 = new Segment(23);
 		Segment s2 = new Segment(42);
 		
-		MergeVisitor v = new MergeVisitor(ds);
+		MergeVisitor v = new MergeVisitor(ds, null);
 		v.visit(s1);
 		v.visit(s2);
 		

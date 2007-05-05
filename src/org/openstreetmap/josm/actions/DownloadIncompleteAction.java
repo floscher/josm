@@ -47,7 +47,7 @@ public class DownloadIncompleteAction extends JosmAction {
 		}
 
 		@Override protected void finish() {
-			MergeVisitor merger = new MergeVisitor(Main.ds);
+			MergeVisitor merger = new MergeVisitor(Main.ds, reader.data);
 			for (OsmPrimitive osm : reader.data.allPrimitives())
 				osm.visit(merger);
 			Main.parent.repaint();

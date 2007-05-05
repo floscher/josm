@@ -43,7 +43,7 @@ public class IncompleteDownloader extends OsmServerReader {
 	 * The list of incomplete Ways to download. The ways will be filled and are complete after download.
 	 */
 	private final Collection<Way> toDownload;
-	private MergeVisitor merger = new MergeVisitor(data);
+	private MergeVisitor merger = new MergeVisitor(data, null);
 
 	public IncompleteDownloader(Collection<Way> toDownload) {
 		this.toDownload = toDownload;
