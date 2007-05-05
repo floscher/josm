@@ -152,7 +152,7 @@ public class OsmServerWriter extends OsmConnection implements Visitor {
 	private void sendRequest(String requestMethod, String urlSuffix,
 			OsmPrimitive osm, boolean addBody) {
 		try {
-			String version = Main.pref.get("osm-server.version", "0.3");
+			String version = Main.pref.get("osm-server.version", "0.4");
 			URL url = new URL(
 					Main.pref.get("osm-server.url") +
 					"/" + version +

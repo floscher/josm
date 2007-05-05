@@ -34,7 +34,7 @@ public class OsmWriter extends XmlWriter implements Visitor {
 	public abstract static class Osm implements OsmWriterInterface {
 		public void header(PrintWriter out) {
 			out.print("<osm version='");
-			out.print(Main.pref.get("osm-server.version", "0.3"));
+			out.print(Main.pref.get("osm-server.version", "0.4"));
 			out.println("' generator='JOSM'>");
 		}
 		public void footer(PrintWriter out) {
