@@ -349,4 +349,14 @@ public class MergeVisitorTest extends TestCase {
 		assertEquals(2, ds.segments.size());
 		assertEquals(23, ds.segments.iterator().next().id);
 	}
+	
+	public void testDoNotMergeEqualObjectsWithDifferentNonZeroId() throws Exception {
+		DataSet ds = new DataSet();
+		Segment s1 = createSegment(ds, false, false, 23);
+		Segment s2 = new Segment(s1);
+		s2.id = 42;
+		MergeVisitor v = new MergeVisitor(ds);
+		v.visit(s2);
+		assertEquals(2, ds.segments.size());
+	}
 }
