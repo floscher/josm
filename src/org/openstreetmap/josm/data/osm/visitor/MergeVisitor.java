@@ -249,6 +249,8 @@ public class MergeVisitor implements Visitor {
 	private boolean match(Segment ls1, Segment ls2) {
 		if (ls1.id == ls2.id && ls1.id != 0)
 			return true;
+		//if (ls1.id != 0 && ls2.id != 0)
+		//	return false;
 		if (ls1.incomplete || ls2.incomplete)
 			return false;
 		return match(ls1.from, ls2.from) && match(ls1.to, ls2.to);
@@ -287,7 +289,7 @@ public class MergeVisitor implements Visitor {
 		}
 		if (other.keys == null)
 			return;
-		if (my.keySet().containsAll(other.keys.entrySet()))
+		if (my.keySet().containsAll(other.keys.keySet()))
 			return;
 		if (my.keys == null)
 			my.keys = other.keys;
