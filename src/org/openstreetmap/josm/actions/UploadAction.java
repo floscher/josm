@@ -32,8 +32,73 @@ import org.xml.sax.SAXException;
  * @author imi
  */
 public class UploadAction extends JosmAction {
+	
+	/** Upload Hook */
+	public interface UploadHook {
+		/**
+		 * Checks the upload.
+		 * @param add The added primitives
+		 * @param update The updated primitives
+		 * @param delete The deleted primitives
+		 * @return true, if the upload can continue
+		 */
+		public boolean checkUpload(Collection<OsmPrimitive> add, Collection<OsmPrimitive> update, Collection<OsmPrimitive> delete);
+	}
+	
+	/**
+	 * The list of upload hooks. These hooks will be called one after the other
+	 * when the user wants to upload data. Plugins can insert their own hooks here
+	 * if they want to be able to veto an upload.
+	 * 
+	 * Be dafault, the standard upload dialog is the only element in the list.
+	 * Plugins shold normally insert their code before that, so that the upload
+	 * dialog is the last thing shown before upload really starts; on occasion
+	 * however, a plugin might also want to insert something after that.
+	 */
+	public final Collection<UploadHook> uploadHooks = new LinkedList<UploadHook>();
+
 	public UploadAction() {
 		super(tr("Upload to OSM"), "upload", tr("Upload all changes to the OSM server."), KeyEvent.VK_U, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK, true);
+
+		/**
+		 * Displays a screen where the actions that would be taken are displayed and
+		 * give the user the possibility to cancel the upload.
+		 */
+		uploadHooks.add(new UploadHook() {
+			public boolean checkUpload(Collection<OsmPrimitive> add, Collection<OsmPrimitive> update, Collection<OsmPrimitive> delete) {
+
+				JPanel p = new JPanel(new GridBagLayout());
+
+				OsmPrimitivRenderer renderer = new OsmPrimitivRenderer();
+
+				if (!add.isEmpty()) {
+					p.add(new JLabel(tr("Objects to add:")), GBC.eol());
+					JList l = new JList(add.toArray());
+					l.setCellRenderer(renderer);
+					l.setVisibleRowCount(l.getModel().getSize() < 6 ? l.getModel().getSize() : 10);
+					p.add(new JScrollPane(l), GBC.eol().fill());
+				}
+
+				if (!update.isEmpty()) {
+					p.add(new JLabel(tr("Objects to modify:")), GBC.eol());
+					JList l = new JList(update.toArray());
+					l.setCellRenderer(renderer);
+					l.setVisibleRowCount(l.getModel().getSize() < 6 ? l.getModel().getSize() : 10);
+					p.add(new JScrollPane(l), GBC.eol().fill());
+				}
+
+				if (!delete.isEmpty()) {
+					p.add(new JLabel(tr("Objects to delete:")), GBC.eol());
+					JList l = new JList(delete.toArray());
+					l.setCellRenderer(renderer);
+					l.setVisibleRowCount(l.getModel().getSize() < 6 ? l.getModel().getSize() : 10);
+					p.add(new JScrollPane(l), GBC.eol().fill());
+				}
+
+				return JOptionPane.showConfirmDialog(Main.parent, p, tr("Upload this changes?"),
+						JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+			}
+		});
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -62,10 +127,18 @@ public class UploadAction extends JosmAction {
 			else if (osm.deleted && osm.id != 0)
 				delete.add(osm);
 		}
-
-		if (!displayUploadScreen(add, update, delete))
+		
+		if (add.isEmpty() && update.isEmpty() && delete.isEmpty()) {
+			JOptionPane.showMessageDialog(Main.parent,tr("No changes to upload."));
 			return;
+		}
 
+		// Call all upload hooks in sequence. The upload confirmation dialog
+		// is one of these.
+		for(UploadHook hook : uploadHooks)
+			if(!hook.checkUpload(add, update, delete))
+				return;
+		
 		final OsmServerWriter server = new OsmServerWriter();
 		final Collection<OsmPrimitive> all = new LinkedList<OsmPrimitive>();
 		all.addAll(add);
@@ -84,49 +157,5 @@ public class UploadAction extends JosmAction {
 			}
 		};
 		Main.worker.execute(uploadTask);
-	}
-
-	/**
-	 * Displays a screen where the actions that would be taken are displayed and
-	 * give the user the possibility to cancel the upload.
-	 * @return <code>true</code>, if the upload should continue. <code>false</code>
-	 * 			if the user requested cancel.
-	 */
-	private boolean displayUploadScreen(Collection<OsmPrimitive> add, Collection<OsmPrimitive> update, Collection<OsmPrimitive> delete) {
-		if (add.isEmpty() && update.isEmpty() && delete.isEmpty()) {
-			JOptionPane.showMessageDialog(Main.parent,tr("No changes to upload."));
-			return false;
-		}
-
-		JPanel p = new JPanel(new GridBagLayout());
-
-		OsmPrimitivRenderer renderer = new OsmPrimitivRenderer();
-
-		if (!add.isEmpty()) {
-			p.add(new JLabel(tr("Objects to add:")), GBC.eol());
-			JList l = new JList(add.toArray());
-			l.setCellRenderer(renderer);
-			l.setVisibleRowCount(l.getModel().getSize() < 6 ? l.getModel().getSize() : 10);
-			p.add(new JScrollPane(l), GBC.eol().fill());
-		}
-
-		if (!update.isEmpty()) {
-			p.add(new JLabel(tr("Objects to modify:")), GBC.eol());
-			JList l = new JList(update.toArray());
-			l.setCellRenderer(renderer);
-			l.setVisibleRowCount(l.getModel().getSize() < 6 ? l.getModel().getSize() : 10);
-			p.add(new JScrollPane(l), GBC.eol().fill());
-		}
-
-		if (!delete.isEmpty()) {
-			p.add(new JLabel(tr("Objects to delete:")), GBC.eol());
-			JList l = new JList(delete.toArray());
-			l.setCellRenderer(renderer);
-			l.setVisibleRowCount(l.getModel().getSize() < 6 ? l.getModel().getSize() : 10);
-			p.add(new JScrollPane(l), GBC.eol().fill());
-		}
-
-		return JOptionPane.showConfirmDialog(Main.parent, p, tr("Upload this changes?"),
-				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
 	}
 }
