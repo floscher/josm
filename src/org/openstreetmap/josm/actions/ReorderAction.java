@@ -54,84 +54,10 @@ public class ReorderAction extends JosmAction {
 			if (!way.isIncomplete() && way.segments.size() > 1)
 			{			
 				doneSomething = true;
-				final LinkedList<Segment> sel = new LinkedList<Segment>(sortSegments(new LinkedList<Segment>(way.segments)));   	
-	
-		    	Collection<Command> c = new LinkedList<Command>();
-	
-		    	boolean direction = false;
-		    	// work out the "average" direction of the way, we use this to direct the rest of the segments
-		    	int dirCounter = 0;
-		    	for(int i = 0; i < sel.size() - 1; i++)
-		    	{
-		    		Segment firstSegment = sel.get(i);
-		    		Segment secondSegment = sel.get(i+1);
-		    		if ( firstSegment.to == secondSegment.from || firstSegment.to == secondSegment.to ) // direction = true when 'from' is the first node in the Way
-		    			dirCounter++;
-		    		else
-		    			dirCounter--;
-		    	}
-		    	if ( dirCounter <= 0 )
-		    		direction = false;
-		    	else
-		    		direction = true;
-		    	
-	    		Node lastNode = null;
+				Command c = reorderWay(way);
 
-	    		// we need to calculate what the first node in the way is, we work from there
-	    		Segment firstSegment = sel.getFirst();
-	    		Segment secondSegment = sel.get(1);
-	    		if (firstSegment.to == secondSegment.from || firstSegment.to == secondSegment.to)
-	    			lastNode = firstSegment.from;
-	    		else
-	    			lastNode = firstSegment.to;
-	    		
-	    		// go through each segment and flip them if required
-	    		for (Segment s : sel) {
-	    			Segment snew = new Segment(s);
-	    			boolean segDirection = s.from == lastNode;
-	    			// segDirection = true when the 'from' node occurs before the 'to' node in the Way 
-	    			if (direction != segDirection)
-	    			{    			
-	    				// reverse the segment's direction
-	    				Node n = snew.from;
-	    				snew.from = snew.to;
-	    				snew.to = n;
-	    				c.add(new ChangeCommand(s, snew));
-	    			}	
-	    			
-		    		if (direction) // if its facing forwards,
-		    			lastNode = snew.to; // our next node is the 'to' one
-		    		else
-		    			lastNode = snew.from; // otherwise its the 'from' one
-		    	}
-
-		    	LinkedList<Segment> segments = new LinkedList<Segment>();
-		    	
-		    	// Now we recreate the segment list, in the correct order of the direction
-	    		for (Segment s : sel) 
-	    			if (!direction) 
-	    				segments.addFirst(s);
-	    			else
-	    				segments.addLast(s);
-	    			
-	    		// Check if the new segment list is actually different from the old one
-	    		// before we go and add a change command for it
-	    		for(int i = 0; i < segments.size(); i++)
-	    			if (way.segments.get(i) != segments.get(i))
-	    			{
-				    	Way newWay = new Way(way);
-				    	newWay.segments.clear();
-						newWay.segments.addAll(segments);
-						c.add(new ChangeCommand(way, newWay));
-						break;
-	    			}
-	
-	    		// Check we've got some change commands before we add a sequence command
-	    		if (c.size() != 0) {
-	    			NameVisitor v = new NameVisitor();
-	    			way.visit(v);
-	    			Main.main.editLayer().add(new SequenceCommand(tr("Reorder segments for way {0}",v.name), c));
-	    		}
+				if( c != null )
+					Main.main.editLayer().add( c );
 			}
 		}
 		if (!doneSomething) {
@@ -142,6 +68,95 @@ public class ReorderAction extends JosmAction {
 		}
 		Main.map.repaint();
 	}
+
+	/**
+	 * This method first sorts all the segments in a way, then makes sure that all 
+	 * the segments are facing the same direction as the first one.
+	 * @param way The way to reorder
+     * @return The command needed to reorder the way
+     */
+    public static Command reorderWay(Way way) {
+	    final LinkedList<Segment> sel = new LinkedList<Segment>(sortSegments(new LinkedList<Segment>(way.segments)));   	
+
+	    Collection<Command> c = new LinkedList<Command>();
+
+	    boolean direction = false;
+	    // work out the "average" direction of the way, we use this to direct the rest of the segments
+	    int dirCounter = 0;
+	    for(int i = 0; i < sel.size() - 1; i++)
+	    {
+	    	Segment firstSegment = sel.get(i);
+	    	Segment secondSegment = sel.get(i+1);
+	    	if ( firstSegment.to == secondSegment.from || firstSegment.to == secondSegment.to ) // direction = true when 'from' is the first node in the Way
+	    		dirCounter++;
+	    	else
+	    		dirCounter--;
+	    }
+	    if ( dirCounter <= 0 )
+	    	direction = false;
+	    else
+	    	direction = true;
+	    
+	    Node lastNode = null;
+
+	    // we need to calculate what the first node in the way is, we work from there
+	    Segment firstSegment = sel.getFirst();
+	    Segment secondSegment = sel.get(1);
+	    if (firstSegment.to == secondSegment.from || firstSegment.to == secondSegment.to)
+	    	lastNode = firstSegment.from;
+	    else
+	    	lastNode = firstSegment.to;
+	    
+	    // go through each segment and flip them if required
+	    for (Segment s : sel) {
+	    	Segment snew = new Segment(s);
+	    	boolean segDirection = s.from == lastNode;
+	    	// segDirection = true when the 'from' node occurs before the 'to' node in the Way 
+	    	if (direction != segDirection)
+	    	{    			
+	    		// reverse the segment's direction
+	    		Node n = snew.from;
+	    		snew.from = snew.to;
+	    		snew.to = n;
+	    		c.add(new ChangeCommand(s, snew));
+	    	}	
+	    	
+	    	if (direction) // if its facing forwards,
+	    		lastNode = snew.to; // our next node is the 'to' one
+	    	else
+	    		lastNode = snew.from; // otherwise its the 'from' one
+	    }
+
+	    LinkedList<Segment> segments = new LinkedList<Segment>();
+	    
+	    // Now we recreate the segment list, in the correct order of the direction
+	    for (Segment s : sel) 
+	    	if (!direction) 
+	    		segments.addFirst(s);
+	    	else
+	    		segments.addLast(s);
+	    	
+	    // Check if the new segment list is actually different from the old one
+	    // before we go and add a change command for it
+	    for(int i = 0; i < segments.size(); i++)
+	    	if (way.segments.get(i) != segments.get(i))
+	    	{
+	        	Way newWay = new Way(way);
+	        	newWay.segments.clear();
+	    		newWay.segments.addAll(segments);
+	    		c.add(new ChangeCommand(way, newWay));
+	    		break;
+	    	}
+	    
+	    // Check we've got some change commands before we add a sequence command
+		if (c.size() != 0) {
+			NameVisitor v = new NameVisitor();
+			way.visit(v);
+			return new SequenceCommand(tr("Reorder segments for way {0}",v.name), c);
+		}
+		else
+			return null;
+    }
 
 	/**
 	 * This sort is based on the sort in the old ReorderAction, but it works 
