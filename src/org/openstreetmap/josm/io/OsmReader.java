@@ -5,9 +5,12 @@ import static org.openstreetmap.josm.tools.I18n.tr;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -19,6 +22,7 @@ import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Segment;
+import org.openstreetmap.josm.data.osm.User;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.AddVisitor;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
@@ -75,6 +79,8 @@ public class OsmReader {
 			osm.selected = selected;
 			osm.deleted = deleted;
 			osm.timestamp = timestamp;
+			osm.user = user;
+			osm.visible = visible;
 		}
 	}
 
@@ -83,11 +89,16 @@ public class OsmReader {
 	 * Maps the raw attributes to key/value pairs.
 	 */
 	private Map<OsmPrimitiveData, long[]> segs = new HashMap<OsmPrimitiveData, long[]>();
+
 	/**
 	 * Data structure for the remaining way objects
 	 */
 	private Map<OsmPrimitiveData, Collection<Long>> ways = new HashMap<OsmPrimitiveData, Collection<Long>>();
 
+	/** 
+	 * List of protocol versions that will be accepted on reading
+	 */
+	private HashSet<String> allowedVersions = new HashSet<String>();
 
 	private class Parser extends MinML2 {
 		/**
@@ -100,7 +111,7 @@ public class OsmReader {
 				if (qName.equals("osm")) {
 					if (atts == null)
 						throw new SAXException(tr("Unknown version"));
-					if (!Main.pref.get("osm-server.version", "0.4").equals(atts.getValue("version")))
+					if (!allowedVersions.contains(atts.getValue("version")))
 						throw new SAXException(tr("Unknown version")+": "+atts.getValue("version"));
 				} else if (qName.equals("node")) {
 					current = new Node(new LatLon(getDouble(atts, "lat"), getDouble(atts, "lon")));
@@ -137,6 +148,18 @@ public class OsmReader {
 			return Double.parseDouble(atts.getValue(value));
 		}
 	}
+	
+	/** 
+	 * Constructor initializes list of allowed protocol versions.
+	 */
+	public OsmReader() {
+		// first add the main server version
+		allowedVersions.add(Main.pref.get("osm-server.version", "0.4"));
+		// now also add all compatible versions
+		String[] additionalVersions = 
+			Main.pref.get("osm-server.additional-versions", "0.3").split("/,/");
+		allowedVersions.addAll(Arrays.asList(additionalVersions));	
+	}
 
 	/**
 	 * Read out the common attributes from atts and put them into this.current.
@@ -154,6 +177,19 @@ public class OsmReader {
 				e.printStackTrace();
 				throw new SAXException(tr("Couldn''t read time format \"{0}\".",time));
 			}
+		}
+		
+		// user attribute added in 0.4 API
+		String user = atts.getValue("user");
+		if (user != null) {
+			// do not store literally; get object reference for string
+			current.user = User.get(user);
+		}
+		
+		// visible attribute added in 0.4 API
+		String visible = atts.getValue("visible");
+		if (visible != null) {
+			current.visible = Boolean.parseBoolean(visible);
 		}
 
 		String action = atts.getValue("action");

@@ -152,7 +152,8 @@ public class OsmWriter extends XmlWriter implements Visitor {
 	}
 
 	/**
-	 * Add the common part as the from of the tag as well as the id or the action tag.
+	 * Add the common part as the form of the tag as well as the XML attributes
+	 * id, action, user, and visible.
 	 */
 	private void addCommon(OsmPrimitive osm, String tagname) {
 		out.print("  <"+tagname+" id='"+getUsedId(osm)+"'");
@@ -169,5 +170,11 @@ public class OsmWriter extends XmlWriter implements Visitor {
 			String time = osm.getTimeStr();
 			out.print(" timestamp='"+time+"'");
 		}
+		// user and visible added with 0.4 API
+		if (osm.user != null) {
+			out.print(" user='"+XmlWriter.encode(osm.user.name)+"'");
+		}
+		out.print(" visible='"+osm.visible+"'");
+		
 	}
 }
