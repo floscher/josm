@@ -4,12 +4,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
+import java.util.zip.GZIPInputStream;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.gui.PleaseWaitDialog;
 
 /**
- * This DataReader read directly from the REST API of the osm server.
+ * This DataReader reads directly from the REST API of the osm server.
+ * 
+ * It supports plain text transfer as well as gzip or deflate encoded transfers;
+ * if compressed transfers are unwanted, set property osm-server.use-compression
+ * to false.
  *
  * @author imi
  */
@@ -31,10 +38,23 @@ abstract class OsmServerReader extends OsmConnection {
 			activeConnection.disconnect();
 			return null;
 		}
+		
+		if (Boolean.parseBoolean(Main.pref.get("osm-server.use-compression", "true")))
+			activeConnection.setRequestProperty("Accept-Encoding", "gzip, deflate");
+
 		System.out.println("got return: "+activeConnection.getResponseCode());
 		activeConnection.setConnectTimeout(15000);
 		if (isAuthCancelled() && activeConnection.getResponseCode() == 401)
 			return null;
-		return new ProgressInputStream(activeConnection, pleaseWaitDlg);
+
+		String encoding = activeConnection.getContentEncoding();
+		InputStream inputStream = new ProgressInputStream(activeConnection, pleaseWaitDlg);
+		if (encoding != null && encoding.equalsIgnoreCase("gzip")) {
+			inputStream = new GZIPInputStream(inputStream);
+		}
+		else if (encoding != null && encoding.equalsIgnoreCase("deflate")) {
+			inputStream = new InflaterInputStream(inputStream, new Inflater(true));
+		}
+		return inputStream;
 	}
 }
