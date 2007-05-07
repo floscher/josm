@@ -55,6 +55,20 @@ abstract public class OsmPrimitive implements Comparable<OsmPrimitive> {
 	public boolean deleted = false;
 
 	/**
+	 * Visibility status as specified by the server. The visible attribute was
+	 * introduced with the 0.4 API to be able to communicate deleted objects
+	 * (they will have visible=false). Currently JOSM does never deal with
+	 * these, so this is really for future use only.
+	 */
+	public boolean visible = true;
+	
+	/** 
+	 * User that last modified this primitive, as specified by the server.
+	 * Never changed by JOSM.
+	 */
+	public User user = null;
+	
+	/**
 	 * <code>true</code>, if the object has been shown. This property is not used
 	 * internally by JOSM, but can be used by plugins that take over the object
 	 * rendering.
@@ -181,6 +195,8 @@ abstract public class OsmPrimitive implements Comparable<OsmPrimitive> {
 			(semanticOnly || (modified == osm.modified)) && 
 			deleted == osm.deleted &&
 			(semanticOnly || (timestamp == null ? osm.timestamp==null : timestamp.equals(osm.timestamp))) &&
+			(semanticOnly || (user == null ? osm.user==null : user==osm.user)) &&
+			(semanticOnly || (visible == osm.visible)) &&
 			(keys == null ? osm.keys==null : keys.equals(osm.keys));
 	}
 	
