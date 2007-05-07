@@ -151,6 +151,7 @@ public class MainApplication extends Main {
 		Main.parent = mainFrame;
 		final Main main = new MainApplication(mainFrame);
 		Main.loadPlugins(false);
+		toolbar.refreshToolbarControl();
 
 		mainFrame.setVisible(true);
 
