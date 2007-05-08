@@ -224,13 +224,13 @@ public class OsmDataLayer extends Layer {
 	 * 
 	 * @param processed A list of all objects, that were actually uploaded. 
 	 * 		May be <code>null</code>, which means nothing has been uploaded but 
-	 * 		saved to disk instead.
+	 * 		saved to disk instead. Note that an empty collection for "processed"
+	 *      means that an upload has been attempted but failed.
 	 */
 	public void cleanData(final Collection<OsmPrimitive> processed, boolean dataAdded) {
 
-		// return immediately if nothing really happened (typically when upload
-		// aborts due to a server connection error)
-		if ((processed == null || processed.isEmpty()) && !dataAdded)
+		// return immediately if an upload attempt failed
+		if (processed != null && processed.isEmpty() && !dataAdded)
 			return;
 		
 		redoCommands.clear();
