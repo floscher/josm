@@ -188,7 +188,7 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 			return null;
 
 		LinkedList<Segment> rawSegments = new LinkedList<Segment>(segmentSet);
-		LinkedList<Segment> sortedSegments = ReorderAction.sortSegments(rawSegments);
+		LinkedList<Segment> sortedSegments = ReorderAction.sortSegments(rawSegments, true);
 
 		if (wayToAdd != null) {
 			Way w = new Way(wayToAdd);

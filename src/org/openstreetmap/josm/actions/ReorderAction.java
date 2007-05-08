@@ -76,7 +76,7 @@ public class ReorderAction extends JosmAction {
      * @return The command needed to reorder the way
      */
     public static Command reorderWay(Way way) {
-	    final LinkedList<Segment> sel = new LinkedList<Segment>(sortSegments(new LinkedList<Segment>(way.segments)));   	
+	    final LinkedList<Segment> sel = new LinkedList<Segment>(sortSegments(new LinkedList<Segment>(way.segments), false));   	
 
 	    Collection<Command> c = new LinkedList<Command>();
 
@@ -159,11 +159,14 @@ public class ReorderAction extends JosmAction {
     }
 
 	/**
-	 * This sort is based on the sort in the old ReorderAction, but it works 
+	 * This sort is based on the sort in the old ReorderAction, but it can work 
 	 * irresepective of the direction of the segments. This produces a sort 
 	 * that can be useful even if the segments are facing the wrong direction.
+	 * 
+	 * @param segments list of segments to be sorted
+	 * @param strict true if segment direction should be observed, false if not
 	 */
-	public static LinkedList<Segment> sortSegments(LinkedList<Segment> segments) {
+	public static LinkedList<Segment> sortSegments(LinkedList<Segment> segments, boolean strict) {
 		
 		LinkedList<Segment> sortedSegments = new LinkedList<Segment>();
 		
@@ -178,11 +181,11 @@ public class ReorderAction extends JosmAction {
 					Segment ls = it.next();
 					if (ls.incomplete)
 						continue; // incomplete segments are never added to a new way
-					if (ls.from == pivotList.getLast().to || ls.to == pivotList.getLast().to || ls.from == pivotList.getLast().from || ls.to == pivotList.getLast().from) {
+					if (ls.from == pivotList.getLast().to || (!strict && (ls.to == pivotList.getLast().to || ls.from == pivotList.getLast().from || ls.to == pivotList.getLast().from))) {
 						pivotList.addLast(ls);
 						it.remove();
 						found = true;
-					} else if (ls.to == pivotList.getFirst().from || ls.from == pivotList.getFirst().from || ls.to == pivotList.getFirst().to || ls.from == pivotList.getFirst().to) {
+					} else if (ls.to == pivotList.getFirst().from || (!strict && (ls.from == pivotList.getFirst().from || ls.to == pivotList.getFirst().to || ls.from == pivotList.getFirst().to))) {
 						pivotList.addFirst(ls);
 						it.remove(); 
 						found = true;
