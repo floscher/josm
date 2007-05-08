@@ -227,6 +227,12 @@ public class OsmDataLayer extends Layer {
 	 * 		saved to disk instead.
 	 */
 	public void cleanData(final Collection<OsmPrimitive> processed, boolean dataAdded) {
+
+		// return immediately if nothing really happened (typically when upload
+		// aborts due to a server connection error)
+		if ((processed == null || processed.isEmpty()) && !dataAdded)
+			return;
+		
 		redoCommands.clear();
 		commands.clear();
 
@@ -242,7 +248,6 @@ public class OsmDataLayer extends Layer {
 		}
 
 		// update the modified flag
-
 		if (fromDisk && processed != null && !dataAdded)
 			return; // do nothing when uploading non-harmful changes.
 
