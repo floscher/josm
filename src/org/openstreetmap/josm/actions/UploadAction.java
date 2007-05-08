@@ -8,6 +8,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -55,7 +56,7 @@ public class UploadAction extends JosmAction {
 	 * dialog is the last thing shown before upload really starts; on occasion
 	 * however, a plugin might also want to insert something after that.
 	 */
-	public final Collection<UploadHook> uploadHooks = new LinkedList<UploadHook>();
+	public final LinkedList<UploadHook> uploadHooks = new LinkedList<UploadHook>();
 
 	public UploadAction() {
 		super(tr("Upload to OSM"), "upload", tr("Upload all changes to the OSM server."), KeyEvent.VK_U, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK, true);
