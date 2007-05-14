@@ -11,6 +11,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.zip.GZIPInputStream;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -61,7 +62,13 @@ public class OpenAction extends DiskAccessAction {
 				Collection<Collection<GpsPoint>> gpsData = null;
 				Collection<Marker> markerData = null;
 				if (ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn)) {
-					RawGpsReader r = new RawGpsReader(new FileInputStream(file), file.getAbsoluteFile().getParentFile());
+					RawGpsReader r = null;
+					// Check to see if we are opening a compressed file
+					if(file.getName().endsWith(".gpx.gz")) {
+						r = new RawGpsReader(new GZIPInputStream(new FileInputStream(file)), file.getAbsoluteFile().getParentFile());
+					} else {
+						r = new RawGpsReader(new FileInputStream(file), file.getAbsoluteFile().getParentFile());
+					}
 					gpsData = r.trackData;
 					markerData = r.markerData;
 				} else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
