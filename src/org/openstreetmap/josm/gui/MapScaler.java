@@ -7,20 +7,23 @@ import javax.swing.JComponent;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.HelpAction.Helpful;
+import org.openstreetmap.josm.data.projection.Projection;
 import org.openstreetmap.josm.tools.ColorHelper;
 
 public class MapScaler extends JComponent implements Helpful {
 
-	private final MapView mv;
+	private final NavigatableComponent mv;
+	private final Projection proj;
 
-	public MapScaler(MapView mv) {
+	public MapScaler(NavigatableComponent mv, Projection proj) {
 		this.mv = mv;
+		this.proj = proj;
 		setSize(100,30);
 		setOpaque(false);
     }
 
 	@Override public void paint(Graphics g) {
-		double circum = mv.getScale()*100*Main.proj.scaleFactor()*40041455; // circumference of the earth in meter
+		double circum = mv.getScale()*100*proj.scaleFactor()*40041455; // circumference of the earth in meter
 		String text = circum > 1000 ? (Math.round(circum/100)/10.0)+"km" : Math.round(circum)+"m";
 		g.setColor(ColorHelper.html2color(Main.pref.get("color.scale", "#ffffff")));
 		g.drawLine(0, 5, 99, 5);

@@ -8,9 +8,9 @@ import javax.swing.JCheckBox;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.DownloadAction;
-import org.openstreetmap.josm.actions.DownloadAction.DownloadTask;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.gui.PleaseWaitRunnable;
+import org.openstreetmap.josm.gui.download.DownloadDialog.DownloadTask;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.io.BoundingBoxDownloader;
 import org.xml.sax.SAXException;

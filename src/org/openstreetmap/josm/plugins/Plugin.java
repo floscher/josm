@@ -7,9 +7,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.List;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.gui.MapFrame;
+import org.openstreetmap.josm.gui.download.DownloadSelection;
 import org.openstreetmap.josm.gui.preferences.PreferenceSetting;
 
 /**
@@ -74,8 +76,13 @@ public abstract class Plugin {
 	 * Called in the preferences dialog to create a preferences page for the plugin,
 	 * if any available.
 	 */
-	public PreferenceSetting getPreferenceSetting() {return null;}
+	public PreferenceSetting getPreferenceSetting() { return null; }
 	
+	/**
+	 * Called in the download dialog to give the plugin a chance to modify the list
+	 * of bounding box selectors.
+	 */
+	public void addDownloadSelection(List<DownloadSelection> list) {}
 	
 	/**
 	 * Copies the ressource 'from' to the file in the plugin directory named 'to'.

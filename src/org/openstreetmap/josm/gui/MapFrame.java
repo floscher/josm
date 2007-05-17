@@ -27,6 +27,7 @@ import org.openstreetmap.josm.gui.dialogs.LayerListDialog;
 import org.openstreetmap.josm.gui.dialogs.PropertiesDialog;
 import org.openstreetmap.josm.gui.dialogs.SelectionListDialog;
 import org.openstreetmap.josm.gui.dialogs.ToggleDialog;
+import org.openstreetmap.josm.gui.dialogs.UserListDialog;
 import org.openstreetmap.josm.tools.Destroyable;
 
 /**
@@ -104,6 +105,7 @@ public class MapFrame extends JPanel implements Destroyable {
 		addToggleDialog(new PropertiesDialog(this));
 		addToggleDialog(new HistoryDialog());
 		addToggleDialog(new SelectionListDialog());
+		addToggleDialog(new UserListDialog());
 		addToggleDialog(conflictDialog = new ConflictDialog());
 		addToggleDialog(new CommandStackDialog(this));
 

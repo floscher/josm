@@ -78,7 +78,7 @@ public class MapView extends NavigatableComponent {
 			}
 		});
 
-		new MapMover(this, true);
+		new MapMover(this, Main.contentPane);
 
 		// listend to selection changes to redraw the map
 		Main.ds.listeners.add(new SelectionChangedListener(){
@@ -91,7 +91,7 @@ public class MapView extends NavigatableComponent {
 		add(zoomSlider);
 		zoomSlider.setBounds(3, 0, 114, 30);
 
-		MapScaler scaler = new MapScaler(this);
+		MapScaler scaler = new MapScaler(this, Main.proj);
 		add(scaler);
 		scaler.setLocation(10,30);
 	}
