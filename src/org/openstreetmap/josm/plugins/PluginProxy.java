@@ -1,6 +1,9 @@
 package org.openstreetmap.josm.plugins;
 
+import java.util.List;
+
 import org.openstreetmap.josm.gui.MapFrame;
+import org.openstreetmap.josm.gui.download.DownloadSelection;
 import org.openstreetmap.josm.gui.preferences.PreferenceSetting;
 
 
@@ -40,4 +43,14 @@ public class PluginProxy extends Plugin {
 			throw new PluginException(this, info.name, e);
 		}
     }
+	
+	@Override public void addDownloadSelection(List<DownloadSelection> list) {
+		try {
+			plugin.getClass().getMethod("getDownloadSelection", List.class).invoke(plugin);
+		} catch (NoSuchMethodException e) {
+			// ignore
+		} catch (Exception e) {
+			throw new PluginException(this, info.name, e);
+		}
+	}
 }

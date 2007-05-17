@@ -9,8 +9,8 @@ import javax.swing.JCheckBox;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.DownloadAction;
-import org.openstreetmap.josm.actions.DownloadAction.DownloadTask;
 import org.openstreetmap.josm.gui.PleaseWaitRunnable;
+import org.openstreetmap.josm.gui.download.DownloadDialog.DownloadTask;
 import org.openstreetmap.josm.gui.layer.RawGpsLayer;
 import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
 import org.openstreetmap.josm.io.BoundingBoxDownloader;
@@ -36,7 +36,7 @@ public class DownloadGpsTask implements DownloadTask {
 		@Override protected void finish() {
 			if (rawData == null)
 				return;
-			String name = action.latlon[0].getText() + " " + action.latlon[1].getText() + " x " + this.action.latlon[2].getText() + " " + this.action.latlon[3].getText();
+			String name = action.dialog.minlat + " " + action.dialog.minlon + " x " + action.dialog.maxlat + " " + action.dialog.maxlon;
 			Main.main.addLayer(new RawGpsLayer(rawData, name, null));
 		}
 

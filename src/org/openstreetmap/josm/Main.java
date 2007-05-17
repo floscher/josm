@@ -28,7 +28,8 @@ import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 
 import org.openstreetmap.josm.actions.DownloadAction;
-import org.openstreetmap.josm.actions.DownloadAction.DownloadTask;
+import org.openstreetmap.josm.actions.downloadtasks.DownloadGpsTask;
+import org.openstreetmap.josm.actions.downloadtasks.DownloadOsmTask;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
 import org.openstreetmap.josm.actions.search.SearchAction;
 import org.openstreetmap.josm.data.Bounds;
@@ -40,6 +41,8 @@ import org.openstreetmap.josm.gui.MainMenu;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.PleaseWaitDialog;
 import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
+import org.openstreetmap.josm.gui.download.BoundingBoxSelection;
+import org.openstreetmap.josm.gui.download.DownloadDialog.DownloadTask;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer.CommandQueueListener;
@@ -371,11 +374,12 @@ abstract public class Main {
 
 	private static void downloadFromParamString(final boolean rawGps, String s) {
 		if (s.startsWith("http:")) {
-			final Bounds b = DownloadAction.osmurl2bounds(s);
+			final Bounds b = BoundingBoxSelection.osmurl2bounds(s);
 			if (b == null)
 				JOptionPane.showMessageDialog(Main.parent, tr("Ignoring malformed url: \"{0}\"", s));
 			else {
-				DownloadTask osmTask = main.menu.download.downloadTasks.get(0);
+				//DownloadTask osmTask = main.menu.download.downloadTasks.get(0);
+				DownloadTask osmTask = new DownloadOsmTask();
 				osmTask.download(main.menu.download, b.min.lat(), b.min.lon(), b.max.lat(), b.max.lon());
 			}
 			return;
@@ -393,7 +397,8 @@ abstract public class Main {
 		final StringTokenizer st = new StringTokenizer(s, ",");
 		if (st.countTokens() == 4) {
 			try {
-				DownloadTask task = main.menu.download.downloadTasks.get(rawGps ? 1 : 0);
+				//DownloadTask task = main.menu.download.downloadTasks.get(rawGps ? 1 : 0);
+				DownloadTask task = rawGps ? new DownloadGpsTask() : new DownloadOsmTask();
 				task.download(main.menu.download, Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()), Double.parseDouble(st.nextToken()));
 				return;
 			} catch (final NumberFormatException e) {

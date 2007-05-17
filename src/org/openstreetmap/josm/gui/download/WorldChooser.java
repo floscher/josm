@@ -1,5 +1,7 @@
-package org.openstreetmap.josm.gui;
+package org.openstreetmap.josm.gui.download;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -12,6 +14,8 @@ import java.beans.PropertyChangeListener;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
@@ -22,7 +26,13 @@ import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.projection.Projection;
+import org.openstreetmap.josm.gui.BookmarkList;
+import org.openstreetmap.josm.gui.MapMover;
+import org.openstreetmap.josm.gui.MapScaler;
+import org.openstreetmap.josm.gui.NavigatableComponent;
+import org.openstreetmap.josm.gui.SelectionManager;
 import org.openstreetmap.josm.gui.SelectionManager.SelectionEnded;
+
 
 /**
  * A component that let the user select a lat/lon bounding box from zooming
@@ -32,7 +42,7 @@ import org.openstreetmap.josm.gui.SelectionManager.SelectionEnded;
  *
  * @author imi
  */
-public class WorldChooser extends NavigatableComponent {
+public class WorldChooser extends NavigatableComponent implements DownloadSelection {
 
 	/**
 	 * The world as picture.
@@ -58,8 +68,8 @@ public class WorldChooser extends NavigatableComponent {
 		URL path = Main.class.getResource("/images/world.jpg");
 		world = new ImageIcon(path);
 		center = new EastNorth(world.getIconWidth()/2, world.getIconHeight()/2);
-		setPreferredSize(new Dimension(200, 100));
-		new MapMover(this, false);
+		setPreferredSize(new Dimension(400, 200));
+
 		projection = new Projection() {
 			public EastNorth latlon2eastNorth(LatLon p) {
 				return new EastNorth(
@@ -78,12 +88,50 @@ public class WorldChooser extends NavigatableComponent {
                 throw new UnsupportedOperationException();
             }
 			public double scaleFactor() {
-	            return 1;
+	            return 1.0 / world.getIconWidth();
             }
+
 		};
+
+		MapScaler scaler = new MapScaler(this, projection);
+		add(scaler);
+		scaler.setLocation(10,10);
+
 		setMinimumSize(new Dimension(350, 350/2));
 	}
 
+	public void addGui(final DownloadDialog gui) {
+		JPanel temp = new JPanel();
+		temp.setLayout(new BorderLayout());
+		temp.add(this, BorderLayout.CENTER);
+		temp.add(new JLabel(tr("You can use the mouse or Ctrl+Arrow keys/./, to zoom and pan.")), BorderLayout.SOUTH);
+		gui.tabpane.add(temp, "Map");
+		new MapMover(this, temp);		
+		SelectionEnded selListener = new SelectionEnded(){
+			public void selectionEnded(Rectangle r, boolean alt, boolean shift, boolean ctrl) {
+				markerMin = getEastNorth(r.x, r.y+r.height);
+				markerMax = getEastNorth(r.x+r.width, r.y);
+				LatLon min = getProjection().eastNorth2latlon(markerMin);
+				LatLon max = getProjection().eastNorth2latlon(markerMax);
+				gui.minlat = min.lat();
+				gui.minlon = min.lon();
+				gui.maxlat = max.lat();
+				gui.maxlon = max.lon();
+				gui.boundingBoxChanged(WorldChooser.this);
+				repaint();
+			}
+			public void addPropertyChangeListener(PropertyChangeListener listener) {}
+			public void removePropertyChangeListener(PropertyChangeListener listener) {}
+		};
+		SelectionManager sm = new SelectionManager(selListener, false, this);
+		sm.register(this);
+    }
+
+	public void boundingBoxChanged(DownloadDialog gui) {
+		markerMin = getProjection().latlon2eastNorth(new LatLon(gui.minlat, gui.minlon));
+		markerMax = getProjection().latlon2eastNorth(new LatLon(gui.maxlat, gui.maxlon));
+		repaint();
+	}
 
 	/**
 	 * Set the scale as well as the preferred size.
@@ -93,7 +141,6 @@ public class WorldChooser extends NavigatableComponent {
 		scale = world.getIconWidth()/preferredSize.getWidth();
 		scaleMax = scale;
 	}
-
 
 	/**
 	 * Draw the current selected region.
@@ -118,8 +165,8 @@ public class WorldChooser extends NavigatableComponent {
 			g.setColor(Color.YELLOW);
 			g.drawRect((int)x, (int)y, (int)w, (int)h);
 		}
+		super.paint(g);
 	}
-
 
 	@Override public void zoomTo(EastNorth newCenter, double scale) {
 		if (getWidth() != 0 && scale > scaleMax) {
@@ -127,87 +174,6 @@ public class WorldChooser extends NavigatableComponent {
 			newCenter = center;
 		}
 		super.zoomTo(newCenter, scale);
-	}
-
-	/**
-	 * Show the selection bookmark in the world.
-	 */
-	public void addListMarker(final BookmarkList list) {
-		list.addListSelectionListener(new ListSelectionListener(){
-			public void valueChanged(ListSelectionEvent e) {
-				Preferences.Bookmark b = (Preferences.Bookmark)list.getSelectedValue();
-				if (b != null) {
-					markerMin = getProjection().latlon2eastNorth(new LatLon(b.latlon[0],b.latlon[1]));
-					markerMax = getProjection().latlon2eastNorth(new LatLon(b.latlon[2],b.latlon[3]));
-				} else {
-					markerMin = null;
-					markerMax = null;
-				}
-				repaint();
-			}
-		});
-	}
-
-	/**
-	 * Update edit fields and react upon changes.
-	 * @param field Must have exactly 4 entries (min lat to max lon)
-	 */
-	public void addInputFields(final JTextField[] field, JTextField osmUrl, final KeyListener osmUrlRefresher) {
-		// listener that invokes updateMarkerFromTextField after all
-		// messages are dispatched and so text fields are updated.
-		KeyListener listener = new KeyAdapter(){
-			@Override public void keyTyped(KeyEvent e) {
-				SwingUtilities.invokeLater(new Runnable(){
-					public void run() {
-						updateMarkerFromTextFields(field);
-					}
-				});
-			}
-		};
-
-		for (JTextField f : field)
-			f.addKeyListener(listener);
-		osmUrl.addKeyListener(listener);
-
-		SelectionEnded selListener = new SelectionEnded(){
-			public void selectionEnded(Rectangle r, boolean alt, boolean shift, boolean ctrl) {
-				markerMin = getEastNorth(r.x, r.y+r.height);
-				markerMax = getEastNorth(r.x+r.width, r.y);
-				LatLon min = getProjection().eastNorth2latlon(markerMin);
-				LatLon max = getProjection().eastNorth2latlon(markerMax);
-				field[0].setText(""+min.lat());
-				field[1].setText(""+min.lon());
-				field[2].setText(""+max.lat());
-				field[3].setText(""+max.lon());
-				for (JTextField f : field)
-					f.setCaretPosition(0);
-				osmUrlRefresher.keyTyped(null);
-				repaint();
-			}
-			public void addPropertyChangeListener(PropertyChangeListener listener) {}
-			public void removePropertyChangeListener(PropertyChangeListener listener) {}
-		};
-		SelectionManager sm = new SelectionManager(selListener, false, this);
-		sm.register(this);
-		updateMarkerFromTextFields(field);
-	}
-
-	/**
-	 * Update the marker field from the values of the given textfields
-	 */
-	private void updateMarkerFromTextFields(JTextField[] field) {
-		// try to read all values
-		double v[] = new double[field.length];
-		for (int i = 0; i < field.length; ++i) {
-			try {
-				v[i] = Double.parseDouble(field[i].getText());
-			} catch (NumberFormatException nfe) {
-				return;
-			}
-		}
-		markerMin = getProjection().latlon2eastNorth(new LatLon(v[0], v[1]));
-		markerMax = getProjection().latlon2eastNorth(new LatLon(v[2], v[3]));
-		repaint();
 	}
 
 	/**

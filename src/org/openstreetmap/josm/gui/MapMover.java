@@ -12,6 +12,7 @@ import java.awt.event.MouseWheelListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
 import org.openstreetmap.josm.Main;
@@ -23,7 +24,7 @@ import org.openstreetmap.josm.data.coor.EastNorth;
  *
  * @author imi
  */
-class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelListener {
+public class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelListener {
 
 	private final class ZoomerAction extends AbstractAction {
 		private final String action;
@@ -71,7 +72,7 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 	/**
 	 * Create a new MapMover
 	 */
-	MapMover(NavigatableComponent navComp, boolean registerKeys) {
+	public MapMover(NavigatableComponent navComp, JPanel contentPane) {
 		this.nc = navComp;
 		nc.addMouseListener(this);
 		nc.addMouseMotionListener(this);
@@ -80,10 +81,10 @@ class MapMover extends MouseAdapter implements MouseMotionListener, MouseWheelLi
 		String[] n = {",",".","up","right","down","left"};
 		int[] k = {KeyEvent.VK_COMMA, KeyEvent.VK_PERIOD, KeyEvent.VK_UP, KeyEvent.VK_RIGHT, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT};
 
-		if (registerKeys) {
+		if (contentPane != null) {
 			for (int i = 0; i < n.length; ++i) {
-				Main.contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(k[i], KeyEvent.CTRL_DOWN_MASK), "MapMover.Zoomer."+n[i]);
-				Main.contentPane.getActionMap().put("MapMover.Zoomer."+n[i], new ZoomerAction(n[i]));
+				contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(k[i], KeyEvent.CTRL_DOWN_MASK), "MapMover.Zoomer."+n[i]);
+				contentPane.getActionMap().put("MapMover.Zoomer."+n[i], new ZoomerAction(n[i]));
 			}
 		}
 	}
