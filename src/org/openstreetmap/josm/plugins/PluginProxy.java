@@ -46,7 +46,7 @@ public class PluginProxy extends Plugin {
 	
 	@Override public void addDownloadSelection(List<DownloadSelection> list) {
 		try {
-			plugin.getClass().getMethod("getDownloadSelection", List.class).invoke(plugin);
+			plugin.getClass().getMethod("addDownloadSelection", List.class).invoke(plugin, list);
 		} catch (NoSuchMethodException e) {
 			// ignore
 		} catch (Exception e) {
