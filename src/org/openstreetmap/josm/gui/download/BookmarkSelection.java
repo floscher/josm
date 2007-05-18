@@ -99,7 +99,6 @@ public class BookmarkSelection implements DownloadSelection {
 		tempBookmark.latlon[1] = gui.minlon;
 		tempBookmark.latlon[2] = gui.maxlat;
 		tempBookmark.latlon[3] = gui.maxlon;
-		System.out.println("CHANGED");
 		bookmarks.clearSelection();
 	}
 
