@@ -128,7 +128,7 @@ public class MainMenu extends JMenuBar {
 		add(layerMenu);
 		layerMenu.setVisible(false);
 
-		add(Box.createHorizontalGlue());
+		//add(Box.createHorizontalGlue());
 
 		helpMenu.setMnemonic('H');
 		helpMenu.add(help);
