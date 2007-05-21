@@ -13,6 +13,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.HashMap;
+import java.util.StringTokenizer;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -26,6 +27,8 @@ import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.tools.GBC;
+
+import com.sun.corba.se.spi.orb.StringPair;
 /**
  * Bounding box selector.
  * 
@@ -178,23 +181,32 @@ public class BoundingBoxSelection implements DownloadSelection {
 		if (i == -1)
 			return null;
 		String[] args = url.substring(i+1).split("&");
-		HashMap<String, Double> map = new HashMap<String, Double>();
+		HashMap<String, String> map = new HashMap<String, String>();
 		for (String arg : args) {
 			int eq = arg.indexOf('=');
 			if (eq != -1) {
-				try {
-					map.put(arg.substring(0, eq), Double.parseDouble(arg.substring(eq + 1)));
-				} catch (NumberFormatException e) {
-				}
+				map.put(arg.substring(0, eq), arg.substring(eq + 1));
 			}
 		}
-		try {
-			double size = 180.0 / Math.pow(2, map.get("zoom"));
-			return new Bounds(
-					new LatLon(map.get("lat") - size/2, map.get("lon") - size),
-					new LatLon(map.get("lat") + size/2, map.get("lon") + size));
-		} catch (Exception x) { // NPE or IAE
-			return null;
+		if (map.containsKey("bbox")) {
+			String bbox[] = map.get("bbox").split(",");
+			try {
+				return new Bounds(
+					new LatLon(Double.parseDouble(bbox[1]), Double.parseDouble(bbox[0])),
+					new LatLon(Double.parseDouble(bbox[3]), Double.parseDouble(bbox[2])));
+			} catch (Exception x) { // NPE or IAE
+				return null;
+			}
+			
+		} else {
+			try {
+				double size = 180.0 / Math.pow(2, Integer.parseInt(map.get("zoom")));
+				return new Bounds(
+					new LatLon(Double.parseDouble(map.get("lat")) - size/2, Double.parseDouble(map.get("lon")) - size),
+					new LatLon(Double.parseDouble(map.get("lat")) + size/2, Double.parseDouble(map.get("lon")) + size));
+			} catch (Exception x) { // NPE or IAE
+				return null;
+			}
 		}
 	}
 }
