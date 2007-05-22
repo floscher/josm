@@ -177,20 +177,44 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		JPanel p = new JPanel(new BorderLayout());
 		p.add(new JLabel("<html>"+trn("This will change {0} object.","This will change {0} objects.", sel.size(),sel.size())+"<br><br>"+tr("Please select a key")),
 				BorderLayout.NORTH);
-		TreeSet<String> allKeys = new TreeSet<String>();
-		for (OsmPrimitive osm : Main.ds.allNonDeletedPrimitives())
-			allKeys.addAll(osm.keySet());
+		final TreeMap<String,TreeSet<String>> allData = new TreeMap<String,TreeSet<String>>();
+		for (OsmPrimitive osm : Main.ds.allNonDeletedPrimitives()) {
+			for (String key : osm.keySet()) {
+				TreeSet<String> values = null;
+				if (allData.containsKey(key))
+					values = allData.get(key);
+				else {
+					values = new TreeSet<String>();
+					allData.put(key, values);
+				}
+				values.add(osm.get(key));
+			}
+		}
 		for (int i = 0; i < data.getRowCount(); ++i)
-			allKeys.remove(data.getValueAt(i, 0));
-		final JComboBox keys = new JComboBox(new Vector<String>(allKeys));
+			allData.remove(data.getValueAt(i, 0));
+		final JComboBox keys = new JComboBox(new Vector<String>(allData.keySet()));
 		keys.setEditable(true);
 		p.add(keys, BorderLayout.CENTER);
 
 		JPanel p2 = new JPanel(new BorderLayout());
 		p.add(p2, BorderLayout.SOUTH);
 		p2.add(new JLabel(tr("Please select a value")), BorderLayout.NORTH);
-		final JTextField values = new JTextField();
+		final JComboBox values = new JComboBox();
+		values.setEditable(true);
 		p2.add(values, BorderLayout.CENTER);
+		
+		ActionListener link = new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				String key = keys.getEditor().getItem().toString();
+				Vector<String> newValues = new Vector<String>(allData.get(key));
+	            values.setModel(new DefaultComboBoxModel(newValues));
+	            
+            }
+			
+		};
+		keys.addActionListener(link);
+		
 		JOptionPane pane = new JOptionPane(p, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION){
 			@Override public void selectInitialValue() {
 				keys.requestFocusInWindow();
@@ -201,7 +225,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		if (!Integer.valueOf(JOptionPane.OK_OPTION).equals(pane.getValue()))
 			return;
 		String key = keys.getEditor().getItem().toString();
-		String value = values.getText();
+		String value = values.getEditor().getItem().toString();
 		if (value.equals(""))
 			return;
 		Main.main.editLayer().add(new ChangePropertyCommand(sel, key, value));
