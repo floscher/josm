@@ -1,7 +1,5 @@
 package org.openstreetmap.josm.gui.download;
 
-import org.openstreetmap.josm.data.coor.LatLon;
-import org.openstreetmap.josm.gui.preferences.PreferenceDialog;
 
 public interface DownloadSelection {
 	/**

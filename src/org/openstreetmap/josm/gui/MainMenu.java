@@ -3,7 +3,6 @@ package org.openstreetmap.josm.gui;
 import static org.openstreetmap.josm.tools.I18n.tr;
 
 import javax.swing.Action;
-import javax.swing.Box;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 

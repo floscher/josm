@@ -13,9 +13,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.HashMap;
-import java.util.StringTokenizer;
 
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -25,10 +23,7 @@ import javax.swing.SwingUtilities;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.coor.LatLon;
-import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.tools.GBC;
-
-import com.sun.corba.se.spi.orb.StringPair;
 /**
  * Bounding box selector.
  * 
@@ -98,7 +93,7 @@ public class BoundingBoxSelection implements DownloadSelection {
 						}
 					}
 				});
-			};
+			}
 		};
 		
 		osmUrl.addKeyListener(osmUrlRefresher);
@@ -188,25 +183,24 @@ public class BoundingBoxSelection implements DownloadSelection {
 				map.put(arg.substring(0, eq), arg.substring(eq + 1));
 			}
 		}
-		if (map.containsKey("bbox")) {
-			String bbox[] = map.get("bbox").split(",");
-			try {
-				return new Bounds(
+
+		Bounds b = null;
+		try {
+			if (map.containsKey("bbox")) {
+				String bbox[] = map.get("bbox").split(",");
+				b = new Bounds(
 					new LatLon(Double.parseDouble(bbox[1]), Double.parseDouble(bbox[0])),
 					new LatLon(Double.parseDouble(bbox[3]), Double.parseDouble(bbox[2])));
-			} catch (Exception x) { // NPE or IAE
-				return null;
-			}
 			
-		} else {
-			try {
+			} else {
 				double size = 180.0 / Math.pow(2, Integer.parseInt(map.get("zoom")));
-				return new Bounds(
-					new LatLon(Double.parseDouble(map.get("lat")) - size/2, Double.parseDouble(map.get("lon")) - size),
-					new LatLon(Double.parseDouble(map.get("lat")) + size/2, Double.parseDouble(map.get("lon")) + size));
-			} catch (Exception x) { // NPE or IAE
-				return null;
+				b = new Bounds(
+	            	new LatLon(Double.parseDouble(map.get("lat")) - size/2, Double.parseDouble(map.get("lon")) - size),
+	            	new LatLon(Double.parseDouble(map.get("lat")) + size/2, Double.parseDouble(map.get("lon")) + size));
 			}
+		} catch (NumberFormatException x) {
+		} catch (NullPointerException x) {
 		}
+		return b;
 	}
 }

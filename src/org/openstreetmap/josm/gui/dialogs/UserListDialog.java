@@ -3,19 +3,15 @@ package org.openstreetmap.josm.gui.dialogs;
 import static org.openstreetmap.josm.tools.I18n.tr;
 
 import java.awt.BorderLayout;
-
 import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import javax.swing.DefaultListModel;
-
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-
 import javax.swing.table.DefaultTableModel;
 
 import org.openstreetmap.josm.Main;
@@ -73,7 +69,7 @@ public class UserListDialog extends ToggleDialog implements SelectionChangedList
 			User user;
 			int count;
 			UserCount(User user, int count) { this.user=user; this.count=count; }
-		};
+		}
 		
 		if (data == null)
 			return; // selection changed may be received in base class constructor before init
@@ -96,7 +92,7 @@ public class UserListDialog extends ToggleDialog implements SelectionChangedList
 		Arrays.sort(ucArr, new Comparator<UserCount>() {
 			public int compare(UserCount a, UserCount b) { 
 				return (a.count<b.count) ? 1 : (a.count>b.count) ? -1 : 0;
-			};
+			}
 		});
 		
 		for (UserCount uc : ucArr) {

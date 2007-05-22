@@ -355,7 +355,7 @@ public class MergeVisitorTest extends TestCase {
 		Segment s1 = createSegment(ds, false, false, 23);
 		Segment s2 = new Segment(s1);
 		s2.id = 42;
-		MergeVisitor v = new MergeVisitor(ds);
+		MergeVisitor v = new MergeVisitor(ds, null);
 		v.visit(s2);
 		assertEquals(2, ds.segments.size());
 	}
