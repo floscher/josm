@@ -154,8 +154,7 @@ public class ReorderAction extends JosmAction {
 			way.visit(v);
 			return new SequenceCommand(tr("Reorder segments for way {0}",v.name), c);
 		}
-		else
-			return null;
+		return null;
     }
 
 	/**

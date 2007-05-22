@@ -8,7 +8,6 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JList;

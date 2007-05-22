@@ -2,15 +2,15 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry including="images/" excluding="build/|dist/|po/|src/|test/" kind="src" path=""/>
+	<classpathentry excluding="build/|dist/|po/|src/|test/" including="images/" kind="src" path=""/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry sourcepath="JUNIT_SRC_HOME/junitsrc.zip" kind="var" path="JUNIT_HOME/junit.jar"/>
 	<classpathentry kind="lib" path="lib/MinML2.jar"/>
 	<classpathentry kind="lib" path="lib/metadata-extractor-2.3.1.jar"/>
-	<classpathentry sourcepath="C:/Download/gettext-commons-0.9-src.zip" kind="lib" path="lib/gettext-commons-0.9.jar"/>
+	<classpathentry kind="lib" path="lib/gettext-commons-0.9.jar" sourcepath="C:/Download/gettext-commons-0.9-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="po"/>
 	<classpathentry kind="lib" path="lib/easymock.jar"/>
 	<classpathentry kind="lib" path="lib/easymockclassextension.jar"/>
 	<classpathentry kind="lib" path="lib/cglib-nodep-2.1_3.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
