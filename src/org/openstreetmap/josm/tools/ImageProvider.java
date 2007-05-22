@@ -9,6 +9,8 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -69,14 +71,11 @@ public class ImageProvider {
 		if (subdir == null || subdir != "")
 			subdir += "/";
 		String ext = name.indexOf('.') != -1 ? "" : ".png";
-		URL path = null;
-		for (Class<?> source : sources) {
-			path = source.getResource("/images/"+subdir+name+ext);
-			if (path != null)
-				break;
-		}
+
+		URL path = getImageUrl(subdir+name+ext);
 		if (path == null)
 			return null;
+		
 		Image img = cache.get(path);
 		if (img == null) {
 			img = Toolkit.getDefaultToolkit().createImage(path);
@@ -84,6 +83,23 @@ public class ImageProvider {
 		}
 		return new ImageIcon(img);
 	}
+
+	private static URL getImageUrl(String imageName) {
+	    URL path = null;
+	    for (Class<?> source : sources)
+			if ((path = source.getResource("/images/"+imageName)) != null)
+				return path;
+	    
+	    // Try all ressource directories as well
+		for (String location : Main.pref.getAllPossiblePreferenceDirs()) {
+			try {
+				if (new File(location+"images/"+imageName).exists())
+					return new URL("file", "", location+"images/"+imageName);
+            } catch (MalformedURLException e) {
+            }
+		}
+	    return null;
+    }
 
 	/**
 	 * Shortcut for get("", name);

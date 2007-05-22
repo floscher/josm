@@ -7,8 +7,11 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -32,19 +35,26 @@ public class PluginPreference implements PreferenceSetting {
 	public void addGui(final PreferenceDialog gui) {
 		pluginMap = new HashMap<PluginInformation, Boolean>();
 		Box pluginPanel = Box.createVerticalBox();
-		Collection<PluginInformation> availablePlugins = new LinkedList<PluginInformation>();
-		File[] pluginFiles = new File(Main.pref.getPreferencesDir()+"plugins").listFiles();
-		if (pluginFiles != null) {
-			Arrays.sort(pluginFiles);
-			for (File f : pluginFiles) {
-				if (f.isFile() && f.getName().endsWith(".jar")) {
-					try {
-	                    availablePlugins.add(new PluginInformation(f));
-                    } catch (PluginException x) {
-                    }
+		List<PluginInformation> availablePlugins = new LinkedList<PluginInformation>();
+		for (String location : PluginInformation.getPluginLocations()) {
+			File[] pluginFiles = new File(location).listFiles();
+			if (pluginFiles != null) {
+				Arrays.sort(pluginFiles);
+				for (File f : pluginFiles) {
+					if (f.isFile() && f.getName().endsWith(".jar")) {
+						try {
+		                    availablePlugins.add(new PluginInformation(f));
+	                    } catch (PluginException x) {
+	                    }
+					}
 				}
 			}
 		}
+		Collections.sort(availablePlugins, new Comparator<PluginInformation>(){
+			public int compare(PluginInformation o1, PluginInformation o2) {
+	            return o1.name.compareTo(o2.name);
+            }
+		});
 
 		Collection<String> enabledPlugins = Arrays.asList(Main.pref.get("plugins").split(","));
 		for (final PluginInformation plugin : availablePlugins) {
@@ -52,7 +62,7 @@ public class PluginPreference implements PreferenceSetting {
 			final JCheckBox pluginCheck = new JCheckBox(plugin.name, enabled);
 			pluginPanel.add(pluginCheck);
 
-			pluginCheck.setToolTipText(plugin.file.getAbsolutePath());
+			pluginCheck.setToolTipText(plugin.file != null ? plugin.file.getAbsolutePath() : tr("Plugin bundled with JOSM"));
 			JLabel label = new JLabel("<html><i>"+(plugin.description==null?"no description available":plugin.description)+"</i></html>");
 			label.setBorder(BorderFactory.createEmptyBorder(0,20,0,0));
 			pluginPanel.add(label);

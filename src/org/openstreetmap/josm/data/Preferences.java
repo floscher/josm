@@ -57,13 +57,43 @@ public class Preferences {
 	protected final SortedMap<String, String> properties = new TreeMap<String, String>();
 
 	/**
-	 * Return the location of the preferences file
+	 * Return the location of the user defined preferences file
 	 */
 	public String getPreferencesDir() {
 		if (System.getenv("APPDATA") != null)
 			return System.getenv("APPDATA")+"/JOSM/";
 		return System.getProperty("user.home")+"/.josm/";
 	}
+
+	/**
+	 * @return A list of all existing directories, where ressources could be stored.
+	 */
+	public Collection<String> getAllPossiblePreferenceDirs() {
+	    LinkedList<String> locations = new LinkedList<String>();
+        locations.add(Main.pref.getPreferencesDir());
+        String s;
+        if ((s = System.getenv("JOSM_RESSOURCES")) != null) {
+	    	if (!s.endsWith("/") && !s.endsWith("\\"))
+	    		s = s + "/";
+        	locations.add(System.getenv("JOSM_RESSOURCES"));
+        }
+        if ((s = System.getProperty("josm.ressources")) != null) {
+	    	if (!s.endsWith("/") && !s.endsWith("\\"))
+	    		s = s + "/";
+        	locations.add(System.getProperty("josm.ressources"));
+        }
+       	String appdata = System.getenv("APPDATA");
+       	if (System.getenv("ALLUSERSPROFILE") != null && appdata != null && appdata.lastIndexOf("\\") != -1) {
+       		appdata = appdata.substring(appdata.lastIndexOf("\\"));
+       		locations.add(System.getenv("ALLUSERSPROFILE")+appdata+"/JOSM/");
+       	}
+       	locations.add("/usr/local/share/josm/");
+       	locations.add("/usr/local/lib/josm/");
+       	locations.add("/usr/share/josm/");
+       	locations.add("/usr/lib/josm/");
+	    return locations;
+	}
+
 
 	synchronized public boolean hasKey(final String key) {
 		return properties.containsKey(key);

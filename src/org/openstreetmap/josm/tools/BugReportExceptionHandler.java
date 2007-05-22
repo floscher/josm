@@ -53,8 +53,11 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 			// Try a heuristic to guess whether the problem may be within a plugin
 			String pluginName = guessPlugin(e);
 			if (pluginName != null) {
-				LinkedList<String> plugins = new LinkedList<String>(Arrays.asList(Main.pref.get("plugins").split(",")));
-				if (plugins.contains(pluginName)) {
+				boolean loaded = false;
+				for (PluginProxy p : Main.plugins)
+					if (p.info.name.equals(pluginName))
+						loaded = true;
+				if (loaded) {
 					String author = findPluginAuthor(pluginName);
 					int answer = JOptionPane.showConfirmDialog(
 							Main.parent, 
@@ -64,14 +67,19 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 							tr("Disable plugin"),
 							JOptionPane.YES_NO_OPTION);
 					if (answer == JOptionPane.OK_OPTION) {
-						while (plugins.remove(pluginName)) {}
-						String p = "";
-						for (String s : plugins)
-							p += ","+s;
-						if (p.length() > 0)
-							p = p.substring(1);
-						Main.pref.put("plugins", p);
-						JOptionPane.showMessageDialog(Main.parent, tr("The plugin has been removed from the configuration. Please restart JOSM to unload the plugin."));
+						LinkedList<String> plugins = new LinkedList<String>(Arrays.asList(Main.pref.get("plugins").split(",")));
+						if (plugins.contains(pluginName)) {
+							while (plugins.remove(pluginName)) {}
+							String p = "";
+							for (String s : plugins)
+								p += ","+s;
+							if (p.length() > 0)
+								p = p.substring(1);
+							Main.pref.put("plugins", p);
+							JOptionPane.showMessageDialog(Main.parent, tr("The plugin has been removed from the configuration. Please restart JOSM to unload the plugin."));
+						} else {
+							JOptionPane.showMessageDialog(Main.parent, tr("The plugin could not be removed. Please tell the people you got JOSM from about the problem."));
+						}
 						return;
 					}
 				}

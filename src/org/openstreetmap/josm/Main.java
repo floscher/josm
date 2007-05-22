@@ -10,8 +10,10 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
@@ -198,13 +200,18 @@ abstract public class Main {
 	 * early plugins are loaded (before constructor).
 	 */
 	public static void loadPlugins(boolean early) {
-		if (!Main.pref.hasKey("plugins"))
+		List<String> plugins = new LinkedList<String>();
+		if (Main.pref.hasKey("plugins"))
+			plugins.addAll(Arrays.asList(Main.pref.get("plugins").split(",")));
+		if (System.getProperty("josm.plugins") != null)
+			plugins.addAll(Arrays.asList(System.getProperty("josm.plugins").split(",")));
+		if (plugins.isEmpty())
 			return;
+
 		SortedMap<Integer, Collection<PluginInformation>> p = new TreeMap<Integer, Collection<PluginInformation>>();
-		for (String pluginName : Main.pref.get("plugins").split(",")) {
-			File pluginFile = new File(pref.getPreferencesDir()+"plugins/"+pluginName+".jar");
-			if (pluginFile.exists()) {
-				PluginInformation info = new PluginInformation(pluginFile);
+		for (String pluginName : plugins) {
+			PluginInformation info = PluginInformation.findPlugin(pluginName);
+			if (info != null) {
 				if (info.early != early)
 					continue;
 				if (!p.containsKey(info.stage))
@@ -223,7 +230,7 @@ abstract public class Main {
 					Class<?> klass = info.loadClass();
 					ImageProvider.sources.add(0, klass);
 					System.out.println("loading "+info.name);
-					plugins.add(info.load(klass));
+					Main.plugins.add(info.load(klass));
 				} catch (PluginException e) {
 					e.printStackTrace();
 					if (early)
