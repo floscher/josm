@@ -17,6 +17,7 @@ public class DrawingPreference implements PreferenceSetting {
 	private JCheckBox largeGpsPoints = new JCheckBox(tr("Draw large GPS points."));
 	private JCheckBox directionHint = new JCheckBox(tr("Draw Direction Arrows"));
 	private JCheckBox segmentOrderNumber = new JCheckBox(tr("Draw segment order numbers"));
+	private JCheckBox sourceBounds = new JCheckBox(tr("Draw boundaries of downloaded data"));
 
 	public void addGui(PreferenceDialog gui) {
 		// drawRawGpsLines
@@ -51,6 +52,11 @@ public class DrawingPreference implements PreferenceSetting {
 		segmentOrderNumber.setToolTipText(tr("Draw the order numbers of all segments within their way."));
 		segmentOrderNumber.setSelected(Main.pref.getBoolean("draw.segment.order_number"));
 		gui.display.add(segmentOrderNumber, GBC.eop().insets(20,0,0,0));
+		
+		// downloaded area
+		sourceBounds.setToolTipText(tr("Draw the boundaries of data loaded from the server."));
+		sourceBounds.setSelected(Main.pref.getBoolean("draw.data.downloaded_area"));
+		gui.display.add(sourceBounds, GBC.eop().insets(20,0,0,0));
 	}
 
 	public void ok() {
@@ -59,5 +65,6 @@ public class DrawingPreference implements PreferenceSetting {
 		Main.pref.put("draw.rawgps.large", largeGpsPoints.isSelected());
 		Main.pref.put("draw.segment.direction", directionHint.isSelected());
 		Main.pref.put("draw.segment.order_number", segmentOrderNumber.isSelected());
+		Main.pref.put("draw.data.downloaded_area", sourceBounds.isSelected());
     }
 }

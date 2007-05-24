@@ -43,6 +43,11 @@ public class DataSet {
 	public Collection<Way> ways = new LinkedList<Way>();
 
 	/**
+	 * All data sources of this DataSet.
+	 */
+	public Collection<DataSource> dataSources = new LinkedList<DataSource>();
+	
+	/**
 	 * A list of listeners to selection changed events.
 	 */
 	transient public Collection<SelectionChangedListener> listeners = new LinkedList<SelectionChangedListener>();
