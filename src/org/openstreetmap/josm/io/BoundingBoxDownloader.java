@@ -8,9 +8,13 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.data.Bounds;
+import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.data.osm.DataSource;
 import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
 import org.xml.sax.SAXException;
+
 
 public class BoundingBoxDownloader extends OsmServerReader {
 
@@ -97,6 +101,10 @@ public class BoundingBoxDownloader extends OsmServerReader {
     			return null;
     		Main.pleaseWaitDlg.currentAction.setText(tr("Downloading OSM data..."));
     		final DataSet data = OsmReader.parseDataSet(in, null, Main.pleaseWaitDlg);
+    		DataSource src = new DataSource();
+    		src.sourceSpec = "Server";
+    		src.sourceBounds = new Bounds(new LatLon(lat1, lon1), new LatLon(lat2, lon2));
+    		data.dataSources.add(src);
     		in.close();
     		activeConnection = null;
     		return data;

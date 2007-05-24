@@ -3,9 +3,11 @@ package org.openstreetmap.josm.gui.layer;
 import static org.openstreetmap.josm.tools.I18n.tr;
 import static org.openstreetmap.josm.tools.I18n.trn;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.GridBagLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.Collection;
@@ -28,7 +30,9 @@ import org.openstreetmap.josm.actions.RenameLayerAction;
 import org.openstreetmap.josm.actions.SaveAction;
 import org.openstreetmap.josm.actions.SaveAsAction;
 import org.openstreetmap.josm.command.Command;
+import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.data.osm.DataSource;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Segment;
@@ -139,6 +143,20 @@ public class OsmDataLayer extends Layer {
 	 * Draw nodes last to overlap the segments they belong to.
 	 */
 	@Override public void paint(final Graphics g, final MapView mv) {
+		if (Main.pref.getBoolean("draw.data.downloaded_area", false)) {
+			// FIXME this is inefficient; instead a proper polygon has to be built, and instead
+			// of drawing the outline, the outlying areas should perhaps be shaded.
+			for (DataSource src : data.dataSources) {
+				if (src.sourceBounds != null) {
+					EastNorth en1 = Main.proj.latlon2eastNorth(src.sourceBounds.min);
+					EastNorth en2 = Main.proj.latlon2eastNorth(src.sourceBounds.max);
+					Point p1 = mv.getPoint(en1);
+					Point p2 = mv.getPoint(en2);
+					g.setColor(SimplePaintVisitor.getPreferencesColor("downloaded Area", Color.YELLOW));
+					g.drawRect(Math.min(p1.x,p2.x), Math.min(p1.y, p2.y), Math.abs(p2.x-p1.x), Math.abs(p2.y-p1.y));
+				}
+			}
+		}
 		mapPainter.setGraphics(g);
 		mapPainter.setNavigatableComponent(mv);
 		mapPainter.visitAll(data);
@@ -160,6 +178,11 @@ public class OsmDataLayer extends Layer {
 		for (final OsmPrimitive osm : ((OsmDataLayer)from).data.allPrimitives())
 			osm.visit(visitor);
 		visitor.fixReferences();
+		
+		// copy the merged layer's data source info
+		for (DataSource src : ((OsmDataLayer)from).data.dataSources) 
+			data.dataSources.add(src);
+		
 		if (visitor.conflicts.isEmpty())
 			return;
 		final ConflictDialog dlg = Main.map.conflictDialog;

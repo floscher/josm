@@ -18,6 +18,7 @@ import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.data.osm.DataSource;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.RawGpsLayer;
 import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
@@ -85,6 +86,9 @@ public class OpenAction extends DiskAccessAction {
 				DataSet dataSet;
 				if (ExtensionFileFilter.filters[ExtensionFileFilter.OSM].acceptName(fn)) {
 					dataSet = OsmReader.parseDataSet(new FileInputStream(file), null, Main.pleaseWaitDlg);
+					DataSource src = new DataSource();
+					src.sourceSpec = "File " + fn;
+					dataSet.dataSources.add(src);
 				} else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
 					JOptionPane.showMessageDialog(Main.parent, fn+": "+tr("CSV Data import for non-GPS data is not implemented yet."));
 					return;
