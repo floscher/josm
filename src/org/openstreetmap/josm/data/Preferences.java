@@ -72,15 +72,15 @@ public class Preferences {
 	    LinkedList<String> locations = new LinkedList<String>();
         locations.add(Main.pref.getPreferencesDir());
         String s;
-        if ((s = System.getenv("JOSM_RESSOURCES")) != null) {
+        if ((s = System.getenv("JOSM_RESOURCES")) != null) {
 	    	if (!s.endsWith("/") && !s.endsWith("\\"))
 	    		s = s + "/";
-        	locations.add(System.getenv("JOSM_RESSOURCES"));
+        	locations.add(s);
         }
-        if ((s = System.getProperty("josm.ressources")) != null) {
+        if ((s = System.getProperty("josm.resources")) != null) {
 	    	if (!s.endsWith("/") && !s.endsWith("\\"))
 	    		s = s + "/";
-        	locations.add(System.getProperty("josm.ressources"));
+        	locations.add(s);
         }
        	String appdata = System.getenv("APPDATA");
        	if (System.getenv("ALLUSERSPROFILE") != null && appdata != null && appdata.lastIndexOf("\\") != -1) {
