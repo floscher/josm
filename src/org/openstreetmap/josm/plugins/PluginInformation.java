@@ -32,7 +32,8 @@ public class PluginInformation {
 	public final boolean early;
 	public final String author;
 	public final int stage;
-	public final List<URL> libraries = new ArrayList<URL>();
+	protected final List<URL> libraries = new ArrayList<URL>();
+	protected ClassLoader classLoader;
 
 	public final Map<String, String> attr = new TreeMap<String, String>();
 
@@ -67,7 +68,7 @@ public class PluginInformation {
 			author = attr.getValue("Author");
 			if (file != null)
 				libraries.add(new URL(getURLString(file.getAbsolutePath())));
-			String classPath = attr.getValue("Class-Path");
+			String classPath = attr.getValue(Attributes.Name.CLASS_PATH);
 			if (classPath != null) {
 				String[] cp = classPath.split(" ");
 				StringBuilder entry = new StringBuilder();
@@ -111,10 +112,7 @@ public class PluginInformation {
 	 */
 	public Class<?> loadClass() {
 		try {
-			URL[] urls = new URL[libraries.size()];
-			urls = libraries.toArray(urls);
-			ClassLoader loader = URLClassLoader.newInstance(urls, getClass().getClassLoader());
-			Class<?> realClass = Class.forName(className, true, loader);
+			Class<?> realClass = Class.forName(className, true, getClassLoader());
 			return realClass;
 		} catch (Exception e) {
 			throw new PluginException(null, name, e);
@@ -126,6 +124,35 @@ public class PluginInformation {
 			return "file:/"+fileName;
 		return "file://"+fileName;
 	}
+
+	/**
+	 * Returns all libraries the plugin needs (the plugin's jar file itself and all jars declared
+	 * in the manifest's Class-Path section).
+	 * @return the libraries a list of URLs to the libraries.
+	 */
+	public List<URL> getLibraries() {
+		return libraries;
+	}
+
+	/**
+     * @return the classLoader
+     */
+    public ClassLoader getClassLoader() {
+		// if I have no classloader set, create one for me and my libraries:
+		if(classLoader == null) {
+			URL[] urls = new URL[libraries.size()];
+			urls = libraries.toArray(urls);
+			classLoader = URLClassLoader.newInstance(urls, getClass().getClassLoader());
+		}
+    	return classLoader;
+    }
+
+	/**
+     * @param classLoader the classLoader to set
+     */
+    public void setClassLoader(ClassLoader classLoader) {
+    	this.classLoader = classLoader;
+    }
 	
 	/**
 	 * Try to find a plugin after some criterias. Extract the plugin-information
@@ -189,3 +216,4 @@ public class PluginInformation {
 	    return all;
     }
 }
+
