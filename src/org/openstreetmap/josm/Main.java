@@ -11,6 +11,9 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -207,7 +210,6 @@ abstract public class Main {
 			plugins.addAll(Arrays.asList(System.getProperty("josm.plugins").split(",")));
 		if (plugins.isEmpty())
 			return;
-
 		SortedMap<Integer, Collection<PluginInformation>> p = new TreeMap<Integer, Collection<PluginInformation>>();
 		for (String pluginName : plugins) {
 			PluginInformation info = PluginInformation.findPlugin(pluginName);
@@ -224,9 +226,24 @@ abstract public class Main {
 					JOptionPane.showMessageDialog(Main.parent, tr("Plugin not found: {0}.", pluginName));
 			}
 		}
+		
+		// iterate all plugins and collect all libraries of all plugins:
+		List<URL> allPluginLibraries = new ArrayList<URL>();
+		for (Collection<PluginInformation> c : p.values()) {
+			for (PluginInformation info : c) {
+				allPluginLibraries.addAll(info.getLibraries());
+			}
+		}
+		// create a classloader for all plugins:
+		URL[] jarUrls = new URL[allPluginLibraries.size()];
+		jarUrls = allPluginLibraries.toArray(jarUrls);
+		URLClassLoader pluginClassLoader = new URLClassLoader(jarUrls, Main.class.getClassLoader());
+		
+		
 		for (Collection<PluginInformation> c : p.values()) {
 			for (PluginInformation info : c) {
 				try {
+					info.setClassLoader(pluginClassLoader); // set the common classloader
 					Class<?> klass = info.loadClass();
 					ImageProvider.sources.add(0, klass);
 					System.out.println("loading "+info.name);
