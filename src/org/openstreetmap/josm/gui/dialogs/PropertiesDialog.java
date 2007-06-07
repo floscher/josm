@@ -210,6 +210,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 				if (allData.containsKey(key)) {
 					Vector<String> newValues = new Vector<String>(allData.get(key));
 					values.setModel(new DefaultComboBoxModel(newValues));
+					values.getEditor().selectAll();
 				}
             }
 			
