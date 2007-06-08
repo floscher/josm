@@ -12,6 +12,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
@@ -192,14 +193,14 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		}
 		for (int i = 0; i < data.getRowCount(); ++i)
 			allData.remove(data.getValueAt(i, 0));
-		final JComboBox keys = new JComboBox(new Vector<String>(allData.keySet()));
+		final JComboBox keys = new EditableComboBox(new Vector<String>(allData.keySet()));
 		keys.setEditable(true);
 		p.add(keys, BorderLayout.CENTER);
 
 		JPanel p2 = new JPanel(new BorderLayout());
 		p.add(p2, BorderLayout.SOUTH);
 		p2.add(new JLabel(tr("Please select a value")), BorderLayout.NORTH);
-		final JComboBox values = new JComboBox();
+		final JComboBox values = new EditableComboBox();
 		values.setEditable(true);
 		p2.add(values, BorderLayout.CENTER);
 		
@@ -210,9 +211,10 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 				if (allData.containsKey(key)) {
 					Vector<String> newValues = new Vector<String>(allData.get(key));
 					Object oldValue = values.getSelectedItem();
-					values.setModel(new DefaultComboBoxModel(newValues));
-					values.setSelectedItem(oldValue);
-					values.getEditor().selectAll();
+                          
+					values.setModel(new EditableComboBox.FilterableComboBoxModel(newValues));
+					// select the new proposed value
+					values.getEditor().selectAll();	
 				}
             }
 			
