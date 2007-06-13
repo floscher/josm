@@ -1,10 +1,12 @@
 package org.openstreetmap.josm.gui.annotation;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.List;
 
 import javax.swing.Action;
+import javax.swing.Icon;
 
 import junit.framework.TestCase;
 
@@ -13,6 +15,7 @@ import org.openstreetmap.josm.gui.annotation.AnnotationPreset.Combo;
 import org.openstreetmap.josm.gui.annotation.AnnotationPreset.Key;
 import org.openstreetmap.josm.gui.annotation.AnnotationPreset.Label;
 import org.openstreetmap.josm.gui.annotation.AnnotationPreset.Text;
+import org.openstreetmap.josm.tools.ImageProvider;
 
 public class AnnotationPresetTest extends TestCase {
 
@@ -54,4 +57,16 @@ public class AnnotationPresetTest extends TestCase {
 		assertEquals("class", key.key);
 		assertEquals("highway", key.value);
 	}
+	
+	public void testIconLoadsFromClasspath() throws Exception {
+		String xml = "<annotations><item icon='logo'></item></annotations>";
+		List<AnnotationPreset> all = AnnotationPreset.readAll(new ByteArrayInputStream(xml.getBytes()));
+
+		assertEquals(1, all.size());
+
+		Icon icon = (Icon)all.get(0).getValue(Action.SMALL_ICON);
+		assertNotNull(icon);
+		assertEquals("Icon loaded and of correct size", 
+				24, Math.max(icon.getIconHeight(), icon.getIconWidth()));
+    }
 }

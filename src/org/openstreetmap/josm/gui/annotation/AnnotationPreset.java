@@ -34,6 +34,7 @@ import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.SequenceCommand;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.tools.GBC;
+import org.openstreetmap.josm.tools.ImageProvider;
 import org.openstreetmap.josm.tools.XmlObjectParser;
 import org.xml.sax.SAXException;
 
@@ -53,7 +54,7 @@ public class AnnotationPreset extends AbstractAction {
 		abstract void addCommands(Collection<OsmPrimitive> sel, List<Command> cmds);
 		boolean requestFocusInWindow() {return false;}
 	}
-	
+
 	public static class Text extends Item {
 		public String key;
 		public String text;
@@ -80,7 +81,7 @@ public class AnnotationPreset extends AbstractAction {
 		public String key;
 		public String text;
 		public boolean default_ = false;
-		
+
 		private JCheckBox check = new JCheckBox();
 
 		@Override public void addToPanel(JPanel p) {
@@ -142,9 +143,9 @@ public class AnnotationPreset extends AbstractAction {
 	}
 
 	/**
-     * The types as preparsed collection.
-     */
-    public Collection<Class<?>> types;
+	 * The types as preparsed collection.
+	 */
+	public Collection<Class<?>> types;
 	private List<Item> data = new LinkedList<Item>();
 
 	/**
@@ -165,10 +166,15 @@ public class AnnotationPreset extends AbstractAction {
 	/**
 	 * Called from the XML parser to set the icon
 	 */
-	public void setIcon(String icon) {
-		putValue(Action.SMALL_ICON, new ImageIcon(new ImageIcon(icon).getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH)));
+	public void setIcon(String iconName) {
+		ImageIcon icon = ImageProvider.getIfAvailable(null, iconName);
+		if (icon == null)
+			icon = new ImageIcon(iconName);
+		if (Math.max(icon.getIconHeight(), icon.getIconWidth()) != 24)
+			icon = new ImageIcon(icon.getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH));
+		putValue(Action.SMALL_ICON, icon);
 	}
-	
+
 	/**
 	 * Called from the XML parser to set the types, this preset affects
 	 */
@@ -185,7 +191,7 @@ public class AnnotationPreset extends AbstractAction {
 			throw new SAXException(tr("Unknown type"));
 		}
 	}
-	
+
 	public static List<AnnotationPreset> readAll(InputStream inStream) throws SAXException {
 		BufferedReader in = null;
 		try {
