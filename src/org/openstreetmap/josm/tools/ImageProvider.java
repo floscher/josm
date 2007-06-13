@@ -68,7 +68,9 @@ public class ImageProvider {
 	public static ImageIcon getIfAvailable(String subdir, String name) {
 		if (name == null)
 			return null;
-		if (subdir == null || subdir != "")
+		if (subdir == null)
+			subdir = "";
+		else
 			subdir += "/";
 		String ext = name.indexOf('.') != -1 ? "" : ".png";
 
