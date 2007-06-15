@@ -70,7 +70,7 @@ public class ImageProvider {
 			return null;
 		if (subdir == null)
 			subdir = "";
-		else if (subdir != "")
+		else if (!subdir.equals(""))
 			subdir += "/";
 		String ext = name.indexOf('.') != -1 ? "" : ".png";
 
