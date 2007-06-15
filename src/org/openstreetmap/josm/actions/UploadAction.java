@@ -114,18 +114,18 @@ public class UploadAction extends JosmAction {
 			return;
 		}
 
-		final Collection<OsmPrimitive> add = new LinkedList<OsmPrimitive>();
-		final Collection<OsmPrimitive> update = new LinkedList<OsmPrimitive>();
-		final Collection<OsmPrimitive> delete = new LinkedList<OsmPrimitive>();
+		final LinkedList<OsmPrimitive> add = new LinkedList<OsmPrimitive>();
+		final LinkedList<OsmPrimitive> update = new LinkedList<OsmPrimitive>();
+		final LinkedList<OsmPrimitive> delete = new LinkedList<OsmPrimitive>();
 		for (OsmPrimitive osm : Main.ds.allPrimitives()) {
 			if (osm.get("josm/ignore") != null)
 				continue;
 			if (osm.id == 0 && !osm.deleted)
-				add.add(osm);
+				add.addLast(osm);
 			else if (osm.modified && !osm.deleted)
-				update.add(osm);
+				update.addLast(osm);
 			else if (osm.deleted && osm.id != 0)
-				delete.add(osm);
+				delete.addFirst(osm);
 		}
 		
 		if (add.isEmpty() && update.isEmpty() && delete.isEmpty()) {
