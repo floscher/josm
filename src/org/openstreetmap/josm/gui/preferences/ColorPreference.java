@@ -7,10 +7,13 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
-import java.util.Map.Entry;
 
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
@@ -19,6 +22,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import org.openstreetmap.josm.Main;
@@ -27,22 +31,79 @@ import org.openstreetmap.josm.tools.GBC;
 
 public class ColorPreference implements PreferenceSetting {
 
+	private DefaultTableModel tableModel;
 	private JTable colors;
+	public static final String PREF_COLOR_PREFIX = "color.";
+	
+	
+	/**
+	 * Set the colors to be shown in the preference table. This method creates a table model if
+	 * none exists and overwrites all existing values.
+	 * @param colorMap the map holding the colors 
+	 * (key = color id (without prefixes, so only <code>background</code>; not <code>color.background</code>), 
+	 * value = html representation of the color.
+	 */
+	public void setColorModel(Map<String, String> colorMap) {
+		if(tableModel == null) {
+			tableModel = new DefaultTableModel();
+			tableModel.addColumn(tr("Color"));
+			tableModel.addColumn(tr("Name"));
+		}
+		
+		// clear old model:
+		while(tableModel.getRowCount() > 0) {
+			tableModel.removeRow(0);
+		}
+		// fill model with colors:
+		List<String> colorKeyList = new ArrayList<String>();
+		for(String key : colorMap.keySet()) {
+			colorKeyList.add(key);
+		}
+		Collections.sort(colorKeyList);
+		for (String key : colorKeyList) {
+			Vector<Object> row = new Vector<Object>(2);
+			row.add(key);
+			row.add(ColorHelper.html2color(colorMap.get(key)));
+			tableModel.addRow(row);
+		}
+		if(this.colors != null) {
+			this.colors.repaint();
+		}		
+	}
+	
+	/**
+	 * Returns a map with the colors in the table (key = color name without prefix, value = html color code).
+	 * @return a map holding the colors.
+	 */
+	public Map<String, String> getColorModel() {
+		String key;
+		String value;
+		Map<String, String> colorMap = new HashMap<String, String>();
+		for(int row = 0; row < tableModel.getRowCount(); ++row) {
+			key = (String)tableModel.getValueAt(row, 0);
+			value = ColorHelper.color2html((Color)tableModel.getValueAt(row, 1));
+			colorMap.put(key, value);
+		}
+		return colorMap;
+	}
+	
+	/**
+	 * Updates the table model with the colors in the color map.
+	 */
+	private void updateTableModel() {
+	}
+	
 
 	public void addGui(final PreferenceDialog gui) {
-		Map<String,String> allColors = new TreeMap<String, String>(Main.pref.getAllPrefix("color."));
-
-		Vector<Vector<Object>> rows = new Vector<Vector<Object>>();
-		for (Entry<String,String> e : allColors.entrySet()) {
-			Vector<Object> row = new Vector<Object>(2);
-			row.add(e.getKey().substring("color.".length()));
-			row.add(ColorHelper.html2color(e.getValue()));
-			rows.add(row);
+		// initial fill with colors from preferences:
+		Map<String,String> prefColorMap = new TreeMap<String, String>(Main.pref.getAllPrefix(PREF_COLOR_PREFIX));
+		Map<String,String> colorMap = new TreeMap<String, String>();
+		for(String key : prefColorMap.keySet()) {
+			colorMap.put(key.substring(PREF_COLOR_PREFIX.length()), prefColorMap.get(key));
 		}
-		Vector<Object> cols = new Vector<Object>(2);
-		cols.add(tr("Color"));
-		cols.add(tr("Name"));
-		colors = new JTable(rows, cols){
+		setColorModel(colorMap);
+		
+		colors = new JTable(tableModel) {
 			@Override public boolean isCellEditable(int row, int column) {
 				return false;
 			}
@@ -87,7 +148,7 @@ public class ColorPreference implements PreferenceSetting {
 		for (int i = 0; i < colors.getRowCount(); ++i) {
 			String name = (String)colors.getValueAt(i, 0);
 			Color col = (Color)colors.getValueAt(i, 1);
-			Main.pref.put("color."+name, ColorHelper.color2html(col));
+			Main.pref.put(PREF_COLOR_PREFIX + name, ColorHelper.color2html(col));
 		}
     }
 }
