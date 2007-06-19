@@ -35,7 +35,6 @@ public class ColorPreference implements PreferenceSetting {
 	private JTable colors;
 	public static final String PREF_COLOR_PREFIX = "color.";
 	
-	
 	/**
 	 * Set the colors to be shown in the preference table. This method creates a table model if
 	 * none exists and overwrites all existing values.
