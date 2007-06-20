@@ -228,10 +228,16 @@ public class MergeVisitor implements Visitor {
     }
 
 	private void fixSegment(Segment ls) {
-	    if (mergedNodes.containsKey(ls.from))
+		System.out.println("fix seg" +ls+ " mn="+mergedNodes.size());
+		
+	    if (mergedNodes.containsKey(ls.from)) {
 	    	ls.from = mergedNodes.get(ls.from);
-	    if (mergedNodes.containsKey(ls.to))
+	    	System.out.println("fix from");
+	    }
+	    if (mergedNodes.containsKey(ls.to))  {
 	    	ls.to = mergedNodes.get(ls.to);
+	    	System.out.println("fix to");
+	    }
     }
 
 	/**
@@ -306,8 +312,11 @@ public class MergeVisitor implements Visitor {
 		for (P my : primitives) {
 			Date d1 = my.timestamp == null ? new Date(0) : my.timestamp;
 			Date d2 = other.timestamp == null ? new Date(0) : other.timestamp;
-			if (my.realEqual(other, false))
+			if (my.realEqual(other, false)) {
+				if (merged != null)
+					merged.put(other, my);
 				return true; // no merge needed.
+			}
 			if (my.realEqual(other, true)) {
 				// they differ in modified/timestamp combination only. Auto-resolve it.
 				if (merged != null)
