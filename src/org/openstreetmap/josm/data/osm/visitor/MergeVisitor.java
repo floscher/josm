@@ -228,16 +228,13 @@ public class MergeVisitor implements Visitor {
     }
 
 	private void fixSegment(Segment ls) {
-		System.out.println("fix seg" +ls+ " mn="+mergedNodes.size());
 		
-	    if (mergedNodes.containsKey(ls.from)) {
+	    if (mergedNodes.containsKey(ls.from)) 
 	    	ls.from = mergedNodes.get(ls.from);
-	    	System.out.println("fix from");
-	    }
-	    if (mergedNodes.containsKey(ls.to))  {
+	    
+	    if (mergedNodes.containsKey(ls.to))  
 	    	ls.to = mergedNodes.get(ls.to);
-	    	System.out.println("fix to");
-	    }
+	   
     }
 
 	/**
