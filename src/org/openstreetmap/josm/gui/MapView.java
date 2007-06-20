@@ -129,6 +129,7 @@ public class MapView extends NavigatableComponent {
 
 		// autoselect the new layer
 		setActiveLayer(layer);
+		repaint();
 	}
 
 	/**
