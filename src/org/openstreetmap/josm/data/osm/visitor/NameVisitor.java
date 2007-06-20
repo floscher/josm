@@ -73,10 +73,11 @@ public class NameVisitor implements Visitor {
 
 	/**
 	 * If the way has a name-key or id-key, this is displayed. If not, (x nodes)
-	 * is displayed with x beeing the number of nodes in the way.
+	 * is displayed with x being the number of nodes in the way.
 	 */
 	public void visit(Way w) {
 		name = w.get("name");
+		if (name == null) name = w.get("ref");
 		if (name == null) {
 			AllNodesVisitor.getAllNodes(w.segments);
 			Set<Node> nodes = new HashSet<Node>();
@@ -86,7 +87,8 @@ public class NameVisitor implements Visitor {
 					nodes.add(ls.to);
 				}
 			}
-			name = trn("{0} node", "{0} nodes", nodes.size(), nodes.size());
+			String what = (w.get("highway") != null) ? "highway " : (w.get("railway") != null) ? "railway " : (w.get("waterway") != null) ? "waterway " : "";
+			name = what + trn("{0} node", "{0} nodes", nodes.size(), nodes.size());
 		}
 		if (w.isIncomplete())
 			name += " ("+tr("incomplete")+")";
