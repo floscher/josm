@@ -38,7 +38,10 @@ public class UserListDialog extends ToggleDialog implements SelectionChangedList
 			return columnIndex == 0 ? String.class : Integer.class;
 		}
 	};
+
 	private JTable userTable = new JTable(data);
+
+    private static User anonymousUser = User.get("(anonymous users)");
 			
 	public UserListDialog() {
 		super(tr("Authors"), "userlist", tr("Open a list of people working on the selected objects."), KeyEvent.VK_A, 150);
@@ -79,13 +82,13 @@ public class UserListDialog extends ToggleDialog implements SelectionChangedList
 		HashMap<User,UserCount> counters = new HashMap<User,UserCount>();
 		int all = 0;
 		for (OsmPrimitive p : newSelection) {
-			if (p.user != null) {
-				UserCount uc = counters.get(p.user);
-				if (uc == null) 
-					counters.put(p.user, uc = new UserCount(p.user, 0));
-				uc.count++;
-				all++;
-			}
+            User u = p.user;
+            if (u == null) u = anonymousUser;
+            UserCount uc = counters.get(u);
+            if (uc == null) 
+                counters.put(u, uc = new UserCount(u, 0));
+            uc.count++;
+            all++;
 		}
 		UserCount[] ucArr = new UserCount[counters.size()];
 		counters.values().toArray(ucArr);
