@@ -43,13 +43,6 @@ public class OsmPrimitiveTest extends MotherObject {
 		visited = false;
 	}
 
-	public void testHashCodeReturnsIdIfNotZeroAndNotZeroIfIdIsZero() {
-		osm.id = 23;
-		assertEquals(23, osm.hashCode());
-		osm.id = 0;
-		assertTrue(0 != osm.hashCode());
-	}
-
 	public void testVisit() {
 		osm.visit(new Visitor(){
 			public void visit(Node n) {}

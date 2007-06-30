@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -32,8 +31,7 @@ public class PluginInformation {
 	public final boolean early;
 	public final String author;
 	public final int stage;
-	protected final List<URL> libraries = new ArrayList<URL>();
-	protected ClassLoader classLoader;
+	public final List<URL> libraries = new ArrayList<URL>();
 
 	public final Map<String, String> attr = new TreeMap<String, String>();
 
@@ -81,7 +79,7 @@ public class PluginInformation {
 					}
 					s = entry.toString();
 					entry = new StringBuilder();
-					if (!s.startsWith("/") && !s.startsWith("\\") && !s.matches("^.\\:"))
+					if (!s.startsWith("/") && !s.startsWith("\\") && !s.matches("^.\\:") && file != null)
 						s = file.getParent() + File.separator + s;
 					libraries.add(new URL(getURLString(s)));
 				}
@@ -110,9 +108,9 @@ public class PluginInformation {
 	/**
 	 * Load the class of the plugin
 	 */
-	public Class<?> loadClass() {
+	public Class<?> loadClass(ClassLoader classLoader) {
 		try {
-			Class<?> realClass = Class.forName(className, true, getClassLoader());
+			Class<?> realClass = Class.forName(className, true, classLoader);
 			return realClass;
 		} catch (Exception e) {
 			throw new PluginException(null, name, e);
@@ -125,35 +123,6 @@ public class PluginInformation {
 		return "file://"+fileName;
 	}
 
-	/**
-	 * Returns all libraries the plugin needs (the plugin's jar file itself and all jars declared
-	 * in the manifest's Class-Path section).
-	 * @return the libraries a list of URLs to the libraries.
-	 */
-	public List<URL> getLibraries() {
-		return libraries;
-	}
-
-	/**
-     * @return the classLoader
-     */
-    public ClassLoader getClassLoader() {
-		// if I have no classloader set, create one for me and my libraries:
-		if(classLoader == null) {
-			URL[] urls = new URL[libraries.size()];
-			urls = libraries.toArray(urls);
-			classLoader = URLClassLoader.newInstance(urls, getClass().getClassLoader());
-		}
-    	return classLoader;
-    }
-
-	/**
-     * @param classLoader the classLoader to set
-     */
-    public void setClassLoader(ClassLoader classLoader) {
-    	this.classLoader = classLoader;
-    }
-	
 	/**
 	 * Try to find a plugin after some criterias. Extract the plugin-information
 	 * from the plugin and return it. The plugin is searched in the following way:

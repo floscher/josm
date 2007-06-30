@@ -42,7 +42,7 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 
 			// Check for an explicit problem when calling a plugin function
 			if (e instanceof PluginException) {
-				PluginProxy plugin = ((PluginException)e).getPlugin();
+				PluginProxy plugin = ((PluginException)e).plugin;
 				if (plugin != null && !plugin.misbehaving) {
 					JOptionPane.showMessageDialog(Main.parent, tr("The plugin {0} throwed an exception: {1}\nIt may be outdated. Please contact the plugin's autor.\nThis message will not shown again until JOSM is restarted.", plugin.info.name, e.getMessage()));
 					plugin.misbehaving = true;
