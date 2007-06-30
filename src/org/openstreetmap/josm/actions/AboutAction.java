@@ -9,17 +9,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.tools.GBC;
@@ -38,11 +41,11 @@ public class AboutAction extends JosmAction {
 
 	public static final String version;
 
-	private static JTextArea revision;
+	private final static JTextArea revision;
 	private static String time;
 
 	static {
-		JTextArea revision = loadFile(Main.class.getResource("/REVISION"));
+		revision = loadFile(Main.class.getResource("/REVISION"));
 
 		Pattern versionPattern = Pattern.compile(".*?Revision: ([0-9]*).*", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
 		Matcher match = versionPattern.matcher(revision.getText());
@@ -64,27 +67,75 @@ public class AboutAction extends JosmAction {
 		JTextArea contribution = loadFile(Main.class.getResource("/CONTRIBUTION"));
 
 		JPanel info = new JPanel(new GridBagLayout());
-		info.add(new JLabel(tr("Java OpenStreetMap Editor Version {0}",version)), GBC.eop());
-		info.add(new JLabel(tr("last change at {0}",time)), GBC.eop());
-		info.add(new JLabel(tr("Java Version {0}",System.getProperty("java.version"))), GBC.eop());
+		info.add(new JLabel(tr("Java OpenStreetMap Editor Version {0}",version)), GBC.eol());
+		info.add(new JLabel(tr("last change at {0}",time)), GBC.eol());
+		info.add(new JLabel(tr("Java Version {0}",System.getProperty("java.version"))), GBC.eol());
+		info.add(new JLabel(tr("Latest Version on JOSM homepage is")), GBC.std().insets(0,0,5,0));
+		final JLabel checkVersionLabel = new JLabel("<html><em>"+tr("checking...")+"</em></html>");
+		info.add(checkVersionLabel, GBC.eol());
+		new Thread(){
+			@Override public void run() {
+				final String version = checkLatestVersion();
+				try {
+					if (version == null)
+						throw new NullPointerException();
+	                SwingUtilities.invokeAndWait(new Runnable(){
+	                	public void run() {
+	                		checkVersionLabel.setText(version);
+	                    }
+	                });
+                } catch (Exception e) {
+	                checkVersionLabel.setText("failed.");
+                }
+            }
+		}.start();
+		
+		info.add(GBC.glue(0,10), GBC.eol());
+		
 		info.add(new JLabel(tr("Homepage")), GBC.std().insets(0,0,10,0));
-		info.add(new UrlLabel("http://josm.eigenheimstrasse.de"), GBC.eol());
+		info.add(new UrlLabel("http://josm.openstreetmap.de"), GBC.eol());
 		info.add(new JLabel(tr("Bug Reports")), GBC.std().insets(0,0,10,0));
-		info.add(new UrlLabel("http://josm.eigenheimstrasse.de/newticket"), GBC.eol());
+		info.add(new UrlLabel("http://josm.openstreetmap.de/newticket"), GBC.eol());
 		info.add(new JLabel(tr("News about JOSM")), GBC.std().insets(0,0,10,0));
 		info.add(new UrlLabel("http://www.opengeodata.org/?cat=17"), GBC.eol());
 
-
 		about.addTab(tr("Info"), info);
-		about.addTab(tr("Readme"), new JScrollPane(readme));
-		about.addTab(tr("Revision"), new JScrollPane(revision));
-		about.addTab(tr("Contribution"), new JScrollPane(contribution));
+		about.addTab(tr("Readme"), createScrollPane(readme));
+		about.addTab(tr("Revision"), createScrollPane(revision));
+		about.addTab(tr("Contribution"), createScrollPane(contribution));
 
 		about.setPreferredSize(new Dimension(500,300));
 
 		JOptionPane.showMessageDialog(Main.parent, about, tr("About JOSM..."),
 				JOptionPane.INFORMATION_MESSAGE, ImageProvider.get("logo"));
 	}
+
+	private JScrollPane createScrollPane(JTextArea area) {
+		area.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+		area.setOpaque(false);
+	    JScrollPane sp = new JScrollPane(area);
+		sp.setBorder(null);
+		sp.setOpaque(false);
+	    return sp;
+    }
+
+	/**
+	 * Retrieve the latest JOSM version from the JOSM homepage.
+	 * @return An string with the latest version or "UNKNOWN" in case
+	 * 		of problems (e.g. no internet connection).
+	 */
+	public static String checkLatestVersion() {
+        String latest;
+        try {
+        	InputStream s = new URL("http://josm.openstreetmap.de/current").openStream();
+        	latest = new BufferedReader(new InputStreamReader(s)).readLine();
+        	s.close();
+        } catch (IOException x) {
+        	x.printStackTrace();
+        	return "UNKNOWN";
+        }
+        return latest;
+    }
 
 	/**
 	 * Load the specified ressource into an TextArea and return it.

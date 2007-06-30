@@ -55,7 +55,7 @@ public class DrawingPreference implements PreferenceSetting {
 		
 		// downloaded area
 		sourceBounds.setToolTipText(tr("Draw the boundaries of data loaded from the server."));
-		sourceBounds.setSelected(Main.pref.getBoolean("draw.data.downloaded_area"));
+		sourceBounds.setSelected(Main.pref.getBoolean("draw.data.downloaded_area", true));
 		gui.display.add(sourceBounds, GBC.eop().insets(20,0,0,0));
 	}
 
