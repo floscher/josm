@@ -10,10 +10,10 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,6 +41,7 @@ import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.projection.Epsg4326;
 import org.openstreetmap.josm.data.projection.Projection;
+import org.openstreetmap.josm.gui.GettingStarted;
 import org.openstreetmap.josm.gui.MainMenu;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.PleaseWaitDialog;
@@ -124,7 +125,6 @@ abstract public class Main {
 		panel.removeAll();
 		if (map != null) {
 			map.fillPanel(panel);
-			panel.setVisible(true);
 			map.mapView.addLayerChangeListener(new LayerChangeListener(){
 				public void activeLayerChange(final Layer oldLayer, final Layer newLayer) {
 					setLayerMenu(newLayer.getMenuEntries());
@@ -142,8 +142,11 @@ abstract public class Main {
 			});
 			if (map.mapView.editLayer != null)
 				map.mapView.editLayer.listenerCommands.add(redoUndoListener);
-		} else
+		} else {
 			old.destroy();
+			panel.add(new GettingStarted(), BorderLayout.CENTER);
+		}
+		panel.setVisible(true);
 		redoUndoListener.commandChanged(0,0);
 
 		for (PluginProxy plugin : plugins)
@@ -182,6 +185,7 @@ abstract public class Main {
 	public Main() {
 		main = this;
 		contentPane.add(panel, BorderLayout.CENTER);
+		panel.add(new GettingStarted(), BorderLayout.CENTER);
 		menu = new MainMenu();
 
 		// creating toolbar

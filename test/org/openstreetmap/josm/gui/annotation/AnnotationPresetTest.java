@@ -15,7 +15,6 @@ import org.openstreetmap.josm.gui.annotation.AnnotationPreset.Combo;
 import org.openstreetmap.josm.gui.annotation.AnnotationPreset.Key;
 import org.openstreetmap.josm.gui.annotation.AnnotationPreset.Label;
 import org.openstreetmap.josm.gui.annotation.AnnotationPreset.Text;
-import org.openstreetmap.josm.tools.ImageProvider;
 
 public class AnnotationPresetTest extends TestCase {
 
