@@ -8,7 +8,7 @@ public class PluginExceptionTest extends TestCase {
 		RuntimeException barEx = new RuntimeException("bar");
 		PluginException e = new PluginException(new PluginProxy(new String(), null), "42", barEx);
 		assertEquals(barEx, e.getCause());
-		assertEquals("42", e.getName());
+		assertEquals("42", e.name);
 	}
 
 	public void testMessageContainsThePluginName() {

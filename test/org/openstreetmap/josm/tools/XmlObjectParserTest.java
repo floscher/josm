@@ -51,36 +51,6 @@ public class XmlObjectParserTest extends TestCase {
 		assertEquals("asd", ((Foo)parser.next()).bar);
 	}
 
-	public void testManyTags() throws Exception {
-		StringBuilder b = new StringBuilder("<all>");
-		for (int i = 0; i < 50000; ++i) {
-			if (Math.random() > 0.5) {
-				b.append("<foo bar='blob");
-				b.append(i);
-				b.append("'/>");
-			} else {
-				b.append("<foo><bar>yuppel");
-				b.append(i);
-				b.append("</bar></foo>");
-			}
-		}
-		b.append("</all>");
-
-		System.gc();
-		long memBefore = Runtime.getRuntime().freeMemory();
-		parser = createParser(b.toString());
-		Thread.sleep(300);
-		System.gc();
-		long memAfter = Runtime.getRuntime().freeMemory();
-		assertTrue("2MB should be more than enough. "+(memAfter-memBefore), memAfter-memBefore < 2*1024*1024);
-
-		for (int i = 0; i < 50000; ++i) {
-			Foo f = (Foo)parser.next();
-			assertTrue(f.bar.equals("blob"+i) || f.bar.equals("yuppel"+i));
-		}
-		assertFalse(parser.hasNext());
-	}
-
 	public void testIterable() throws Exception {
 		parser = createParser("<xml><foo bar='yo'/><foo bar='yo'/><foo bar='yo'/></xml>");
 		for (Object o : parser)

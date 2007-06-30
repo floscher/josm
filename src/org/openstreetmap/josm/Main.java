@@ -233,22 +233,18 @@ abstract public class Main {
 		
 		// iterate all plugins and collect all libraries of all plugins:
 		List<URL> allPluginLibraries = new ArrayList<URL>();
-		for (Collection<PluginInformation> c : p.values()) {
-			for (PluginInformation info : c) {
-				allPluginLibraries.addAll(info.getLibraries());
-			}
-		}
+		for (Collection<PluginInformation> c : p.values())
+			for (PluginInformation info : c)
+				allPluginLibraries.addAll(info.libraries);
 		// create a classloader for all plugins:
 		URL[] jarUrls = new URL[allPluginLibraries.size()];
 		jarUrls = allPluginLibraries.toArray(jarUrls);
 		URLClassLoader pluginClassLoader = new URLClassLoader(jarUrls, Main.class.getClassLoader());
-		
-		
+
 		for (Collection<PluginInformation> c : p.values()) {
 			for (PluginInformation info : c) {
 				try {
-					info.setClassLoader(pluginClassLoader); // set the common classloader
-					Class<?> klass = info.loadClass();
+					Class<?> klass = info.loadClass(pluginClassLoader);
 					ImageProvider.sources.add(0, klass);
 					System.out.println("loading "+info.name);
 					Main.plugins.add(info.load(klass));

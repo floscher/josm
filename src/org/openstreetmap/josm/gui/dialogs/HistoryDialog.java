@@ -71,6 +71,7 @@ public class HistoryDialog extends ToggleDialog implements SelectionChangedListe
 			return false;
 		}
 	};
+
 	/**
 	 * Main table. 3 columns:
 	 * Object | Date | visible (icon, no text)
@@ -79,7 +80,7 @@ public class HistoryDialog extends ToggleDialog implements SelectionChangedListe
 	private JScrollPane historyPane = new JScrollPane(history);
 
 	private Map<OsmPrimitive, List<HistoryItem>> cache = new HashMap<OsmPrimitive, List<HistoryItem>>();
-	private JLabel notLoaded = new JLabel("<html><i><p align=\"center\">"+tr("Click Reload to refresh list")+"</p></i></html>");
+	private JLabel notLoaded = new JLabel("<html><i>"+tr("Click Reload to refresh list")+"</i></html>");
 	private JButton reloadButton = new JButton(tr("Reload"), ImageProvider.get("dialogs/refresh"));
 	private JButton revertButton = new JButton(tr("Revert"), ImageProvider.get("dialogs/revert"));
 
@@ -87,6 +88,7 @@ public class HistoryDialog extends ToggleDialog implements SelectionChangedListe
 		super(tr("History"), "history", tr("Display the history of all selected items."), KeyEvent.VK_H, 150);
 		historyPane.setVisible(false);
 		notLoaded.setVisible(true);
+		notLoaded.setHorizontalAlignment(JLabel.CENTER);
 
 		history.setDefaultRenderer(Object.class, new DefaultTableCellRenderer(){
 			@Override public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -130,6 +132,7 @@ public class HistoryDialog extends ToggleDialog implements SelectionChangedListe
 		});
 		reloadButton.setToolTipText(tr("Reload all currently selected objects and refresh the list."));
 		reloadButton.putClientProperty("help", "Dialog/History/Reload");
+		
 		revertButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				JOptionPane.showMessageDialog(Main.parent, tr("Not implemented yet."));

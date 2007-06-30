@@ -39,27 +39,33 @@ import org.openstreetmap.josm.gui.preferences.PreferenceSetting;
  */
 public abstract class Plugin {
 
-	private String name;
+	String name;
 
 	public Plugin() {
-		URL[] urls = ((URLClassLoader)getClass().getClassLoader()).getURLs();
-		name = urls[urls.length-1].toString();
-		if (name.toLowerCase().endsWith(".jar")) {
-			int lastSlash = name.lastIndexOf('/');
-			name = name.substring(lastSlash+1, name.length()-4);
-		}
+		try {
+	        URL[] urls = ((URLClassLoader)getClass().getClassLoader()).getURLs();
+	        name = urls[urls.length-1].toString();
+	        if (name.toLowerCase().endsWith(".jar")) {
+	        	int lastSlash = name.lastIndexOf('/');
+	        	name = name.substring(lastSlash+1, name.length()-4);
+	        }
+        } catch (RuntimeException e) {
+        	name = "unknown";
+        }
     }
 
 	/**
 	 * @return The name of this plugin. This is the name of the .jar file.
+	 * @deprecated Plugins have to know their name by themself.
 	 */
-	public final String getName() {
+	@Deprecated public final String getName() {
 		return name;
 	}
 	/**
 	 * @return The directory for the plugin to store all kind of stuff.
+	 * @deprecated Use <code>Main.pref.getPreferencesDir()+"plugins/"+name+"/";</code> instead.
 	 */
-	public final String getPluginDir() {
+	@Deprecated public final String getPluginDir() {
 		return Main.pref.getPreferencesDir()+"plugins/"+name+"/";
 	}
 
