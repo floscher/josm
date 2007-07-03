@@ -15,61 +15,71 @@ import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.projection.Epsg4326;
 
-public class MotherObject extends TestCase {
+abstract public class MotherObject extends TestCase {
 
+	public static DataSet dataSet;
+	
 	@Override protected void setUp() throws Exception {
 	    super.setUp();
 	    Main.proj = new Epsg4326();
     }
 
-	public Node createNode(int id) {
+	public static Node createNode(int id) {
 		return createNode(id, 0, 0);
 	}
 	
-	public Node createNode(int id, double lat, double lon) {
+	public static Node createNode(int id, double lat, double lon) {
 		Node n = createNode(lat, lon);
 		n.id = id;
 		return n;
 	}
 
-	public Node createNode() {
+	public static Node createNode() {
 		return createNode(Math.random()*360-180, Math.random()*180-90);
 	}
 
-	public Node createNode(double lat, double lon) {
-	    return new Node(new LatLon(lat,lon));
+	public static Node createNode(double lat, double lon) {
+	    Node node = new Node(new LatLon(lat,lon));
+	    if (dataSet != null)
+	    	dataSet.nodes.add(node);
+		return node;
     }
 	
 	
-	public Segment createSegment(long id) {
+	public static Segment createSegment(long id) {
 		Segment s = createSegment();
 		s.id = id;
 		return s;
 	}
-	public Segment createSegment(long id, Node from, Node to) {
+	public static Segment createSegment(long id, Node from, Node to) {
 		Segment s = new Segment(from, to);
 		s.id = id;
 		return s;
 	}
-	public Segment createSegment() {
-		return new Segment(createNode(), createNode());
+	public static Segment createSegment() {
+		Segment segment = new Segment(createNode(), createNode());
+		if (dataSet != null)
+			dataSet.segments.add(segment);
+		return segment;
 	}
 	
 	
-	public Way createWay() {
+	public static Way createWay() {
 		return createWay(0);
 	}
-	public Way createWay(Segment... segments) {
+	public static Way createWay(Segment... segments) {
 		return createWay(0, segments);
 	}
-	public Way createWay(long id, Segment... segments) {
+	public static Way createWay(long id, Segment... segments) {
 		Way way = new Way();
 		way.segments.addAll(Arrays.asList(segments));
 		way.id = id;
+		if (dataSet != null)
+			dataSet.ways.add(way);
 		return way;
 	}
 	
-	public DataSet createDataSet() {
+	public static DataSet createDataSet() {
 	    DataSet ds = new DataSet();
 		Node node1 = createNode();
 		Node node2 = createNode();
@@ -84,15 +94,9 @@ public class MotherObject extends TestCase {
 		return ds;
     }
 
-	public void assertContainsSame(Collection<OsmPrimitive> data, OsmPrimitive... all) {
+	public static void assertContainsSame(Collection<OsmPrimitive> data, OsmPrimitive... all) {
 		Collection<OsmPrimitive> copy = new LinkedList<OsmPrimitive>(data);
 		copy.removeAll(Arrays.asList(all));
 		assertEquals(0, copy.size());
     }
-	
-	/**
-	 * To have JUnit shut up.
-	 */
-	public void test() {
-	}
 }

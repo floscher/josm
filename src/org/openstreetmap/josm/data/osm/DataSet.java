@@ -105,12 +105,13 @@ public class DataSet {
 		fireSelectionChanged(selection);
 	}
 
-	public void setSelected(OsmPrimitive osm) {
+	public void setSelected(OsmPrimitive... osm) {
 		clearSelection();
-		if (osm == null)
+		if (osm.length == 0)
 			return;
-		osm.selected = true;
-		fireSelectionChanged(Arrays.asList(new OsmPrimitive[]{osm}));
+		for (OsmPrimitive o : osm)
+			o.selected = true;
+		fireSelectionChanged(Arrays.asList(osm));
 	}
 
 	/**
