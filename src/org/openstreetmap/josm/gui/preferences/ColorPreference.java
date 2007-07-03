@@ -86,13 +86,6 @@ public class ColorPreference implements PreferenceSetting {
 		return colorMap;
 	}
 	
-	/**
-	 * Updates the table model with the colors in the color map.
-	 */
-	private void updateTableModel() {
-	}
-	
-
 	public void addGui(final PreferenceDialog gui) {
 		// initial fill with colors from preferences:
 		Map<String,String> prefColorMap = new TreeMap<String, String>(Main.pref.getAllPrefix(PREF_COLOR_PREFIX));
