@@ -11,6 +11,8 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -36,6 +38,7 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.JTextComponent;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.ChangePropertyCommand;
@@ -47,6 +50,7 @@ import org.openstreetmap.josm.gui.annotation.AnnotationCellRenderer;
 import org.openstreetmap.josm.gui.annotation.AnnotationPreset;
 import org.openstreetmap.josm.gui.annotation.ForwardActionListener;
 import org.openstreetmap.josm.gui.preferences.AnnotationPresetPreference;
+import org.openstreetmap.josm.tools.AutoCompleteComboBox;
 import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.ImageProvider;
 
@@ -164,8 +168,8 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	}
 
 	/**
-	 * Open the add selection dialog and add a new key/value to the table (and to the
-	 * dataset, of course).
+	 * Open the add selection dialog and add a new key/value to the table (and
+	 * to the dataset, of course).
 	 */
 	void add() {
 		Collection<OsmPrimitive> sel = Main.ds.getSelected();
@@ -192,33 +196,33 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		}
 		for (int i = 0; i < data.getRowCount(); ++i)
 			allData.remove(data.getValueAt(i, 0));
-		final JComboBox keys = new JComboBox(new Vector<String>(allData.keySet()));
+		final AutoCompleteComboBox keys = new AutoCompleteComboBox();
+		keys.setPossibleItems(allData.keySet());
 		keys.setEditable(true);
+		
 		p.add(keys, BorderLayout.CENTER);
 
 		JPanel p2 = new JPanel(new BorderLayout());
 		p.add(p2, BorderLayout.SOUTH);
 		p2.add(new JLabel(tr("Please select a value")), BorderLayout.NORTH);
-		final JComboBox values = new JComboBox();
+		final AutoCompleteComboBox values = new AutoCompleteComboBox();
 		values.setEditable(true);
 		p2.add(values, BorderLayout.CENTER);
-		
-		ActionListener link = new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				String key = keys.getEditor().getItem().toString();
-				if (allData.containsKey(key)) {
-					Vector<String> newValues = new Vector<String>(allData.get(key));
-					Object oldValue = values.getSelectedItem();
-					values.setModel(new DefaultComboBoxModel(newValues));
-					values.setSelectedItem(oldValue);
-					values.getEditor().selectAll();
+	    
+		// get the combo box' editor component
+		JTextComponent editor = (JTextComponent) values.getEditor().getEditorComponent();
+		// Refresh the values model when focus is gained 
+		editor.addFocusListener(new FocusAdapter() {
+            public void focusGained(FocusEvent e) {
+            	String key = keys.getEditor().getItem().toString();
+            	if (allData.containsKey(key)) {
+					values.setPossibleItems(allData.get(key));
+				} else {
+					values.removeAllItems();
 				}
             }
-			
-		};
-		keys.addActionListener(link);
-		
+        });
+
 		JOptionPane pane = new JOptionPane(p, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION){
 			@Override public void selectInitialValue() {
 				keys.requestFocusInWindow();
