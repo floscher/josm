@@ -83,7 +83,8 @@ public class CombineWayAction extends JosmAction implements SelectionChangedList
 				p.add(Box.createHorizontalStrut(10), GBC.std());
 				p.add(c, GBC.eol());
 				components.put(e.getKey(), c);
-			}
+			} else
+				newWay.put(e.getKey(), e.getValue().iterator().next());
 		}
 		if (!components.isEmpty()) {
 			int answer = JOptionPane.showConfirmDialog(Main.parent, p, tr("Enter values for all conflicts."), JOptionPane.OK_CANCEL_OPTION);
