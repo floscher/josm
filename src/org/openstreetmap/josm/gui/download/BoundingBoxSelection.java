@@ -151,7 +151,7 @@ public class BoundingBoxSelection implements DownloadSelection {
 			size *= 2;
 			zoom++;
 		}
-		osmUrl.setText("http://www.openstreetmap.org/index.html?lat="+lat+"&lon="+lon+"&zoom="+zoom);
+		osmUrl.setText("http://www.openstreetmap.org/index.html?mlat="+lat+"&mlon="+lon+"&zoom="+zoom);
 	}
 	
 	private void updateSizeCheck(DownloadDialog gui) {
@@ -195,8 +195,8 @@ public class BoundingBoxSelection implements DownloadSelection {
 			} else {
 				double size = 180.0 / Math.pow(2, Integer.parseInt(map.get("zoom")));
 				b = new Bounds(
-	            	new LatLon(Double.parseDouble(map.get("lat")) - size/2, Double.parseDouble(map.get("lon")) - size),
-	            	new LatLon(Double.parseDouble(map.get("lat")) + size/2, Double.parseDouble(map.get("lon")) + size));
+	            	new LatLon(Double.parseDouble(map.get("mlat")) - size/2, Double.parseDouble(map.get("mlon")) - size),
+	            	new LatLon(Double.parseDouble(map.get("mlat")) + size/2, Double.parseDouble(map.get("mlon")) + size));
 			}
 		} catch (NumberFormatException x) {
 		} catch (NullPointerException x) {
