@@ -31,6 +31,7 @@ public class PluginInformation {
 	public final boolean early;
 	public final String author;
 	public final int stage;
+	public final String version;
 	public final List<URL> libraries = new ArrayList<URL>();
 
 	public final Map<String, String> attr = new TreeMap<String, String>();
@@ -63,6 +64,7 @@ public class PluginInformation {
 			early = Boolean.parseBoolean(attr.getValue("Plugin-Early"));
 			String stageStr = attr.getValue("Plugin-Stage");
 			stage = stageStr == null ? 50 : Integer.parseInt(stageStr);
+			version = attr.getValue("Plugin-Version");
 			author = attr.getValue("Author");
 			if (file != null)
 				libraries.add(new URL(getURLString(file.getAbsolutePath())));
@@ -117,7 +119,7 @@ public class PluginInformation {
 		}
 	}
 
-	private String getURLString(String fileName) {
+	public static String getURLString(String fileName) {
 		if (System.getProperty("os.name").startsWith("Windows"))
 			return "file:/"+fileName;
 		return "file://"+fileName;
