@@ -225,6 +225,7 @@ public class OsmReader {
 	    for (Node node : references.nodes)
 	    	if (node.id == id)
 	    		return node;
+	    // TODO: This has to be changed to support multiple layers.
 	    for (Node node : Main.ds.nodes)
 	    	if (node.id == id)
 	    		return node;
@@ -238,6 +239,7 @@ public class OsmReader {
 		for (Segment seg : references.segments)
 			if (seg.id == id)
 				return seg;
+		// TODO: This has to be changed to support multiple layers.
 		for (Segment seg : Main.ds.segments)
 			if (seg.id == id)
 				return seg;
@@ -269,6 +271,7 @@ public class OsmReader {
 	 * Parse the given input source and return the dataset.
 	 * @param ref The dataset that is search in for references first. If
 	 * 	the Reference is not found here, Main.ds is searched.
+	 * TODO: This has to be changed to support multiple layers.
 	 */
 	public static DataSet parseDataSet(InputStream source, DataSet ref, PleaseWaitDialog pleaseWaitDlg) throws SAXException, IOException {
 		OsmReader osm = new OsmReader();
