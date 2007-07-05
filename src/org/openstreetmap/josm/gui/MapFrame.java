@@ -65,13 +65,7 @@ public class MapFrame extends JPanel implements Destroyable {
 
 	public final ButtonGroup toolGroup = new ButtonGroup();
 
-	/**
-	 * Construct a map with a given DataSet. The set cannot be replaced after 
-	 * construction (but of course, the data can be altered using the map's
-	 * editing features).
-	 * 
-	 * @param layer The first layer in the mapView. 
-	 */
+
 	public MapFrame() {
 		setSize(400,400);
 		setLayout(new BorderLayout());

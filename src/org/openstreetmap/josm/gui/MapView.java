@@ -36,8 +36,7 @@ import org.openstreetmap.josm.gui.layer.OsmDataLayer.ModifiedChangedListener;
  * center point viewed, what scrolling mode or editing mode is selected or with
  * what projection the map is viewed etc..
  *
- * MapView is able to administrate several layers, but there must be always at
- * least one layer with a dataset in it (Layer.getDataSet returning non-null).
+ * MapView is able to administrate several layers.
  *
  * @author imi
  */

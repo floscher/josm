@@ -216,6 +216,7 @@ public class OsmDataLayer extends Layer {
 
 	/**
 	 * Undoes the last added command.
+	 * TODO: This has to be moved to a central place in order to support multiple layers.
 	 */
 	public void undo() {
 		if (commands.isEmpty())
@@ -229,6 +230,7 @@ public class OsmDataLayer extends Layer {
 	}
 	/**
 	 * Redoes the last undoed command.
+	 * TODO: This has to be moved to a central place in order to support multiple layers.
 	 */
 	public void redo() {
 		if (redoCommands.isEmpty())
