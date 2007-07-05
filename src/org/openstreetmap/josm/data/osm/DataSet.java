@@ -107,7 +107,7 @@ public class DataSet {
 
 	public void setSelected(OsmPrimitive... osm) {
 		clearSelection();
-		if (osm.length == 0)
+		if (osm.length == 0 || (osm.length == 1 && osm[0] == null))
 			return;
 		for (OsmPrimitive o : osm)
 			o.selected = true;

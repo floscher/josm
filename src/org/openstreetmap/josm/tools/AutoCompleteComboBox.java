@@ -28,13 +28,13 @@ public class AutoCompleteComboBox extends JComboBox {
 			this.comboBox = comboBox;
 		}
 
-		public void remove(int offs, int len) throws BadLocationException {
+		@Override public void remove(int offs, int len) throws BadLocationException {
 			if (selecting)
 				return;
 			super.remove(offs, len);
 		}
 
-		public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
+		@Override public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
 			super.insertString(offs, str, a);
 
 			// return immediately when selecting an item
