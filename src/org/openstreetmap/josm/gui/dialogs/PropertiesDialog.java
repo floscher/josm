@@ -213,7 +213,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		JTextComponent editor = (JTextComponent) values.getEditor().getEditorComponent();
 		// Refresh the values model when focus is gained 
 		editor.addFocusListener(new FocusAdapter() {
-            public void focusGained(FocusEvent e) {
+            @Override public void focusGained(FocusEvent e) {
             	String key = keys.getEditor().getItem().toString();
             	if (allData.containsKey(key)) {
 					values.setPossibleItems(allData.get(key));

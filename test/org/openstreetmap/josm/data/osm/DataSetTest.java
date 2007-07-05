@@ -72,6 +72,16 @@ public class DataSetTest extends MotherObject {
 		ds.setSelected(node3);
 		assertTrue(node3.selected);
 		assertFalse(node2.selected);
+
+		ds.setSelected();
+		assertFalse(node3.selected || node2.selected);
+		
+		ds.setSelected(node1, way);
+		assertTrue(node1.selected && way.selected);
+		assertFalse(node3.selected);
+		
+		ds.setSelected((OsmPrimitive)null);
+		assertFalse(node1.selected || node2.selected || node3.selected || way.selected);
 	}
 
 	public void testFireSelectionChanged() {
