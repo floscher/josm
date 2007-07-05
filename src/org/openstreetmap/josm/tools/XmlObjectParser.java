@@ -65,8 +65,10 @@ public class XmlObjectParser implements Iterable<Object> {
 		@Override public void endElement(String ns, String lname, String qname) throws SAXException {
 			if (mapping.containsKey(qname) && !mapping.get(qname).onStart)
 				report();
-			else if (characters != null && !current.isEmpty())
+			else if (characters != null && !current.isEmpty()) {
 				setValue(qname, characters);
+				characters = "";
+			}
 		}
 		@Override public void characters(char[] ch, int start, int length) {
 			String s = new String(ch, start, length);
