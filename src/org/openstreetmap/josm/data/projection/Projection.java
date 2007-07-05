@@ -11,14 +11,14 @@ import org.openstreetmap.josm.data.coor.LatLon;
  */
 public interface Projection {
 
-	public static double MAX_LAT = 85.05112877980659; // Mercator squares the world
-	public static double MAX_LON = 180;
+	public static final double MAX_LAT = 85.05112877980659; // Mercator squares the world
+	public static final double MAX_LON = 180;
 	public static final double MAX_SERVER_PRECISION = 1e12;
 
 	/**
 	 * List of all available Projections.
 	 */
-	public static final Projection[] allProjections = new Projection[]{
+	public static Projection[] allProjections = new Projection[]{
 		new Epsg4326(),
 		new Mercator()
 	};
