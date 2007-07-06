@@ -1,6 +1,7 @@
 package org.openstreetmap.josm.actions;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
+import static org.openstreetmap.josm.tools.I18n.trn;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -29,6 +30,7 @@ import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.NameVisitor;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
+import org.openstreetmap.josm.tools.I18n;
 
 /**
  * Splits a way into multiple ways (all identical except the segments
@@ -154,7 +156,9 @@ public class SplitWayAction extends JosmAction implements SelectionChangedListen
 				}
 			}
 			if (wayOccurenceCounter.isEmpty()) {
-				JOptionPane.showMessageDialog(Main.parent, tr("The selected node(s) is (are) not part of any way."));
+				JOptionPane.showMessageDialog(Main.parent, 
+						trn("The selected node is not part of any way.",
+								"The selected nodes are not part of any way.", selectedNodes.size()));
 				return;
 			}
 
@@ -182,7 +186,9 @@ public class SplitWayAction extends JosmAction implements SelectionChangedListen
 				nds.remove(s.to);
 			}
 			if (!nds.isEmpty()) {
-				JOptionPane.showMessageDialog(Main.parent, tr("The selected way does not contain (all) the selected node(s)."));
+				JOptionPane.showMessageDialog(Main.parent, 
+						trn("The selected way does not contain the selected node.",
+								"The selected way does not contain all the selected nodes.", selectedNodes.size()));
 				return;
 			}
 
@@ -200,14 +206,18 @@ public class SplitWayAction extends JosmAction implements SelectionChangedListen
 				}
 			}
 			if (wayOccurenceCounter.isEmpty()) {
-				JOptionPane.showMessageDialog(Main.parent, tr("The selected segment(s) is (are) not part of any way."));
+				JOptionPane.showMessageDialog(Main.parent, 
+						trn("The selected segment is not part of any way.",
+								"The selected segments are not part of any way.", selectedSegments.size()));
 				return;
 			}
 
 			for (Entry<Way, Integer> entry : wayOccurenceCounter.entrySet()) {
 				if (entry.getValue().equals(selectedSegments.size())) {
 					if (selectedWay != null) {
-						JOptionPane.showMessageDialog(Main.parent, tr("There is more than one way using the segment(s) you selected. Please select the way also."));
+						JOptionPane.showMessageDialog(Main.parent,
+								trn("There is more than one way using the segment you selected. Please select the way also.",
+										"There is more than one way using the segments you selected. Please select the way also.", selectedSegments.size()));
 						return;
 					}
 					selectedWay = entry.getKey();
@@ -223,7 +233,9 @@ public class SplitWayAction extends JosmAction implements SelectionChangedListen
 		} else if (selectedWay != null && selectedSegments != null) {
 
 			if (!selectedWay.segments.containsAll(selectedSegments)) {
-				JOptionPane.showMessageDialog(Main.parent, tr("The selected way does not contain (all) the selected segment(s)."));
+				JOptionPane.showMessageDialog(Main.parent, 
+						trn("The selected way does not contain the selected segment.",
+								"The selected way does not contain all the selected segments.", selectedSegments.size()));
 				return;
 			}
 		}
