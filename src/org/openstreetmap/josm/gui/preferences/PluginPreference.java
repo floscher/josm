@@ -60,8 +60,10 @@ public class PluginPreference implements PreferenceSetting {
 	private Map<PluginDescription, Boolean> pluginMap;
 	private Box pluginPanel = Box.createVerticalBox();
 	private JPanel plugin;
+	private PreferenceDialog gui;
 
 	public void addGui(final PreferenceDialog gui) {
+		this.gui = gui;
 		plugin = gui.createPreferenceTab("plugin", tr("Plugins"), tr("Configure available Plugins."));
 		JScrollPane pluginPane = new JScrollPane(pluginPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		pluginPane.setBorder(null);
@@ -122,7 +124,6 @@ public class PluginPreference implements PreferenceSetting {
 			pluginCheck.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e) {
 					pluginMap.put(plugin, pluginCheck.isSelected());
-					gui.requiresRestart = true;
 				}
 			});
 		}
@@ -188,19 +189,22 @@ public class PluginPreference implements PreferenceSetting {
 					pluginMap.put(pd, false);
 			else
 				for (PluginDescription pd : toDownload)
-					PluginDownloader.downloadPlugin(pd);
+					if (!PluginDownloader.downloadPlugin(pd))
+						pluginMap.put(pd, false);
+						
 		}
 
 		String plugins = "";
-		for (Entry<PluginDescription, Boolean> entry : pluginMap.entrySet()) {
-			if (entry.getValue()) {
+		for (Entry<PluginDescription, Boolean> entry : pluginMap.entrySet())
+			if (entry.getValue())
 				plugins += entry.getKey().name + ",";
-				if (PluginInformation.findPlugin(entry.getKey().name) == null)
-					toDownload.add(entry.getKey());
-			}
-		}
 		if (plugins.endsWith(","))
 			plugins = plugins.substring(0, plugins.length()-1);
-		Main.pref.put("plugins", plugins);
+		
+		String oldPlugins = Main.pref.get("plugins");
+		if (!plugins.equals(oldPlugins)) {
+			Main.pref.put("plugins", plugins);
+			gui.requiresRestart = true;
+		}
 	}
 }
