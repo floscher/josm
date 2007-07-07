@@ -44,7 +44,7 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 			if (e instanceof PluginException) {
 				PluginProxy plugin = ((PluginException)e).plugin;
 				if (plugin != null && !plugin.misbehaving) {
-					JOptionPane.showMessageDialog(Main.parent, tr("The plugin {0} throwed an exception: {1}\nIt may be outdated. Please contact the plugin's autor.\nThis message will not shown again until JOSM is restarted.", plugin.info.name, e.getMessage()));
+					JOptionPane.showMessageDialog(Main.parent, tr("The plugin {0} threw an exception: {1}\nIt may be outdated. Please contact the plugin's author.\nThis message will not shown again until JOSM is restarted.", plugin.info.name, e.getMessage()));
 					plugin.misbehaving = true;
 					return;
 				}
@@ -61,7 +61,7 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 					String author = findPluginAuthor(pluginName);
 					int answer = JOptionPane.showConfirmDialog(
 							Main.parent, 
-							tr("An unexpected exception occoured, that may come from in the ''{0}'' plugin.", pluginName)+"\n"+
+							tr("An unexpected exception occurred, that may come from in the ''{0}'' plugin.", pluginName)+"\n"+
 								(author != null ? tr("According to the information within the plugin, the author is {0}.", author) : "")+"\n"+
 								tr("Should the plugin be disabled?"),
 							tr("Disable plugin"),
@@ -86,9 +86,9 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 			}
 
 			Object[] options = new String[]{tr("Do nothing"), tr("Report Bug")};
-			int answer = JOptionPane.showOptionDialog(Main.parent, tr("An unexpected exception occoured.\n\n" +
+			int answer = JOptionPane.showOptionDialog(Main.parent, tr("An unexpected exception occurred.\n\n" +
 					"This is always a coding error. If you are running the latest\n" +
-			"version of JOSM, please consider be kind and file a bug report."),
+			"version of JOSM, please consider being kind and file a bug report."),
 			tr("Unexpected Exception"), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE,
 			null, options, options[0]);
 			if (answer == 1) {

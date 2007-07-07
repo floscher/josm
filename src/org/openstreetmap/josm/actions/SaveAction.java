@@ -64,7 +64,7 @@ public class SaveAction extends DiskAccessAction {
 			layer.cleanData(null, false);
 		} catch (IOException e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(Main.parent, tr("An error occoured while saving.")+"\n"+e.getMessage());
+			JOptionPane.showMessageDialog(Main.parent, tr("An error occurred while saving.")+"\n"+e.getMessage());
 		}
     }
 }

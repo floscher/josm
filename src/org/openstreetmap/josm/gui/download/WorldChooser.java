@@ -96,7 +96,7 @@ public class WorldChooser extends NavigatableComponent implements DownloadSelect
 		JPanel temp = new JPanel();
 		temp.setLayout(new BorderLayout());
 		temp.add(this, BorderLayout.CENTER);
-		temp.add(new JLabel(tr("You can use the mouse or Ctrl+Arrow keys/./, to zoom and pan.")), BorderLayout.SOUTH);
+		temp.add(new JLabel(tr("You can use the mouse or Ctrl+Arrow keys/./ to zoom and pan.")), BorderLayout.SOUTH);
 		gui.tabpane.add(temp, "Map");
 		new MapMover(this, temp);		
 		SelectionEnded selListener = new SelectionEnded(){

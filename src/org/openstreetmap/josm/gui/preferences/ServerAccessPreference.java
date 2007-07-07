@@ -31,7 +31,7 @@ public class ServerAccessPreference implements PreferenceSetting {
 		osmDataUsername.setText(Main.pref.get("osm-server.username"));
 		osmDataPassword.setText(Main.pref.get("osm-server.password"));
 
-		osmDataServer.setToolTipText(tr("The base URL to the OSM server (REST API)"));
+		osmDataServer.setToolTipText(tr("The base URL for the OSM server (REST API)"));
 		osmDataUsername.setToolTipText(tr("Login name (email) to the OSM account."));
 		osmDataPassword.setToolTipText(tr("Login password to the OSM account. Leave blank to not store any password."));
 

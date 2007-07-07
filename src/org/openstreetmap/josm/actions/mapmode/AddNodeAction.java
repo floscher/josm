@@ -46,7 +46,7 @@ public class AddNodeAction extends MapMode {
 			putValue("help", "Action/AddNode");
 			actions.add(new AddNodeAction(mf,tr("Add node"), Mode.node, tr("Add a new node to the map")));
 			actions.add(new AddNodeAction(mf, tr("Add node into segment"), Mode.nodesegment,tr( "Add a node into an existing segment")));
-			actions.add(new AddNodeAction(mf, tr("Add node and connect"), Mode.autonode,tr( "Add a node and connect it to the selected (previous added) node")));
+			actions.add(new AddNodeAction(mf, tr("Add node and connect"), Mode.autonode,tr( "Add a node and connect it to the selected (previously added) node")));
 			setCurrent(0);
 		}
 	}
