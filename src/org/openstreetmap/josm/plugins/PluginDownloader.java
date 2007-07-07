@@ -74,7 +74,7 @@ public class PluginDownloader {
 	    return s.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
     }
 
-	public static void downloadPlugin(PluginDescription pd) {
+	public static boolean downloadPlugin(PluginDescription pd) {
 		File file = new File(Main.pref.getPreferencesDir()+"plugins/"+pd.name+".jar");
 	    try {
 	        InputStream in = new URL(pd.resource).openStream();
@@ -84,10 +84,18 @@ public class PluginDownloader {
 	        	out.write(buffer, 0, read);
 	        out.close();
 	        in.close();
+	        try {
+	            PluginInformation.findPlugin(pd.name);
+	            return true;
+            } catch (Exception e) {
+	            e.printStackTrace();
+	            JOptionPane.showMessageDialog(Main.parent, tr("The plugin {0} seem to be broken or could not be downloaded automatically.", pd.name));
+            }
         } catch (Exception e) {
-        	if (file.exists())
-        		file.delete();
         	JOptionPane.showMessageDialog(Main.parent, tr("Could not download plugin: {0} from {1}", pd.name, pd.resource));
         }
+        if (file.exists())
+        	file.delete();
+        return false;
     }
 }
