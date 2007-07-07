@@ -59,7 +59,7 @@ public class RawCsvReader {
 		// test for completness
 		if (!format.contains("lat") || !format.contains("lon")) {
 			if (Main.pref.get("csv.importstring").equals(""))
-				throw new SAXException(tr("Format string in data is incomplete or not found. Try setting an manual format string in Preferences."));
+				throw new SAXException(tr("Format string in data is incomplete or not found. Try setting an manual format string in preferences."));
 			throw new SAXException(tr("Format string is incomplete. Need at least 'lat' and 'lon' specification"));
 		}
 
@@ -80,7 +80,7 @@ public class RawCsvReader {
 					else if (token.equals("ignore"))
 						st.nextToken();
 					else
-						throw new SAXException(tr("Unknown data type: \"{0}\".",token)+(Main.pref.get("csv.importstring").equals("") ? (" "+tr("Maybe add an format string in preferences.")) : ""));
+						throw new SAXException(tr("Unknown data type: \"{0}\".",token)+(Main.pref.get("csv.importstring").equals("") ? (" "+tr("Maybe add a format string in preferences.")) : ""));
 				}
 				data.add(new GpsPoint(new LatLon(lat, lon), time));
 			}

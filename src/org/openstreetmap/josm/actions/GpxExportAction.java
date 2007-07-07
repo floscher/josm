@@ -37,7 +37,7 @@ import org.openstreetmap.josm.tools.GBC;
  */
 public class GpxExportAction extends DiskAccessAction {
 
-	private final static String warningGpl = "<html><font color='red' size='-2'>"+tr("Note: GPL is not compatible to the OSM license. Do not upload GPL licensed tracks.")+"</html>";
+	private final static String warningGpl = "<html><font color='red' size='-2'>"+tr("Note: GPL is not compatible with the OSM license. Do not upload GPL licensed tracks.")+"</html>";
 
 	private final Layer layer;
 

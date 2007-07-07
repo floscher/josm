@@ -88,7 +88,7 @@ public class ServerSidePreferences extends Preferences {
 			connection = new Connection(new URL(serverUrl+"user/preferences"));
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(Main.parent, tr("Could not load preferenced from server."));
+			JOptionPane.showMessageDialog(Main.parent, tr("Could not load preferences from server."));
 		}
 		this.connection = connection;
 	}

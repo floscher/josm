@@ -96,7 +96,7 @@ public class CombineWayAction extends JosmAction implements SelectionChangedList
 
 		cmds.add(new DeleteCommand(selectedWays));
 		cmds.add(new ChangeCommand(oldWay, newWay));
-		Main.main.editLayer().add(new SequenceCommand(tr("Combine {0} Ways", selectedWays.size()), cmds));
+		Main.main.editLayer().add(new SequenceCommand(tr("Combine {0} ways", selectedWays.size()), cmds));
 		Main.ds.setSelected(oldWay);
 	}
 

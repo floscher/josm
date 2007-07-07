@@ -64,7 +64,7 @@ public class PluginPreference implements PreferenceSetting {
 
 	public void addGui(final PreferenceDialog gui) {
 		this.gui = gui;
-		plugin = gui.createPreferenceTab("plugin", tr("Plugins"), tr("Configure available Plugins."));
+		plugin = gui.createPreferenceTab("plugin", tr("Plugins"), tr("Configure available plugins."));
 		JScrollPane pluginPane = new JScrollPane(pluginPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		pluginPane.setBorder(null);
 		plugin.add(pluginPane, GBC.eol().fill(GBC.BOTH));

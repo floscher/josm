@@ -274,7 +274,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	 * Create a new PropertiesDialog
 	 */
 	public PropertiesDialog(MapFrame mapFrame) {
-		super(tr("Properties"), "propertiesdialog", tr("Property for selected objects."), KeyEvent.VK_P, 150);
+		super(tr("Properties"), "propertiesdialog", tr("Properties for selected objects."), KeyEvent.VK_P, 150);
 
 		if (AnnotationPresetPreference.annotationPresets.size() > 0) {
 			Vector<ActionListener> allPresets = new Vector<ActionListener>();

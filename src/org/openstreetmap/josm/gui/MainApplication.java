@@ -142,7 +142,7 @@ public class MainApplication extends Main {
 		}
 
 		preConstructorInit(args);
-		JFrame mainFrame = new JFrame(tr("Java Open Street Map - Editor"));
+		JFrame mainFrame = new JFrame(tr("Java OpenStreetMap - Editor"));
 		Main.parent = mainFrame;
 		final Main main = new MainApplication(mainFrame);
 		Main.loadPlugins(false);

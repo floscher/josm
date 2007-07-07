@@ -95,7 +95,7 @@ public class UploadAction extends JosmAction {
 					p.add(new JScrollPane(l), GBC.eol().fill());
 				}
 
-				return JOptionPane.showConfirmDialog(Main.parent, p, tr("Upload this changes?"),
+				return JOptionPane.showConfirmDialog(Main.parent, p, tr("Upload these changes?"),
 						JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
 			}
 		});
