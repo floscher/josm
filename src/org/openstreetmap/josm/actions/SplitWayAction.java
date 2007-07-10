@@ -30,7 +30,6 @@ import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.NameVisitor;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
-import org.openstreetmap.josm.tools.I18n;
 
 /**
  * Splits a way into multiple ways (all identical except the segments
