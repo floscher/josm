@@ -64,7 +64,7 @@ abstract public class Main {
 	 */
 	public static Component parent;
 	/**
-	 * Global application window. Use this as JOPtionPane-parent to center on application.
+	 * Global application.
 	 */
 	public static Main main;
 	/**
