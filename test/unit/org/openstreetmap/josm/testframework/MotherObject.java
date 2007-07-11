@@ -22,6 +22,7 @@ abstract public class MotherObject extends TestCase {
 	@Override protected void setUp() throws Exception {
 	    super.setUp();
 	    Main.proj = new Epsg4326();
+	    Main.ds = new DataSet();
     }
 
 	public static Node createNode(int id) {
