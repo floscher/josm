@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.data.osm.DataSource;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Segment;
@@ -76,6 +77,18 @@ public class OsmWriter extends XmlWriter implements Visitor {
 
 		private boolean shouldWrite(OsmPrimitive osm) {
 	        return osm.id != 0 || !osm.deleted;
+        }
+
+		@Override public void header(PrintWriter out) {
+	        super.header(out);
+			for (DataSource s : ds.dataSources) {
+				out.print("  <bound box='"+
+						s.bounds.min.lat()+","+
+						s.bounds.min.lon()+","+
+						s.bounds.max.lat()+","+
+						s.bounds.max.lon()+"' ");
+				out.println("origin='"+XmlWriter.encode(s.origin)+"' />");
+			}
         }
 	}
 

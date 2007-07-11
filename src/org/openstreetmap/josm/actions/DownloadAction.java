@@ -46,15 +46,22 @@ public class DownloadAction extends JosmAction {
 		if (dlg.getHeight() > 600)
 			dlg.setSize(dlg.getWidth(),600);
 
-		dlg.setVisible(true);
-		if (pane.getValue() instanceof Integer && (Integer)pane.getValue() == JOptionPane.OK_OPTION) {
-			Main.pref.put("download.tab", Integer.toString(dialog.getSelectedTab()));
-			for (DownloadTask task : dialog.downloadTasks) {
-				Main.pref.put("download."+task.getPreferencesSuffix(), task.getCheckBox().isSelected());
-				if (task.getCheckBox().isSelected()) {
-					task.download(this, dialog.minlat, dialog.minlon, dialog.maxlat, dialog.maxlon);
-				}
-			}
-		}
+		boolean finish = false;
+        while (!finish) {
+            dlg.setVisible(true);
+        	if (pane.getValue() instanceof Integer && (Integer)pane.getValue() == JOptionPane.OK_OPTION) {
+        		Main.pref.put("download.tab", Integer.toString(dialog.getSelectedTab()));
+        		for (DownloadTask task : dialog.downloadTasks) {
+        			Main.pref.put("download."+task.getPreferencesSuffix(), task.getCheckBox().isSelected());
+        			if (task.getCheckBox().isSelected()) {
+        				task.download(this, dialog.minlat, dialog.minlon, dialog.maxlat, dialog.maxlon);
+        				finish = true;
+        			}
+        		}
+        	} else
+        		finish = true;
+        	if (!finish)
+        		JOptionPane.showMessageDialog(Main.parent, tr("Please select at least one task to download"));
+        }
 	}
 }
