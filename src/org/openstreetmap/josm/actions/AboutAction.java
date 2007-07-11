@@ -25,6 +25,7 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.plugins.PluginProxy;
 import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.ImageProvider;
 import org.openstreetmap.josm.tools.UrlLabel;
@@ -65,6 +66,7 @@ public class AboutAction extends JosmAction {
 
 		JTextArea readme = loadFile(Main.class.getResource("/README"));
 		JTextArea contribution = loadFile(Main.class.getResource("/CONTRIBUTION"));
+		JTextArea plugins = loadFile(null);
 
 		JPanel info = new JPanel(new GridBagLayout());
 		info.add(new JLabel(tr("Java OpenStreetMap Editor Version {0}",version)), GBC.eol());
@@ -99,10 +101,17 @@ public class AboutAction extends JosmAction {
 		info.add(new JLabel(tr("News about JOSM")), GBC.std().insets(0,0,10,0));
 		info.add(new UrlLabel("http://www.opengeodata.org/?cat=17"), GBC.eol());
 
+		StringBuilder pluginsStr = new StringBuilder();
+		for (PluginProxy p : Main.plugins)
+			pluginsStr.append(p.info.name + "\n");
+		plugins.setText(pluginsStr.toString());
+		plugins.setCaretPosition(0);
+
 		about.addTab(tr("Info"), info);
 		about.addTab(tr("Readme"), createScrollPane(readme));
 		about.addTab(tr("Revision"), createScrollPane(revision));
 		about.addTab(tr("Contribution"), createScrollPane(contribution));
+		about.addTab(tr("Plugins"), createScrollPane(plugins));
 
 		about.setPreferredSize(new Dimension(500,300));
 
