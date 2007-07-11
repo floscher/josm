@@ -27,7 +27,7 @@ public class PluginDownloader {
 
 	public static int downloadDescription() {
 		int count = 0;
-		for (String site : Main.pref.get("pluginmanager.sites", "http://josm.openstreetmap.de/wiki/Plugins/LatestRelease http://josm.openstreetmap.de/wiki/Plugins").split(" ")) {
+		for (String site : Main.pref.get("pluginmanager.sites", "http://josm.openstreetmap.de/wiki/Plugins").split(" ")) {
 			try {
 				BufferedReader r = new BufferedReader(new InputStreamReader(new URL(site).openStream()));
 				CharSequence txt;
