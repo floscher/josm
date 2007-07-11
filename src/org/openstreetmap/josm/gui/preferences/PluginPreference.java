@@ -90,7 +90,7 @@ public class PluginPreference implements PreferenceSetting {
 				JOptionPane.showMessageDialog(Main.parent, tr("Not implemented yet."));
             }
 		});
-		plugin.add(update, GBC.std().insets(0,0,10,0));
+		//TODO: plugin.add(update, GBC.std().insets(0,0,10,0));
 
 		JButton configureSites = new JButton(tr("Configure Plugin Sites"));
 		configureSites.addActionListener(new ActionListener(){
@@ -98,7 +98,7 @@ public class PluginPreference implements PreferenceSetting {
 				JOptionPane.showMessageDialog(Main.parent, tr("Not implemented yet."));
             }
 		});
-		plugin.add(configureSites, GBC.std());
+		//TODO: plugin.add(configureSites, GBC.std());
 
 		refreshPluginPanel(gui);
 	}
@@ -139,6 +139,7 @@ public class PluginPreference implements PreferenceSetting {
 		for (String location : PluginInformation.getPluginLocations()) {
 			File[] pluginFiles = new File(location).listFiles();
 			if (pluginFiles != null) {
+				Arrays.sort(pluginFiles);
 				for (File f : pluginFiles) {
 					if (!f.isFile())
 						continue;
@@ -148,11 +149,12 @@ public class PluginPreference implements PreferenceSetting {
 		                    availablePlugins.put(info.name, new PluginDescription(info.name, info.description, PluginInformation.getURLString(f.getPath())));
 	                    } catch (PluginException x) {
 	                    }
-					} else if (f.getName().endsWith(".xml")) {
+					} else if (f.getName().matches("^[0-9]+-site.*\\.xml$")) {
 						try {
 	                        Uniform<PluginDescription> parser = new Uniform<PluginDescription>(new FileReader(f), "plugin", PluginDescription.class);
 	                        for (PluginDescription pd : parser)
-	                        	availablePlugins.put(pd.name, pd);
+	                        	if (!availablePlugins.containsKey(pd.name))
+	                        		availablePlugins.put(pd.name, pd);
                         } catch (Exception e) {
 	                        e.printStackTrace();
 	                        JOptionPane.showMessageDialog(Main.parent, tr("Error reading plugin information file: {0}", f.getName()));
