@@ -102,8 +102,8 @@ public class BoundingBoxDownloader extends OsmServerReader {
     		Main.pleaseWaitDlg.currentAction.setText(tr("Downloading OSM data..."));
     		final DataSet data = OsmReader.parseDataSet(in, null, Main.pleaseWaitDlg);
     		DataSource src = new DataSource();
-    		src.sourceSpec = "Server";
-    		src.sourceBounds = new Bounds(new LatLon(lat1, lon1), new LatLon(lat2, lon2));
+    		src.origin = Main.pref.get("osm-server.url")+"/"+Main.pref.get("osm-server.version", "0.4");
+    		src.bounds = new Bounds(new LatLon(lat1, lon1), new LatLon(lat2, lon2));
     		data.dataSources.add(src);
     		in.close();
     		activeConnection = null;

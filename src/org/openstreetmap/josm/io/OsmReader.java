@@ -15,8 +15,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.data.osm.DataSource;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Segment;
@@ -66,6 +68,7 @@ public class OsmReader {
 	 */
 	private Map<Long, Node> nodes = new HashMap<Long, Node>();
 
+	// TODO: What the hack? Is this really from me? Please, clean this up!
 	private static class OsmPrimitiveData extends OsmPrimitive {
 		@Override public void visit(Visitor visitor) {}
 		public int compareTo(OsmPrimitive o) {return 0;}
@@ -111,6 +114,20 @@ public class OsmReader {
 						throw new SAXException(tr("Unknown version"));
 					if (!allowedVersions.contains(atts.getValue("version")))
 						throw new SAXException(tr("Unknown version")+": "+atts.getValue("version"));
+				} else if (qName.equals("bound")) {
+					String bbox = atts.getValue("box");
+					String origin = atts.getValue("origin");
+					if (bbox != null) {
+						DataSource src = new DataSource();
+						String[] b = bbox.split(",");
+						if (b.length == 4)
+							src.bounds = new Bounds(
+									new LatLon(Double.parseDouble(b[0]),Double.parseDouble(b[1])),
+									new LatLon(Double.parseDouble(b[2]),Double.parseDouble(b[3])));
+						if (origin != null)
+							src.origin = origin;
+						ds.dataSources.add(src);
+					}
 				} else if (qName.equals("node")) {
 					current = new Node(new LatLon(getDouble(atts, "lat"), getDouble(atts, "lon")));
 					readCommon(atts, current);

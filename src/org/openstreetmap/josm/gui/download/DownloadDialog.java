@@ -64,8 +64,7 @@ public class DownloadDialog extends JPanel {
 	
 	public JTabbedPane tabpane = new JTabbedPane();
 	
-	public DownloadDialog(int tabindex)
-	{
+	public DownloadDialog(int tabindex) {
 		setLayout(new GridBagLayout());
 		
 		downloadTasks.add(new DownloadOsmTask());
