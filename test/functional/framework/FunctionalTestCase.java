@@ -24,9 +24,11 @@ import junit.extensions.jfcunit.eventdata.KeyEventData;
 import junit.extensions.jfcunit.eventdata.MouseEventData;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.data.Preferences;
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.gui.MainApplication;
 
-public class FunctionalTestCase extends JFCTestCase {
+abstract public class FunctionalTestCase extends JFCTestCase {
 
 	private KeyStroke getKey(String s) {
     	int key = 0;
@@ -64,7 +66,18 @@ public class FunctionalTestCase extends JFCTestCase {
 	@Override protected void setUp() throws Exception {
 		super.setUp();
 		setHelper(new RobotTestHelper());
+		
+		Main.ds = new DataSet();
+		Main.pref = new Preferences();
+		if (Main.map != null)
+			Main.main.setMapFrame(null);
+		
 		MainApplication.main(new String[]{});
+	}
+	
+	@Override protected void tearDown() throws Exception {
+		Main.parent.setVisible(false);
+		super.tearDown();
 	}
 
 	protected Component find(Component c, String search) {
