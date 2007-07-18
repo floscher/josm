@@ -259,7 +259,7 @@ public class GeoImageLayer extends Layer {
 	}
 
 	@Override public Icon getIcon() {
-		return ImageProvider.get("layer", "tagimages");
+		return ImageProvider.get("layer", "tagimages_small");
 	}
 
 	@Override public Object getInfoComponent() {

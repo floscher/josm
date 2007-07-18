@@ -172,11 +172,8 @@ abstract public class Main {
 	 */
 	public final void removeLayer(final Layer layer) {
 		map.mapView.removeLayer(layer);
-		if (layer instanceof OsmDataLayer) {
-			DataSet newDs = new DataSet();
-			newDs.listeners.addAll(ds.listeners);
-			ds = newDs;
-		}
+		if (layer instanceof OsmDataLayer)
+			ds = new DataSet();
 		if (map.mapView.getAllLayers().isEmpty())
 			setMapFrame(null);
 	}
@@ -277,7 +274,7 @@ abstract public class Main {
 	 */
 	public final OsmDataLayer editLayer() {
 		if (map == null || map.mapView.editLayer == null)
-			addLayer(new OsmDataLayer(ds, tr("unnamed"), null));
+			menu.newAction.actionPerformed(null);
 		return map.mapView.editLayer;
 	}
 

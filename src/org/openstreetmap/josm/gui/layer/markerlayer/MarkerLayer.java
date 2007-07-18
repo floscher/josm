@@ -97,7 +97,7 @@ public class MarkerLayer extends Layer {
 	 * Return a static icon.
 	 */
 	@Override public Icon getIcon() {
-		return ImageProvider.get("layer", "marker");
+		return ImageProvider.get("layer", "marker_small");
 	}
 
 	@Override public void paint(Graphics g, MapView mv) {

@@ -11,7 +11,7 @@ import org.openstreetmap.josm.data.osm.visitor.Visitor;
  *
  * @author imi
  */
-public class Node extends OsmPrimitive {
+public final class Node extends OsmPrimitive {
 	
 	public LatLon coor;
 	public volatile EastNorth eastNorth;

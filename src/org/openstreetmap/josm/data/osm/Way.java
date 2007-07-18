@@ -11,7 +11,7 @@ import org.openstreetmap.josm.data.osm.visitor.Visitor;
  *
  * @author imi
  */
-public class Way extends OsmPrimitive {
+public final class Way extends OsmPrimitive {
 
 	/**
 	 * All way segments in this way

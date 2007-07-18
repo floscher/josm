@@ -26,6 +26,7 @@ import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.DeleteCommand;
 import org.openstreetmap.josm.command.SequenceCommand;
 import org.openstreetmap.josm.data.SelectionChangedListener;
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.tools.GBC;
@@ -39,7 +40,7 @@ public class CombineWayAction extends JosmAction implements SelectionChangedList
 
 	public CombineWayAction() {
 		super(tr("Combine Way"), "combineway", tr("Combine several ways into one."), KeyEvent.VK_C, KeyEvent.CTRL_MASK | KeyEvent.SHIFT_MASK, true);
-		Main.ds.listeners.add(this);
+		DataSet.listeners.add(this);
 	}
 
 	public void actionPerformed(ActionEvent event) {

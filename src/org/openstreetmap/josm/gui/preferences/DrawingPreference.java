@@ -18,6 +18,7 @@ public class DrawingPreference implements PreferenceSetting {
 	private JCheckBox directionHint = new JCheckBox(tr("Draw Direction Arrows"));
 	private JCheckBox segmentOrderNumber = new JCheckBox(tr("Draw segment order numbers"));
 	private JCheckBox sourceBounds = new JCheckBox(tr("Draw boundaries of downloaded data"));
+	private JCheckBox inactive = new JCheckBox(tr("Draw inactive layers in other color"));
 
 	public void addGui(PreferenceDialog gui) {
 		// drawRawGpsLines
@@ -57,6 +58,11 @@ public class DrawingPreference implements PreferenceSetting {
 		sourceBounds.setToolTipText(tr("Draw the boundaries of data loaded from the server."));
 		sourceBounds.setSelected(Main.pref.getBoolean("draw.data.downloaded_area", true));
 		gui.display.add(sourceBounds, GBC.eop().insets(20,0,0,0));
+		
+		// background layers in inactive color
+		inactive.setToolTipText(tr("Draw the inactive data layers in a different color."));
+		inactive.setSelected(Main.pref.getBoolean("draw.data.inactive_color", true));
+		gui.display.add(inactive, GBC.eop().insets(20,0,0,0));
 	}
 
 	public void ok() {
@@ -66,5 +72,6 @@ public class DrawingPreference implements PreferenceSetting {
 		Main.pref.put("draw.segment.direction", directionHint.isSelected());
 		Main.pref.put("draw.segment.order_number", segmentOrderNumber.isSelected());
 		Main.pref.put("draw.data.downloaded_area", sourceBounds.isSelected());
+		Main.pref.put("draw.data.inactive_color", inactive.isSelected());
     }
 }

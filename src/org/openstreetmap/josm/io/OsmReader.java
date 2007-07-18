@@ -118,14 +118,13 @@ public class OsmReader {
 					String bbox = atts.getValue("box");
 					String origin = atts.getValue("origin");
 					if (bbox != null) {
-						DataSource src = new DataSource();
 						String[] b = bbox.split(",");
+						Bounds bounds = null;
 						if (b.length == 4)
-							src.bounds = new Bounds(
+							bounds = new Bounds(
 									new LatLon(Double.parseDouble(b[0]),Double.parseDouble(b[1])),
 									new LatLon(Double.parseDouble(b[2]),Double.parseDouble(b[3])));
-						if (origin != null)
-							src.origin = origin;
+						DataSource src = new DataSource(bounds, origin);
 						ds.dataSources.add(src);
 					}
 				} else if (qName.equals("node")) {
@@ -245,7 +244,7 @@ public class OsmReader {
 	    // TODO: This has to be changed to support multiple layers.
 	    for (Node node : Main.ds.nodes)
 	    	if (node.id == id)
-	    		return node;
+	    		return new Node(node);
 	    return null;
     }
 
@@ -259,7 +258,7 @@ public class OsmReader {
 		// TODO: This has to be changed to support multiple layers.
 		for (Segment seg : Main.ds.segments)
 			if (seg.id == id)
-				return seg;
+				return new Segment(seg);
 		return null;
 	}
 
@@ -287,8 +286,8 @@ public class OsmReader {
 	/**
 	 * Parse the given input source and return the dataset.
 	 * @param ref The dataset that is search in for references first. If
-	 * 	the Reference is not found here, Main.ds is searched.
-	 * TODO: This has to be changed to support multiple layers.
+	 * 	the Reference is not found here, Main.ds is searched and a copy of the
+	 *  elemet found there is returned.
 	 */
 	public static DataSet parseDataSet(InputStream source, DataSet ref, PleaseWaitDialog pleaseWaitDlg) throws SAXException, IOException {
 		OsmReader osm = new OsmReader();

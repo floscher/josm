@@ -31,6 +31,7 @@ import javax.swing.table.TableCellRenderer;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.SelectionChangedListener;
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.ImageProvider;
@@ -140,22 +141,21 @@ public class HistoryDialog extends ToggleDialog implements SelectionChangedListe
 		});
 		revertButton.setToolTipText(tr("Revert the state of all currently selected objects to the version selected in the history list."));
 		revertButton.putClientProperty("help", "Dialog/History/Revert");
+		
+		DataSet.listeners.add(this);
 	}
 
 
 	@Override public void setVisible(boolean b) {
-		if (b) {
-			Main.ds.listeners.add(this);
-			selectionChanged(Main.ds.getSelected());
-		} else {
-			Main.ds.listeners.remove(this);
-		}
 		super.setVisible(b);
+		if (b)
+			update();
 	}
 
 
 	public void selectionChanged(Collection<? extends OsmPrimitive> newSelection) {
-		update();
+		if (isVisible())
+			update();
 	}
 
 	/**

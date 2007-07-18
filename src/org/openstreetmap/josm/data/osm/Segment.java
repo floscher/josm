@@ -8,7 +8,7 @@ import org.openstreetmap.josm.data.osm.visitor.Visitor;
  *
  * @author imi
  */
-public class Segment extends OsmPrimitive {
+public final class Segment extends OsmPrimitive {
 
 	/**
 	 * The starting node of the segment

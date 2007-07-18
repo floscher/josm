@@ -20,6 +20,7 @@ import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.SelectionChangedListener;
 import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.coor.LatLon;
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.data.osm.visitor.SimplePaintVisitor;
@@ -80,7 +81,7 @@ public class MapView extends NavigatableComponent {
 		new MapMover(this, Main.contentPane);
 
 		// listend to selection changes to redraw the map
-		Main.ds.listeners.add(new SelectionChangedListener(){
+		DataSet.listeners.add(new SelectionChangedListener(){
 			public void selectionChanged(Collection<? extends OsmPrimitive> newSelection) {
 				repaint();
 			}
@@ -101,27 +102,16 @@ public class MapView extends NavigatableComponent {
 	 */
 	public void addLayer(Layer layer) {
 		if (layer instanceof OsmDataLayer) {
-			final OsmDataLayer dataLayer = (OsmDataLayer)layer;
-			if (editLayer != null) {
-				editLayer.mergeFrom(layer);
-				repaint();
-				return;
-			}
-			editLayer = dataLayer;
-			dataLayer.data.listeners.addAll(Main.ds.listeners);
-			Main.ds = dataLayer.data;
-			dataLayer.listenerModified.add(new ModifiedChangedListener(){
+			editLayer = (OsmDataLayer)layer;
+			Main.ds = editLayer.data;
+			editLayer.listenerModified.add(new ModifiedChangedListener(){
 				public void modifiedChanged(boolean value, OsmDataLayer source) {
 					JOptionPane.getFrameForComponent(Main.parent).setTitle((value?"*":"")+tr("Java OpenStreetMap - Editor"));
 				}
 			});
 		}
 
-		// add as a new layer
-		if (layer instanceof OsmDataLayer)
-			layers.add(0, layer);
-		else
-			layers.add(layers.size(), layer);
+		layers.add(layers.size(), layer);
 
 		for (LayerChangeListener l : listeners)
 			l.layerAdded(layer);
@@ -175,9 +165,11 @@ public class MapView extends NavigatableComponent {
 
 		for (int i = layers.size()-1; i >= 0; --i) {
 			Layer l = layers.get(i);
-			if (l.visible)
+			if (l.visible && l != getActiveLayer())
 				l.paint(g, this);
 		}
+		if (getActiveLayer().visible)
+			getActiveLayer().paint(g, this);
 
 		// draw world borders
 		g.setColor(Color.WHITE);
@@ -260,11 +252,17 @@ public class MapView extends NavigatableComponent {
 	public void setActiveLayer(Layer layer) {
 		if (!layers.contains(layer))
 			throw new IllegalArgumentException("Layer must be in layerlist");
+		if (layer instanceof OsmDataLayer) {
+			editLayer = (OsmDataLayer)layer;
+			Main.ds = editLayer.data;
+			DataSet.fireSelectionChanged(Main.ds.getSelected());
+		}
 		Layer old = activeLayer;
 		activeLayer = layer;
 		if (old != layer)
 			for (LayerChangeListener l : listeners)
 				l.activeLayerChange(old, layer);
+		repaint();
 	}
 
 	/**

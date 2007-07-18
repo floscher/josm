@@ -24,6 +24,7 @@ import org.openstreetmap.josm.command.ChangeCommand;
 import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.SequenceCommand;
 import org.openstreetmap.josm.data.SelectionChangedListener;
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Segment;
@@ -98,7 +99,7 @@ public class SplitWayAction extends JosmAction implements SelectionChangedListen
 	 */
 	public SplitWayAction() {
 		super(tr("Split Way"), "splitway", tr("Split a way at the selected node."), KeyEvent.VK_P, KeyEvent.CTRL_MASK | KeyEvent.SHIFT_MASK, true);
-		Main.ds.listeners.add(this);
+		DataSet.listeners.add(this);
 	}
 
 	/**

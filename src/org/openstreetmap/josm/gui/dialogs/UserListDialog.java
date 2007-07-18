@@ -16,6 +16,7 @@ import javax.swing.table.DefaultTableModel;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.SelectionChangedListener;
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.User;
 
@@ -50,16 +51,14 @@ public class UserListDialog extends ToggleDialog implements SelectionChangedList
 		userTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		add(new JScrollPane(userTable), BorderLayout.CENTER);
 		selectionChanged(Main.ds.getSelected());
+		
+		DataSet.listeners.add(this);
 	}
 
 	@Override public void setVisible(boolean b) {
-		if (b) {
-			Main.ds.listeners.add(this);
-			selectionChanged(Main.ds.getSelected());
-		} else {
-			Main.ds.listeners.remove(this);
-		}
 		super.setVisible(b);
+		if (b)
+			selectionChanged(Main.ds.getSelected());
 	}
 
 	/**
@@ -67,6 +66,8 @@ public class UserListDialog extends ToggleDialog implements SelectionChangedList
 	 * @param newSelection The new selection array.
 	 */
 	public void selectionChanged(Collection<? extends OsmPrimitive> newSelection) {
+		if (!isVisible())
+			return;
 		
 		class UserCount {
 			User user;

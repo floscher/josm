@@ -22,6 +22,7 @@ import javax.swing.ListSelectionModel;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.SelectionChangedListener;
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.OsmPrimitivRenderer;
 import org.openstreetmap.josm.tools.ImageProvider;
@@ -76,6 +77,8 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 
 		add(buttonPanel, BorderLayout.SOUTH);
 		selectionChanged(Main.ds.getSelected());
+
+		DataSet.listeners.add(this);
 	}
 
 	private JButton createButton(String name, String icon, String tooltip, ActionListener action) {
@@ -87,15 +90,10 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 	}
 
 	@Override public void setVisible(boolean b) {
-		if (b) {
-			Main.ds.listeners.add(this);
-			selectionChanged(Main.ds.getSelected());
-		} else {
-			Main.ds.listeners.remove(this);
-		}
 		super.setVisible(b);
+		if (b)
+			selectionChanged(Main.ds.getSelected());
 	}
-
 
 
 	/**
@@ -105,6 +103,8 @@ public class SelectionListDialog extends ToggleDialog implements SelectionChange
 	public void selectionChanged(Collection<? extends OsmPrimitive> newSelection) {
 		if (list == null)
 			return; // selection changed may be received in base class constructor before init
+		if (!isVisible())
+			return;
 		OsmPrimitive[] selArr = new OsmPrimitive[newSelection.size()];
 		selArr = newSelection.toArray(selArr);
 		Arrays.sort(selArr);

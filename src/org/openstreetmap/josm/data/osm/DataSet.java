@@ -19,7 +19,7 @@ import org.openstreetmap.josm.data.SelectionChangedListener;
  *
  * @author imi
  */
-public class DataSet {
+public class DataSet implements Cloneable {
 
 	/**
 	 * All nodes goes here, even when included in other data (ways etc).
@@ -48,9 +48,12 @@ public class DataSet {
 	public Collection<DataSource> dataSources = new LinkedList<DataSource>();
 	
 	/**
-	 * A list of listeners to selection changed events.
+	 * A list of listeners to selection changed events. The list is static,
+	 * as listeners register themself for any dataset selection changes that 
+	 * occour, regardless of the current active dataset. (However, the
+	 * selection does only change in the active layer)
 	 */
-	transient public Collection<SelectionChangedListener> listeners = new LinkedList<SelectionChangedListener>();
+	public static Collection<SelectionChangedListener> listeners = new LinkedList<SelectionChangedListener>();
 
 	/**
 	 * @return A collection containing all primitives of the dataset. The
@@ -143,8 +146,21 @@ public class DataSet {
 	 * Remember to fire an selection changed event. A call to this will not fire
 	 * the event immediately. For more, @see SelectionChangedListener
 	 */
-	public void fireSelectionChanged(Collection<? extends OsmPrimitive> sel) {
+	public static void fireSelectionChanged(Collection<? extends OsmPrimitive> sel) {
 		for (SelectionChangedListener l : listeners)
 			l.selectionChanged(sel);
 	}
+
+	@Override public DataSet clone() {
+		DataSet ds = new DataSet();
+		for (Node n : nodes)
+			ds.nodes.add(new Node(n));
+		for (Segment s : segments)
+			ds.segments.add(new Segment(s));
+		for (Way w : ways)
+			ds.ways.add(new Way(w));
+		for (DataSource source : dataSources)
+			ds.dataSources.add(new DataSource(source.bounds, source.origin));
+	    return ds;
+    }
 }

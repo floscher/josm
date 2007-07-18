@@ -2,9 +2,13 @@ package org.openstreetmap.josm.gui;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.Action;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 
 import org.openstreetmap.josm.actions.AboutAction;
 import org.openstreetmap.josm.actions.AlignInCircleAction;
@@ -30,6 +34,7 @@ import org.openstreetmap.josm.actions.UndoAction;
 import org.openstreetmap.josm.actions.UnselectAllAction;
 import org.openstreetmap.josm.actions.UploadAction;
 import org.openstreetmap.josm.actions.search.SearchAction;
+import org.openstreetmap.josm.data.DataSetChecker;
 
 /**
  * This is the JOSM main menu bar. It is overwritten to initialize itself and provide
@@ -56,8 +61,8 @@ public class MainMenu extends JMenuBar {
 	public final Action alignInLine = new AlignInLineAction();
 	public final Action reorder = new ReorderAction();
 	public final Action upload = new UploadAction();
-	public final Action save = new SaveAction();
-	public final Action saveAs = new SaveAsAction();
+	public final Action save = new SaveAction(null);
+	public final Action saveAs = new SaveAsAction(null);
 	public final Action gpxExport = new GpxExportAction(null);
 	public final Action exit = new ExitAction();
 	public final Action preferences = new PreferencesAction();
@@ -127,7 +132,13 @@ public class MainMenu extends JMenuBar {
 		add(layerMenu);
 		layerMenu.setVisible(false);
 
-		//add(Box.createHorizontalGlue());
+		JMenuItem check = new JMenuItem("DEBUG: Check Dataset");
+		check.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				DataSetChecker.check();
+            }
+		});
+		helpMenu.add(check);
 
 		helpMenu.setMnemonic('H');
 		helpMenu.add(help);
