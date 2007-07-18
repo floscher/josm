@@ -74,6 +74,8 @@ public class LayerListDialog extends ToggleDialog implements LayerChangeListener
 				sel = instance.getModel().getSize()-1;
 			if (instance.getSelectedValue() == null)
 				instance.setSelectedIndex(sel);
+			if (Main.map != null)
+				Main.map.mapView.setActiveLayer((Layer)instance.getSelectedValue());
 		}
 	}
 

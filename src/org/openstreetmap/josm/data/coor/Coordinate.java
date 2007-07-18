@@ -19,11 +19,11 @@ abstract class Coordinate {
 	/**
 	 * Either easting or latitude
 	 */
-	double x;
+	final double x;
 	/**
 	 * Either northing or longitude
 	 */
-	double y;
+	final double y;
 
 	/**
 	 * Construct the point with latitude / longitude values.

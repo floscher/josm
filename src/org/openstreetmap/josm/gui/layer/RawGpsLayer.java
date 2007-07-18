@@ -82,7 +82,7 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 				}
 				ds.ways.add(w);
 			}
-			Main.main.addLayer(new OsmDataLayer(ds, tr("Data Layer"), null));
+			Main.main.addLayer(new OsmDataLayer(ds, tr("Converted from: {0}", RawGpsLayer.this.name), null));
 			Main.main.removeLayer(RawGpsLayer.this);
 		}
 	}
@@ -114,7 +114,7 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 	 * Return a static icon.
 	 */
 	@Override public Icon getIcon() {
-		return ImageProvider.get("layer", "rawgps");
+		return ImageProvider.get("layer", "rawgps_small");
 	}
 
 	@Override public void paint(Graphics g, MapView mv) {

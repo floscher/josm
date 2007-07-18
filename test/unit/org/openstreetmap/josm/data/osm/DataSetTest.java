@@ -86,23 +86,11 @@ public class DataSetTest extends MotherObject {
 
 	public void testFireSelectionChanged() {
 		TestSelectionChangeListener l = new TestSelectionChangeListener();
-		ds.listeners.add(l);
+		DataSet.listeners.add(l);
 		ds.setSelected(segment);
 		assertNotNull(l.called);
 		assertEquals(1, l.called.size());
 		assertSame(segment, l.called.iterator().next());
-	}
-
-	public void testAddAllSelectionListener() {
-		DataSet ds2 = new DataSet();
-		TestSelectionChangeListener l1 = new TestSelectionChangeListener();
-		TestSelectionChangeListener l2 = new TestSelectionChangeListener();
-		ds2.listeners.add(l1);
-		ds2.listeners.add(l2);
-		ds.listeners.addAll(ds2.listeners);
-		ds2.listeners.remove(l1);
-		ds.setSelected(node2);
-		assertNotNull(l1.called);
-		assertNotNull(l2.called);
+		DataSet.listeners.remove(l);
 	}
 }

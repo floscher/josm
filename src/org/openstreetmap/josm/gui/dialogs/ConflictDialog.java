@@ -30,6 +30,7 @@ import javax.swing.event.ListSelectionListener;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.ConflictResolveCommand;
 import org.openstreetmap.josm.data.SelectionChangedListener;
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Segment;
@@ -85,7 +86,7 @@ public final class ConflictDialog extends ToggleDialog {
 
 		add(buttonPanel, BorderLayout.SOUTH);
 
-		Main.ds.listeners.add(new SelectionChangedListener(){
+		DataSet.listeners.add(new SelectionChangedListener(){
 			public void selectionChanged(Collection<? extends OsmPrimitive> newSelection) {
 				displaylist.clearSelection();
 				for (OsmPrimitive osm : newSelection) {

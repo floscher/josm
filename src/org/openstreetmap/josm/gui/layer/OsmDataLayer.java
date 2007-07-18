@@ -134,7 +134,7 @@ public class OsmDataLayer extends Layer {
 	 * 		updated by a background thread to not disturb the running programm.
 	 */
 	@Override public Icon getIcon() {
-		return ImageProvider.get("layer", "osmdata");
+		return ImageProvider.get("layer", "osmdata_small");
 	}
 
 	/**
@@ -143,6 +143,7 @@ public class OsmDataLayer extends Layer {
 	 * Draw nodes last to overlap the segments they belong to.
 	 */
 	@Override public void paint(final Graphics g, final MapView mv) {
+		boolean inactive = Main.map.mapView.getActiveLayer() != this && Main.pref.getBoolean("draw.data.inactive_color", true);
 		if (Main.pref.getBoolean("draw.data.downloaded_area", false)) {
 			// FIXME this is inefficient; instead a proper polygon has to be built, and instead
 			// of drawing the outline, the outlying areas should perhaps be shaded.
@@ -152,13 +153,16 @@ public class OsmDataLayer extends Layer {
 					EastNorth en2 = Main.proj.latlon2eastNorth(src.bounds.max);
 					Point p1 = mv.getPoint(en1);
 					Point p2 = mv.getPoint(en2);
-					g.setColor(SimplePaintVisitor.getPreferencesColor("downloaded Area", Color.YELLOW));
+					Color color = inactive ? SimplePaintVisitor.getPreferencesColor("inactive", Color.DARK_GRAY) :
+							SimplePaintVisitor.getPreferencesColor("downloaded Area", Color.YELLOW);
+					g.setColor(color);
 					g.drawRect(Math.min(p1.x,p2.x), Math.min(p1.y, p2.y), Math.abs(p2.x-p1.x), Math.abs(p2.y-p1.y));
 				}
 			}
 		}
 		mapPainter.setGraphics(g);
 		mapPainter.setNavigatableComponent(mv);
+		mapPainter.inactive = inactive;
 		mapPainter.visitAll(data);
 		Main.map.conflictDialog.paintConflicts(g, mv);
 	}
@@ -356,8 +360,8 @@ public class OsmDataLayer extends Layer {
 				new JMenuItem(new LayerListDialog.ShowHideLayerAction(this)),
 				new JMenuItem(new LayerListDialog.DeleteLayerAction(this)),
 				new JSeparator(),
-				new JMenuItem(new SaveAction()),
-				new JMenuItem(new SaveAsAction()),
+				new JMenuItem(new SaveAction(this)),
+				new JMenuItem(new SaveAsAction(this)),
 				new JMenuItem(new GpxExportAction(this)),
 				new JSeparator(),
 				new JMenuItem(new RenameLayerAction(associatedFile, this)),

@@ -18,6 +18,7 @@ import org.openstreetmap.josm.command.AddCommand;
 import org.openstreetmap.josm.command.ChangeCommand;
 import org.openstreetmap.josm.command.DeleteCommand;
 import org.openstreetmap.josm.data.SelectionChangedListener;
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
@@ -59,7 +60,7 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 	 */
 	public AddWayAction(MapFrame mapFrame) {
 		super(tr("Add Way"), "addway", tr("Add a new way to the data."), KeyEvent.VK_W, mapFrame, ImageProvider.getCursor("normal", "way"));
-		Main.ds.listeners.add(this);
+		DataSet.listeners.add(this);
 	}
 
 	@Override public void enterMode() {

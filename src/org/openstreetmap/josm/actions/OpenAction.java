@@ -7,6 +7,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collection;
@@ -56,52 +57,54 @@ public class OpenAction extends DiskAccessAction {
 	 * Open the given file.
 	 */
 	public void openFile(File file) {
-		String fn = file.getName();
 		try {
-			if (asRawData(fn)) {
-				Collection<Collection<GpsPoint>> gpsData = null;
-				Collection<Marker> markerData = null;
-				if (ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn)) {
-					RawGpsReader r = null;
-					// Check to see if we are opening a compressed file
-					if(file.getName().endsWith(".gpx.gz")) {
-						r = new RawGpsReader(new GZIPInputStream(new FileInputStream(file)), file.getAbsoluteFile().getParentFile());
-					} else {
-						r = new RawGpsReader(new FileInputStream(file), file.getAbsoluteFile().getParentFile());
-					}
-					gpsData = r.trackData;
-					markerData = r.markerData;
-				} else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
-					gpsData = new LinkedList<Collection<GpsPoint>>();
-					gpsData.add(new RawCsvReader(new FileReader(file)).parse());
-				} else
-					throw new IllegalStateException();
-				if ((gpsData != null) && (!gpsData.isEmpty()))
-					Main.main.addLayer(new RawGpsLayer(gpsData, tr("Tracks from {0}", file.getName()), file));
-				if ((markerData != null) && (!markerData.isEmpty()))
-					Main.main.addLayer(new MarkerLayer(markerData, tr ("Markers from {0}", file.getName()), file));
-				
-			} else {
-				DataSet dataSet;
-				if (ExtensionFileFilter.filters[ExtensionFileFilter.OSM].acceptName(fn)) {
-					dataSet = OsmReader.parseDataSet(new FileInputStream(file), null, Main.pleaseWaitDlg);
-				} else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
-					JOptionPane.showMessageDialog(Main.parent, fn+": "+tr("CSV Data import for non-GPS data is not implemented yet."));
-					return;
-				} else {
-					JOptionPane.showMessageDialog(Main.parent, fn+": "+tr("Unknown file extension: {0}", fn.substring(file.getName().lastIndexOf('.')+1)));
-					return;
-				}
-				Main.main.addLayer(new OsmDataLayer(dataSet, file.getName(), file));
-			}
+			if (asRawData(file.getName()))
+				openFileAsRawGps(file);
+			else
+				openAsData(file);
 		} catch (SAXException x) {
 			x.printStackTrace();
-			JOptionPane.showMessageDialog(Main.parent, tr("Error while parsing {0}",fn)+": "+x.getMessage());
+			JOptionPane.showMessageDialog(Main.parent, tr("Error while parsing {0}",file.getName())+": "+x.getMessage());
 		} catch (IOException x) {
 			x.printStackTrace();
-			JOptionPane.showMessageDialog(Main.parent, tr("Could not read \"{0}\"",fn)+"\n"+x.getMessage());
+			JOptionPane.showMessageDialog(Main.parent, tr("Could not read \"{0}\"",file.getName())+"\n"+x.getMessage());
 		}
 	}
+
+	private void openAsData(File file) throws SAXException, IOException, FileNotFoundException {
+	    String fn = file.getName();
+	    if (ExtensionFileFilter.filters[ExtensionFileFilter.OSM].acceptName(fn)) {
+	    	DataSet dataSet = OsmReader.parseDataSet(new FileInputStream(file), null, Main.pleaseWaitDlg);
+	    	OsmDataLayer layer = new OsmDataLayer(dataSet, file.getName(), file);
+            Main.main.addLayer(layer);
+	    } else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn))
+	    	JOptionPane.showMessageDialog(Main.parent, fn+": "+tr("CSV Data import for non-GPS data is not implemented yet."));
+	    else
+	    	JOptionPane.showMessageDialog(Main.parent, fn+": "+tr("Unknown file extension: {0}", fn.substring(file.getName().lastIndexOf('.')+1)));
+    }
+
+	private void openFileAsRawGps(File file) throws SAXException, IOException, FileNotFoundException {
+	    String fn = file.getName();
+	    Collection<Collection<GpsPoint>> gpsData = null;
+	    Collection<Marker> markerData = null;
+	    if (ExtensionFileFilter.filters[ExtensionFileFilter.GPX].acceptName(fn)) {
+	    	RawGpsReader r = null;
+	    	if (file.getName().endsWith(".gpx.gz"))
+	    		r = new RawGpsReader(new GZIPInputStream(new FileInputStream(file)), file.getAbsoluteFile().getParentFile());
+	    	else
+	    		r = new RawGpsReader(new FileInputStream(file), file.getAbsoluteFile().getParentFile());
+	    	gpsData = r.trackData;
+	    	markerData = r.markerData;
+	    } else if (ExtensionFileFilter.filters[ExtensionFileFilter.CSV].acceptName(fn)) {
+	    	gpsData = new LinkedList<Collection<GpsPoint>>();
+	    	gpsData.add(new RawCsvReader(new FileReader(file)).parse());
+	    } else
+	    	throw new IllegalStateException();
+	    if (gpsData != null && !gpsData.isEmpty())
+	    	Main.main.addLayer(new RawGpsLayer(gpsData, tr("Tracks from {0}", file.getName()), file));
+	    if (markerData != null && !markerData.isEmpty())
+	    	Main.main.addLayer(new MarkerLayer(markerData, tr ("Markers from {0}", file.getName()), file));
+    }
 
 	/**
 	 * @return Return whether the file should be opened as raw gps data. May ask the

@@ -35,18 +35,20 @@ public class SimplePaintVisitor implements Visitor {
 	 * MapView to get screen coordinates.
 	 */
 	protected NavigatableComponent nc;
+	
+	public boolean inactive;
 
 	protected static final double PHI = Math.toRadians(20);
 
 	public void visitAll(DataSet data) {
 		for (final OsmPrimitive osm : data.segments)
-			if (!osm.deleted)
+			if (!osm.deleted && !osm.selected)
 				osm.visit(this);
 		for (final OsmPrimitive osm : data.ways)
-			if (!osm.deleted)
+			if (!osm.deleted && !osm.selected)
 				osm.visit(this);
 		for (final OsmPrimitive osm : data.nodes)
-			if (!osm.deleted)
+			if (!osm.deleted && !osm.selected)
 				osm.visit(this);
 		for (final OsmPrimitive osm : data.getSelected())
 			if (!osm.deleted)
@@ -60,8 +62,14 @@ public class SimplePaintVisitor implements Visitor {
 	 * @param n The node to draw.
 	 */
 	public void visit(Node n) {
-		drawNode(n, n.selected ? getPreferencesColor("selected", Color.WHITE)
-				: getPreferencesColor("node", Color.RED));
+		Color color = null;
+		if (inactive)
+			color = getPreferencesColor("inactive", Color.DARK_GRAY);
+		else if (n.selected)
+			color = getPreferencesColor("selected", Color.WHITE);
+		else
+			color = getPreferencesColor("node", Color.RED);
+		drawNode(n, color);
 	}
 
 	/**
@@ -69,7 +77,14 @@ public class SimplePaintVisitor implements Visitor {
 	 * White if selected (as always) or green otherwise.
 	 */
 	public void visit(Segment ls) {
-		drawSegment(ls, getPreferencesColor("segment", darkgreen), Main.pref.getBoolean("draw.segment.direction"));
+		Color color;
+		if (inactive)
+			color = getPreferencesColor("inactive", Color.DARK_GRAY);
+		else if (ls.selected)
+			color = getPreferencesColor("selected", Color.WHITE);
+		else
+			color = getPreferencesColor("segment", darkgreen);
+		drawSegment(ls, color, Main.pref.getBoolean("draw.segment.direction"));
 	}
 
 	/**
@@ -77,12 +92,16 @@ public class SimplePaintVisitor implements Visitor {
 	 * @param w The way to draw.
 	 */
 	public void visit(Way w) {
-		// only to overwrite with blue
-		Color wayColor = getPreferencesColor("way", darkblue);
-		for (Segment ls : w.segments) {
-			if (ls.incomplete) {
-				wayColor = getPreferencesColor("incomplete way", darkerblue);
-				break;
+		Color wayColor;
+		if (inactive)
+			wayColor = getPreferencesColor("inactive", Color.DARK_GRAY);
+		else {
+			wayColor = getPreferencesColor("way", darkblue);
+			for (Segment ls : w.segments) {
+				if (ls.incomplete) {
+					wayColor = getPreferencesColor("incomplete way", darkerblue);
+					break;
+				}
 			}
 		}
 
@@ -92,7 +111,7 @@ public class SimplePaintVisitor implements Visitor {
 		for (Segment ls : w.segments) {
 			orderNumber++;
 			if (!ls.selected) // selected already in good color
-				drawSegment(ls, w.selected ? getPreferencesColor("selected", Color.WHITE) : wayColor, showDirectionArrow);
+				drawSegment(ls, w.selected && !inactive ? getPreferencesColor("selected", Color.WHITE) : wayColor, showDirectionArrow);
 			if (!ls.incomplete && showOrderNumber)
 				drawOrderNumber(ls, orderNumber);
 		}
@@ -139,8 +158,6 @@ public class SimplePaintVisitor implements Visitor {
 	protected void drawSegment(Segment ls, Color col, boolean showDirection) {
 		if (ls.incomplete)
 			return;
-		if (ls.selected)
-			col = getPreferencesColor("selected", Color.WHITE);
 		g.setColor(col);
 		Point p1 = nc.getPoint(ls.from.eastNorth);
 		Point p2 = nc.getPoint(ls.to.eastNorth);

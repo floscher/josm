@@ -45,6 +45,11 @@ public class GettingStarted extends JPanel implements ActionListener {
 		super(new GridBagLayout());
 		
 		panel = new JPanel(new GridBagLayout());
+		
+		panel.add(new JLabel("<html><h2>You are running a beta version with a brand new feature <i>multiple data layers</i>.</h2>" +
+				"<h3>This is a major change, so expect some bugs, especally with undo/redo and the merging code.<br>" +
+				"If you can't work, downgrade to josm-1.5.jar, available at http://josm.openstreetmap.org/download/josm-1.5.jar<br><br>" +
+		"Imi.</h3>"), GBC.eol());
 
 		addGettingStarted();
 		addGettingHelp();

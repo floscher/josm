@@ -7,6 +7,8 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 
 public class NewAction extends JosmAction {
 
@@ -15,10 +17,6 @@ public class NewAction extends JosmAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		if (Main.breakBecauseUnsavedChanges())
-			return;
-		if (Main.map != null)
-			Main.main.removeLayer(Main.main.editLayer());
-		Main.main.editLayer(); // create new if empty
+		Main.main.addLayer(new OsmDataLayer(new DataSet(), tr("unnamed"), null));
 	}
 }

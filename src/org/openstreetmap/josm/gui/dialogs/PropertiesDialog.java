@@ -44,6 +44,7 @@ import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.ChangePropertyCommand;
 import org.openstreetmap.josm.command.SequenceCommand;
 import org.openstreetmap.josm.data.SelectionChangedListener;
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.annotation.AnnotationCellRenderer;
@@ -345,6 +346,8 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		buttonPanel.add(createButton(marktr("Edit"),tr( "Edit the value of the selected key for all objects"), KeyEvent.VK_E, buttonAction));
 		buttonPanel.add(createButton(marktr("Delete"),tr("Delete the selected key in all objects"), KeyEvent.VK_D, buttonAction));
 		add(buttonPanel, BorderLayout.SOUTH);
+
+		DataSet.listeners.add(this);
 	}
 
 	private JButton createButton(String name, String tooltip, int mnemonic, ActionListener actionListener) {
@@ -358,16 +361,14 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	}
 
 	@Override public void setVisible(boolean b) {
-		if (b) {
-			Main.ds.listeners.add(this);
-			selectionChanged(Main.ds.getSelected());
-		} else {
-			Main.ds.listeners.remove(this);
-		}
 		super.setVisible(b);
+		if (b)
+			selectionChanged(Main.ds.getSelected());
 	}
 
 	public void selectionChanged(Collection<? extends OsmPrimitive> newSelection) {
+		if (!isVisible())
+			return;
 		if (propertyTable == null)
 			return; // selection changed may be received in base class constructor before init
 		if (propertyTable.getCellEditor() != null)
