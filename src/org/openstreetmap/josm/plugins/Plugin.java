@@ -91,13 +91,21 @@ public abstract class Plugin {
 	public void addDownloadSelection(List<DownloadSelection> list) {}
 	
 	/**
+	 * @deprecated Use copy(String pluginName, String from, String to) instead
+	 */
+	@Deprecated public void copy(String from, String to) throws FileNotFoundException, IOException {
+		copy(name, from, to);
+    }
+
+	/**
 	 * Copies the ressource 'from' to the file in the plugin directory named 'to'.
 	 */
-	public void copy(String from, String to) throws FileNotFoundException, IOException {
-		File pluginDir = new File(getPluginDir());
+	public void copy(String pluginName, String from, String to) throws FileNotFoundException, IOException {
+	    String pluginDirName = Main.pref.getPreferencesDir()+"plugins/"+pluginName+"/";
+		File pluginDir = new File(pluginDirName);
 		if (!pluginDir.exists())
 			pluginDir.mkdirs();
-    	FileOutputStream out = new FileOutputStream(getPluginDir()+to);
+    	FileOutputStream out = new FileOutputStream(pluginDirName+to);
     	InputStream in = getClass().getResourceAsStream(from);
     	byte[] buffer = new byte[8192];
     	for(int len = in.read(buffer); len > 0; len = in.read(buffer))
