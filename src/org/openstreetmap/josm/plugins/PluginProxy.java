@@ -18,22 +18,10 @@ public class PluginProxy extends Plugin {
 
 	public final Object plugin;
 	public final PluginInformation info;
-	public boolean misbehaving = false;
 
 	public PluginProxy(Object plugin, PluginInformation info) {
 		this.plugin = plugin;
 		this.info = info;
-
-		// setting name of the plugin by reflection
-		if (plugin instanceof Plugin) {
-			try {
-		        Plugin.class.getDeclaredField("name").set(plugin, info.name);
-	        } catch (Exception e) {
-	        	if (e instanceof RuntimeException)
-	        		throw (RuntimeException)e;
-	        	throw new RuntimeException(e);
-	        }
-		}
     }
 
 	@Override public void mapFrameInitialized(MapFrame oldFrame, MapFrame newFrame) {

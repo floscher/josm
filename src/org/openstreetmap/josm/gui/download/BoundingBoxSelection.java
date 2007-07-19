@@ -195,12 +195,18 @@ public class BoundingBoxSelection implements DownloadSelection {
 			} else {
 				double size = 180.0 / Math.pow(2, Integer.parseInt(map.get("zoom")));
 				b = new Bounds(
-	            	new LatLon(Double.parseDouble(map.get("mlat")) - size/2, Double.parseDouble(map.get("mlon")) - size),
-	            	new LatLon(Double.parseDouble(map.get("mlat")) + size/2, Double.parseDouble(map.get("mlon")) + size));
+	            	new LatLon(parseDouble(map, "lat") - size/2, parseDouble(map, "lon") - size),
+	            	new LatLon(parseDouble(map, "lat") + size/2, parseDouble(map, "lon") + size));
 			}
 		} catch (NumberFormatException x) {
 		} catch (NullPointerException x) {
 		}
 		return b;
 	}
+
+	private static double parseDouble(HashMap<String, String> map, String key) {
+		if (map.containsKey(key))
+			return Double.parseDouble(map.get(key));
+		return Double.parseDouble(map.get("m"+key));
+    }
 }

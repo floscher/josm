@@ -3,6 +3,11 @@ package org.openstreetmap.josm.tools;
 import static org.openstreetmap.josm.tools.I18n.tr;
 
 import java.awt.GridBagLayout;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
@@ -36,52 +41,43 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 		e.printStackTrace();
 		if (Main.parent != null) {
 			if (e instanceof OutOfMemoryError) {
+				// do not translate the string, as translation may raise an exception
 				JOptionPane.showMessageDialog(Main.parent, "You are out of memory. Strange things may happen.\nPlease restart JOSM and load smaller data sets.");
 				return;
 			}
 
-			// Check for an explicit problem when calling a plugin function
-			if (e instanceof PluginException) {
-				PluginProxy plugin = ((PluginException)e).plugin;
-				if (plugin != null && !plugin.misbehaving) {
-					JOptionPane.showMessageDialog(Main.parent, tr("The plugin {0} threw an exception: {1}\nIt may be outdated. Please contact the plugin's author.\nThis message will not shown again until JOSM is restarted.", plugin.info.name, e.getMessage()));
-					plugin.misbehaving = true;
-					return;
-				}
-			}
+			PluginProxy plugin = null;
 
-			// Try a heuristic to guess whether the problem may be within a plugin
-			String pluginName = guessPlugin(e);
-			if (pluginName != null) {
-				boolean loaded = false;
-				for (PluginProxy p : Main.plugins)
-					if (p.info.name.equals(pluginName))
-						loaded = true;
-				if (loaded) {
-					String author = findPluginAuthor(pluginName);
-					int answer = JOptionPane.showConfirmDialog(
-							Main.parent, 
-							tr("An unexpected exception occurred, that may come from in the ''{0}'' plugin.", pluginName)+"\n"+
-								(author != null ? tr("According to the information within the plugin, the author is {0}.", author) : "")+"\n"+
-								tr("Should the plugin be disabled?"),
-							tr("Disable plugin"),
-							JOptionPane.YES_NO_OPTION);
-					if (answer == JOptionPane.OK_OPTION) {
-						LinkedList<String> plugins = new LinkedList<String>(Arrays.asList(Main.pref.get("plugins").split(",")));
-						if (plugins.contains(pluginName)) {
-							while (plugins.remove(pluginName)) {}
-							String p = "";
-							for (String s : plugins)
-								p += ","+s;
-							if (p.length() > 0)
-								p = p.substring(1);
-							Main.pref.put("plugins", p);
-							JOptionPane.showMessageDialog(Main.parent, tr("The plugin has been removed from the configuration. Please restart JOSM to unload the plugin."));
-						} else {
-							JOptionPane.showMessageDialog(Main.parent, tr("The plugin could not be removed. Please tell the people you got JOSM from about the problem."));
-						}
-						return;
+			// Check for an explicit problem when calling a plugin function
+			if (e instanceof PluginException)
+				plugin = ((PluginException)e).plugin;
+			
+			if (plugin == null)
+				plugin = guessPlugin(e);
+
+			if (plugin != null) {
+				int answer = JOptionPane.showConfirmDialog(
+						Main.parent, 
+						tr("An unexpected exception occurred, that may come from in the ''{0}'' plugin.", plugin.info.name)+"\n"+
+						(plugin.info.author != null ? tr("According to the information within the plugin, the author is {0}.", plugin.info.author) : "")+"\n"+
+						tr("Should the plugin be disabled?"),
+						tr("Disable plugin"),
+						JOptionPane.YES_NO_OPTION);
+				if (answer == JOptionPane.OK_OPTION) {
+					LinkedList<String> plugins = new LinkedList<String>(Arrays.asList(Main.pref.get("plugins").split(",")));
+					if (plugins.contains(plugin.info.name)) {
+						while (plugins.remove(plugin.info.name)) {}
+						String p = "";
+						for (String s : plugins)
+							p += ","+s;
+						if (p.length() > 0)
+							p = p.substring(1);
+						Main.pref.put("plugins", p);
+						JOptionPane.showMessageDialog(Main.parent, tr("The plugin has been removed from the configuration. Please restart JOSM to unload the plugin."));
+					} else {
+						JOptionPane.showMessageDialog(Main.parent, tr("The plugin could not be removed. Please tell the people you got JOSM from about the problem."));
 					}
+					return;
 				}
 			}
 
@@ -97,7 +93,7 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 					e.printStackTrace(new PrintWriter(stack));
 
 					URL revUrl = Main.class.getResource("/REVISION");
-					StringBuilder sb = new StringBuilder(tr("Please send this to josm@eigenheimstrasse.de\n\n"));
+					StringBuilder sb = new StringBuilder();
 					if (revUrl == null) {
 						sb.append("Development version. Unknown revision.");
 						File f = new File("org/openstreetmap/josm/Main.class");
@@ -120,7 +116,14 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 					sb.append("\n"+stack.getBuffer().toString());
 
 					JPanel p = new JPanel(new GridBagLayout());
-					p.add(new JLabel(tr("Please send an email with the following information to josm@eigenheimstrasse.de")), GBC.eop());
+					p.add(new JLabel(tr("Please send an email with the following information to josm@eigenheimstrasse.de")), GBC.eol());
+					try {
+	                    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(sb.toString()), new ClipboardOwner(){
+	                    	public void lostOwnership(Clipboard clipboard, Transferable contents) {}
+	                    });
+	                    p.add(new JLabel(tr("The text has already been copied to your clipboard.")), GBC.eop());
+                    } catch (RuntimeException x) {
+                    }
 
 					JTextArea info = new JTextArea(sb.toString(), 20, 60);
 					info.setCaretPosition(0);
@@ -135,14 +138,11 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 		}
 	}
 
-	/**
-	 * Try to find the author of the given plugin. Return <code>null</code>
-	 * if no author specified or the plugin is not found.
-	 */
-	private String findPluginAuthor(String pluginName) {
-		for (PluginProxy proxy : Main.plugins)
-			if (pluginName.equals(proxy.info.name))
-				return proxy.info.author;
+	private PluginProxy guessPlugin(Throwable e) {
+		String name = guessPluginName(e);
+		for (PluginProxy p : Main.plugins)
+			if (p.info.name.equals(name))
+				return p;
 		return null;
 	}
 
@@ -157,9 +157,10 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 	 * an exception handler with their email address listed to receive 
 	 * bug reports ;-). 
 	 */
-	private String guessPlugin(Throwable e) {
+	private String guessPluginName(Throwable e) {
 		for (StackTraceElement element : e.getStackTrace()) {
 			String c = element.getClassName();
+			
 			if (c.contains("wmsplugin.") || c.contains(".WMSLayer"))
 				return "wmsplugin";
 			if (c.contains("landsat.") || c.contains(".LandsatLayer"))
@@ -170,6 +171,15 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 				return "mappaint";
 			if (c.contains("annotationtester."))
 				return "annotation-tester";
+			if (c.startsWith("UtilsPlugin."))
+				return "UtilsPlugin";
+
+			if (c.startsWith("org.openstreetmap.josm.plugins.")) {
+				String p = c.substring("org.openstreetmap.josm.plugins.".length());
+				if (p.indexOf('.') != -1 && p.matches("[a-z].*")) {
+					return p.substring(0,p.indexOf('.'));
+				}
+			}
 		}
 		return null;
 	}

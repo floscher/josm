@@ -22,7 +22,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.plugins.PluginProxy;
@@ -69,37 +68,16 @@ public class AboutAction extends JosmAction {
 		JTextArea plugins = loadFile(null);
 
 		JPanel info = new JPanel(new GridBagLayout());
-		info.add(new JLabel(tr("Java OpenStreetMap Editor Version {0}",version)), GBC.eol());
-		info.add(new JLabel(tr("last change at {0}",time)), GBC.eol());
-		info.add(new JLabel(tr("Java Version {0}",System.getProperty("java.version"))), GBC.eol());
-		info.add(new JLabel(tr("Latest Version on JOSM homepage is")), GBC.std().insets(0,0,5,0));
-		final JLabel checkVersionLabel = new JLabel("<html><em>"+tr("checking...")+"</em></html>");
-		info.add(checkVersionLabel, GBC.eol());
-		new Thread(){
-			@Override public void run() {
-				final String version = checkLatestVersion();
-				try {
-					if (version == null)
-						throw new NullPointerException();
-	                SwingUtilities.invokeAndWait(new Runnable(){
-	                	public void run() {
-	                		checkVersionLabel.setText(version);
-	                    }
-	                });
-                } catch (Exception e) {
-	                checkVersionLabel.setText("failed.");
-                }
-            }
-		}.start();
-		
+		info.add(new JLabel(tr("Java OpenStreetMap Editor Version {0}",version)), GBC.eol().fill(GBC.HORIZONTAL));
+		info.add(new JLabel(tr("last change at {0}",time)), GBC.eol().fill(GBC.HORIZONTAL));
+		info.add(new JLabel(tr("Java Version {0}",System.getProperty("java.version"))), GBC.eol().fill(GBC.HORIZONTAL));
 		info.add(GBC.glue(0,10), GBC.eol());
-		
 		info.add(new JLabel(tr("Homepage")), GBC.std().insets(0,0,10,0));
-		info.add(new UrlLabel("http://josm.openstreetmap.de"), GBC.eol());
+		info.add(new UrlLabel("http://josm.openstreetmap.de"), GBC.eol().fill(GBC.HORIZONTAL));
 		info.add(new JLabel(tr("Bug Reports")), GBC.std().insets(0,0,10,0));
-		info.add(new UrlLabel("http://josm.openstreetmap.de/newticket"), GBC.eol());
+		info.add(new UrlLabel("http://josm.openstreetmap.de/newticket"), GBC.eol().fill(GBC.HORIZONTAL));
 		info.add(new JLabel(tr("News about JOSM")), GBC.std().insets(0,0,10,0));
-		info.add(new UrlLabel("http://www.opengeodata.org/?cat=17"), GBC.eol());
+		info.add(new UrlLabel("http://www.opengeodata.org/?cat=17"), GBC.eol().fill(GBC.HORIZONTAL));
 
 		StringBuilder pluginsStr = new StringBuilder();
 		for (PluginProxy p : Main.plugins)

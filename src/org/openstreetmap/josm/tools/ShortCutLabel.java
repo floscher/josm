@@ -7,6 +7,8 @@ import java.awt.event.KeyEvent;
 
 public class ShortCutLabel {
 	public static String name(int shortCut, int modifiers) {
+		if (shortCut == 0 && modifiers == 0)
+			return "";
 		String s = "";
 		if ((modifiers & KeyEvent.CTRL_MASK) != 0 || (modifiers & KeyEvent.CTRL_DOWN_MASK) != 0)
 			s += tr("Ctrl-");
