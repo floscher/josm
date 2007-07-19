@@ -186,5 +186,22 @@ public class PluginInformation {
 	    	all.add(s+"plugins");
 	    return all;
     }
+	
+	
+	/**
+	 * Return information about a loaded plugin.
+	 * 
+	 * Note that if you call this in your plugins bootstrap, you may get <code>null</code> if
+	 * the plugin requested is not loaded yet.
+	 * 
+	 * @return The PluginInformation to a specific plugin, but only if the plugin is loaded.
+	 * If it is not loaded, <code>null</code> is returned.
+	 */
+	public static PluginInformation getLoaded(String pluginName) {
+		for (PluginProxy p : Main.plugins)
+			if (p.info.name.equals(pluginName))
+				return p.info;
+		return null;
+	}
 }
 
