@@ -26,18 +26,23 @@ abstract public class JosmAction extends AbstractAction implements Destroyable {
 	public JosmAction(String name, String iconName, String tooltip, int shortCut, int modifier, boolean register) {
 		super(name, ImageProvider.get(iconName));
 		setHelpId();
-		putValue(SHORT_DESCRIPTION, "<html>"+tooltip+" <font size='-2'>"+ShortCutLabel.name(shortCut, modifier)+"</font>&nbsp;</html>");
-		this.shortCut = KeyStroke.getKeyStroke(shortCut, modifier);
-        Main.contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(this.shortCut, name);
-        Main.contentPane.getActionMap().put(name, this);
+		String scl = ShortCutLabel.name(shortCut, modifier);
+		putValue(SHORT_DESCRIPTION, "<html>"+tooltip+" <font size='-2'>"+scl+"</font>"+(scl.equals("")?"":"&nbsp;")+"</html>");
+		if (shortCut != 0) {
+			this.shortCut = KeyStroke.getKeyStroke(shortCut, modifier);
+			Main.contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(this.shortCut, name);
+			Main.contentPane.getActionMap().put(name, this);
+		}
         putValue("toolbar", iconName);
         if (register)
         	Main.toolbar.register(this);
 	}
 
 	public void destroy() {
-		Main.contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).remove(shortCut);
-		Main.contentPane.getActionMap().remove(shortCut);
+		if (shortCut != null) {
+			Main.contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).remove(shortCut);
+			Main.contentPane.getActionMap().remove(shortCut);
+		}
 	}
 	
 	public JosmAction() {

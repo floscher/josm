@@ -51,10 +51,13 @@ public class OpenBrowser {
 	}
 
 	private static void linux(String url) throws IOException {
-		try {
-			Runtime.getRuntime().exec("gnome-open " + url);
-		} catch (IOException e) {
-			Runtime.getRuntime().exec("kfmclient openURL " + url);
+		String[] programs = {"gnome-open", "kfmclient openURL", "firefox"};
+		for (String program : programs) {
+			try {
+				Runtime.getRuntime().exec(program+" "+url);
+				return;
+			} catch (IOException e) {
+            }
 		}
 	}
 

@@ -37,6 +37,15 @@ public class PluginInformation {
 	public final Map<String, String> attr = new TreeMap<String, String>();
 
 	/**
+	 * Used in the Plugin constructor to make the information of the plugin
+	 * that is currently initializing available.
+	 * 
+	 * If you think this is hacky, you are probably right. But it is 
+	 * convinient anyway ;-) 
+	 */
+	static PluginInformation currentPluginInitialization = null;
+
+	/**
 	 * @param file the plugin jar file.
 	 */
 	public PluginInformation(File file) {
@@ -101,6 +110,7 @@ public class PluginInformation {
 	 */
 	public PluginProxy load(Class<?> klass) {
 		try {
+			currentPluginInitialization = this;
 			return new PluginProxy(klass.newInstance(), this);
 		} catch (Exception e) {
 			throw new PluginException(null, name, e);
