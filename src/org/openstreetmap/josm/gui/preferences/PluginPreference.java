@@ -168,7 +168,7 @@ public class PluginPreference implements PreferenceSetting {
 				availablePlugins.put(proxy.info.name, new PluginDescription(
 						proxy.info.name, 
 						proxy.info.description, 
-						PluginInformation.getURLString(proxy.info.file.getPath())));
+						proxy.info.file == null ? null : PluginInformation.getURLString(proxy.info.file.getPath())));
 	    return availablePlugins.values();
     }
 

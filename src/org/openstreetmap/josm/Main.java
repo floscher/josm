@@ -51,7 +51,7 @@ import org.openstreetmap.josm.gui.download.DownloadDialog.DownloadTask;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer.CommandQueueListener;
-import org.openstreetmap.josm.gui.preferences.AnnotationPresetPreference;
+import org.openstreetmap.josm.gui.preferences.TaggingPresetPreference;
 import org.openstreetmap.josm.gui.preferences.ToolbarPreferences;
 import org.openstreetmap.josm.plugins.PluginException;
 import org.openstreetmap.josm.plugins.PluginInformation;
@@ -191,7 +191,7 @@ abstract public class Main {
 		contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0), "Help");
 		contentPane.getActionMap().put("Help", menu.help);
 
-		AnnotationPresetPreference.initialize();
+		TaggingPresetPreference.initialize();
 
 		toolbar.refreshToolbarControl();
 

@@ -1,4 +1,4 @@
-package org.openstreetmap.josm.gui.annotation;
+package org.openstreetmap.josm.gui.tagging;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
 import static org.openstreetmap.josm.tools.I18n.trn;
@@ -40,13 +40,13 @@ import org.xml.sax.SAXException;
 
 
 /**
- * This class read encapsulate one annotation preset. A class method can
+ * This class read encapsulate one tagging preset. A class method can
  * read in all predefined presets, either shipped with JOSM or that are
  * in the config directory.
  * 
  * It is also able to construct dialogs out of preset definitions.
  */
-public class AnnotationPreset extends AbstractAction {
+public class TaggingPreset extends AbstractAction {
 
 	public static abstract class Item {
 		public boolean focus = false;
@@ -149,18 +149,18 @@ public class AnnotationPreset extends AbstractAction {
 	private List<Item> data = new LinkedList<Item>();
 
 	/**
-	 * Create an empty annotation preset. This will not have any items and
+	 * Create an empty tagging preset. This will not have any items and
 	 * will be an empty string as text. createPanel will return null.
 	 * Use this as default item for "do not select anything".
 	 */
-	public AnnotationPreset() {}
+	public TaggingPreset() {}
 
 	/**
-	 * Called from the XML parser to set the name of the annotation preset
+	 * Called from the XML parser to set the name of the tagging preset
 	 */
 	public void setName(String name) {
 		putValue(Action.NAME, name);
-		putValue("toolbar", "annotation_"+name);
+		putValue("toolbar", "tagging_"+name);
 	}
 
 	/**
@@ -192,7 +192,7 @@ public class AnnotationPreset extends AbstractAction {
 		}
 	}
 
-	public static List<AnnotationPreset> readAll(InputStream inStream) throws SAXException {
+	public static List<TaggingPreset> readAll(InputStream inStream) throws SAXException {
 		BufferedReader in = null;
 		try {
 			in = new BufferedReader(new InputStreamReader(inStream, "UTF-8"));
@@ -201,29 +201,29 @@ public class AnnotationPreset extends AbstractAction {
 			in = new BufferedReader(new InputStreamReader(inStream));
 		}
 		XmlObjectParser parser = new XmlObjectParser();
-		parser.mapOnStart("item", AnnotationPreset.class);
+		parser.mapOnStart("item", TaggingPreset.class);
 		parser.map("text", Text.class);
 		parser.map("check", Check.class);
 		parser.map("combo", Combo.class);
 		parser.map("label", Label.class);
 		parser.map("key", Key.class);
-		LinkedList<AnnotationPreset> all = new LinkedList<AnnotationPreset>();
+		LinkedList<TaggingPreset> all = new LinkedList<TaggingPreset>();
 		parser.start(in);
 		while(parser.hasNext()) {
 			Object o = parser.next();
-			if (o instanceof AnnotationPreset) {
-				all.add((AnnotationPreset)o);
-				Main.toolbar.register((AnnotationPreset)o);
+			if (o instanceof TaggingPreset) {
+				all.add((TaggingPreset)o);
+				Main.toolbar.register((TaggingPreset)o);
 			} else
 				all.getLast().data.add((Item)o);
 		}
 		return all;
 	}
 
-	public static Collection<AnnotationPreset> readFromPreferences() {
-		LinkedList<AnnotationPreset> allPresets = new LinkedList<AnnotationPreset>();
-		String allAnnotations = Main.pref.get("annotation.sources");
-		StringTokenizer st = new StringTokenizer(allAnnotations, ";");
+	public static Collection<TaggingPreset> readFromPreferences() {
+		LinkedList<TaggingPreset> allPresets = new LinkedList<TaggingPreset>();
+		String allTaggingPresets = Main.pref.get("taggingpreset.sources");
+		StringTokenizer st = new StringTokenizer(allTaggingPresets, ";");
 		while (st.hasMoreTokens()) {
 			InputStream in = null;
 			String source = st.nextToken();
@@ -234,11 +234,11 @@ public class AnnotationPreset extends AbstractAction {
 					in = Main.class.getResourceAsStream(source.substring("resource:/".length()));
 				else
 					in = new FileInputStream(source);
-				allPresets.addAll(AnnotationPreset.readAll(in));
+				allPresets.addAll(TaggingPreset.readAll(in));
 				in.close();
 			} catch (IOException e) {
 				e.printStackTrace();
-				JOptionPane.showMessageDialog(Main.parent, tr("Could not read annotation preset source: {0}",source));
+				JOptionPane.showMessageDialog(Main.parent, tr("Could not read tagging preset source: {0}",source));
 			} catch (SAXException e) {
 				e.printStackTrace();
 				JOptionPane.showMessageDialog(Main.parent, tr("Error parsing {0}: ", source)+e.getMessage());

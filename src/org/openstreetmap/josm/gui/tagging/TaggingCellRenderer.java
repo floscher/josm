@@ -1,4 +1,4 @@
-package org.openstreetmap.josm.gui.annotation;
+package org.openstreetmap.josm.gui.tagging;
 
 import java.awt.Component;
 import java.awt.Image;
@@ -12,13 +12,13 @@ import javax.swing.JList;
 
 import org.openstreetmap.josm.tools.ImageProvider;
 
-final public class AnnotationCellRenderer extends DefaultListCellRenderer {
+final public class TaggingCellRenderer extends DefaultListCellRenderer {
 	@Override public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-		AnnotationPreset a = null;
+		TaggingPreset a = null;
 		if (value instanceof ForwardActionListener)
 			a = ((ForwardActionListener)value).preset;
-		else if (value instanceof AnnotationPreset)
-			a = (AnnotationPreset)value;
+		else if (value instanceof TaggingPreset)
+			a = (TaggingPreset)value;
 		String name = a == null ? null : (String)a.getValue(Action.NAME);
 		if (name == null)
 			return super.getListCellRendererComponent(list, "", index, false, false);
