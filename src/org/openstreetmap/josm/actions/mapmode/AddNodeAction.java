@@ -24,6 +24,7 @@ import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.gui.MapFrame;
+import org.openstreetmap.josm.tools.ImageProvider;
 
 /**
  * This mode adds a new node to the dataset. The user clicks on a place to add
@@ -52,10 +53,18 @@ public class AddNodeAction extends MapMode {
 	}
 
 	public AddNodeAction(MapFrame mapFrame, String name, Mode mode, String desc) {
-		super(name, "node/"+mode, desc, mapFrame, Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+		super(name, "node/"+mode, desc, mapFrame, getCursor());
 		this.mode = mode;
 		putValue("help", "Action/AddNode/"+Character.toUpperCase(mode.toString().charAt(0))+mode.toString().substring(1));
 	}
+
+	private static Cursor getCursor() {
+		try {
+	        return ImageProvider.getCursor("crosshair", null);
+        } catch (Exception e) {
+        }
+	    return Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
+    }
 
 	@Override public void enterMode() {
 		super.enterMode();

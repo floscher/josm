@@ -43,7 +43,7 @@ public class ImageProvider {
 	 * Add here all ClassLoader whose ressource should be searched.
 	 * Plugin's class loaders are added by main.
 	 */
-	public static final List<Class<?>> sources = new LinkedList<Class<?>>();
+	public static final List<ClassLoader> sources = new LinkedList<ClassLoader>();
 
 	/**
 	 * Return an image from the specified location.
@@ -88,18 +88,26 @@ public class ImageProvider {
 
 	private static URL getImageUrl(String imageName) {
 	    URL path = null;
-	    for (Class<?> source : sources)
-			if ((path = source.getResource("/images/"+imageName)) != null)
+	    // Try user-preference directory first
+    	try {
+    		if (new File(Main.pref.getPreferencesDir()+"images/"+imageName).exists())
+    			return new URL("file", "", Main.pref.getPreferencesDir()+"images/"+imageName);
+    	} catch (MalformedURLException e) {
+    	}
+
+	    // Try plugins and josm classloader
+	    for (ClassLoader source : sources)
+			if ((path = source.getResource("images/"+imageName)) != null)
 				return path;
-	    
-	    // Try all ressource directories as well
-		for (String location : Main.pref.getAllPossiblePreferenceDirs()) {
-			try {
-				if (new File(location+"images/"+imageName).exists())
-					return new URL("file", "", location+"images/"+imageName);
-            } catch (MalformedURLException e) {
-            }
-		}
+
+	    // Try all other ressource directories
+	    for (String location : Main.pref.getAllPossiblePreferenceDirs()) {
+	    	try {
+	    		if (new File(location+"images/"+imageName).exists())
+	    			return new URL("file", "", location+"images/"+imageName);
+	    	} catch (MalformedURLException e) {
+	    	}
+	    }
 	    return null;
     }
 
@@ -111,7 +119,9 @@ public class ImageProvider {
 	}
 
 	public static Cursor getCursor(String name, String overlay) {
-		ImageIcon img = overlay(get("cursor/"+name), "cursor/modifier/"+overlay, OverlayPosition.SOUTHEAST);
+		ImageIcon img = get("cursor",name);
+		if (overlay != null)
+			img = overlay(img, "cursor/modifier/"+overlay, OverlayPosition.SOUTHEAST);
 		Cursor c = Toolkit.getDefaultToolkit().createCustomCursor(img.getImage(),
 				name.equals("crosshair") ? new Point(10,10) : new Point(3,2), "Cursor");
 		return c;
@@ -155,6 +165,6 @@ public class ImageProvider {
 	}
 
 	static {
-		sources.add(Main.class);
+		sources.add(ClassLoader.getSystemClassLoader());
 	}
 }

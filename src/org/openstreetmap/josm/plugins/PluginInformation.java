@@ -1,5 +1,7 @@
 package org.openstreetmap.josm.plugins;
 
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -7,6 +9,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -32,7 +35,7 @@ public class PluginInformation {
 	public final String author;
 	public final int stage;
 	public final String version;
-	public final List<URL> libraries = new ArrayList<URL>();
+	public final List<URL> libraries = new LinkedList<URL>();
 
 	public final Map<String, String> attr = new TreeMap<String, String>();
 
@@ -51,7 +54,7 @@ public class PluginInformation {
 	public PluginInformation(File file) {
 		this(file, file.getName().substring(0, file.getName().length()-4), null);
 	}
-	
+
 	public PluginInformation(File file, String name, InputStream manifestStream) {
 		this.name = name;
 		this.file = file;
@@ -67,37 +70,48 @@ public class PluginInformation {
 				manifest = new Manifest();
 		        manifest.read(manifestStream);
 			}
-			Attributes attr = manifest.getMainAttributes();
-			className = attr.getValue("Plugin-Class");
-			description = attr.getValue("Plugin-Description");
-			early = Boolean.parseBoolean(attr.getValue("Plugin-Early"));
-			String stageStr = attr.getValue("Plugin-Stage");
-			stage = stageStr == null ? 50 : Integer.parseInt(stageStr);
-			version = attr.getValue("Plugin-Version");
-			author = attr.getValue("Author");
-			if (file != null)
-				libraries.add(new URL(getURLString(file.getAbsolutePath())));
-			String classPath = attr.getValue(Attributes.Name.CLASS_PATH);
-			if (classPath != null) {
-				String[] cp = classPath.split(" ");
-				StringBuilder entry = new StringBuilder();
-				for (String s : cp) {
-					entry.append(s);
-					if (s.endsWith("\\")) {
-						entry.setLength(entry.length()-1);
-						entry.append("%20"); // append the split character " " as html-encode
-						continue;
-					}
-					s = entry.toString();
-					entry = new StringBuilder();
-					if (!s.startsWith("/") && !s.startsWith("\\") && !s.matches("^.\\:") && file != null)
-						s = file.getParent() + File.separator + s;
-					libraries.add(new URL(getURLString(s)));
-				}
-			}
+			if (manifest != null) {
+				Attributes attr = manifest.getMainAttributes();
+				className = attr.getValue("Plugin-Class");
+				description = attr.getValue("Plugin-Description");
+				early = Boolean.parseBoolean(attr.getValue("Plugin-Early"));
+				String stageStr = attr.getValue("Plugin-Stage");
+				stage = stageStr == null ? 50 : Integer.parseInt(stageStr);
+				version = attr.getValue("Plugin-Version");
+				author = attr.getValue("Author");
 
-			for (Object o : attr.keySet())
-				this.attr.put(o.toString(), attr.getValue(o.toString()));
+				String classPath = attr.getValue(Attributes.Name.CLASS_PATH);
+				if (classPath != null) {
+					String[] cp = classPath.split(" ");
+					StringBuilder entry = new StringBuilder();
+					for (String s : cp) {
+						entry.append(s);
+						if (s.endsWith("\\")) {
+							entry.setLength(entry.length()-1);
+							entry.append("%20"); // append the split character " " as html-encode
+							continue;
+						}
+						s = entry.toString();
+						entry = new StringBuilder();
+						if (!s.startsWith("/") && !s.startsWith("\\") && !s.matches("^.\\:") && file != null)
+							s = file.getParent() + File.separator + s;
+						libraries.add(new URL(getURLString(s)));
+					}
+				}
+				for (Object o : attr.keySet())
+					this.attr.put(o.toString(), attr.getValue(o.toString()));
+			} else {
+				// resource-only plugin
+				className = null;
+				description = tr("unknown");
+				early = false;
+				stage = 50;
+				version = null;
+				author = null;
+			}
+			if (file != null)
+				libraries.add(0, new URL(getURLString(file.getAbsolutePath())));
+
 			if (jar != null)
 				jar.close();
 		} catch (IOException e) {
@@ -121,6 +135,8 @@ public class PluginInformation {
 	 * Load the class of the plugin
 	 */
 	public Class<?> loadClass(ClassLoader classLoader) {
+		if (className == null)
+			return null;
 		try {
 			Class<?> realClass = Class.forName(className, true, classLoader);
 			return realClass;

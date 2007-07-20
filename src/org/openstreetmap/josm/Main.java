@@ -237,14 +237,16 @@ abstract public class Main {
 		URL[] jarUrls = new URL[allPluginLibraries.size()];
 		jarUrls = allPluginLibraries.toArray(jarUrls);
 		URLClassLoader pluginClassLoader = new URLClassLoader(jarUrls, Main.class.getClassLoader());
+		ImageProvider.sources.add(0, pluginClassLoader);
 
 		for (Collection<PluginInformation> c : p.values()) {
 			for (PluginInformation info : c) {
 				try {
 					Class<?> klass = info.loadClass(pluginClassLoader);
-					ImageProvider.sources.add(0, klass);
-					System.out.println("loading "+info.name);
-					Main.plugins.add(info.load(klass));
+					if (klass != null) {
+						System.out.println("loading "+info.name);
+						Main.plugins.add(info.load(klass));
+					}
 				} catch (PluginException e) {
 					e.printStackTrace();
 					if (early)
