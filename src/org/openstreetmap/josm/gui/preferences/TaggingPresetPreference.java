@@ -18,28 +18,28 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.gui.annotation.AnnotationPreset;
+import org.openstreetmap.josm.gui.tagging.TaggingPreset;
 import org.openstreetmap.josm.tools.GBC;
 
-public class AnnotationPresetPreference implements PreferenceSetting {
+public class TaggingPresetPreference implements PreferenceSetting {
 
-	public static Collection<AnnotationPreset> annotationPresets;
-	private JList annotationSources;
+	public static Collection<TaggingPreset> taggingPresets;
+	private JList taggingPresetSources;
 
 	public void addGui(final PreferenceDialog gui) {
-		annotationSources = new JList(new DefaultListModel());
-		String annos = Main.pref.get("annotation.sources");
+		taggingPresetSources = new JList(new DefaultListModel());
+		String annos = Main.pref.get("taggingpreset.sources");
 		StringTokenizer st = new StringTokenizer(annos, ";");
 		while (st.hasMoreTokens())
-			((DefaultListModel)annotationSources.getModel()).addElement(st.nextToken());
+			((DefaultListModel)taggingPresetSources.getModel()).addElement(st.nextToken());
 
 		JButton addAnno = new JButton(tr("Add"));
 		addAnno.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
-				String source = JOptionPane.showInputDialog(Main.parent, tr("Annotation preset source"));
+				String source = JOptionPane.showInputDialog(Main.parent, tr("Tagging preset source"));
 				if (source == null)
 					return;
-				((DefaultListModel)annotationSources.getModel()).addElement(source);
+				((DefaultListModel)taggingPresetSources.getModel()).addElement(source);
 				gui.requiresRestart = true;
 			}
 		});
@@ -47,13 +47,13 @@ public class AnnotationPresetPreference implements PreferenceSetting {
 		JButton editAnno = new JButton(tr("Edit"));
 		editAnno.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
-				if (annotationSources.getSelectedIndex() == -1)
+				if (taggingPresetSources.getSelectedIndex() == -1)
 					JOptionPane.showMessageDialog(Main.parent, tr("Please select the row to edit."));
 				else {
-					String source = JOptionPane.showInputDialog(Main.parent, tr("Annotation preset source"), annotationSources.getSelectedValue());
+					String source = JOptionPane.showInputDialog(Main.parent, tr("Tagging preset source"), taggingPresetSources.getSelectedValue());
 					if (source == null)
 						return;
-					((DefaultListModel)annotationSources.getModel()).setElementAt(source, annotationSources.getSelectedIndex());
+					((DefaultListModel)taggingPresetSources.getModel()).setElementAt(source, taggingPresetSources.getSelectedIndex());
 					gui.requiresRestart = true;
 				}
 			}
@@ -62,22 +62,22 @@ public class AnnotationPresetPreference implements PreferenceSetting {
 		JButton deleteAnno = new JButton(tr("Delete"));
 		deleteAnno.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
-				if (annotationSources.getSelectedIndex() == -1)
+				if (taggingPresetSources.getSelectedIndex() == -1)
 					JOptionPane.showMessageDialog(Main.parent, tr("Please select the row to delete."));
 				else {
-					((DefaultListModel)annotationSources.getModel()).remove(annotationSources.getSelectedIndex());
+					((DefaultListModel)taggingPresetSources.getModel()).remove(taggingPresetSources.getSelectedIndex());
 					gui.requiresRestart = true;
 				}
 			}
 		});
-		annotationSources.setVisibleRowCount(3);
+		taggingPresetSources.setVisibleRowCount(3);
 
-		annotationSources.setToolTipText(tr("The sources (url or filename) of annotation preset definition files. See http://josm.eigenheimstrasse.de/wiki/AnnotationPresets for help."));
-		addAnno.setToolTipText(tr("Add a new annotation preset source to the list."));
+		taggingPresetSources.setToolTipText(tr("The sources (url or filename) of tagging preset definition files. See http://josm.eigenheimstrasse.de/wiki/TaggingPresets for help."));
+		addAnno.setToolTipText(tr("Add a new tagging preset source to the list."));
 		deleteAnno.setToolTipText(tr("Delete the selected source from the list."));
 
-		gui.map.add(new JLabel(tr("Annotation preset sources")), GBC.eol().insets(0,5,0,0));
-		gui.map.add(new JScrollPane(annotationSources), GBC.eol().fill(GBC.BOTH));
+		gui.map.add(new JLabel(tr("Tagging preset sources")), GBC.eol().insets(0,5,0,0));
+		gui.map.add(new JScrollPane(taggingPresetSources), GBC.eol().fill(GBC.BOTH));
 		JPanel buttonPanel = new JPanel(new GridBagLayout());
 		gui.map.add(buttonPanel, GBC.eol().fill(GBC.HORIZONTAL));
 		buttonPanel.add(Box.createHorizontalGlue(), GBC.std().fill(GBC.HORIZONTAL));
@@ -87,19 +87,19 @@ public class AnnotationPresetPreference implements PreferenceSetting {
 	}
 
 	public void ok() {
-		if (annotationSources.getModel().getSize() > 0) {
+		if (taggingPresetSources.getModel().getSize() > 0) {
 			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < annotationSources.getModel().getSize(); ++i)
-				sb.append(";"+annotationSources.getModel().getElementAt(i));
-			Main.pref.put("annotation.sources", sb.toString().substring(1));
+			for (int i = 0; i < taggingPresetSources.getModel().getSize(); ++i)
+				sb.append(";"+taggingPresetSources.getModel().getElementAt(i));
+			Main.pref.put("taggingpreset.sources", sb.toString().substring(1));
 		} else
-			Main.pref.put("annotation.sources", null);
+			Main.pref.put("taggingpreset.sources", null);
 	}
 
 	/** 
-	 * Initialize the annotation presets (load and may display error)
+	 * Initialize the tagging presets (load and may display error)
 	 */
 	public static void initialize() {
-		annotationPresets = AnnotationPreset.readFromPreferences();
+		taggingPresets = TaggingPreset.readFromPreferences();
 	}
 }

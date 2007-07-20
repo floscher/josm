@@ -47,10 +47,10 @@ import org.openstreetmap.josm.data.SelectionChangedListener;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.MapFrame;
-import org.openstreetmap.josm.gui.annotation.AnnotationCellRenderer;
-import org.openstreetmap.josm.gui.annotation.AnnotationPreset;
-import org.openstreetmap.josm.gui.annotation.ForwardActionListener;
-import org.openstreetmap.josm.gui.preferences.AnnotationPresetPreference;
+import org.openstreetmap.josm.gui.preferences.TaggingPresetPreference;
+import org.openstreetmap.josm.gui.tagging.TaggingCellRenderer;
+import org.openstreetmap.josm.gui.tagging.ForwardActionListener;
+import org.openstreetmap.josm.gui.tagging.TaggingPreset;
 import org.openstreetmap.josm.tools.AutoCompleteComboBox;
 import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.ImageProvider;
@@ -268,7 +268,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	 * The properties list.
 	 */
 	private final JTable propertyTable = new JTable(data);
-	public JComboBox annotationPresets = new JComboBox();
+	public JComboBox taggingPresets = new JComboBox();
 
 
 	/**
@@ -277,26 +277,26 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	public PropertiesDialog(MapFrame mapFrame) {
 		super(tr("Properties"), "propertiesdialog", tr("Properties for selected objects."), KeyEvent.VK_P, 150);
 
-		if (AnnotationPresetPreference.annotationPresets.size() > 0) {
+		if (TaggingPresetPreference.taggingPresets.size() > 0) {
 			Vector<ActionListener> allPresets = new Vector<ActionListener>();
-			for (final AnnotationPreset p : AnnotationPresetPreference.annotationPresets)
+			for (final TaggingPreset p : TaggingPresetPreference.taggingPresets)
 				allPresets.add(new ForwardActionListener(this, p));
 
-			allPresets.add(0, new ForwardActionListener(this, new AnnotationPreset()));
-			annotationPresets.setModel(new DefaultComboBoxModel(allPresets));
+			allPresets.add(0, new ForwardActionListener(this, new TaggingPreset()));
+			taggingPresets.setModel(new DefaultComboBoxModel(allPresets));
 			JPanel north = new JPanel(new GridBagLayout());
 			north.add(getComponent(0),GBC.eol().fill(GBC.HORIZONTAL));
-			north.add(annotationPresets,GBC.eol().fill(GBC.HORIZONTAL));
+			north.add(taggingPresets,GBC.eol().fill(GBC.HORIZONTAL));
 			add(north, BorderLayout.NORTH);
 		}
-		annotationPresets.addActionListener(new ActionListener(){
+		taggingPresets.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
-				AnnotationPreset preset = ((ForwardActionListener)annotationPresets.getSelectedItem()).preset;
+				TaggingPreset preset = ((ForwardActionListener)taggingPresets.getSelectedItem()).preset;
 				preset.actionPerformed(e);
-				annotationPresets.setSelectedItem(null);
+				taggingPresets.setSelectedItem(null);
 			}
 		});
-		annotationPresets.setRenderer(new AnnotationCellRenderer());
+		taggingPresets.setRenderer(new TaggingCellRenderer());
 
 		data.setColumnIdentifiers(new String[]{tr("Key"),tr("Value")});
 		propertyTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

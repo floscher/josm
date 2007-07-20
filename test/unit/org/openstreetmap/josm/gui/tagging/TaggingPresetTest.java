@@ -1,4 +1,4 @@
-package org.openstreetmap.josm.gui.annotation;
+package org.openstreetmap.josm.gui.tagging;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -10,20 +10,21 @@ import javax.swing.Icon;
 
 import junit.framework.TestCase;
 
-import org.openstreetmap.josm.gui.annotation.AnnotationPreset.Check;
-import org.openstreetmap.josm.gui.annotation.AnnotationPreset.Combo;
-import org.openstreetmap.josm.gui.annotation.AnnotationPreset.Key;
-import org.openstreetmap.josm.gui.annotation.AnnotationPreset.Label;
-import org.openstreetmap.josm.gui.annotation.AnnotationPreset.Text;
+import org.openstreetmap.josm.gui.tagging.TaggingPreset;
+import org.openstreetmap.josm.gui.tagging.TaggingPreset.Check;
+import org.openstreetmap.josm.gui.tagging.TaggingPreset.Combo;
+import org.openstreetmap.josm.gui.tagging.TaggingPreset.Key;
+import org.openstreetmap.josm.gui.tagging.TaggingPreset.Label;
+import org.openstreetmap.josm.gui.tagging.TaggingPreset.Text;
 
-public class AnnotationPresetTest extends TestCase {
+public class TaggingPresetTest extends TestCase {
 
-	public void testAnnotationPresetLoads() throws Exception {
-		InputStream in = getClass().getResourceAsStream("annotation-test.xml");
-		List<AnnotationPreset> all = AnnotationPreset.readAll(in);
+	public void testTaggingPresetLoads() throws Exception {
+		InputStream in = getClass().getResourceAsStream("taggingpreset-test.xml");
+		List<TaggingPreset> all = TaggingPreset.readAll(in);
 
 		assertEquals(1, all.size());
-		AnnotationPreset a = all.get(0);
+		TaggingPreset a = all.get(0);
 		assertEquals("Highway", a.getValue(Action.NAME));
 		Field dataField = a.getClass().getDeclaredField("data");
 		dataField.setAccessible(true);
@@ -59,7 +60,7 @@ public class AnnotationPresetTest extends TestCase {
 	
 	public void testIconLoadsFromClasspath() throws Exception {
 		String xml = "<annotations><item icon='logo'></item></annotations>";
-		List<AnnotationPreset> all = AnnotationPreset.readAll(new ByteArrayInputStream(xml.getBytes()));
+		List<TaggingPreset> all = TaggingPreset.readAll(new ByteArrayInputStream(xml.getBytes()));
 
 		assertEquals(1, all.size());
 

@@ -102,7 +102,7 @@ public class PreferenceDialog extends JTabbedPane {
 		settings.add(new ServerAccessPreference());
 		settings.add(new CsvPreference());
 		settings.add(new ProjectionPreference());
-		settings.add(new AnnotationPresetPreference());
+		settings.add(new TaggingPresetPreference());
 		settings.add(new PluginPreference());
 		settings.add(Main.toolbar);
 
