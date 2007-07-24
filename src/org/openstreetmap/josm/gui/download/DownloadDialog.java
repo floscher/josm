@@ -56,15 +56,16 @@ public class DownloadDialog extends JPanel {
 	public final List<DownloadTask> downloadTasks = new ArrayList<DownloadTask>(5);
 
 	public final List<DownloadSelection> downloadSelections = new ArrayList<DownloadSelection>();
+	public final JTabbedPane tabpane = new JTabbedPane();
+	public final JCheckBox newLayer;
 	
 	public double minlon;
 	public double minlat;
 	public double maxlon;
 	public double maxlat;
 	
-	public JTabbedPane tabpane = new JTabbedPane();
 	
-	public DownloadDialog(int tabindex) {
+	public DownloadDialog() {
 		setLayout(new GridBagLayout());
 		
 		downloadTasks.add(new DownloadOsmTask());
@@ -102,18 +103,18 @@ public class DownloadDialog extends JPanel {
 			maxlat = mv.getLatLon(mv.getWidth(), 0).lat();
 			boundingBoxChanged(null);
 		}
-		
+
+		newLayer = new JCheckBox(tr("Download as new layer"), Main.pref.getBoolean("download.newlayer", true));
+		add(newLayer, GBC.eol().insets(0,5,0,0));
+
 		add(new JLabel(tr("Download Area")), GBC.eol().insets(0,5,0,0));
 		add(tabpane, GBC.eol().fill());
 		
 		try {
-			tabpane.setSelectedIndex(tabindex);
+			tabpane.setSelectedIndex(Integer.parseInt(Main.pref.get("download.tab", "0")));
 		} catch (Exception ex) {
-			// ignore
+			Main.pref.put("download.tab", "0");
 		}
-		//Dimension d = getPreferredSize();
-		//setPreferredSize(new Dimension((int)(d.width*1.5), d.height));
-		//wc.addInputFields(latlon, osmUrl, osmUrlRefresher);
 	}
 	
 	/**

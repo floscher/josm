@@ -24,10 +24,12 @@ public class DownloadOsmTask implements DownloadTask {
 	private static class Task extends PleaseWaitRunnable {
 		private BoundingBoxDownloader reader;
 		private DataSet dataSet;
+		private boolean newLayer;
 
-		public Task(BoundingBoxDownloader reader) {
+		public Task(boolean newLayer, BoundingBoxDownloader reader) {
 			super(tr("Downloading data"));
 			this.reader = reader;
+			this.newLayer = newLayer;
 		}
 
 		@Override public void realRun() throws IOException, SAXException {
@@ -39,7 +41,11 @@ public class DownloadOsmTask implements DownloadTask {
 				return; // user cancelled download or error occoured
 			if (dataSet.allPrimitives().isEmpty())
 				errorMessage = tr("No data imported.");
-			Main.main.addLayer(new OsmDataLayer(dataSet, tr("Data Layer"), null));
+			OsmDataLayer layer = new OsmDataLayer(dataSet, tr("Data Layer"), null);
+			if (newLayer)
+				Main.main.addLayer(layer);
+			else
+				Main.main.editLayer().mergeFrom(layer);
 		}
 
 		@Override protected void cancel() {
@@ -50,7 +56,7 @@ public class DownloadOsmTask implements DownloadTask {
 	private JCheckBox checkBox = new JCheckBox(tr("OpenStreetMap data"));
 
 	public void download(DownloadAction action, double minlat, double minlon, double maxlat, double maxlon) {
-		Task task = new Task(new BoundingBoxDownloader(minlat, minlon, maxlat, maxlon));
+		Task task = new Task(action.dialog.newLayer.isSelected(), new BoundingBoxDownloader(minlat, minlon, maxlat, maxlon));
 		Main.worker.execute(task);
     }
 
