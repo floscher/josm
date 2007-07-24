@@ -104,7 +104,7 @@ public class DownloadDialog extends JPanel {
 			boundingBoxChanged(null);
 		}
 
-		newLayer = new JCheckBox(tr("Download as new layer"), Main.pref.getBoolean("download.newlayer", true));
+		newLayer = new JCheckBox(tr("Download as new layer"), Main.pref.getBoolean("download.newlayer", false));
 		add(newLayer, GBC.eol().insets(0,5,0,0));
 
 		add(new JLabel(tr("Download Area")), GBC.eol().insets(0,5,0,0));
