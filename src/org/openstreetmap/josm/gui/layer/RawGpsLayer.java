@@ -102,9 +102,11 @@ public class RawGpsLayer extends Layer implements PreferenceChangedListener {
 	 * A list of ways which containing a list of points.
 	 */
 	public final Collection<Collection<GpsPoint>> data;
+	public final boolean fromServer;
 
-	public RawGpsLayer(Collection<Collection<GpsPoint>> data, String name, File associatedFile) {
+	public RawGpsLayer(boolean fromServer, Collection<Collection<GpsPoint>> data, String name, File associatedFile) {
 		super(name);
+		this.fromServer = fromServer;
 		this.associatedFile = associatedFile;
 		this.data = data;
 		Main.pref.listener.add(this);

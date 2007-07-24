@@ -33,7 +33,7 @@ public class DownloadAction extends JosmAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		dialog = new DownloadDialog(Integer.parseInt(Main.pref.get("download.tab", "0")));
+		dialog = new DownloadDialog();
 		
 		JPanel downPanel = new JPanel(new GridBagLayout());
 		downPanel.add(dialog, GBC.eol().fill(GBC.BOTH));
@@ -49,6 +49,7 @@ public class DownloadAction extends JosmAction {
 		boolean finish = false;
         while (!finish) {
             dlg.setVisible(true);
+            Main.pref.put("download.newlayer", dialog.newLayer.isSelected());
         	if (pane.getValue() instanceof Integer && (Integer)pane.getValue() == JOptionPane.OK_OPTION) {
         		Main.pref.put("download.tab", Integer.toString(dialog.getSelectedTab()));
         		for (DownloadTask task : dialog.downloadTasks) {

@@ -101,7 +101,7 @@ public class OpenAction extends DiskAccessAction {
 	    } else
 	    	throw new IllegalStateException();
 	    if (gpsData != null && !gpsData.isEmpty())
-	    	Main.main.addLayer(new RawGpsLayer(gpsData, tr("Tracks from {0}", file.getName()), file));
+	    	Main.main.addLayer(new RawGpsLayer(false, gpsData, tr("Tracks from {0}", file.getName()), file));
 	    if (markerData != null && !markerData.isEmpty())
 	    	Main.main.addLayer(new MarkerLayer(markerData, tr ("Markers from {0}", file.getName()), file));
     }

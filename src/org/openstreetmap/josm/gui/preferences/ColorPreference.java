@@ -1,6 +1,7 @@
 package org.openstreetmap.josm.gui.preferences;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
+import static org.xnap.commons.i18n.I18n.marktr;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -26,6 +27,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.data.osm.visitor.SimplePaintVisitor;
 import org.openstreetmap.josm.tools.ColorHelper;
 import org.openstreetmap.josm.tools.GBC;
 
@@ -33,8 +35,7 @@ public class ColorPreference implements PreferenceSetting {
 
 	private DefaultTableModel tableModel;
 	private JTable colors;
-	public static final String PREF_COLOR_PREFIX = "color.";
-	
+
 	/**
 	 * Set the colors to be shown in the preference table. This method creates a table model if
 	 * none exists and overwrites all existing values.
@@ -88,10 +89,11 @@ public class ColorPreference implements PreferenceSetting {
 	
 	public void addGui(final PreferenceDialog gui) {
 		// initial fill with colors from preferences:
-		Map<String,String> prefColorMap = new TreeMap<String, String>(Main.pref.getAllPrefix(PREF_COLOR_PREFIX));
+		Map<String,String> prefColorMap = new TreeMap<String, String>(Main.pref.getAllPrefix("color."));
+		fixColorPrefixes(prefColorMap);
 		Map<String,String> colorMap = new TreeMap<String, String>();
 		for(String key : prefColorMap.keySet()) {
-			colorMap.put(key.substring(PREF_COLOR_PREFIX.length()), prefColorMap.get(key));
+			colorMap.put(key.substring("color.".length()), prefColorMap.get(key));
 		}
 		setColorModel(colorMap);
 		
@@ -136,11 +138,32 @@ public class ColorPreference implements PreferenceSetting {
 		gui.display.add(colorEdit, GBC.eol().anchor(GBC.EAST));
     }
 
+	/**
+	 * Add all missing color entries.
+	 */
+	private void fixColorPrefixes(Map<String, String> prefColorMap) {
+		String[] cp = {
+			marktr("background"), ColorHelper.color2html(Color.black),
+			marktr("node"), ColorHelper.color2html(Color.red),
+			marktr("segment"), ColorHelper.color2html(SimplePaintVisitor.darkgreen),
+			marktr("way"), ColorHelper.color2html(SimplePaintVisitor.darkblue),
+			marktr("incomplete way"), ColorHelper.color2html(SimplePaintVisitor.darkerblue),
+			marktr("selected"), ColorHelper.color2html(Color.white),
+			marktr("gps point"), ColorHelper.color2html(Color.gray),
+			marktr("conflict"), ColorHelper.color2html(Color.gray),
+			marktr("scale"), ColorHelper.color2html(Color.white),
+			marktr("inactive"), ColorHelper.color2html(Color.darkGray),
+		};
+		for (int i = 0; i < cp.length/2; ++i)
+			if (!Main.pref.hasKey("color."+cp[i*2]))
+				Main.pref.put("color."+cp[i*2], cp[i*2+1]);
+    }
+
 	public void ok() {
 		for (int i = 0; i < colors.getRowCount(); ++i) {
 			String name = (String)colors.getValueAt(i, 0);
 			Color col = (Color)colors.getValueAt(i, 1);
-			Main.pref.put(PREF_COLOR_PREFIX + name, ColorHelper.color2html(col));
+			Main.pref.put("color." + name, ColorHelper.color2html(col));
 		}
     }
 }

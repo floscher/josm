@@ -23,7 +23,7 @@ public class SaveAction extends SaveActionBase {
 		super(tr("Save"), "save", tr("Save the current data."), KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK, layer);
 	}
 	
-	public File getFile(OsmDataLayer layer) {
+	@Override public File getFile(OsmDataLayer layer) {
 		if (layer.associatedFile != null)
 			return layer.associatedFile;
 		return openFileDialog();
