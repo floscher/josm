@@ -14,6 +14,6 @@ public class UnselectAllAction extends JosmAction {
     }
 
 	public void actionPerformed(ActionEvent e) {
-		Main.ds.clearSelection();
+		Main.ds.setSelected();
 	}
 }

@@ -81,7 +81,9 @@ public class DataSet implements Cloneable {
 
 	/**
 	 * Remove the selection of the whole dataset.
+	 * @deprecated Use setSelected() instead.
 	 */
+	@Deprecated
 	public void clearSelection() {
 		clearSelection(nodes);
 		clearSelection(segments);
@@ -102,18 +104,25 @@ public class DataSet implements Cloneable {
 	}
 
 	public void setSelected(Collection<? extends OsmPrimitive> selection) {
-		clearSelection();
+		clearSelection(nodes);
+		clearSelection(segments);
+		clearSelection(ways);
 		for (OsmPrimitive osm : selection)
 			osm.selected = true;
 		fireSelectionChanged(selection);
 	}
 
 	public void setSelected(OsmPrimitive... osm) {
-		clearSelection();
-		if (osm.length == 0 || (osm.length == 1 && osm[0] == null))
+		if (osm.length == 1 && osm[0] == null) {
+			setSelected();
 			return;
+		}
+		clearSelection(nodes);
+		clearSelection(segments);
+		clearSelection(ways);
 		for (OsmPrimitive o : osm)
-			o.selected = true;
+			if (o != null)
+				o.selected = true;
 		fireSelectionChanged(Arrays.asList(osm));
 	}
 

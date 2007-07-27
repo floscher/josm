@@ -131,7 +131,7 @@ public class MapView extends NavigatableComponent {
 				l.layerRemoved(layer);
 		if (layer == editLayer) {
 			editLayer = null;
-			Main.ds.clearSelection();
+			Main.ds.setSelected();
 		}
 		layer.destroy();
 	}
