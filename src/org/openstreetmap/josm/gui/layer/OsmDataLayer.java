@@ -229,7 +229,7 @@ public class OsmDataLayer extends Layer {
 		c.undoCommand();
 		redoCommands.push(c);
 		setModified(uploadedModified || !commands.isEmpty());
-		Main.ds.clearSelection();
+		Main.ds.setSelected();
 		fireCommandsChanged();
 	}
 	/**

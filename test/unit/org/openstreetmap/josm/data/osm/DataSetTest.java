@@ -45,12 +45,6 @@ public class DataSetTest extends MotherObject {
 		assertEquals(4, ds.allNonDeletedPrimitives().size());
 	}
 
-	public void testClearSelection() {
-		node1.selected = true;
-		ds.clearSelection();
-		assertFalse(node1.selected);
-	}
-
 	public void testGetSelected() {
 		node1.selected = true;
 		segment.selected = true;
