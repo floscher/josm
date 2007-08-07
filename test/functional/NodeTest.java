@@ -1,3 +1,4 @@
+// License: GPL. Copyright 2007 by Immanuel Scholz and others
 import java.util.Iterator;
 
 import org.openstreetmap.josm.Main;
