@@ -1,3 +1,4 @@
+// License: GPL. Copyright 2007 by Immanuel Scholz and others
 //Licence: GPL
 package org.openstreetmap.josm.gui;
 

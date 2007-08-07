@@ -1,3 +1,4 @@
+// License: GPL. Copyright 2007 by Immanuel Scholz and others
 import org.openstreetmap.josm.Main;
 
 import framework.FunctionalTestCase;

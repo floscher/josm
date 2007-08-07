@@ -1,3 +1,4 @@
+// License: GPL. Copyright 2007 by Immanuel Scholz and others
 package org.openstreetmap.josm.data.conflict;
 
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
