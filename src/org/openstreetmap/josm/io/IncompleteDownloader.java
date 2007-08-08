@@ -76,7 +76,7 @@ public class IncompleteDownloader extends OsmServerReader {
 				throw (e instanceof RuntimeException) ? (RuntimeException)e : new RuntimeException(e);
 		}
 		if (cmds.size() > 0)
-			Main.main.editLayer().add(new SequenceCommand(tr("Fix data errors"), cmds));
+			Main.main.undoRedo.add(new SequenceCommand(tr("Fix data errors"), cmds));
 	}
 
 	private static class SegmentParser extends MinML2 {

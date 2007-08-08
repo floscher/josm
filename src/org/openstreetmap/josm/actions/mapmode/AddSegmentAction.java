@@ -145,7 +145,7 @@ public class AddSegmentAction extends MapMode implements MouseListener {
 					return; // already a segment here - be happy, do nothing.
 
 			Segment ls = new Segment(start, end);
-			Main.main.editLayer().add(new AddCommand(ls));
+			Main.main.undoRedo.add(new AddCommand(ls));
 			Collection<OsmPrimitive> sel = Main.ds.getSelected();
 			sel.add(ls);
 			Main.ds.setSelected(sel);

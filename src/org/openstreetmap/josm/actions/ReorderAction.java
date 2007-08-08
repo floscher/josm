@@ -58,7 +58,7 @@ public class ReorderAction extends JosmAction {
 				Command c = reorderWay(way);
 
 				if( c != null )
-					Main.main.editLayer().add( c );
+					Main.main.undoRedo.add(c);
 			}
 		}
 		if (!doneSomething) {

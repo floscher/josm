@@ -156,9 +156,9 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 			value = null; // delete the key instead
 		}
 		if (key.equals(newkey) || value == null)
-			Main.main.editLayer().add(new ChangePropertyCommand(sel, newkey, value));
+			Main.main.undoRedo.add(new ChangePropertyCommand(sel, newkey, value));
 		else {
-			Main.main.editLayer().add(new SequenceCommand(trn("Change properties of {0} object", "Change properties of {0} objects", sel.size(), sel.size()),
+			Main.main.undoRedo.add(new SequenceCommand(trn("Change properties of {0} object", "Change properties of {0} objects", sel.size(), sel.size()),
 					new ChangePropertyCommand(sel, key, null),
 					new ChangePropertyCommand(sel, newkey, value)));
 		}
@@ -238,7 +238,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 		String value = values.getEditor().getItem().toString();
 		if (value.equals(""))
 			return;
-		Main.main.editLayer().add(new ChangePropertyCommand(sel, key, value));
+		Main.main.undoRedo.add(new ChangePropertyCommand(sel, key, value));
 		selectionChanged(sel); // update table
 		Main.parent.repaint(); // repaint all - drawing could have been changed
 	}
@@ -250,7 +250,7 @@ public class PropertiesDialog extends ToggleDialog implements SelectionChangedLi
 	private void delete(int row) {
 		String key = data.getValueAt(row, 0).toString();
 		Collection<OsmPrimitive> sel = Main.ds.getSelected();
-		Main.main.editLayer().add(new ChangePropertyCommand(sel, key, null));
+		Main.main.undoRedo.add(new ChangePropertyCommand(sel, key, null));
 		selectionChanged(sel); // update table
 	}
 

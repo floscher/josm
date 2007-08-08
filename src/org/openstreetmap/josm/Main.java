@@ -39,6 +39,7 @@ import org.openstreetmap.josm.actions.mapmode.MapMode;
 import org.openstreetmap.josm.actions.search.SearchAction;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.Preferences;
+import org.openstreetmap.josm.data.UndoRedoHandler;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.projection.Epsg4326;
 import org.openstreetmap.josm.data.projection.Projection;
@@ -46,7 +47,6 @@ import org.openstreetmap.josm.gui.GettingStarted;
 import org.openstreetmap.josm.gui.MainMenu;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.PleaseWaitDialog;
-import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
 import org.openstreetmap.josm.gui.download.BoundingBoxSelection;
 import org.openstreetmap.josm.gui.download.DownloadDialog.DownloadTask;
 import org.openstreetmap.josm.gui.layer.Layer;
@@ -110,10 +110,14 @@ abstract public class Main {
 	public static ToolbarPreferences toolbar = new ToolbarPreferences();
 
 
+	public UndoRedoHandler undoRedo = new UndoRedoHandler();
+
 	/**
 	 * The main menu bar at top of screen.
 	 */
 	public final MainMenu menu;
+
+
 
 
 	/**
@@ -124,26 +128,9 @@ abstract public class Main {
 		Main.map = map;
 		panel.setVisible(false);
 		panel.removeAll();
-		if (map != null) {
+		if (map != null)
 			map.fillPanel(panel);
-			map.mapView.addLayerChangeListener(new LayerChangeListener(){
-				public void activeLayerChange(final Layer oldLayer, final Layer newLayer) {
-					setLayerMenu(newLayer.getMenuEntries());
-				}
-				public void layerAdded(final Layer newLayer) {
-					if (newLayer instanceof OsmDataLayer)
-						Main.main.editLayer().listenerCommands.add(redoUndoListener);
-				}
-				public void layerRemoved(final Layer oldLayer) {
-					if (oldLayer instanceof OsmDataLayer)
-						Main.main.editLayer().listenerCommands.add(redoUndoListener);
-					if (map.mapView.getAllLayers().isEmpty())
-						setLayerMenu(null);
-				}
-			});
-			if (map.mapView.editLayer != null)
-				map.mapView.editLayer.listenerCommands.add(redoUndoListener);
-		} else {
+		else {
 			old.destroy();
 			panel.add(new GettingStarted(), BorderLayout.CENTER);
 		}
@@ -186,6 +173,8 @@ abstract public class Main {
 		panel.add(new GettingStarted(), BorderLayout.CENTER);
 		menu = new MainMenu();
 
+		undoRedo.listenerCommands.add(redoUndoListener);
+		
 		// creating toolbar
 		contentPane.add(toolbar.control, BorderLayout.NORTH);
 
@@ -304,7 +293,6 @@ abstract public class Main {
 			menu.redo.setEnabled(redoSize > 0);
 		}
 	};
-
 	/**
 	 * Should be called before the main constructor to setup some parameter stuff
 	 * @param args The parsed argument list.

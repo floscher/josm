@@ -454,7 +454,7 @@ public class SplitWayAction extends JosmAction implements SelectionChangedListen
 
 		NameVisitor v = new NameVisitor();
 		v.visit(selectedWay);
-		Main.main.editLayer().add(new SequenceCommand(tr("Split way {0} into {1} parts",v.name, segmentSets.size()), commandList));
+		Main.main.undoRedo.add(new SequenceCommand(tr("Split way {0} into {1} parts",v.name, segmentSets.size()), commandList));
 		Main.ds.setSelected(newSelection);
 	}
 

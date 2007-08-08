@@ -109,7 +109,7 @@ public final class AlignInLineAction extends JosmAction {
 		}
 
 		// Do it!
-		Main.main.editLayer().add(new SequenceCommand(tr("Align Nodes in Line"), cmds));
+		Main.main.undoRedo.add(new SequenceCommand(tr("Align Nodes in Line"), cmds));
 		Main.map.repaint();
 	}
 }

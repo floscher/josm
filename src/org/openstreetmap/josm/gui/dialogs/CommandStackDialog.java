@@ -18,9 +18,6 @@ import javax.swing.tree.DefaultTreeModel;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.gui.MapFrame;
-import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
-import org.openstreetmap.josm.gui.layer.Layer;
-import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer.CommandQueueListener;
 
 public class CommandStackDialog extends ToggleDialog implements CommandQueueListener {
@@ -30,19 +27,7 @@ public class CommandStackDialog extends ToggleDialog implements CommandQueueList
 
 	public CommandStackDialog(final MapFrame mapFrame) {
 		super(tr("Command Stack"), "commandstack", tr("Open a list of all commands (undo buffer)."), KeyEvent.VK_O, 100);
-		mapFrame.mapView.addLayerChangeListener(new LayerChangeListener(){
-			public void activeLayerChange(Layer oldLayer, Layer newLayer) {}
-			public void layerAdded(Layer newLayer) {
-				if (newLayer instanceof OsmDataLayer)
-					Main.main.editLayer().listenerCommands.add(CommandStackDialog.this);
-			}
-			public void layerRemoved(Layer oldLayer) {
-				if (oldLayer instanceof OsmDataLayer)
-					Main.main.editLayer().listenerCommands.remove(CommandStackDialog.this);
-			}
-		});
-		if (mapFrame.mapView.editLayer != null)
-			mapFrame.mapView.editLayer.listenerCommands.add(this);
+		Main.main.undoRedo.listenerCommands.add(this);
 			
 		tree.setRootVisible(false);
 		tree.setShowsRootHandles(true);
@@ -74,7 +59,7 @@ public class CommandStackDialog extends ToggleDialog implements CommandQueueList
 	private void buildList() {
 		if (Main.map == null || Main.map.mapView == null || Main.map.mapView.editLayer == null)
 			return;
-		Collection<Command> commands = Main.main.editLayer().commands;
+		Collection<Command> commands = Main.main.undoRedo.commands;
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode();
 		for (Command c : commands)
 			root.add(c.description());
