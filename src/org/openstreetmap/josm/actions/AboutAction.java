@@ -1,4 +1,4 @@
-// License: GPL. Copyright 2007 by Immanuel Scholz and others
+//License: GPL. Copyright 2007 by Immanuel Scholz and others
 package org.openstreetmap.josm.actions;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
@@ -13,10 +13,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -66,7 +70,6 @@ public class AboutAction extends JosmAction {
 
 		JTextArea readme = loadFile(Main.class.getResource("/README"));
 		JTextArea contribution = loadFile(Main.class.getResource("/CONTRIBUTION"));
-		JTextArea plugins = loadFile(null);
 
 		JPanel info = new JPanel(new GridBagLayout());
 		info.add(new JLabel(tr("Java OpenStreetMap Editor Version {0}",version)), GBC.eol().fill(GBC.HORIZONTAL));
@@ -80,17 +83,37 @@ public class AboutAction extends JosmAction {
 		info.add(new JLabel(tr("News about JOSM")), GBC.std().insets(0,0,10,0));
 		info.add(new UrlLabel("http://www.opengeodata.org/?cat=17"), GBC.eol().fill(GBC.HORIZONTAL));
 
-		StringBuilder pluginsStr = new StringBuilder();
-		for (PluginProxy p : Main.plugins)
-			pluginsStr.append(p.info.name + "\n");
-		plugins.setText(pluginsStr.toString());
-		plugins.setCaretPosition(0);
-
 		about.addTab(tr("Info"), info);
 		about.addTab(tr("Readme"), createScrollPane(readme));
 		about.addTab(tr("Revision"), createScrollPane(revision));
 		about.addTab(tr("Contribution"), createScrollPane(contribution));
-		about.addTab(tr("Plugins"), createScrollPane(plugins));
+
+		JPanel pluginTab = new JPanel(new GridBagLayout());
+		for (final PluginProxy p : Main.plugins) {
+			String name = p.info.name + (p.info.version != null && !p.info.version.equals("") ? " Version: "+p.info.version : "");
+			pluginTab.add(new JLabel(name), GBC.std());
+			pluginTab.add(Box.createHorizontalGlue(), GBC.std().fill(GBC.HORIZONTAL));
+			pluginTab.add(new JButton(new AbstractAction(tr("Information")){
+				public void actionPerformed(ActionEvent event) {
+					StringBuilder b = new StringBuilder();
+					for (Entry<String,String> e : p.info.attr.entrySet()) {
+						b.append(e.getKey());
+						b.append(": ");
+						b.append(e.getValue());
+						b.append("\n");
+					}
+					JTextArea a = new JTextArea(10,40);
+					a.setEditable(false);
+					a.setText(b.toString());
+					JOptionPane.showMessageDialog(Main.parent, new JScrollPane(a));
+				}
+			}), GBC.eol());
+			JLabel label = new JLabel("<html><i>"+(p.info.description==null?tr("no description available"):p.info.description)+"</i></html>");
+			label.setBorder(BorderFactory.createEmptyBorder(0,20,0,0));
+			label.setMaximumSize(new Dimension(450,1000));
+			pluginTab.add(label, GBC.eop().fill(GBC.HORIZONTAL));
+		}
+		about.addTab(tr("Plugins"), pluginTab);
 
 		about.setPreferredSize(new Dimension(500,300));
 
@@ -101,11 +124,11 @@ public class AboutAction extends JosmAction {
 	private JScrollPane createScrollPane(JTextArea area) {
 		area.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 		area.setOpaque(false);
-	    JScrollPane sp = new JScrollPane(area);
+		JScrollPane sp = new JScrollPane(area);
 		sp.setBorder(null);
 		sp.setOpaque(false);
-	    return sp;
-    }
+		return sp;
+	}
 
 	/**
 	 * Retrieve the latest JOSM version from the JOSM homepage.
@@ -113,17 +136,17 @@ public class AboutAction extends JosmAction {
 	 * 		of problems (e.g. no internet connection).
 	 */
 	public static String checkLatestVersion() {
-        String latest;
-        try {
-        	InputStream s = new URL("http://josm.openstreetmap.de/current").openStream();
-        	latest = new BufferedReader(new InputStreamReader(s)).readLine();
-        	s.close();
-        } catch (IOException x) {
-        	x.printStackTrace();
-        	return "UNKNOWN";
-        }
-        return latest;
-    }
+		String latest;
+		try {
+			InputStream s = new URL("http://josm.openstreetmap.de/current").openStream();
+			latest = new BufferedReader(new InputStreamReader(s)).readLine();
+			s.close();
+		} catch (IOException x) {
+			x.printStackTrace();
+			return "UNKNOWN";
+		}
+		return latest;
+	}
 
 	/**
 	 * Load the specified ressource into an TextArea and return it.
