@@ -78,7 +78,7 @@ public class PluginPreference implements PreferenceSetting {
 		pluginPane.setBorder(null);
 		plugin.add(pluginPane, GBC.eol().fill(GBC.BOTH));
 		plugin.add(GBC.glue(0,10), GBC.eol());
-		JButton morePlugins = new JButton(tr("Get more plugins"));
+		JButton morePlugins = new JButton(tr("Check for plugins"));
 		morePlugins.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				int count = PluginDownloader.downloadDescription();
@@ -200,7 +200,7 @@ public class PluginPreference implements PreferenceSetting {
 			pluginPanel.add(pluginCheck);
 
 			pluginCheck.setToolTipText(plugin.resource != null ? plugin.resource : tr("Plugin bundled with JOSM"));
-			JLabel label = new JLabel("<html><i>"+(plugin.description==null?"no description available":plugin.description)+"</i></html>");
+			JLabel label = new JLabel("<html><i>"+(plugin.description==null?tr("no description available"):plugin.description)+"</i></html>");
 			label.setBorder(BorderFactory.createEmptyBorder(0,20,0,0));
 			label.setMaximumSize(new Dimension(450,1000));
 			pluginPanel.add(label);
