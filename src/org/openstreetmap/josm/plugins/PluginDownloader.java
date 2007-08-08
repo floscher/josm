@@ -68,7 +68,7 @@ public class PluginDownloader {
 
 	public static int downloadDescription() {
 		int count = 0;
-		for (String site : Main.pref.get("pluginmanager.sites", "http://josm.openstreetmap.de/wiki/Plugins").split(" ")) {
+		for (String site : getSites()) {
 			try {
 				BufferedReader r = new BufferedReader(new InputStreamReader(new URL(site).openStream()));
 				CharSequence txt;
@@ -87,6 +87,10 @@ public class PluginDownloader {
 		}
 		return count;
 	}
+
+	public static String[] getSites() {
+	    return Main.pref.get("pluginmanager.sites", "http://josm.openstreetmap.de/wiki/Plugins").split(" ");
+    }
 
 	private static CharSequence readXml(BufferedReader r) throws IOException {
 		StringBuilder b = new StringBuilder();
