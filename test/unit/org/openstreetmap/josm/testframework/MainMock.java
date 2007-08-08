@@ -2,7 +2,6 @@
 package org.openstreetmap.josm.testframework;
 
 import java.awt.AWTEvent;
-import java.awt.AWTException;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.io.IOException;
@@ -43,7 +42,7 @@ public class MainMock {
 		Main.main = new Main(){};
 	}
 
-	@BeforeClass public static void startPopupKiller() throws AWTException {
+	@BeforeClass public static void startPopupKiller() {
 		Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener(){
 			public void eventDispatched(AWTEvent event) {
 				if (event.getSource() instanceof JButton) {
