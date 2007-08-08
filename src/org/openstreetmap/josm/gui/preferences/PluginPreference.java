@@ -5,6 +5,7 @@ import static org.openstreetmap.josm.tools.I18n.tr;
 import static org.openstreetmap.josm.tools.I18n.trn;
 
 import java.awt.Dimension;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -21,11 +22,14 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -101,12 +105,61 @@ public class PluginPreference implements PreferenceSetting {
 		JButton configureSites = new JButton(tr("Configure Plugin Sites"));
 		configureSites.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(Main.parent, tr("Not implemented yet."));
+				configureSites();
 			}
+
 		});
-		//TODO: plugin.add(configureSites, GBC.std());
+		plugin.add(configureSites, GBC.std());
 
 		refreshPluginPanel(gui);
+	}
+
+	private void configureSites() {
+		JPanel p = new JPanel(new GridBagLayout());
+		p.add(new JLabel(tr("Add either site-josm.xml or Wiki Pages.")), GBC.eol());
+		final DefaultListModel model = new DefaultListModel();
+		for (String s : PluginDownloader.getSites())
+			model.addElement(s);
+		final JList list = new JList(model);
+		p.add(new JScrollPane(list), GBC.std().fill());
+		JPanel buttons = new JPanel(new GridBagLayout());
+		buttons.add(new JButton(new AbstractAction(tr("Add")){
+			public void actionPerformed(ActionEvent e) {
+				String s = JOptionPane.showInputDialog(gui, tr("Add either site-josm.xml or Wiki Pages."));
+				if (s != null)
+					model.addElement(s);
+            }
+		}), GBC.eol().fill(GBC.HORIZONTAL));
+		buttons.add(new JButton(new AbstractAction(tr("Edit")){
+			public void actionPerformed(ActionEvent e) {
+				if (list.getSelectedValue() == null) {
+					JOptionPane.showMessageDialog(gui, tr("Please select an entry."));
+					return;
+				}
+				String s = JOptionPane.showInputDialog(gui, tr("Add either site-josm.xml or Wiki Pages."), list.getSelectedValue());
+				model.setElementAt(s, list.getSelectedIndex());
+            }
+		}), GBC.eol().fill(GBC.HORIZONTAL));
+		buttons.add(new JButton(new AbstractAction(tr("Delete")){
+			public void actionPerformed(ActionEvent event) {
+				if (list.getSelectedValue() == null) {
+					JOptionPane.showMessageDialog(gui, tr("Please select an entry."));
+					return;
+				}
+				model.removeElement(list.getSelectedValue());
+            }
+		}), GBC.eol().fill(GBC.HORIZONTAL));
+		p.add(buttons, GBC.eol());
+		int answer = JOptionPane.showConfirmDialog(gui, p, tr("Configure Plugin Sites"), JOptionPane.OK_CANCEL_OPTION);
+		if (answer != JOptionPane.OK_OPTION)
+			return;
+		StringBuilder b = new StringBuilder();
+		for (int i = 0; i < model.getSize(); ++i) {
+			b.append(model.getElementAt(i));
+			if (i < model.getSize()-1)
+				b.append(" ");
+		}
+		Main.pref.put("pluginmanager.sites", b.toString());
 	}
 
 	private void update() {
