@@ -125,7 +125,7 @@ public class DeleteAction extends MapMode {
 			osm.visit(v);
 		v.data.addAll(selection);
 		if (!v.data.isEmpty())
-			Main.main.editLayer().add(new DeleteCommand(v.data));
+			Main.main.undoRedo.add(new DeleteCommand(v.data));
 	}
 
 	/**
@@ -163,7 +163,7 @@ public class DeleteAction extends MapMode {
 			}
 		}
 		if (!del.isEmpty())
-			Main.main.editLayer().add(new DeleteCommand(del));
+			Main.main.undoRedo.add(new DeleteCommand(del));
 	}
 
 	private String deleteNodeAndJoinSegment(Node n) {
@@ -212,7 +212,7 @@ public class DeleteAction extends MapMode {
 		}
 		cmds.add(new ChangeCommand(seg1, s));
 		cmds.add(new DeleteCommand(Arrays.asList(new OsmPrimitive[]{n, seg2})));
-		Main.main.editLayer().add(new SequenceCommand(tr("Delete Node"), cmds));
+		Main.main.undoRedo.add(new SequenceCommand(tr("Delete Node"), cmds));
 		return null;
     }
 }

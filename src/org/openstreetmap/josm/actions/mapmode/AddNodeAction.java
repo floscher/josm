@@ -169,7 +169,7 @@ public class AddNodeAction extends MapMode {
 			}	
 		}		
 	
-		Main.main.editLayer().add(c);
+		Main.main.undoRedo.add(c);
 		Main.ds.setSelected(n);
 		Main.map.mapView.repaint();
 	}

@@ -29,6 +29,6 @@ public class RedoAction extends JosmAction {
 		if (Main.map == null)
 			return;
 		Main.map.repaint();
-		Main.main.editLayer().redo();
+		Main.main.undoRedo.redo();
 	}
 }

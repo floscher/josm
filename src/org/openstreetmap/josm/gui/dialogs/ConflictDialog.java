@@ -119,7 +119,7 @@ public final class ConflictDialog extends ToggleDialog {
 		int answer = JOptionPane.showConfirmDialog(Main.parent, resolver, tr("Resolve Conflicts"), JOptionPane.OK_CANCEL_OPTION);
 		if (answer != JOptionPane.OK_OPTION)
 			return;
-		Main.main.editLayer().add(new ConflictResolveCommand(resolver.conflicts, sel));
+		Main.main.undoRedo.add(new ConflictResolveCommand(resolver.conflicts, sel));
 		Main.map.mapView.repaint();
 	}
 

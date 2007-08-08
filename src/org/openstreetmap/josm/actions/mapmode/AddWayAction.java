@@ -106,15 +106,15 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 
 			copy.segments.remove(s);
 			if (copy.segments.isEmpty()) {
-				Main.main.editLayer().add(new DeleteCommand(Arrays.asList(new OsmPrimitive[]{way})));
+				Main.main.undoRedo.add(new DeleteCommand(Arrays.asList(new OsmPrimitive[]{way})));
 				way = null;
 			} else
-				Main.main.editLayer().add(new ChangeCommand(way, copy));
+				Main.main.undoRedo.add(new ChangeCommand(way, copy));
 		} else {
 			if (way == null) {
 				way = new Way();
 				way.segments.add(s);
-				Main.main.editLayer().add(new AddCommand(way));
+				Main.main.undoRedo.add(new AddCommand(way));
 			} else {
 				Way copy = new Way(way);
 				int i;
@@ -122,7 +122,7 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 					if (way.segments.get(i).from == s.to)
 						break;
 				copy.segments.add(i, s);
-				Main.main.editLayer().add(new ChangeCommand(way, copy));
+				Main.main.undoRedo.add(new ChangeCommand(way, copy));
 			}
 		}
 		Main.ds.setSelected(way);
@@ -197,7 +197,7 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 			if (reordered)
 				w.segments.clear();
 			w.segments.addAll(sortedSegments);
-			Main.main.editLayer().add(new ChangeCommand(wayToAdd, w));
+			Main.main.undoRedo.add(new ChangeCommand(wayToAdd, w));
 			return wayToAdd;
 		}
 
@@ -206,7 +206,7 @@ public class AddWayAction extends MapMode implements SelectionChangedListener {
 
 		Way w = new Way();
 		w.segments.addAll(sortedSegments);
-		Main.main.editLayer().add(new AddCommand(w));
+		Main.main.undoRedo.add(new AddCommand(w));
 		return w;
 	}
 

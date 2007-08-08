@@ -53,7 +53,7 @@ public final class ReverseSegmentAction extends JosmAction {
     		snew.to = n;
     		c.add(new ChangeCommand(s, snew));
     	}
-    	Main.main.editLayer().add(new SequenceCommand(tr("Reverse Segments"), c));
+    	Main.main.undoRedo.add(new SequenceCommand(tr("Reverse Segments"), c));
     	Main.map.repaint();
     }
 }

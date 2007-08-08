@@ -29,6 +29,6 @@ public class UndoAction extends JosmAction {
 		if (Main.map == null)
 			return;
 		Main.map.repaint();
-		Main.main.editLayer().undo();
+		Main.main.undoRedo.undo();
 	}
 }

@@ -10,6 +10,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.visitor.AddVisitor;
 import org.openstreetmap.josm.data.osm.visitor.DeleteVisitor;
@@ -27,20 +28,23 @@ public class AddCommand extends Command {
 	 * The primitive to add to the dataset.
 	 */
 	private final OsmPrimitive osm;
+	
+	private DataSet ds;
 
 	/**
 	 * Create the command and specify the element to add.
 	 */
 	public AddCommand(OsmPrimitive osm) {
 		this.osm = osm;
+		this.ds = Main.ds;
 	}
 
 	@Override public void executeCommand() {
-		osm.visit(new AddVisitor(Main.ds));
+		osm.visit(new AddVisitor(ds));
 	}
 
 	@Override public void undoCommand() {
-		osm.visit(new DeleteVisitor(Main.ds));
+		osm.visit(new DeleteVisitor(ds));
 	}
 
 	@Override public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {

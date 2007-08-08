@@ -16,7 +16,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
-import java.util.Stack;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -30,7 +29,6 @@ import org.openstreetmap.josm.actions.GpxExportAction;
 import org.openstreetmap.josm.actions.RenameLayerAction;
 import org.openstreetmap.josm.actions.SaveAction;
 import org.openstreetmap.josm.actions.SaveAsAction;
-import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.DataSource;
@@ -106,17 +104,8 @@ public class OsmDataLayer extends Layer {
 	 * the server directly. This affects the modified state.
 	 */
 	private boolean fromDisk = false;
-	/**
-	 * All commands that were made on the dataset. Don't write from outside!
-	 */
-	public final LinkedList<Command> commands = new LinkedList<Command>();
-	/**
-	 * The stack for redoing commands
-	 */
-	private final Stack<Command> redoCommands = new Stack<Command>();
 
 	public final LinkedList<ModifiedChangedListener> listenerModified = new LinkedList<ModifiedChangedListener>();
-	public final LinkedList<CommandQueueListener> listenerCommands = new LinkedList<CommandQueueListener>();
 
 	private SimplePaintVisitor mapPainter = new SimplePaintVisitor();
 
@@ -208,46 +197,6 @@ public class OsmDataLayer extends Layer {
 	}
 
 	/**
-	 * Execute the command and add it to the intern command queue. Also mark all
-	 * primitives in the command as modified.
-	 */
-	public void add(final Command c) {
-		c.executeCommand();
-		commands.add(c);
-		redoCommands.clear();
-		setModified(true);
-		fireCommandsChanged();
-	}
-
-	/**
-	 * Undoes the last added command.
-	 * TODO: This has to be moved to a central place in order to support multiple layers.
-	 */
-	public void undo() {
-		if (commands.isEmpty())
-			return;
-		final Command c = commands.removeLast();
-		c.undoCommand();
-		redoCommands.push(c);
-		setModified(uploadedModified || !commands.isEmpty());
-		Main.ds.setSelected();
-		fireCommandsChanged();
-	}
-	/**
-	 * Redoes the last undoed command.
-	 * TODO: This has to be moved to a central place in order to support multiple layers.
-	 */
-	public void redo() {
-		if (redoCommands.isEmpty())
-			return;
-		final Command c = redoCommands.pop();
-		c.executeCommand();
-		commands.add(c);
-		setModified(true);
-		fireCommandsChanged();
-	}
-
-	/**
 	 * Clean out the data behind the layer. This means clearing the redo/undo lists,
 	 * really deleting all deleted objects and reset the modified flags. This is done
 	 * after a successfull upload.
@@ -263,8 +212,7 @@ public class OsmDataLayer extends Layer {
 		if (processed != null && processed.isEmpty() && !dataAdded)
 			return;
 		
-		redoCommands.clear();
-		commands.clear();
+		Main.main.undoRedo.clean();
 
 		// if uploaded, clean the modified flags as well
 		if (processed != null) {
@@ -284,12 +232,6 @@ public class OsmDataLayer extends Layer {
 		// modified if server changed the data (esp. the id).
 		uploadedModified = fromDisk && processed != null && dataAdded;
 		setModified(uploadedModified);
-		fireCommandsChanged();
-	}
-
-	public void fireCommandsChanged() {
-		for (final CommandQueueListener l : listenerCommands)
-			l.commandChanged(commands.size(), redoCommands.size());
 	}
 
 	/**

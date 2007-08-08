@@ -284,7 +284,7 @@ public class TaggingPreset extends AbstractAction {
 		if (answer == JOptionPane.OK_OPTION) {
 			Command cmd = createCommand(Main.ds.getSelected());
 			if (cmd != null)
-				Main.main.editLayer().add(cmd);
+				Main.main.undoRedo.add(cmd);
 		}
 		Main.ds.setSelected(Main.ds.getSelected()); // force update
 	}

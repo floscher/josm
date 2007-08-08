@@ -105,11 +105,11 @@ public class MoveAction extends MapMode implements SelectionEnded {
 			}
 		}
 
-		Command c = !Main.main.editLayer().commands.isEmpty() ? Main.main.editLayer().commands.getLast() : null;
+		Command c = !Main.main.undoRedo.commands.isEmpty() ? Main.main.undoRedo.commands.getLast() : null;
 		if (c instanceof MoveCommand && affectedNodes.equals(((MoveCommand)c).objects))
 			((MoveCommand)c).moveAgain(dx,dy);
 		else
-			Main.main.editLayer().add(new MoveCommand(selection, dx, dy));
+			Main.main.undoRedo.add(new MoveCommand(selection, dx, dy));
 
 		Main.map.mapView.repaint();
 		mousePos = e.getPoint();
