@@ -1,30 +1,70 @@
-// License: GPL. Copyright 2007 by Immanuel Scholz and others
+//License: GPL. Copyright 2007 by Immanuel Scholz and others
 /**
  * 
  */
 package org.openstreetmap.josm.plugins;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
+import static org.openstreetmap.josm.tools.I18n.trn;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.gui.PleaseWaitRunnable;
 import org.openstreetmap.josm.gui.preferences.PluginPreference.PluginDescription;
+import org.xml.sax.SAXException;
 
 public class PluginDownloader {
-	private static final Pattern wiki = Pattern.compile("^</td></tr><tr><td><a class=\"ext-link\" href=\"([^\"]*)\"><span class=\"icon\">([^<]*)</span></a></td><td>[^<]*</td><td>(.*)");
+
+	private static final class UpdateTask extends PleaseWaitRunnable {
+		private final Collection<PluginDescription> toUpdate;
+		private String errors = "";
+		private int count = 0;
+
+		private UpdateTask(Collection<PluginDescription> toUpdate) {
+			super(tr("Update Plugins"));
+			this.toUpdate = toUpdate;
+		}
+
+		@Override protected void cancel() {
+			finish();
+		}
+
+		@Override protected void finish() {
+			if (errors.length() > 0)
+				JOptionPane.showMessageDialog(Main.parent, tr("There were problems with the following plugins:\n\n {0}",errors));
+			else
+				JOptionPane.showMessageDialog(Main.parent, trn("{0} Plugin successfully updated. Please restart JOSM.", "{0} Plugins successfully updated. Please restart JOSM.", count, count));
+		}
+
+		@Override protected void realRun() throws SAXException, IOException {
+			for (PluginDescription d : toUpdate) {
+				File tempFile = new File(Main.pref.getPreferencesDir()+"temp.jar");
+				if (download(d.resource, tempFile)) {
+					tempFile.renameTo(new File(Main.pref.getPreferencesDir()+"plugins/"+d.name+".jar"));
+					count++;
+				} else
+					errors += d.name + "\n";
+			}
+		}
+	}
+
+	private static final Pattern wiki = Pattern.compile("^</td></tr><tr><td><a class=\"ext-link\" href=\"([^\"]*)\"><span class=\"icon\">([^<]*)</span></a></td><td>[^<]*</td><td>([^<]*)</td><td>(.*)");
 
 	public static int downloadDescription() {
 		int count = 0;
@@ -65,6 +105,7 @@ public class PluginDownloader {
 			b.append("    <name>"+escape(m.group(2))+"</name>\n");
 			b.append("    <resource>"+escape(m.group(1))+"</resource>\n");
 			b.append("    <description>"+escape(m.group(3))+"</description>\n");
+			b.append("    <version>"+escape(m.group(4))+"</version>\n");
 			b.append("  </plugin>\n");
 		}
 		b.append("</plugins>\n");
@@ -72,31 +113,48 @@ public class PluginDownloader {
 	}
 
 	private static String escape(String s) {
-	    return s.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-    }
+		return s.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+	}
 
 	public static boolean downloadPlugin(PluginDescription pd) {
 		File file = new File(Main.pref.getPreferencesDir()+"plugins/"+pd.name+".jar");
-	    try {
-	        InputStream in = new URL(pd.resource).openStream();
+		if (!download(pd.resource, file)) {
+			JOptionPane.showMessageDialog(Main.parent, tr("Could not download plugin: {0} from {1}", pd.name, pd.resource));
+		} else {
+			try {
+				PluginInformation.findPlugin(pd.name);
+				return true;
+			} catch (Exception e) {
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(Main.parent, tr("The plugin {0} seem to be broken or could not be downloaded automatically.", pd.name));
+			}
+		}
+		if (file.exists())
+			file.delete();
+		return false;
+	}
+
+	private static boolean download(String url, File file) {
+		try {
+			InputStream in = new URL(url).openStream();
 			OutputStream out = new FileOutputStream(file);
-	        byte[] buffer = new byte[8192];
-	        for (int read = in.read(buffer); read != -1; read = in.read(buffer))
-	        	out.write(buffer, 0, read);
-	        out.close();
-	        in.close();
-	        try {
-	            PluginInformation.findPlugin(pd.name);
-	            return true;
-            } catch (Exception e) {
-	            e.printStackTrace();
-	            JOptionPane.showMessageDialog(Main.parent, tr("The plugin {0} seem to be broken or could not be downloaded automatically.", pd.name));
-            }
-        } catch (Exception e) {
-        	JOptionPane.showMessageDialog(Main.parent, tr("Could not download plugin: {0} from {1}", pd.name, pd.resource));
-        }
-        if (file.exists())
-        	file.delete();
-        return false;
-    }
+			byte[] buffer = new byte[8192];
+			for (int read = in.read(buffer); read != -1; read = in.read(buffer))
+				out.write(buffer, 0, read);
+			out.close();
+			in.close();
+			return true;
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	public static void update(Collection<PluginDescription> update) {
+		Main.worker.execute(new UpdateTask(update));
+	}
 }

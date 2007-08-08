@@ -51,7 +51,7 @@ public class OpenBrowser {
 		Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + url);
 	}
 
-	private static void linux(String url) throws IOException {
+	private static void linux(String url) {
 		String[] programs = {"gnome-open", "kfmclient openURL", "firefox"};
 		for (String program : programs) {
 			try {

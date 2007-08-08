@@ -103,7 +103,7 @@ public abstract class SaveActionBase extends DiskAccessAction {
 				JOptionPane.showMessageDialog(Main.parent, tr("Unknown file extension."));
 				return;
 			}
-			((OsmDataLayer)layer).cleanData(null, false);
+			layer.cleanData(null, false);
 		} catch (IOException e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(Main.parent, tr("An error occurred while saving.")+"\n"+e.getMessage());
