@@ -29,6 +29,7 @@ import org.openstreetmap.josm.actions.GpxExportAction;
 import org.openstreetmap.josm.actions.RenameLayerAction;
 import org.openstreetmap.josm.actions.SaveAction;
 import org.openstreetmap.josm.actions.SaveAsAction;
+import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.DataSource;
@@ -84,6 +85,13 @@ public class OsmDataLayer extends Layer {
 	}
 	public interface CommandQueueListener {
 		void commandChanged(int queueSize, int redoSize);
+	}
+
+	/**
+	 * @deprecated Use Main.main.undoRedo.add(...) instead.
+	 */
+	@Deprecated public void add(final Command c) {
+		Main.main.undoRedo.add(c);
 	}
 
 	/**
