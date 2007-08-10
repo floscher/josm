@@ -26,7 +26,6 @@ import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.RenameLayerAction;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.gui.MapView;
-import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
 import org.openstreetmap.josm.gui.dialogs.LayerListDialog;
 import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
 import org.openstreetmap.josm.gui.layer.Layer;
@@ -80,14 +79,6 @@ public class MarkerLayer extends Layer {
 							}
 						}
 						Main.map.mapView.repaint();
-					}
-				});
-
-				Main.map.mapView.addLayerChangeListener(new LayerChangeListener(){
-					public void activeLayerChange(Layer oldLayer, Layer newLayer) {}
-					public void layerAdded(Layer newLayer) {}
-					public void layerRemoved(Layer oldLayer) {
-						Main.pref.listener.remove(MarkerLayer.this);
 					}
 				});
 			}

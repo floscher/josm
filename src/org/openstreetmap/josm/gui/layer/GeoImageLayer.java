@@ -55,7 +55,6 @@ import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.PleaseWaitRunnable;
-import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
 import org.openstreetmap.josm.gui.dialogs.LayerListDialog;
 import org.openstreetmap.josm.gui.dialogs.LayerListPopup;
 import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
@@ -223,7 +222,7 @@ public class GeoImageLayer extends Layer {
 			}
 		};
 		Main.map.mapView.addMouseListener(mouseAdapter);
-		Main.map.mapView.addLayerChangeListener(new LayerChangeListener(){
+		Layer.listeners.add(new LayerChangeListener(){
 			public void activeLayerChange(Layer oldLayer, Layer newLayer) {}
 			public void layerAdded(Layer newLayer) {}
 			public void layerRemoved(Layer oldLayer) {

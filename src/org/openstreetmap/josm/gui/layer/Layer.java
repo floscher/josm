@@ -4,6 +4,8 @@ package org.openstreetmap.josm.gui.layer;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.io.File;
+import java.util.Collection;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.Icon;
 
@@ -27,6 +29,22 @@ import org.openstreetmap.josm.tools.Destroyable;
  * @author imi
  */
 abstract public class Layer implements Destroyable {
+
+	/**
+	 * Interface to notify listeners of the change of the active layer.
+	 * @author imi
+	 */
+	public interface LayerChangeListener {
+		void activeLayerChange(Layer oldLayer, Layer newLayer);
+		void layerAdded(Layer newLayer);
+		void layerRemoved(Layer oldLayer);
+	}
+
+	/**
+	 * The listener of the active layer changes. You may register/deregister yourself
+	 * while an LayerChangeListener - action is executed.
+	 */
+	public static final Collection<LayerChangeListener> listeners = new CopyOnWriteArrayList<LayerChangeListener>();
 
 	/**
 	 * The visibility state of the layer.

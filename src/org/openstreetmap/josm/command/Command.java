@@ -1,4 +1,4 @@
-// License: GPL. Copyright 2007 by Immanuel Scholz and others
+//License: GPL. Copyright 2007 by Immanuel Scholz and others
 package org.openstreetmap.josm.command;
 
 import java.util.Collection;
@@ -14,6 +14,8 @@ import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.Visitor;
+import org.openstreetmap.josm.gui.layer.Layer;
+import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 
 
 /**
@@ -30,20 +32,20 @@ abstract public class Command {
 
 	private static final class CloneVisitor implements Visitor {
 		public Map<OsmPrimitive, OsmPrimitive> orig = new HashMap<OsmPrimitive, OsmPrimitive>();
-		
+
 		public void visit(Node n) {
 			orig.put(n, new Node(n));
-	    }
+		}
 		public void visit(Segment s) {
 			orig.put(s, new Segment(s));
-	    }
+		}
 		public void visit(Way w) {
 			orig.put(w, new Way(w));
-	    }
+		}
 	}
-	
+
 	private CloneVisitor orig; 
-	
+
 	/**
 	 * Executes the command on the dataset. This implementation will remember all
 	 * primitives returned by fillModifiedData for restoring them on undo.
@@ -66,6 +68,28 @@ abstract public class Command {
 	public void undoCommand() {
 		for (Entry<OsmPrimitive, OsmPrimitive> e : orig.orig.entrySet())
 			e.getKey().cloneFrom(e.getValue());
+	}
+
+
+	/**
+	 * Called, when a layer has been removed to have the command remove itself from
+	 * any buffer if it is not longer applicable to the dataset (e.g. it was part of
+	 * the removed layer)
+	 */
+	public boolean invalidBecauselayerRemoved(Layer oldLayer) {
+		if (!(oldLayer instanceof OsmDataLayer))
+			return false;
+		HashSet<OsmPrimitive> modified = new HashSet<OsmPrimitive>();
+		fillModifiedData(modified, modified, modified);
+		if (modified.isEmpty())
+			return false;
+
+		HashSet<OsmPrimitive> all = new HashSet<OsmPrimitive>(((OsmDataLayer)oldLayer).data.allPrimitives());
+		for (OsmPrimitive osm : all)
+			if (all.contains(osm))
+				return true;
+
+		return false;
 	}
 
 	/**

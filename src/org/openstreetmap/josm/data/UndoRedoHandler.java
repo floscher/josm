@@ -1,15 +1,18 @@
-// License: GPL. Copyright 2007 by Immanuel Scholz and others
+//License: GPL. Copyright 2007 by Immanuel Scholz and others
 package org.openstreetmap.josm.data;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Stack;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.Command;
+import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
+import org.openstreetmap.josm.gui.layer.Layer.LayerChangeListener;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer.CommandQueueListener;
 
-public class UndoRedoHandler {
+public class UndoRedoHandler implements LayerChangeListener {
 
 	/**
 	 * All commands that were made on the dataset. Don't write from outside!
@@ -21,6 +24,11 @@ public class UndoRedoHandler {
 	private final Stack<Command> redoCommands = new Stack<Command>();
 
 	public final LinkedList<CommandQueueListener> listenerCommands = new LinkedList<CommandQueueListener>();
+
+
+	public UndoRedoHandler() {
+		Layer.listeners.add(this);
+	}
 
 
 	/**
@@ -36,7 +44,7 @@ public class UndoRedoHandler {
 		}
 		fireCommandsChanged();
 	}
-	
+
 	/**
 	 * Undoes the last added command.
 	 */
@@ -80,5 +88,26 @@ public class UndoRedoHandler {
 		redoCommands.clear();
 		commands.clear();
 		fireCommandsChanged();
-    }
+	}
+
+	public void layerRemoved(Layer oldLayer) {
+		boolean changed = false;
+		for (Iterator<Command> it = commands.iterator(); it.hasNext();) {
+			if (it.next().invalidBecauselayerRemoved(oldLayer)) {
+				it.remove();
+				changed = true;
+			}
+		}
+		for (Iterator<Command> it = redoCommands.iterator(); it.hasNext();) {
+			if (it.next().invalidBecauselayerRemoved(oldLayer)) {
+				it.remove();
+				changed = true;
+			}
+		}
+		if (changed)
+			fireCommandsChanged();
+	}
+
+	public void layerAdded(Layer newLayer) {}
+	public void activeLayerChange(Layer oldLayer, Layer newLayer) {}
 }

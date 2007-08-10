@@ -47,8 +47,9 @@ public class MapView extends NavigatableComponent {
 	/**
 	 * Interface to notify listeners of the change of the active layer.
 	 * @author imi
+	 * @deprecated Use Layer.LayerChangeListener instead
 	 */
-	public interface LayerChangeListener {
+	@Deprecated public interface LayerChangeListener {
 		void activeLayerChange(Layer oldLayer, Layer newLayer);
 		void layerAdded(Layer newLayer);
 		void layerRemoved(Layer oldLayer);
@@ -68,8 +69,9 @@ public class MapView extends NavigatableComponent {
 	private Layer activeLayer;
 	/**
 	 * The listener of the active layer changes.
+	 * @deprecated Use Layer.listener instead.
 	 */
-	private Collection<LayerChangeListener> listeners = new LinkedList<LayerChangeListener>();
+	@Deprecated private Collection<LayerChangeListener> listeners = new LinkedList<LayerChangeListener>();
 
 	public MapView() {
 		addComponentListener(new ComponentAdapter(){
@@ -114,7 +116,10 @@ public class MapView extends NavigatableComponent {
 
 		layers.add(layers.size(), layer);
 
+		// TODO: Deprecated
 		for (LayerChangeListener l : listeners)
+			l.layerAdded(layer);
+		for (Layer.LayerChangeListener l : Layer.listeners)
 			l.layerAdded(layer);
 
 		// autoselect the new layer
@@ -127,9 +132,13 @@ public class MapView extends NavigatableComponent {
 	 * an LayerChange event is fired.
 	 */
 	public void removeLayer(Layer layer) {
-		if (layers.remove(layer))
+		if (layers.remove(layer)) {
+			// TODO: Deprecated
 			for (LayerChangeListener l : listeners)
 				l.layerRemoved(layer);
+			for (Layer.LayerChangeListener l : Layer.listeners)
+				l.layerRemoved(layer);
+		}
 		if (layer == editLayer) {
 			editLayer = null;
 			Main.ds.setSelected();
@@ -226,8 +235,9 @@ public class MapView extends NavigatableComponent {
 	/**
 	 * Add a listener for changes of active layer.
 	 * @param listener The listener that get added.
+	 * @deprecated Use Layer.listener.add instead.
 	 */
-	public void addLayerChangeListener(LayerChangeListener listener) {
+	@Deprecated public void addLayerChangeListener(LayerChangeListener listener) {
 		if (listener != null)
 			listeners.add(listener);
 	}
@@ -235,8 +245,9 @@ public class MapView extends NavigatableComponent {
 	/**
 	 * Remove the listener.
 	 * @param listener The listener that get removed from the list.
+	 * @deprecated Use Layer.listener.remove instead
 	 */
-	public void removeLayerChangeListener(LayerChangeListener listener) {
+	@Deprecated public void removeLayerChangeListener(LayerChangeListener listener) {
 		listeners.remove(listener);
 	}
 
@@ -260,9 +271,13 @@ public class MapView extends NavigatableComponent {
 		}
 		Layer old = activeLayer;
 		activeLayer = layer;
-		if (old != layer)
+		if (old != layer) {
+			// TODO: Deprecated
 			for (LayerChangeListener l : listeners)
 				l.activeLayerChange(old, layer);
+			for (Layer.LayerChangeListener l : Layer.listeners)
+				l.activeLayerChange(old, layer);
+		}
 		repaint();
 	}
 

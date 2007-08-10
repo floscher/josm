@@ -32,9 +32,9 @@ import javax.swing.event.ListSelectionListener;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
-import org.openstreetmap.josm.gui.MapView.LayerChangeListener;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.layer.OsmDataLayer;
+import org.openstreetmap.josm.gui.layer.Layer.LayerChangeListener;
 import org.openstreetmap.josm.tools.DontShowAgainInfo;
 import org.openstreetmap.josm.tools.ImageProvider;
 import org.openstreetmap.josm.tools.ImageProvider.OverlayPosition;
@@ -179,7 +179,7 @@ public class LayerListDialog extends ToggleDialog implements LayerChangeListener
 				mapView.setActiveLayer((Layer)instance.getSelectedValue());
 			}
 		});
-		mapView.addLayerChangeListener(this);
+		Layer.listeners.add(this);
 
 		instance.addMouseListener(new MouseAdapter(){
 			private void openPopup(MouseEvent e) {
@@ -282,6 +282,10 @@ public class LayerListDialog extends ToggleDialog implements LayerChangeListener
 
 	public void layerRemoved(Layer oldLayer) {
 		model.removeElement(oldLayer);
+		if (model.isEmpty()) {
+			Layer.listeners.remove(this);
+			return;
+		}
 		if (instance.getSelectedIndex() == -1)
 			instance.setSelectedIndex(0);
 		updateButtonEnabled();
@@ -295,6 +299,4 @@ public class LayerListDialog extends ToggleDialog implements LayerChangeListener
 			instance.setSelectedValue(newLayer, true);
 		updateButtonEnabled();
 	}
-
-	public void layerMoved(Layer layer, int newPosition) {}
 }
