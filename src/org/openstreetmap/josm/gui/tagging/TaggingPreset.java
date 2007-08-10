@@ -269,7 +269,7 @@ public class TaggingPreset extends AbstractAction {
 				@Override public void selectInitialValue() {
 					for (Item i : data) {
 						if (i.focus) {
-							System.out.println(i.requestFocusInWindow());
+							i.requestFocusInWindow();
 							return;
 						}
 					}

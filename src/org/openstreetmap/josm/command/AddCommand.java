@@ -15,6 +15,8 @@ import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.visitor.AddVisitor;
 import org.openstreetmap.josm.data.osm.visitor.DeleteVisitor;
 import org.openstreetmap.josm.data.osm.visitor.NameVisitor;
+import org.openstreetmap.josm.gui.layer.Layer;
+import org.openstreetmap.josm.gui.layer.OsmDataLayer;
 
 /**
  * A command that adds an osm primitive to a dataset. Keys cannot be added this
@@ -36,7 +38,7 @@ public class AddCommand extends Command {
 	 */
 	public AddCommand(OsmPrimitive osm) {
 		this.osm = osm;
-		this.ds = Main.ds;
+		this.ds = Main.main.editLayer().data;
 	}
 
 	@Override public void executeCommand() {
@@ -50,6 +52,11 @@ public class AddCommand extends Command {
 	@Override public void fillModifiedData(Collection<OsmPrimitive> modified, Collection<OsmPrimitive> deleted, Collection<OsmPrimitive> added) {
 		added.add(osm);
 	}
+
+	// faster implementation
+	@Override public boolean invalidBecauselayerRemoved(Layer oldLayer) {
+	    return oldLayer instanceof OsmDataLayer && ((OsmDataLayer)oldLayer).data == ds;
+    }
 
 	@Override public MutableTreeNode description() {
 		NameVisitor v = new NameVisitor();
