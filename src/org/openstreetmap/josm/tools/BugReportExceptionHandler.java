@@ -117,7 +117,8 @@ public final class BugReportExceptionHandler implements Thread.UncaughtException
 					sb.append("\n"+stack.getBuffer().toString());
 
 					JPanel p = new JPanel(new GridBagLayout());
-					p.add(new JLabel(tr("Please send an email with the following information to josm@eigenheimstrasse.de")), GBC.eol());
+					p.add(new JLabel(tr("Please report a ticket at http://josm.openstreetmap.de/newticket, including your steps to get to\n" +
+							            "the error and be sure to include the following information")), GBC.eol());
 					try {
 	                    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(sb.toString()), new ClipboardOwner(){
 	                    	public void lostOwnership(Clipboard clipboard, Transferable contents) {}
