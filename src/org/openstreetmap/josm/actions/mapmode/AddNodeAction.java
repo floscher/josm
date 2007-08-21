@@ -8,6 +8,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -100,8 +101,11 @@ public class AddNodeAction extends MapMode {
 			Segment s = Main.map.mapView.getNearestSegment(e.getPoint());
 			if (s == null)
 				return;
+			
+			// see if another segment is also near
+			Segment other = Main.map.mapView.getNearestSegment(e.getPoint(), Collections.singleton(s));
 
-			if ((e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) == 0) {
+			if (other == null && (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) == 0) {
 				// moving the new point to the perpendicular point
 				EastNorth A = s.from.eastNorth;
 				EastNorth B = s.to.eastNorth;
@@ -115,32 +119,15 @@ public class AddNodeAction extends MapMode {
 
 			Collection<Command> cmds = new LinkedList<Command>();
 			cmds.add(c);
-			Segment s1 = new Segment(s);
-			s1.to = n;
-			Segment s2 = new Segment(s.from, s.to);
-			s2.from = n;
-			if (s.keys != null)
-				s2.keys = new HashMap<String, String>(s.keys);
+			
+			// split the first segment
+			splitSegmentAtNode(s, n, cmds);
+			
+			// if a second segment was found, split that as well
+			if (other != null) splitSegmentAtNode(other, n, cmds);
 
-			cmds.add(new ChangeCommand(s, s1));
-			cmds.add(new AddCommand(s2));
-
-			// Add the segment to every way
-			for (Way wold : Main.ds.ways) {
-				if (wold.segments.contains(s)) {
-					Way wnew = new Way(wold);
-					Collection<Segment> segs = new ArrayList<Segment>(wnew.segments);
-					wnew.segments.clear();
-					for (Segment waySeg : segs) {
-						wnew.segments.add(waySeg);
-						if (waySeg == s)
-							wnew.segments.add(s2);
-					}
-					cmds.add(new ChangeCommand(wold, wnew));
-				}
-			}
-
-			c = new SequenceCommand(tr("Add node into segment"), cmds);
+			c = new SequenceCommand(tr((other == null) ? 
+				"Add node into segment" : "Add common node into two segments"), cmds);
 		}
 
 		if (mode == Mode.autonode) {
@@ -192,5 +179,32 @@ public class AddNodeAction extends MapMode {
 			}
 		}
 		return way;
+	}
+	
+	private void splitSegmentAtNode(Segment s, Node n, Collection<Command> cmds) {
+		Segment s1 = new Segment(s);
+		s1.to = n;
+		Segment s2 = new Segment(s.from, s.to);
+		s2.from = n;
+		if (s.keys != null)
+			s2.keys = new HashMap<String, String>(s.keys);
+
+		cmds.add(new ChangeCommand(s, s1));
+		cmds.add(new AddCommand(s2));
+
+		// Add the segment to every way
+		for (Way wold : Main.ds.ways) {
+			if (wold.segments.contains(s)) {
+				Way wnew = new Way(wold);
+				Collection<Segment> segs = new ArrayList<Segment>(wnew.segments);
+				wnew.segments.clear();
+				for (Segment waySeg : segs) {
+					wnew.segments.add(waySeg);
+					if (waySeg == s)
+						wnew.segments.add(s2);
+				}
+				cmds.add(new ChangeCommand(wold, wnew));
+			}
+		}
 	}
 }

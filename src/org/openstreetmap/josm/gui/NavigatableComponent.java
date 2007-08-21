@@ -3,7 +3,9 @@ package org.openstreetmap.josm.gui;
 
 import java.awt.Point;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 
 import javax.swing.JComponent;
 
@@ -171,14 +173,28 @@ public class NavigatableComponent extends JComponent implements Helpful {
 	}
 
 	/**
-	 * @return the nearest segment to the screen point given.
+	 * @return the nearest segment to the screen point given 
+	 * 
+	 * @param p the point for which to search the nearest segment.
 	 */
 	public final Segment getNearestSegment(Point p) {
+		List<Segment> e = Collections.emptyList();
+		return getNearestSegment(p, e);
+	}
+	
+	/**
+	 * @return the nearest segment to the screen point given that is not 
+	 * in ignoreThis.
+	 * 
+	 * @param p the point for which to search the nearest segment.
+	 * @param ignore a collection of segments which are not to be returned. Must not be null.
+	 */
+	public final Segment getNearestSegment(Point p, Collection<Segment> ignore) {
 		Segment minPrimitive = null;
 		double minDistanceSq = Double.MAX_VALUE;
 		// segments
 		for (Segment ls : Main.ds.segments) {
-			if (ls.deleted || ls.incomplete)
+			if (ls.deleted || ls.incomplete || ignore.contains(ls))
 				continue;
 			Point A = getPoint(ls.from.eastNorth);
 			Point B = getPoint(ls.to.eastNorth);
