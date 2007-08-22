@@ -6,6 +6,7 @@ import static org.openstreetmap.josm.tools.I18n.trn;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -59,7 +60,7 @@ public class MoveCommand extends Command {
 
 	
 	public MoveCommand(OsmPrimitive osm, double x, double y) {
-		this(Arrays.asList(new OsmPrimitive[]{osm}), x, y);
+		this(Collections.singleton(osm), x, y);
 	}
 	/**
 	 * Create a MoveCommand and assign the initial object set and movement vector.
