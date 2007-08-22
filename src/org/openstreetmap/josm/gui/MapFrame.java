@@ -21,6 +21,7 @@ import org.openstreetmap.josm.actions.mapmode.MoveAction;
 import org.openstreetmap.josm.actions.mapmode.SelectionAction;
 import org.openstreetmap.josm.actions.mapmode.ZoomAction;
 import org.openstreetmap.josm.actions.mapmode.AddNodeAction.AddNodeGroup;
+import org.openstreetmap.josm.actions.mapmode.MoveAction.MoveGroup;
 import org.openstreetmap.josm.gui.dialogs.CommandStackDialog;
 import org.openstreetmap.josm.gui.dialogs.ConflictDialog;
 import org.openstreetmap.josm.gui.dialogs.HistoryDialog;
@@ -81,7 +82,7 @@ public class MapFrame extends JPanel implements Destroyable {
 		toolBarActions.add(new IconToggleButton(new ZoomAction(this)));
 		final Action selectionAction = new SelectionAction.Group(this);
 		toolBarActions.add(new IconToggleButton(selectionAction));
-		toolBarActions.add(new IconToggleButton(new MoveAction(this)));
+		toolBarActions.add(new IconToggleButton(new MoveGroup(this)));
 		toolBarActions.add(new IconToggleButton(new AddNodeGroup(this)));
 		toolBarActions.add(new IconToggleButton(new AddSegmentAction(this)));
 		toolBarActions.add(new IconToggleButton(new AddWayAction(this)));
