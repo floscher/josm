@@ -13,8 +13,11 @@ import java.util.Collection;
 import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.actions.GroupAction;
+import org.openstreetmap.josm.actions.mapmode.AddNodeAction.Mode;
 import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.MoveCommand;
+import org.openstreetmap.josm.command.RotateCommand;
 import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -34,6 +37,20 @@ import org.openstreetmap.josm.tools.ImageProvider;
  * @author imi
  */
 public class MoveAction extends MapMode implements SelectionEnded {
+	
+	enum Mode {move, rotate}
+	private final Mode mode;
+
+	public static class MoveGroup extends GroupAction {
+		public MoveGroup(MapFrame mf) {
+			super(KeyEvent.VK_M,0);
+			putValue("help", "Action/Move");
+			actions.add(new MoveAction(mf, tr("Move"), Mode.move, tr("Move around objects that are under the mouse or selected.")));
+			actions.add(new MoveAction(mf, tr("Rotate"), Mode.rotate, tr("Rotate selected nodes around centre")));
+			setCurrent(0);
+		}
+	}
+	
 	/**
 	 * The old cursor before the user pressed the mouse button.
 	 */
@@ -49,16 +66,21 @@ public class MoveAction extends MapMode implements SelectionEnded {
 	 * Create a new MoveAction
 	 * @param mapFrame The MapFrame, this action belongs to.
 	 */
-	public MoveAction(MapFrame mapFrame) {
-		super(tr("Move"), 
-				"move",
-				tr("Move around objects that are under the mouse or selected."), 
-				KeyEvent.VK_M,
-				mapFrame,
-				ImageProvider.getCursor("normal", "move"));
+	public MoveAction(MapFrame mapFrame, String name, Mode mode, String desc) {
+		super(name, "move/"+mode, desc, mapFrame, getCursor());
+		this.mode = mode;
+		putValue("help", "Action/Move/"+Character.toUpperCase(mode.toString().charAt(0))+mode.toString().substring(1));
 		selectionManager = new SelectionManager(this, false, mapFrame.mapView);
 	}
 
+	private static Cursor getCursor() {
+		try {
+	        return ImageProvider.getCursor("crosshair", null);
+        } catch (Exception e) {
+        }
+	    return Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
+    }
+	
 	@Override public void enterMode() {
 		super.enterMode();
 		Main.map.mapView.addMouseListener(this);
@@ -70,7 +92,6 @@ public class MoveAction extends MapMode implements SelectionEnded {
 		Main.map.mapView.removeMouseListener(this);
 		Main.map.mapView.removeMouseMotionListener(this);
 	}
-
 
 	/**
 	 * If the left mouse button is pressed, move all currently selected
@@ -86,7 +107,7 @@ public class MoveAction extends MapMode implements SelectionEnded {
 
 		if (mousePos == null)
 			mousePos = e.getPoint();
-
+		
 		EastNorth mouseEN = Main.map.mapView.getEastNorth(e.getX(), e.getY());
 		EastNorth mouseStartEN = Main.map.mapView.getEastNorth(mousePos.x, mousePos.y);
 		double dx = mouseEN.east() - mouseStartEN.east();
@@ -96,6 +117,11 @@ public class MoveAction extends MapMode implements SelectionEnded {
 
 		Collection<OsmPrimitive> selection = Main.ds.getSelected();
 		Collection<Node> affectedNodes = AllNodesVisitor.getAllNodes(selection);
+		
+		// when rotating, having only one node makes no sense - quit silently
+		if (affectedNodes.size() < 2 && mode == Mode.move) 
+			return;
+		
 
 		// check if any coordinate would be outside the world
 		for (OsmPrimitive osm : affectedNodes) {
@@ -104,12 +130,19 @@ public class MoveAction extends MapMode implements SelectionEnded {
 				return;
 			}
 		}
-
 		Command c = !Main.main.undoRedo.commands.isEmpty() ? Main.main.undoRedo.commands.getLast() : null;
-		if (c instanceof MoveCommand && affectedNodes.equals(((MoveCommand)c).objects))
-			((MoveCommand)c).moveAgain(dx,dy);
-		else
-			Main.main.undoRedo.add(new MoveCommand(selection, dx, dy));
+
+		if (mode == Mode.move) {
+			if (c instanceof MoveCommand && affectedNodes.equals(((MoveCommand)c).objects))
+				((MoveCommand)c).moveAgain(dx,dy);
+			else
+				Main.main.undoRedo.add(new MoveCommand(selection, dx, dy));
+		} else if (mode == Mode.rotate) {
+			if (c instanceof RotateCommand && affectedNodes.equals(((RotateCommand)c).objects))
+				((RotateCommand)c).rotateAgain(mouseStartEN, mouseEN);
+			else
+				Main.main.undoRedo.add(new RotateCommand(selection, mouseStartEN, mouseEN));
+		}
 
 		Main.map.mapView.repaint();
 		mousePos = e.getPoint();
@@ -134,7 +167,12 @@ public class MoveAction extends MapMode implements SelectionEnded {
 			if (!sel.contains(osm))
 				Main.ds.setSelected(osm);
 			oldCursor = Main.map.mapView.getCursor();
-			Main.map.mapView.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+			
+			if (mode == Mode.move) {
+				Main.map.mapView.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+			} else {
+				Main.map.mapView.setCursor(ImageProvider.getCursor("rotate", null));
+			}
 		} else {
 			selectionMode = true;
 			selectionManager.register(Main.map.mapView);
