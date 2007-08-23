@@ -49,7 +49,7 @@ public class AddNodeAction extends MapMode {
 			putValue("help", "Action/AddNode");
 			actions.add(new AddNodeAction(mf,tr("Add node"), Mode.node, tr("Add a new node to the map")));
 			actions.add(new AddNodeAction(mf, tr("Add node into segment"), Mode.nodesegment,tr( "Add a node into an existing segment")));
-			actions.add(new AddNodeAction(mf, tr("Add node and connect"), Mode.autonode,tr( "Add a node and connect it to the selected (previously added) node")));
+			actions.add(new AddNodeAction(mf, tr("Add node and connect"), Mode.autonode,tr( "Add a node and connect it to the selected node (with CTRL: add node into segment; with ALT: re-use existing node)")));
 			setCurrent(0);
 		}
 	}
@@ -92,7 +92,7 @@ public class AddNodeAction extends MapMode {
 
 		Node n = new Node(Main.map.mapView.getLatLon(e.getX(), e.getY()));
 		if (n.coor.isOutSideWorld()) {
-			JOptionPane.showMessageDialog(Main.parent,tr("Can not add a node outside of the world."));
+			JOptionPane.showMessageDialog(Main.parent,tr("Cannot add a node outside of the world."));
 			return;
 		}
 
@@ -107,6 +107,8 @@ public class AddNodeAction extends MapMode {
 
 			if (other == null && (e.getModifiersEx() & MouseEvent.ALT_DOWN_MASK) == 0) {
 				// moving the new point to the perpendicular point
+				// FIXME: when two segments are split, should move the new point to the
+				// intersection point!
 				EastNorth A = s.from.eastNorth;
 				EastNorth B = s.to.eastNorth;
 				double ab = A.distance(B);
@@ -130,13 +132,49 @@ public class AddNodeAction extends MapMode {
 				"Add node into segment" : "Add common node into two segments"), cmds);
 		}
 
+		// Add a node and connecting segment.
 		if (mode == Mode.autonode) {
+
+			Segment insertInto = null;
+			Node reuseNode = null;
+			
+			// If CTRL is held, insert the node into a potentially existing segment
+			if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) != 0) {
+				insertInto = Main.map.mapView.getNearestSegment(e.getPoint());
+				if (insertInto == null)
+					return;
+			} 
+			// If ALT is held, instead of creating a new node, re-use an existing
+			// node (making this action identical to AddSegmentAction with the
+			// small difference that the node used will then be selected to allow
+			// continuation of the "add node and connect" stuff)
+			else if ((e.getModifiersEx() & MouseEvent.SHIFT_DOWN_MASK) != 0) {
+				OsmPrimitive clicked = Main.map.mapView.getNearest(e.getPoint(), false);
+				if (clicked == null || !(clicked instanceof Node))
+					return;
+				reuseNode = (Node) clicked;
+			}
+			
 			Collection<OsmPrimitive> selection = Main.ds.getSelected();
 			if (selection.size() == 1 && selection.iterator().next() instanceof Node) {
 				Node n1 = (Node)selection.iterator().next();
 				Collection<Command> cmds = new LinkedList<Command>();
+				
+				if (reuseNode != null) {
+					// in re-use node mode, n1 must not be identical to clicked node
+					if (n1 == reuseNode) return;
+					// replace newly created node with existing node
+					n = reuseNode;
+				} else {
+					// only add the node creation command if we're not re-using
+					cmds.add(c);
+				}
+				
 				Segment s = new Segment(n1, n);
-				cmds.add(c);				
+				
+				if (insertInto != null)
+					splitSegmentAtNode(insertInto, n, cmds);
+				
 				cmds.add(new AddCommand(s));			
 
 				Way way = getWayForNode(n1);
@@ -152,7 +190,7 @@ public class AddNodeAction extends MapMode {
 					cmds.add(new ChangeCommand(way, newWay));
 				}
 
-				c = new SequenceCommand(tr("Add node and connect"), cmds);
+				c = new SequenceCommand(tr((insertInto == null) ? "Add node and connect" : "Add node into segment and connect"), cmds);
 			}	
 		}		
 	
