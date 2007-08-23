@@ -14,7 +14,6 @@ import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.GroupAction;
-import org.openstreetmap.josm.actions.mapmode.AddNodeAction.Mode;
 import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.MoveCommand;
 import org.openstreetmap.josm.command.RotateCommand;
@@ -119,7 +118,7 @@ public class MoveAction extends MapMode implements SelectionEnded {
 		Collection<Node> affectedNodes = AllNodesVisitor.getAllNodes(selection);
 		
 		// when rotating, having only one node makes no sense - quit silently
-		if (affectedNodes.size() < 2 && mode == Mode.move) 
+		if (mode == Mode.rotate && affectedNodes.size() < 2) 
 			return;
 		
 
