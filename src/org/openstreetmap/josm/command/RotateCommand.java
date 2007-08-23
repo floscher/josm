@@ -3,12 +3,9 @@ package org.openstreetmap.josm.command;
 import static org.openstreetmap.josm.tools.I18n.tr;
 import static org.openstreetmap.josm.tools.I18n.trn;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.JLabel;
@@ -16,7 +13,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.command.MoveCommand.OldState;
 import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.Node;
@@ -52,20 +48,9 @@ public class RotateCommand extends Command {
 	private double rotationAngle;
 	
 	/**
-	 * Small helper for holding the interesting part of the old data state of the
-	 * objects. 
-	 */
-	class OldState
-	{
-		double x,y,lat,lon;
-		boolean modified;
-		Node originalNode;
-	}
-	
-	/**
 	 * List of all old states of the objects.
 	 */
-	private Map<Node, OldState> oldState = new HashMap<Node, OldState>();
+	private Map<Node, MoveCommand.OldState> oldState = new HashMap<Node, MoveCommand.OldState>();
 	
 	/**
 	 * Creates a RotateCommand.
@@ -79,14 +64,12 @@ public class RotateCommand extends Command {
 		pivot = new Node(new LatLon(0,0));
 			
 		for (Node n : this.objects) {
-			OldState os = new OldState();
-			os.x = n.eastNorth.east();
-			os.y = n.eastNorth.north();
-			os.lat = n.coor.lat();
-			os.lon = n.coor.lon();
+			MoveCommand.OldState os = new MoveCommand.OldState();
+			os.eastNorth = n.eastNorth;
+			os.latlon = n.coor;
 			os.modified = n.modified;
 			oldState.put(n, os);
-			pivot.eastNorth = new EastNorth(pivot.eastNorth.east()+os.x, pivot.eastNorth.north()+os.y);
+			pivot.eastNorth = new EastNorth(pivot.eastNorth.east()+os.eastNorth.east(), pivot.eastNorth.north()+os.eastNorth.north());
 			pivot.coor = Main.proj.eastNorth2latlon(pivot.eastNorth);
 		}
 		pivot.eastNorth = new EastNorth(pivot.eastNorth.east()/this.objects.size(), pivot.eastNorth.north()/this.objects.size());
@@ -117,13 +100,15 @@ public class RotateCommand extends Command {
 		for (Node n : objects) {
 			double cosPhi = Math.cos(rotationAngle);
 			double sinPhi = Math.sin(rotationAngle);
-			double x = oldState.get(n).x - pivot.eastNorth.east();
-			double y = oldState.get(n).y - pivot.eastNorth.north();
+			EastNorth oldEastNorth = oldState.get(n).eastNorth;
+			double x = oldEastNorth.east() - pivot.eastNorth.east();
+			double y = oldEastNorth.north() - pivot.eastNorth.north();
 			double nx =  sinPhi * x + cosPhi * y + pivot.eastNorth.east();
 			double ny = -cosPhi * x + sinPhi * y + pivot.eastNorth.north();
 			n.eastNorth = new EastNorth(nx, ny);
 			n.coor = Main.proj.eastNorth2latlon(n.eastNorth);
-			if (setModified) n.modified = true;
+			if (setModified)
+				n.modified = true;	
 		}
 	}
 	
@@ -133,9 +118,9 @@ public class RotateCommand extends Command {
 
 	@Override public void undoCommand() {
 		for (Node n : objects) {
-			OldState os = oldState.get(n);
-			n.eastNorth = new EastNorth(os.x, os.y);
-			n.coor = new LatLon(os.lat, os.lon);
+			MoveCommand.OldState os = oldState.get(n);
+			n.eastNorth = os.eastNorth;
+			n.coor = os.latlon;
 			n.modified = os.modified;
 		}
 	}

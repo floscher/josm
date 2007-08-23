@@ -4,7 +4,6 @@ package org.openstreetmap.josm.command;
 import static org.openstreetmap.josm.tools.I18n.tr;
 import static org.openstreetmap.josm.tools.I18n.trn;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -46,13 +45,13 @@ public class MoveCommand extends Command {
 	/**
 	 * Small helper for holding the interesting part of the old data state of the
 	 * objects. 
-	 * @author imi
 	 */
-	class OldState
-	{
-		double x,y,lat,lon;
+	public static class OldState {
+		LatLon latlon;
+		EastNorth eastNorth;
 		boolean modified;
 	}
+	
 	/**
 	 * List of all old states of the objects.
 	 */
@@ -71,10 +70,8 @@ public class MoveCommand extends Command {
 		this.objects = AllNodesVisitor.getAllNodes(objects);
 		for (Node n : this.objects) {
 			OldState os = new OldState();
-			os.x = n.eastNorth.east();
-			os.y = n.eastNorth.north();
-			os.lat = n.coor.lat();
-			os.lon = n.coor.lon();
+			os.eastNorth = n.eastNorth;
+			os.latlon = n.coor;
 			os.modified = n.modified;
 			oldState.add(os);
 		}
@@ -109,8 +106,8 @@ public class MoveCommand extends Command {
 		Iterator<OldState> it = oldState.iterator();
 		for (Node n : objects) {
 			OldState os = it.next();
-			n.eastNorth = new EastNorth(os.x, os.y);
-			n.coor = new LatLon(os.lat, os.lon);
+			n.eastNorth = os.eastNorth;
+			n.coor = os.latlon;
 			n.modified = os.modified;
 		}
 	}

@@ -107,11 +107,6 @@ public class OsmDataLayer extends Layer {
 	 * Whether the data was modified due an upload of the data to the server.
 	 */
 	public boolean uploadedModified = false;
-	/**
-	 * Whether the data (or pieces of the data) was loaded from disk rather than from
-	 * the server directly. This affects the modified state.
-	 */
-	private boolean fromDisk = false;
 
 	public final LinkedList<ModifiedChangedListener> listenerModified = new LinkedList<ModifiedChangedListener>();
 
@@ -123,7 +118,6 @@ public class OsmDataLayer extends Layer {
 	public OsmDataLayer(final DataSet data, final String name, final File associatedFile) {
 		super(name);
 		this.data = data;
-		this.fromDisk = associatedFile != null;
 		this.associatedFile = associatedFile;
 	}
 
@@ -234,11 +228,11 @@ public class OsmDataLayer extends Layer {
 		}
 
 		// update the modified flag
-		if (fromDisk && processed != null && !dataAdded)
+		if (associatedFile != null && processed != null && !dataAdded)
 			return; // do nothing when uploading non-harmful changes.
 
 		// modified if server changed the data (esp. the id).
-		uploadedModified = fromDisk && processed != null && dataAdded;
+		uploadedModified = associatedFile != null && processed != null && dataAdded;
 		setModified(uploadedModified);
 	}
 
