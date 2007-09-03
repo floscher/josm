@@ -43,6 +43,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
+import javax.swing.JButton;
 import javax.swing.JViewport;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -160,7 +161,8 @@ public class GeoImageLayer extends Layer {
 	private boolean mousePressed = false;
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 	private MouseAdapter mouseAdapter;
-
+    private int currentImage;
+    
 	public static final class GpsTimeIncorrect extends Exception {
 		public GpsTimeIncorrect(String message, Throwable cause) {
 			super(message, cause);
@@ -214,7 +216,8 @@ public class GeoImageLayer extends Layer {
 					Point p = Main.map.mapView.getPoint(e.pos);
 					Rectangle r = new Rectangle(p.x-e.icon.getIconWidth()/2, p.y-e.icon.getIconHeight()/2, e.icon.getIconWidth(), e.icon.getIconHeight());
 					if (r.contains(ev.getPoint())) {
-						showImage(e);
+					    //						showImage(e);
+					    showImage(i-1);
 						break;
 					}
 				}
@@ -231,16 +234,31 @@ public class GeoImageLayer extends Layer {
 		});
 	}
 
-	private void showImage(final ImageEntry e) {
+    //	private void showImage(final ImageEntry e) {
+	private void showImage(int i) {
+	    currentImage = i;
 		final JPanel p = new JPanel(new BorderLayout());
+		final ImageEntry e = data.get(currentImage);
 		final JScrollPane scroll = new JScrollPane(new JLabel(loadScaledImage(e.image, 580)));
 		final JViewport vp = scroll.getViewport();
 		p.add(scroll, BorderLayout.CENTER);
 
 		final JToggleButton scale = new JToggleButton(ImageProvider.get("misc", "rectangle"));
+		final JButton next = new JButton(">>");
+		final JButton prev = new JButton("<<");
+		final JButton cent = new JButton("Centre");
+
 		JPanel p2 = new JPanel();
+		p2.add(prev);
 		p2.add(scale);
+		p2.add(cent);
+		p2.add(next);
+		prev.setEnabled(currentImage>0?true:false);
+		next.setEnabled(currentImage<data.size()-1?true:false);
 		p.add(p2, BorderLayout.SOUTH);
+		final JOptionPane pane = new JOptionPane(p, JOptionPane.PLAIN_MESSAGE);
+		//final JDialog dlg = pane.createDialog(Main.parent, e.image+" ("+e.coor.lat()+","+e.coor.lon()+")");
+		final JDialog dlg = pane.createDialog(Main.parent, e.image+" ("+e.coor.toDisplayString()+")");
 		scale.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent ev) {
 				p.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -252,8 +270,44 @@ public class GeoImageLayer extends Layer {
 			}
 		});
 		scale.setSelected(true);
-		JOptionPane pane = new JOptionPane(p, JOptionPane.PLAIN_MESSAGE);
-		JDialog dlg = pane.createDialog(Main.parent, e.image+" ("+e.coor.lat()+","+e.coor.lon()+")");
+		prev.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent ev) {
+				p.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				if(currentImage>0) currentImage--;
+				if(currentImage==0) prev.setEnabled(false);
+				next.setEnabled(true);
+				final ImageEntry e = data.get(currentImage);
+				if (scale.getModel().isSelected())
+					((JLabel)vp.getView()).setIcon(loadScaledImage(e.image, Math.max(vp.getWidth(), vp.getHeight())));
+				else
+					((JLabel)vp.getView()).setIcon(new ImageIcon(e.image.getPath()));
+				dlg.setTitle(e.image+" ("+e.coor.toDisplayString()+")");
+				//dlg.setTitle(e.image+" ("+e.coor.lat()+","+e.coor.lon()+")");
+				p.setCursor(Cursor.getDefaultCursor());
+			}
+		});
+		next.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent ev) {
+				p.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				if(currentImage<data.size()-1) currentImage++;
+				if(currentImage==data.size()-1) next.setEnabled(false);
+				prev.setEnabled(true);
+				final ImageEntry e = data.get(currentImage);
+				if (scale.getModel().isSelected())
+					((JLabel)vp.getView()).setIcon(loadScaledImage(e.image, Math.max(vp.getWidth(), vp.getHeight())));
+				else
+					((JLabel)vp.getView()).setIcon(new ImageIcon(e.image.getPath()));
+				dlg.setTitle(e.image+" (" + e.coor.toDisplayString() + ")");
+				p.setCursor(Cursor.getDefaultCursor());
+			}
+		});
+		cent.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent ev) {
+			    final ImageEntry e = data.get(currentImage);
+			    //Main.map.mapView.repaint();
+			    Main.map.mapView.zoomTo(e.pos, Main.map.mapView.getScale());
+			}
+		    });
 		dlg.setModal(false);
 		dlg.setVisible(true);
 	}

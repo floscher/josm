@@ -3,6 +3,7 @@ package org.openstreetmap.josm.data.coor;
 
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.projection.Projection;
+import java.text.NumberFormat;
 
 /**
  * LatLon are unprojected latitude / longitude coordinates.
@@ -49,8 +50,19 @@ public class LatLon extends Coordinate {
 	public boolean isWithin(Bounds b) {
 		return lat() >= b.min.lat() && lat() <= b.max.lat() && lon() > b.min.lon() && lon() < b.max.lon();
 	}
+
+	/**
+	 * Returns this lat/lon pair in human-readable format.
+	 * 
+	 * @return String in the format "lat=1.23456°, lon=2.34567°"
+	 */
+	public String toDisplayString() {
+		NumberFormat nf = NumberFormat.getInstance();
+		nf.setMaximumFractionDigits(5);
+		return "lat=" + nf.format(lat()) + "°, lon=" + nf.format(lon()) + "°";
+	}
 	
-    @Override public String toString() {
-        return "LatLon[lat="+lat()+",lon="+lon()+"]";
+	@Override public String toString() {
+		return "LatLon[lat="+lat()+",lon="+lon()+"]";
     }
 }
