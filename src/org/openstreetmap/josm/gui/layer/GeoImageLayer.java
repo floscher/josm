@@ -1,4 +1,4 @@
-// License: GPL. Copyright 2007 by Immanuel Scholz and others
+//License: GPL. Copyright 2007 by Immanuel Scholz and others
 package org.openstreetmap.josm.gui.layer;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
@@ -103,11 +103,11 @@ public class GeoImageLayer extends Layer {
 					if (p.time == null)
 						throw new IOException(tr("No time for point {0} x {1}",p.latlon.lat(),p.latlon.lon()));
 					Date d = null;
-                    try {
-                        d = DateParser.parse(p.time);
-                    } catch (ParseException e) {
-                    	throw new IOException(tr("Cannot read time \"{0}\" from point {1} x {2}",p.time,p.latlon.lat(),p.latlon.lon()));
-                    }
+					try {
+						d = DateParser.parse(p.time);
+					} catch (ParseException e) {
+						throw new IOException(tr("Cannot read time \"{0}\" from point {1} x {2}",p.time,p.latlon.lat(),p.latlon.lon()));
+					}
 					gps.add(new TimedPoint(d, p.eastNorth));
 				}
 			}
@@ -129,10 +129,10 @@ public class GeoImageLayer extends Layer {
 
 				ImageEntry e = new ImageEntry();
 				try {
-	                e.time = ExifReader.readTime(f);
-                } catch (ParseException e1) {
-                	continue;
-                }
+					e.time = ExifReader.readTime(f);
+				} catch (ParseException e1) {
+					continue;
+				}
 				if (e.time == null)
 					continue;
 				e.image = f;
@@ -162,8 +162,8 @@ public class GeoImageLayer extends Layer {
 	private boolean mousePressed = false;
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 	private MouseAdapter mouseAdapter;
-    private int currentImage;
-    
+	private int currentImage;
+
 	public static final class GpsTimeIncorrect extends Exception {
 		public GpsTimeIncorrect(String message, Throwable cause) {
 			super(message, cause);
@@ -217,8 +217,7 @@ public class GeoImageLayer extends Layer {
 					Point p = Main.map.mapView.getPoint(e.pos);
 					Rectangle r = new Rectangle(p.x-e.icon.getIconWidth()/2, p.y-e.icon.getIconHeight()/2, e.icon.getIconWidth(), e.icon.getIconHeight());
 					if (r.contains(ev.getPoint())) {
-					    //						showImage(e);
-					    showImage(i-1);
+						showImage(i-1);
 						break;
 					}
 				}
@@ -235,9 +234,8 @@ public class GeoImageLayer extends Layer {
 		});
 	}
 
-    //	private void showImage(final ImageEntry e) {
 	private void showImage(int i) {
-	    currentImage = i;
+		currentImage = i;
 		final JPanel p = new JPanel(new BorderLayout());
 		final ImageEntry e = data.get(currentImage);
 		final JScrollPane scroll = new JScrollPane(new JLabel(loadScaledImage(e.image, 580)));
@@ -272,36 +270,36 @@ public class GeoImageLayer extends Layer {
 		scale.setSelected(true);
 		cent.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent ev) {
-			    final ImageEntry e = data.get(currentImage);
-			    if (cent.getModel().isSelected())
-				Main.map.mapView.zoomTo(e.pos, Main.map.mapView.getScale());
+				final ImageEntry e = data.get(currentImage);
+				if (cent.getModel().isSelected())
+					Main.map.mapView.zoomTo(e.pos, Main.map.mapView.getScale());
 			}
-		    });
+		});
 
 		ActionListener nextprevAction = new ActionListener(){
 			public void actionPerformed(ActionEvent ev) {			    
-			    p.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			    if (ev.getActionCommand().equals("Next")) {
-				currentImage++; 
-				if(currentImage>=data.size()-1) next.setEnabled(false);
-				prev.setEnabled(true);
-			    } else {
-				currentImage--;
-				if(currentImage<=0) prev.setEnabled(false);
-				next.setEnabled(true);
-			    }
-			    
-			    final ImageEntry e = data.get(currentImage);
-			    if (scale.getModel().isSelected())
-				((JLabel)vp.getView()).setIcon(loadScaledImage(e.image, Math.max(vp.getWidth(), vp.getHeight())));
-			    else
-				((JLabel)vp.getView()).setIcon(new ImageIcon(e.image.getPath()));
-			    dlg.setTitle(e.image+" ("+e.coor.toDisplayString()+")");
-			    if (cent.getModel().isSelected())
-				Main.map.mapView.zoomTo(e.pos, Main.map.mapView.getScale());
-			    p.setCursor(Cursor.getDefaultCursor());
+				p.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				if (ev.getActionCommand().equals("Next")) {
+					currentImage++; 
+					if(currentImage>=data.size()-1) next.setEnabled(false);
+					prev.setEnabled(true);
+				} else {
+					currentImage--;
+					if(currentImage<=0) prev.setEnabled(false);
+					next.setEnabled(true);
+				}
+
+				final ImageEntry e = data.get(currentImage);
+				if (scale.getModel().isSelected())
+					((JLabel)vp.getView()).setIcon(loadScaledImage(e.image, Math.max(vp.getWidth(), vp.getHeight())));
+				else
+					((JLabel)vp.getView()).setIcon(new ImageIcon(e.image.getPath()));
+				dlg.setTitle(e.image+" ("+e.coor.toDisplayString()+")");
+				if (cent.getModel().isSelected())
+					Main.map.mapView.zoomTo(e.pos, Main.map.mapView.getScale());
+				p.setCursor(Cursor.getDefaultCursor());
 			}
-		    };
+		};
 		next.setActionCommand("Next");
 		prev.setActionCommand("Previous");
 		next.setMnemonic(KeyEvent.VK_RIGHT);
@@ -452,12 +450,12 @@ public class GeoImageLayer extends Layer {
 
 	private void sync(File f) {
 		Date exifDate;
-        try {
-	        exifDate = ExifReader.readTime(f);
-        } catch (ParseException e) {
-        	JOptionPane.showMessageDialog(Main.parent, tr("The date in file \"{0}\" could not be parsed.", f.getName()));
-        	return;
-        }
+		try {
+			exifDate = ExifReader.readTime(f);
+		} catch (ParseException e) {
+			JOptionPane.showMessageDialog(Main.parent, tr("The date in file \"{0}\" could not be parsed.", f.getName()));
+			return;
+		}
 		if (exifDate == null) {
 			JOptionPane.showMessageDialog(Main.parent, tr("There is no EXIF time within the file \"{0}\".", f.getName()));
 			return;
@@ -488,7 +486,7 @@ public class GeoImageLayer extends Layer {
 					time = "0";
 				gpstimezone = Long.valueOf(time)*60*60*1000;
 				Main.pref.put("tagimages.delta", ""+delta);
-                Main.pref.put("tagimages.gpstimezone", time);
+				Main.pref.put("tagimages.gpstimezone", time);
 				calculatePosition();
 				return;
 			} catch (NumberFormatException x) {

@@ -9,24 +9,26 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Collection;
+
+import javax.swing.JOptionPane;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.command.ChangeCommand;
+import org.openstreetmap.josm.command.Command;
+import org.openstreetmap.josm.command.SequenceCommand;
 import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Segment;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.osm.visitor.MergeVisitor;
 import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
-import javax.swing.JOptionPane;
-import org.openstreetmap.josm.command.ChangeCommand;
-import org.openstreetmap.josm.command.Command;
-import org.openstreetmap.josm.command.SequenceCommand;
-
-import uk.co.wilson.xml.MinML2;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * Capable of downloading ways without having to fully parse their segments.
@@ -79,7 +81,7 @@ public class IncompleteDownloader extends OsmServerReader {
 			Main.main.undoRedo.add(new SequenceCommand(tr("Fix data errors"), cmds));
 	}
 
-	private static class SegmentParser extends MinML2 {
+	private static class SegmentParser extends DefaultHandler {
 		public long from, to;
 		@Override public void startElement(String ns, String lname, String qname, Attributes a) {
 			if (qname.equals("segment")) {
@@ -132,7 +134,12 @@ public class IncompleteDownloader extends OsmServerReader {
 			for (String line = segReader.readLine(); line != null; line = segReader.readLine())
 				segBuilder.append(line+"\n");
 			SegmentParser segmentParser = new SegmentParser();
-			segmentParser.parse(new StringReader(segBuilder.toString()));
+			try {
+		        SAXParserFactory.newInstance().newSAXParser().parse(new InputSource(new StringReader(segBuilder.toString())), segmentParser);
+	        } catch (ParserConfigurationException e1) {
+	        	e1.printStackTrace(); // broken SAXException chaining
+	        	throw new SAXException(e1);
+	        }
 			if (segmentParser.from == 0 || segmentParser.to == 0)
 				throw new SAXException("Invalid segment response.");
 			if (!hasNode(segmentParser.from))

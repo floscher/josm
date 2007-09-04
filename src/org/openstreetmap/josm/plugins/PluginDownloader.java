@@ -64,7 +64,7 @@ public class PluginDownloader {
 		}
 	}
 
-	private static final Pattern wiki = Pattern.compile("^</td></tr><tr><td><a class=\"ext-link\" href=\"([^\"]*)\"><span class=\"icon\">([^<]*)</span></a></td><td>[^<]*</td><td>([^<]*)</td><td>(.*)");
+	private static final Pattern wiki = Pattern.compile("^</td></tr><tr><td><a class=\"ext-link\" href=\"([^\"]*)\"><span class=\"icon\">([^<]*)</span></a></td><td>([^<]*)</td><td>([^<].*)</td><td>(.*)");
 
 	public static int downloadDescription() {
 		int count = 0;
@@ -108,8 +108,9 @@ public class PluginDownloader {
 			b.append("  <plugin>\n");
 			b.append("    <name>"+escape(m.group(2))+"</name>\n");
 			b.append("    <resource>"+escape(m.group(1))+"</resource>\n");
-			b.append("    <description>"+escape(m.group(3))+"</description>\n");
-			b.append("    <version>"+escape(m.group(4))+"</version>\n");
+			b.append("    <author>"+escape(m.group(3))+"</author>\n");
+			b.append("    <description>"+escape(m.group(4))+"</description>\n");
+			b.append("    <version>"+escape(m.group(5))+"</version>\n");
 			b.append("  </plugin>\n");
 		}
 		b.append("</plugins>\n");

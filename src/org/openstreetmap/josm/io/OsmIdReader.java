@@ -10,17 +10,20 @@ import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
 
-import uk.co.wilson.xml.MinML2;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * Read only the ids and classes of an stream.
  * 
  * @author Imi
  */
-public class OsmIdReader extends MinML2 {
+public class OsmIdReader extends DefaultHandler {
 
 	private boolean cancel;
 	Map<Long, String> entries = new HashMap<Long, String>();
@@ -40,7 +43,12 @@ public class OsmIdReader extends MinML2 {
 	public Map<Long, String> parseIds(InputStream in) throws IOException, SAXException {
         this.in = new InputStreamReader(in, "UTF-8");
 		try {
-	        parse(this.in);
+	        SAXParserFactory.newInstance().newSAXParser().parse(new InputSource(this.in), this);
+        } catch (ParserConfigurationException e) {
+        	if (!cancel) {
+        		e.printStackTrace(); // broken SAXException chaining
+        		throw new SAXException(e);
+        	}
         } catch (SAXException e) {
         	if (!cancel)
         		throw e;

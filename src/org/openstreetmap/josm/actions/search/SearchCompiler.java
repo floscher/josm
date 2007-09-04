@@ -93,11 +93,18 @@ public class SearchCompiler {
 		@Override public boolean match(OsmPrimitive osm) {
 			if (osm.keys == null)
 				return s.equals("");
+			String search = caseSensitive ? s : s.toLowerCase();
 			for (Entry<String, String> e : osm.keys.entrySet()) {
 				String key = caseSensitive ? e.getKey() : e.getKey().toLowerCase();
 				String value = caseSensitive ? e.getValue() : e.getValue().toLowerCase();
-				String search = caseSensitive ? s : s.toLowerCase();
 				if (key.indexOf(search) != -1 || value.indexOf(search) != -1)
+					return true;
+			}
+			if (osm.user != null) {
+				String name = osm.user.name;
+				if (!caseSensitive)
+					name = name.toLowerCase();
+				if (name.indexOf(search) != -1)
 					return true;
 			}
 			return false;

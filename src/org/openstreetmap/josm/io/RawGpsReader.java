@@ -13,14 +13,17 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Stack;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
+
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.gui.layer.RawGpsLayer.GpsPoint;
 import org.openstreetmap.josm.gui.layer.markerlayer.Marker;
 import org.openstreetmap.josm.gui.layer.markerlayer.MarkerProducers;
 import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
-import uk.co.wilson.xml.MinML2;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * Read raw gps data from a gpx file. Only way points with their ways segments
@@ -45,7 +48,7 @@ public class RawGpsReader {
 	 */
 	public Collection<Marker> markerData = new ArrayList<Marker>();
 
-	private class Parser extends MinML2 {
+	private class Parser extends DefaultHandler {
 		/**
 		 * Current track to be read. The last entry is the current trkpt.
 		 * If in wpt-mode, it contain only one GpsPoint.
@@ -126,6 +129,12 @@ public class RawGpsReader {
 	public RawGpsReader(InputStream source, File relativeMarkerPath) throws SAXException, IOException {
 		this.relativeMarkerPath = relativeMarkerPath;
 		Parser parser = new Parser();
-		parser.parse(new InputStreamReader(source, "UTF-8"));
+		InputSource inputSource = new InputSource(new InputStreamReader(source, "UTF-8"));
+		try {
+			SAXParserFactory.newInstance().newSAXParser().parse(inputSource, parser);
+        } catch (ParserConfigurationException e) {
+        	e.printStackTrace(); // broken SAXException chaining
+        	throw new SAXException(e);
+        }
 	}
 }

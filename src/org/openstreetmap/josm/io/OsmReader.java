@@ -15,6 +15,9 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
+
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.Bounds;
 import org.openstreetmap.josm.data.coor.LatLon;
@@ -30,9 +33,9 @@ import org.openstreetmap.josm.data.osm.visitor.Visitor;
 import org.openstreetmap.josm.gui.PleaseWaitDialog;
 import org.openstreetmap.josm.tools.DateParser;
 import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
-import uk.co.wilson.xml.MinML2;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * Parser for the Osm Api. Read from an input stream and construct a dataset out of it.
@@ -102,7 +105,7 @@ public class OsmReader {
 	 */
 	private HashSet<String> allowedVersions = new HashSet<String>();
 
-	private class Parser extends MinML2 {
+	private class Parser extends DefaultHandler {
 		/**
 		 * The current osm primitive to be read.
 		 */
@@ -295,7 +298,13 @@ public class OsmReader {
 		osm.references = ref == null ? new DataSet() : ref;
 
 		// phase 1: Parse nodes and read in raw segments and ways
-		osm.new Parser().parse(new InputStreamReader(source, "UTF-8"));
+		InputSource inputSource = new InputSource(new InputStreamReader(source, "UTF-8"));
+		try {
+	        SAXParserFactory.newInstance().newSAXParser().parse(inputSource, osm.new Parser());
+        } catch (ParserConfigurationException e1) {
+        	e1.printStackTrace(); // broken SAXException chaining
+        	throw new SAXException(e1);
+        }
 		if (pleaseWaitDlg != null) {
 			pleaseWaitDlg.progress.setValue(0);
 			pleaseWaitDlg.currentAction.setText(tr("Preparing data..."));
