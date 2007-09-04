@@ -5,7 +5,6 @@
 	<classpathentry kind="src" path="test/unit"/>
 	<classpathentry excluding="build/|dist/|src/|test/" including="images/" kind="src" path=""/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/MinML2.jar"/>
 	<classpathentry kind="lib" path="lib/metadata-extractor-2.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/gettext-commons-0.9.jar" sourcepath="C:/Download/gettext-commons-0.9-src.zip"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
