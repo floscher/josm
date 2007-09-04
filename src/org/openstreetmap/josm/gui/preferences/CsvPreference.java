@@ -3,7 +3,6 @@ package org.openstreetmap.josm.gui.preferences;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
 
-import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
@@ -30,7 +29,6 @@ public class CsvPreference implements PreferenceSetting {
 
 		gui.connection.add(new JLabel(tr("CSV import specification (empty: read from first line in data)")), GBC.eol());
 		gui.connection.add(csvImportString, GBC.eop().fill(GBC.HORIZONTAL));
-		gui.connection.add(Box.createVerticalGlue(), GBC.eol().fill(GBC.VERTICAL));
     }
 
 	public void ok() {

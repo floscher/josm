@@ -13,10 +13,12 @@ import java.util.Stack;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
+import javax.xml.parsers.SAXParserFactory;
 
-import uk.co.wilson.xml.MinML2;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * An helper class that reads from a XML stream into specific objects.
@@ -46,7 +48,7 @@ public class XmlObjectParser implements Iterable<Object> {
 		}
 	}
 
-	private class Parser extends MinML2 {
+	private class Parser extends DefaultHandler {
 		Stack<Object> current = new Stack<Object>();
 		String characters = "";
 		@Override public void startElement(String ns, String lname, String qname, Attributes a) throws SAXException {
@@ -168,7 +170,7 @@ public class XmlObjectParser implements Iterable<Object> {
 		new Thread(){
 			@Override public void run() {
 				try {
-					parser.parse(in);
+			        SAXParserFactory.newInstance().newSAXParser().parse(new InputSource(in), parser);
 				} catch (Exception e) {
 					try {
 						queue.put(e);
