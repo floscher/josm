@@ -208,13 +208,13 @@ public class RelationEditor extends JFrame {
 		
 		JPanel buttonPanel = new JPanel(new GridLayout(1,3));
 		
-		buttonPanel.add(createButton(marktr("Add Selected"),tr("Add all currently selected objects as members"), KeyEvent.VK_A, new ActionListener() {
+		buttonPanel.add(createButton(marktr("Add Selected"),"addselected", tr("Add all currently selected objects as members"), KeyEvent.VK_A, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				addSelected();
 			}
 		}));
 
-		buttonPanel.add(createButton(marktr("Delete"),tr("Remove the member in the current table row from this relation"), KeyEvent.VK_D, new ActionListener() {
+		buttonPanel.add(createButton(marktr("Delete"),"delete", tr("Remove the member in the current table row from this relation"), KeyEvent.VK_D, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int row = memberTable.getSelectedRow();
 				RelationMember mem = new RelationMember();
@@ -225,7 +225,7 @@ public class RelationEditor extends JFrame {
 			}
 		}));
 
-		buttonPanel.add(createButton(marktr("Select"),tr("Highlight the member from the current table row as JOSM's selection"), KeyEvent.VK_S, new ActionListener() {
+		buttonPanel.add(createButton(marktr("Select"),"select", tr("Highlight the member from the current table row as JOSM's selection"), KeyEvent.VK_S, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int row = memberTable.getSelectedRow();
 				OsmPrimitive p = (OsmPrimitive) memberTable.getValueAt(row, 1);
@@ -260,8 +260,8 @@ public class RelationEditor extends JFrame {
 		}
 	}
 	
-	private JButton createButton(String name, String tooltip, int mnemonic, ActionListener actionListener) {
-		JButton b = new JButton(tr(name), ImageProvider.get("dialogs", name.toLowerCase()));
+	private JButton createButton(String name, String iconName, String tooltip, int mnemonic, ActionListener actionListener) {
+		JButton b = new JButton(tr(name), ImageProvider.get("dialogs", iconName));
 		b.setActionCommand(name);
 		b.addActionListener(actionListener);
 		b.setToolTipText(tooltip);
