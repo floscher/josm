@@ -167,19 +167,18 @@ public class NavigatableComponent extends JComponent implements Helpful {
 					lastN = n;
 					continue;
 				}
-				if (ignore != null && ignore.contains(new WaySegment(w, i))) {
-					continue;
-				}
-				Point A = getPoint(lastN.eastNorth);
-				Point B = getPoint(n.eastNorth);
-				double c = A.distanceSq(B);
-				double a = p.distanceSq(B);
-				double b = p.distanceSq(A);
-				double perDist = a-(a-b+c)*(a-b+c)/4/c; // perpendicular distance squared
-				if (perDist < 100 && minDistanceSq > perDist && a < c+100 && b < c+100) {
-					minDistanceSq = perDist;
-					minPrimitive = w;
-					minI = i;
+				if (ignore == null || !ignore.contains(new WaySegment(w, i))) {
+					Point A = getPoint(lastN.eastNorth);
+					Point B = getPoint(n.eastNorth);
+					double c = A.distanceSq(B);
+					double a = p.distanceSq(B);
+					double b = p.distanceSq(A);
+					double perDist = a-(a-b+c)*(a-b+c)/4/c; // perpendicular distance squared
+					if (perDist < 100 && minDistanceSq > perDist && a < c+100 && b < c+100) {
+						minDistanceSq = perDist;
+						minPrimitive = w;
+						minI = i;
+					}
 				}
 				lastN = n;
 			}
