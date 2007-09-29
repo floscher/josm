@@ -72,62 +72,26 @@ public class CombineWayAction extends JosmAction implements SelectionChangedList
 				props.get(e.getKey()).add(e.getValue());
 			}
 		}
-		
-		// Battle plan:
-		//  1. Split the ways into small chunks of 2 nodes and weed out
-		//	   duplicates.
-		//  2. Take a chunk and see if others could be appended or prepended,
-		//	   if so, do it and remove it from the list of remaining chunks.
-		//	   Rather, rinse, repeat.
-		//  3. If this algorithm does not produce a single way,
-		//     complain to the user.
-		//  4. Profit!
-		
-		HashSet<NodePair> chunkSet = new HashSet<NodePair>();
-		for (Way w : selectedWays) {
-			if (w.nodes.size() == 0) continue;
-			Node lastN = null;
-			for (Node n : w.nodes) {
-				if (lastN == null) {
-					lastN = n;
-					continue;
+
+		List<Node> nodeList = null;
+		Object firstTry = actuallyCombineWays(selectedWays, false);
+		if (firstTry instanceof List) {
+			nodeList = (List<Node>) firstTry;
+		} else {
+			Object secondTry = actuallyCombineWays(selectedWays, true);
+			if (secondTry instanceof List) {
+				int option = JOptionPane.showConfirmDialog(Main.parent,
+					tr("The ways can not be combined in their current directions.  "
+					+ "Do you want to reverse some of them?"), tr("Change directions?"),
+					JOptionPane.YES_NO_OPTION);
+				if (option != JOptionPane.YES_OPTION) {
+					return;
 				}
-				chunkSet.add(new NodePair(lastN, n));
-				lastN = n;
+				nodeList = (List<Node>) secondTry;
+			} else {
+				JOptionPane.showMessageDialog(Main.parent, (String) secondTry);
+				return;
 			}
-		}
-		LinkedList<NodePair> chunks = new LinkedList<NodePair>(chunkSet);
-
-		if (chunks.isEmpty()) {
-			JOptionPane.showMessageDialog(Main.parent, tr("All the ways were empty"));
-			return;
-		}
-
-		List<Node> nodeList = chunks.poll().toArrayList();
-		while (!chunks.isEmpty()) {
-			ListIterator<NodePair> it = chunks.listIterator();
-			boolean foundChunk = false;
-			while (it.hasNext()) {
-				NodePair curChunk = it.next();
-				if (curChunk.a == nodeList.get(nodeList.size() - 1)) { // append
-					nodeList.add(curChunk.b);
-					foundChunk = true;
-				} else if (curChunk.b == nodeList.get(0)) { // prepend
-					nodeList.add(0, curChunk.a);
-					foundChunk = true;
-				}
-				if (foundChunk) {
-					it.remove();
-					break;
-				}
-			}
-			if (!foundChunk) break;
-		}
-
-		if (!chunks.isEmpty()) {
-			JOptionPane.showMessageDialog(Main.parent,
-				tr("Could not combine ways (Hint: ways have to point into the same direction)"));
-			return;
 		}
 
 		Way newWay = new Way(selectedWays.get(0));
@@ -161,6 +125,78 @@ public class CombineWayAction extends JosmAction implements SelectionChangedList
 		cmds.add(new ChangeCommand(selectedWays.peek(), newWay));
 		Main.main.undoRedo.add(new SequenceCommand(tr("Combine {0} ways", selectedWays.size()), cmds));
 		Main.ds.setSelected(selectedWays.peek());
+	}
+
+	/**
+	 * @return a message if combining failed, else a list of nodes.
+	 */
+	private Object actuallyCombineWays(List<Way> ways, boolean ignoreDirection) {
+		// Battle plan:
+		//  1. Split the ways into small chunks of 2 nodes and weed out
+		//	   duplicates.
+		//  2. Take a chunk and see if others could be appended or prepended,
+		//	   if so, do it and remove it from the list of remaining chunks.
+		//	   Rather, rinse, repeat.
+		//  3. If this algorithm does not produce a single way,
+		//     complain to the user.
+		//  4. Profit!
+		
+		HashSet<NodePair> chunkSet = new HashSet<NodePair>();
+		for (Way w : ways) {
+			if (w.nodes.size() == 0) continue;
+			Node lastN = null;
+			for (Node n : w.nodes) {
+				if (lastN == null) {
+					lastN = n;
+					continue;
+				}
+
+				NodePair np = new NodePair(lastN, n);
+				if (ignoreDirection) {
+					np.sort();
+				}
+				chunkSet.add(np);
+
+				lastN = n;
+			}
+		}
+		LinkedList<NodePair> chunks = new LinkedList<NodePair>(chunkSet);
+
+		if (chunks.isEmpty()) {
+			return tr("All the ways were empty");
+		}
+
+		List<Node> nodeList = chunks.poll().toArrayList();
+		while (!chunks.isEmpty()) {
+			ListIterator<NodePair> it = chunks.listIterator();
+			boolean foundChunk = false;
+			while (it.hasNext()) {
+				NodePair curChunk = it.next();
+				if (curChunk.a == nodeList.get(nodeList.size() - 1)) { // append
+					nodeList.add(curChunk.b);
+				} else if (curChunk.b == nodeList.get(0)) { // prepend
+					nodeList.add(0, curChunk.a);
+				} else if (ignoreDirection && curChunk.b == nodeList.get(nodeList.size() - 1)) { // append
+					nodeList.add(curChunk.a);
+				} else if (ignoreDirection && curChunk.a == nodeList.get(0)) { // prepend
+					nodeList.add(0, curChunk.b);
+				} else {
+					continue;
+				}
+
+				foundChunk = true;
+				it.remove();
+				break;
+			}
+			if (!foundChunk) break;
+		}
+
+		if (!chunks.isEmpty()) {
+			return tr("Could not combine ways "
+				+ "(They could not be merged into a single string of nodes)");
+		} else {
+			return nodeList;
+		}
 	}
 
 	/**

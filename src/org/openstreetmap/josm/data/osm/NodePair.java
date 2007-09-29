@@ -29,4 +29,12 @@ public final class NodePair {
 		l.add(b);
 		return l;
 	}
+
+	public void sort() {
+		if (b.hashCode() < a.hashCode()) {
+			Node tmp = a;
+			a = b;
+			b = tmp;
+		}
+	}
 }
