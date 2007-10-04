@@ -3,8 +3,10 @@ package org.openstreetmap.josm.data.osm.visitor;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 
 import org.openstreetmap.josm.Main;
@@ -40,17 +42,47 @@ public class SimplePaintVisitor implements Visitor {
 	public boolean inactive;
 
 	protected static final double PHI = Math.toRadians(20);
+	
+	/**
+	 * Preferences
+	*/
+	protected Color inactiveColor;
+	protected Color selectedColor;
+	protected Color nodeColor;
+	protected Color dfltWayColor;
+	protected Color incompleteColor;
+	protected Color backgroundColor;
+	protected boolean showDirectionArrow;
+	protected boolean showOrderNumber;
+	
+	/**
+	 * Draw subsequent segments of same color as one Path
+	 */
+	protected Color currentColor = null;
+	protected GeneralPath currentPath = new GeneralPath();
 
 	public void visitAll(DataSet data) {
+		
+		inactiveColor = getPreferencesColor("inactive", Color.DARK_GRAY);
+		selectedColor = getPreferencesColor("selected", Color.WHITE);
+		nodeColor = getPreferencesColor("node", Color.RED);
+		dfltWayColor = getPreferencesColor("way", darkblue);
+		incompleteColor = getPreferencesColor("incomplete way", darkerblue);
+		backgroundColor = getPreferencesColor("background", Color.BLACK);
+		showDirectionArrow = Main.pref.getBoolean("draw.segment.direction");
+		showOrderNumber = Main.pref.getBoolean("draw.segment.order_number");
+		
 		for (final OsmPrimitive osm : data.ways)
 			if (!osm.deleted && !osm.selected)
 				osm.visit(this);
+		displaySegments(null);
 		for (final OsmPrimitive osm : data.nodes)
 			if (!osm.deleted && !osm.selected)
 				osm.visit(this);
 		for (final OsmPrimitive osm : data.getSelected())
 			if (!osm.deleted)
 				osm.visit(this);
+		displaySegments(null);
 	}
 
 	/**
@@ -62,11 +94,11 @@ public class SimplePaintVisitor implements Visitor {
 	public void visit(Node n) {
 		Color color = null;
 		if (inactive)
-			color = getPreferencesColor("inactive", Color.DARK_GRAY);
+			color = inactiveColor;
 		else if (n.selected)
-			color = getPreferencesColor("selected", Color.WHITE);
+			color = selectedColor;
 		else
-			color = getPreferencesColor("node", Color.RED);
+			color = nodeColor;
 		drawNode(n, color);
 	}
 
@@ -77,13 +109,11 @@ public class SimplePaintVisitor implements Visitor {
 	public void visit(Way w) {
 		Color wayColor;
 		if (inactive)
-			wayColor = getPreferencesColor("inactive", Color.DARK_GRAY);
+			wayColor = inactiveColor;
 		else {
-			wayColor = getPreferencesColor("way", darkblue);
+			wayColor = dfltWayColor;
 		}
 
-		boolean showDirectionArrow = Main.pref.getBoolean("draw.segment.direction");
-		boolean showOrderNumber = Main.pref.getBoolean("draw.segment.order_number");
 		int orderNumber = 0;
 		Node lastN = null;
 		for (Node n : w.nodes) {
@@ -92,7 +122,7 @@ public class SimplePaintVisitor implements Visitor {
 				continue;
 			}
 			orderNumber++;
-			drawSegment(lastN, n, w.selected && !inactive ? getPreferencesColor("selected", Color.WHITE) : wayColor, showDirectionArrow);
+			drawSegment(lastN, n, w.selected && !inactive ? selectedColor : wayColor, showDirectionArrow);
 			if (showOrderNumber)
 				drawOrderNumber(lastN, n, orderNumber);
 			lastN = n;
@@ -100,8 +130,9 @@ public class SimplePaintVisitor implements Visitor {
 	}
 
 	public void visit(Relation e) {
-		// relations are not drawn.
+		// relations are not (yet?) drawn.
 	}
+	
 	/**
 	 * Draw an number of the order of the two consecutive nodes within the
 	 * parents way
@@ -116,7 +147,7 @@ public class SimplePaintVisitor implements Visitor {
 		Rectangle screen = g.getClipBounds();
 		if (screen.contains(x,y)) {
 			Color c = g.getColor();
-			g.setColor(getPreferencesColor("background", Color.BLACK));
+			g.setColor(backgroundColor);
 			g.fillRect(x-1, y-12, 8*strlen+1, 14);
 			g.setColor(c);
 			g.drawString(""+orderNumber, x, y);
@@ -134,7 +165,7 @@ public class SimplePaintVisitor implements Visitor {
 		g.setColor(color);
 		Rectangle screen = g.getClipBounds();
 
-		if ( screen.contains(p.x, p.y) )
+		if (screen.contains(p.x, p.y))
 			g.drawRect(p.x-1, p.y-1, 2, 2);
 	}
 
@@ -151,11 +182,14 @@ public class SimplePaintVisitor implements Visitor {
 		if (screen.contains(p1.x, p1.y, p2.x, p2.y) || screen.intersectsLine(line))
 		{
 			g.drawLine(p1.x, p1.y, p2.x, p2.y);
-	
+			currentPath.moveTo(p1.x, p1.y);
+			currentPath.lineTo(p2.x, p2.y);
+			
 			if (showDirection) {
 				double t = Math.atan2(p2.y-p1.y, p2.x-p1.x) + Math.PI;
-		        g.drawLine(p2.x,p2.y, (int)(p2.x + 10*Math.cos(t-PHI)), (int)(p2.y + 10*Math.sin(t-PHI)));
-		        g.drawLine(p2.x,p2.y, (int)(p2.x + 10*Math.cos(t+PHI)), (int)(p2.y + 10*Math.sin(t+PHI)));
+				currentPath.lineTo((int)(p2.x + 10*Math.cos(t-PHI)), (int)(p2.y + 10*Math.sin(t-PHI)));
+				currentPath.moveTo((int)(p2.x + 10*Math.cos(t+PHI)), (int)(p2.y + 10*Math.sin(t+PHI)));
+				currentPath.lineTo(p2.x, p2.y);  
 			}
 		}
 	}
@@ -168,8 +202,7 @@ public class SimplePaintVisitor implements Visitor {
 		}
 		return ColorHelper.html2color(colStr);
 	}
-
-
+	
 	public void setGraphics(Graphics g) {
     	this.g = g;
     }
@@ -177,4 +210,13 @@ public class SimplePaintVisitor implements Visitor {
 	public void setNavigatableComponent(NavigatableComponent nc) {
     	this.nc = nc;
     }
+
+	protected void displaySegments(Color newColor) {
+		if (currentPath != null) {
+			g.setColor(currentColor);
+			((Graphics2D) g).draw(currentPath);
+			currentPath = new GeneralPath();
+			currentColor = newColor;
+		}
+	}
 }
