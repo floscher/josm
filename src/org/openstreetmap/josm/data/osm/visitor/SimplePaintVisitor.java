@@ -173,7 +173,11 @@ public class SimplePaintVisitor implements Visitor {
 	 * Draw a line with the given color.
 	 */
 	protected void drawSegment(Node n1, Node n2, Color col, boolean showDirection) {
-		g.setColor(col);
+
+		if (col != currentColor) {
+			displaySegments(col);
+		}
+		
 		Point p1 = nc.getPoint(n1.eastNorth);
 		Point p2 = nc.getPoint(n2.eastNorth);
 		
@@ -181,7 +185,6 @@ public class SimplePaintVisitor implements Visitor {
 		Line2D line = new Line2D.Double(p1.x, p1.y, p2.x, p2.y);
 		if (screen.contains(p1.x, p1.y, p2.x, p2.y) || screen.intersectsLine(line))
 		{
-			g.drawLine(p1.x, p1.y, p2.x, p2.y);
 			currentPath.moveTo(p1.x, p1.y);
 			currentPath.lineTo(p2.x, p2.y);
 			
