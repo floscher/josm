@@ -56,7 +56,7 @@ public class Base64 implements BinaryEncoder, BinaryDecoder {
     private static final int DEFAULT_BUFFER_SIZE = 8192;
 
     /**
-     * Chunk size per RFC 2045 section 6.8.
+     *  MIME chunk size per RFC 2045 section 6.8.
      * 
      * <p>
      * The {@value} character limit does not count the trailing CRLF, but counts all other characters, including any
@@ -65,7 +65,19 @@ public class Base64 implements BinaryEncoder, BinaryDecoder {
      * 
      * @see <a href="http://www.ietf.org/rfc/rfc2045.txt">RFC 2045 section 6.8</a>
      */
-    static final int CHUNK_SIZE = 76;
+    public static final int MIME_CHUNK_SIZE = 76;
+
+    /**
+     * PEM chunk size per RFC 1421 section 4.3.2.4.
+     * 
+     * <p>
+     * The {@value} character limit does not count the trailing CRLF, but counts all other characters, including any
+     * equal signs.
+     * </p>
+     * 
+     * @see <a href="http://tools.ietf.org/html/rfc1421">RFC 1421 section 4.3.2.4</a>
+     */
+    public static final int PEM_CHUNK_SIZE = 64;
 
     /**
      * Chunk separator per RFC 2045 section 2.1.
@@ -214,7 +226,7 @@ public class Base64 implements BinaryEncoder, BinaryDecoder {
     /**
      * Creates a Base64 codec used for decoding (all modes) and encoding in URL-unsafe mode.
      * <p>
-     * When encoding the line length is 76, the line separator is CRLF, and the encoding table is STANDARD_ENCODE_TABLE.
+     * When encoding the line length is 0 (no chunking), and the encoding table is STANDARD_ENCODE_TABLE.
      * </p>
      * 
      * <p>
@@ -222,7 +234,7 @@ public class Base64 implements BinaryEncoder, BinaryDecoder {
      * </p>
      */
     public Base64() {
-        this(false);
+        this(0);
     }
 
     /**
@@ -241,7 +253,7 @@ public class Base64 implements BinaryEncoder, BinaryDecoder {
      * @since 1.4
      */
     public Base64(boolean urlSafe) {
-        this(CHUNK_SIZE, CHUNK_SEPARATOR, urlSafe);
+        this(MIME_CHUNK_SIZE, CHUNK_SEPARATOR, urlSafe);
     }
 
     /**
@@ -806,7 +818,7 @@ public class Base64 implements BinaryEncoder, BinaryDecoder {
             return binaryData;
         }
 
-        long len = getEncodeLength(binaryData, CHUNK_SIZE, CHUNK_SEPARATOR);
+        long len = getEncodeLength(binaryData, MIME_CHUNK_SIZE, CHUNK_SEPARATOR);
         if (len > maxResultSize) {
             throw new IllegalArgumentException("Input array too big, the output array would be bigger (" +
                 len +
