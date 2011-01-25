@@ -590,6 +590,20 @@ public class Base64 implements BinaryEncoder, BinaryDecoder {
     }
 
     /**
+     * Tests a given String to see if it contains only valid characters within the Base64 alphabet. Currently the
+     * method treats whitespace as valid.
+     * 
+     * @param base64
+     *            String to test
+     * @return <code>true</code> if all characters in the String are valid characters in the Base64 alphabet or if
+     *         the String is empty; <code>false</code>, otherwise
+     *  @since 1.5
+     */
+    public static boolean isBase64(String base64) {
+        return isArrayByteBase64(StringUtils.getBytesUtf8(base64));
+    }
+
+    /**
      * Tests a given byte array to see if it contains only valid characters within the Base64 alphabet. Currently the
      * method treats whitespace as valid.
      * 
@@ -606,7 +620,7 @@ public class Base64 implements BinaryEncoder, BinaryDecoder {
         }
         return true;
     }
-
+    
     /**
      * Tests a given byte array to see if it contains only valid characters within the Base64 alphabet.
      * 
@@ -635,12 +649,15 @@ public class Base64 implements BinaryEncoder, BinaryDecoder {
     }
 
     /**
-     * Encodes binary data using the base64 algorithm into 76 character blocks separated by CRLF.
+     * Encodes binary data using the base64 algorithm but does not chunk the output.
      *
+     * NOTE:  We changed the behaviour of this method from multi-line chunking (commons-codec-1.4) to
+     * single-line non-chunking (commons-codec-1.5). 
+     * 
      * @param binaryData
      *            binary data to encode
      * @return String containing Base64 characters.
-     * @since 1.4
+     * @since 1.4 (NOTE:  1.4 chunked the output, whereas 1.5 does not).
      */    
     public static String encodeBase64String(byte[] binaryData) {
         return StringUtils.newStringUtf8(encodeBase64(binaryData, false));
