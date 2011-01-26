@@ -264,19 +264,16 @@ public class ColognePhonetic implements StringEncoder {
             new char[] { '\u00DF', 'S' }      // ß
     };
 
-    public Object encode(Object object) throws EncoderException {
-        if (!(object instanceof String)) {
-            throw new EncoderException(
-                    "This method’s parameter was expected to be of the type "
-                            + String.class.getName()
-                            + ". But actually it was of the type "
-                            + object.getClass().getName() + ".");
+    /*
+     * Returns whether the array contains the key, or not.
+     */
+    private static boolean arrayContains(char[] arr, char key) {
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] == key) {
+                return true;
+            }
         }
-        return encode((String) object);
-    }
-
-    public String encode(String text) {
-        return colognePhonetic(text);
+        return false;
     }
 
     /**
@@ -298,7 +295,7 @@ public class ColognePhonetic implements StringEncoder {
             return null;
         }
 
-        text = preProcess(text);
+        text = preprocess(text);
 
         CologneLeftBuffer left = new CologneLeftBuffer(text.length() * 2);
         CologneRightBuffer right = new CologneRightBuffer(text.toCharArray());
@@ -385,23 +382,30 @@ public class ColognePhonetic implements StringEncoder {
         return left.toString();
     }
 
-    /*
-     * Returns whether the array contains the key, or not.
-     */
-    private static boolean arrayContains(char[] arr, char key) {
-        for (int i = 0; i < arr.length; i++) {
-            if (arr[i] == key) {
-                return true;
-            }
+    public Object encode(Object object) throws EncoderException {
+        if (!(object instanceof String)) {
+            throw new EncoderException(
+                    "This method’s parameter was expected to be of the type "
+                            + String.class.getName()
+                            + ". But actually it was of the type "
+                            + object.getClass().getName() + ".");
         }
-        return false;
+        return encode((String) object);
+    }
+
+    public String encode(String text) {
+        return colognePhonetic(text);
+    }
+
+    public boolean isCologneEqual(String text1, String text2) {
+        return colognePhonetic(text1).equals(colognePhonetic(text2));
     }
 
     /*
      * Converts the string to upper case and replaces germanic umlauts, and the
      * “ß”.
      */
-    private String preProcess(String text) {
+    private String preprocess(String text) {
         text = text.toUpperCase(Locale.GERMAN);
 
         char[] chrs = text.toCharArray();
@@ -420,9 +424,5 @@ public class ColognePhonetic implements StringEncoder {
         text = new String(chrs);
 
         return text;
-    }
-
-    public boolean isCologneEqual(String text1, String text2) {
-        return colognePhonetic(text1).equals(colognePhonetic(text2));
     }
 }
