@@ -26,8 +26,10 @@ import org.apache.commons.codec.EncoderException;
 /**
  * Implements common Base-N codec functions.
  * 
+ * <p>
  * This class is not thread-safe.
  * Each thread should use its own instance.
+ * </p>
  */
 public abstract class BaseNCodec implements BinaryEncoder, BinaryDecoder {
 
@@ -69,7 +71,9 @@ public abstract class BaseNCodec implements BinaryEncoder, BinaryDecoder {
     /**
      * Byte used to pad output.
      */
-    protected final byte PAD = '='; // instance variable just in case it needs to vary later
+    protected static final byte PAD_DEFAULT = '='; // Allow static access to default
+    
+    protected final byte PAD = PAD_DEFAULT; // instance variable just in case it needs to vary later
 
     /** Number of bytes in each full block of unencoded data, e.g. 4 for Base64 and 5 for Base32 */
     private final int unencodedBlockSize;
@@ -111,12 +115,6 @@ public abstract class BaseNCodec implements BinaryEncoder, BinaryDecoder {
     protected boolean eof;
 
     /**
-     * Place holder for the bytes we're dealing with for our based logic. 
-     * Bitwise operations store and extract the encoding or decoding from this variable.
-     */
-    protected long bitWorkArea;
-
-    /**
      * Variable tracks how many characters have been written to the current line. Only used when encoding. We use it to
      * make sure each encoded line never goes beyond lineLength (if lineLength > 0).
      */
@@ -129,7 +127,8 @@ public abstract class BaseNCodec implements BinaryEncoder, BinaryDecoder {
     protected int modulus;
 
     /**
-     * Note <code>lineLength</code> is rounded down to the nearest multiple of {@link encodedBlockSize}
+     * Note <code>lineLength</code> is rounded down to the nearest multiple of {@link #encodedBlockSize}
+     * If <code>chunkSeparatorLength</code> is zero, then chunking is disabled.
      * @param unencodedBlockSize the size of an unencoded block (e.g. Base64 = 3)
      * @param encodedBlockSize the size of an encoded block (e.g. Base64 = 4)
      * @param lineLength if &gt; 0, use chunking with a length <code>lineLength</code>
