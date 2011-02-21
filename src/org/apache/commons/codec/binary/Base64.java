@@ -679,33 +679,6 @@ public class Base64 extends BaseNCodec {
         return new Base64().decode(base64Data);
     }
 
-    /**
-     * Discards any whitespace from a base-64 encoded block.
-     * 
-     * @param data
-     *            The base-64 encoded data to discard the whitespace from.
-     * @return The data, less whitespace (see RFC 2045).
-     * @deprecated This method is no longer needed
-     */
-    static byte[] discardWhitespace(byte[] data) {
-        byte groomedData[] = new byte[data.length];
-        int bytesCopied = 0;
-        for (int i = 0; i < data.length; i++) {
-            switch (data[i]) {
-                case ' ' :
-                case '\n' :
-                case '\r' :
-                case '\t' :
-                    break;
-                default :
-                    groomedData[bytesCopied++] = data[i];
-            }
-        }
-        byte packedData[] = new byte[bytesCopied];
-        System.arraycopy(groomedData, 0, packedData, 0, bytesCopied);
-        return packedData;
-    }
-
     // Implementation of the Encoder Interface
 
     // Implementation of integer encoding used for crypto
@@ -777,7 +750,7 @@ public class Base64 extends BaseNCodec {
      * @return <code>true</code> if the value is defined in the the Base32 alphabet <code>false</code> otherwise.
      */
     protected boolean isInAlphabet(byte octet) {
-        return (octet >= 0 && octet < decodeTable.length && decodeTable[octet] != -1);
+        return octet >= 0 && octet < decodeTable.length && decodeTable[octet] != -1;
     }
 
 }
