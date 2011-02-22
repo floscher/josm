@@ -39,7 +39,7 @@ import org.apache.commons.codec.StringEncoder;
  * 
  * <li>
  * <h3>First step:</h3>
- * After a preprocessing (convertion to upper case, transcription of <a
+ * After preprocessing (convertion to upper case, transcription of <a
  * href="http://en.wikipedia.org/wiki/Germanic_umlaut">germanic umlauts</a>, removal of non alphabetical characters) the
  * letters of the supplied text are replaced by their phonetic code according to the folowing table.
  * <table border="1">
@@ -159,7 +159,7 @@ import org.apache.commons.codec.StringEncoder;
  * 
  * <li>
  * <h3>Second step:</h3>
- * Removal of all doubly codes.
+ * Removal of all double codes.
  * <h4>Example:</h4>
  * {@code "6005507500206880022" => "6050750206802"}</li>
  * 
@@ -318,7 +318,7 @@ public class ColognePhonetic implements StringEncoder {
                 nextChar = '-';
             }
 
-            if (arrayContains(new char[] { 'E', 'I', 'A', 'U', 'O', 'Y' }, chr)) {
+            if (arrayContains(new char[] { 'A', 'E', 'I', 'J', 'O', 'U', 'Y' }, chr)) {
                 code = '0';
             } else if (chr == 'H' || chr < 'A' || chr > 'Z') {
                 if (lastCode == '/') {
@@ -341,7 +341,7 @@ public class ColognePhonetic implements StringEncoder {
                 code = '8';
             } else if (chr == 'C') {
                 if (lastCode == '/') {
-                    if (arrayContains(new char[] { 'A', 'H', 'L', 'O', 'R', 'U', 'K', 'X', 'Q' }, nextChar)) {
+                    if (arrayContains(new char[] { 'A', 'H', 'K', 'L', 'O', 'Q', 'R', 'U', 'X' }, nextChar)) {
                         code = '4';
                     } else {
                         code = '8';
