@@ -220,9 +220,9 @@ public class ColognePhonetic implements StringEncoder {
         }
 
         protected char[] copyData(int start, final int length) {
-            char[] retData = new char[length];
-            System.arraycopy(data, start, retData, 0, length);
-            return retData;
+            char[] newData = new char[length];
+            System.arraycopy(data, start, newData, 0, length);
+            return newData;
         }
     }
 
@@ -258,7 +258,7 @@ public class ColognePhonetic implements StringEncoder {
         }
     }
 
-    private static final char[][] PRE_REPLACEMENTS = new char[][] {
+    private static final char[][] PREPROCESS_MAP = new char[][] {
             { '\u00C4', 'A' },     // Ä
             { '\u00DC', 'U' },     // Ü
             { '\u00D6', 'O' },     // Ö
@@ -405,9 +405,9 @@ public class ColognePhonetic implements StringEncoder {
 
         for (int index = 0; index < chrs.length; index++) {
             if (chrs[index] > 'Z') {
-                for (int replacement = 0; replacement < PRE_REPLACEMENTS.length; replacement++) {
-                    if (chrs[index] == PRE_REPLACEMENTS[replacement][0]) {
-                        chrs[index] = PRE_REPLACEMENTS[replacement][1];
+                for (int replacement = 0; replacement < PREPROCESS_MAP.length; replacement++) {
+                    if (chrs[index] == PREPROCESS_MAP[replacement][0]) {
+                        chrs[index] = PREPROCESS_MAP[replacement][1];
                         break;
                     }
                 }
