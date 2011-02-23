@@ -159,13 +159,14 @@ import org.apache.commons.codec.StringEncoder;
  * 
  * <li>
  * <h3>Second step:</h3>
- * Removal of all double codes.
+ * Collapse of all multiple consecutive code digits.
  * <h4>Example:</h4>
  * {@code "6005507500206880022" => "6050750206802"}</li>
  * 
  * <li>
  * <h3>Third step:</h3>
- * Removal of all codes “0” except at the beginning
+ * Removal of all codes “0” except at the beginning. This means that two or more identical consecutive digits can occur
+ *  if they occur after removing the "0" digits.
  * 
  * <h4>Example:</h4>
  * {@code "6050750206802" => "65752682"}</li>
@@ -207,9 +208,9 @@ public class ColognePhonetic implements StringEncoder {
         }
     }
 
-    private class CologneLeftBuffer extends CologneBuffer {
+    private class CologneOutputBuffer extends CologneBuffer {
 
-        public CologneLeftBuffer(int buffSize) {
+        public CologneOutputBuffer(int buffSize) {
             super(buffSize);
         }
 
@@ -225,9 +226,9 @@ public class ColognePhonetic implements StringEncoder {
         }
     }
 
-    private class CologneRightBuffer extends CologneBuffer {
+    private class CologneInputBuffer extends CologneBuffer {
 
-        public CologneRightBuffer(char[] data) {
+        public CologneInputBuffer(char[] data) {
             super(data);
         }
 
@@ -297,8 +298,8 @@ public class ColognePhonetic implements StringEncoder {
 
         text = preprocess(text);
 
-        CologneLeftBuffer left = new CologneLeftBuffer(text.length() * 2);
-        CologneRightBuffer right = new CologneRightBuffer(text.toCharArray());
+        CologneOutputBuffer output = new CologneOutputBuffer(text.length() * 2);
+        CologneInputBuffer input = new CologneInputBuffer(text.toCharArray());
 
         char nextChar;
 
@@ -307,13 +308,13 @@ public class ColognePhonetic implements StringEncoder {
         char code;
         char chr;
 
-        int rightLength = right.length();
+        int rightLength = input.length();
 
         while (rightLength > 0) {
-            chr = right.removeNext();
+            chr = input.removeNext();
 
-            if ((rightLength = right.length()) > 0) {
-                nextChar = right.getNextChar();
+            if ((rightLength = input.length()) > 0) {
+                nextChar = input.getNextChar();
             } else {
                 nextChar = '-';
             }
@@ -335,7 +336,7 @@ public class ColognePhonetic implements StringEncoder {
                 code = '4';
             } else if (chr == 'X' && !arrayContains(new char[] { 'C', 'K', 'Q' }, lastChar)) {
                 code = '4';
-                right.addLeft('S');
+                input.addLeft('S');
                 rightLength++;
             } else if (chr == 'S' || chr == 'Z') {
                 code = '8';
@@ -367,13 +368,13 @@ public class ColognePhonetic implements StringEncoder {
             }
 
             if (code != '-' && (lastCode != code && (code != '0' || lastCode == '/') || code < '0' || code > '8')) {
-                left.addRight(code);
+                output.addRight(code);
             }
 
             lastChar = chr;
             lastCode = code;
         }
-        return left.toString();
+        return output.toString();
     }
 
     public Object encode(Object object) throws EncoderException {
@@ -389,7 +390,7 @@ public class ColognePhonetic implements StringEncoder {
         return colognePhonetic(text);
     }
 
-    public boolean isCologneEqual(String text1, String text2) {
+    public boolean isEncodeEqual(String text1, String text2) {
         return colognePhonetic(text1).equals(colognePhonetic(text2));
     }
 
