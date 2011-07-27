@@ -30,7 +30,7 @@ import java.util.Set;
 
 /**
  * <p>
- * Conversion of words into potential phonetic representations.
+ * Converts words into potential phonetic representations.
  * </p>
  * <p>
  * This is a two-stage process. Firstly, the word is converted into a phonetic representation that takes into account the likely source
@@ -358,13 +358,17 @@ public class PhoneticEngine {
         return result;
     }
 
+    /**
+     * Tests for compatible language rules to do so, apply the rule, expand the results, and detect alternatives with incompatible
+     * attributes then drop each alternative that has incompatible attributes and keep those that are compatible if there are no compatible
+     * alternatives left, return false otherwise return the compatible alternatives
+     * 
+     * @param phonetic
+     * @param target
+     * @param languageArg
+     * @return a String or null.
+     */
     private String applyRuleIfCompatible(String phonetic, String target, Set<String> languageArg) {
-        // tests for compatible language rules
-        // to do so, apply the rule, expand the results, and detect alternatives with incompatible attributes
-        // then drop each alternative that has incompatible attributes and keep those that are compatible
-        // if there are no compatible alternatives left, return false
-        // otherwise return the compatible alternatives
-
         String candidate = phonetic + target;
         if (!candidate.contains("[")) {
             return candidate;
