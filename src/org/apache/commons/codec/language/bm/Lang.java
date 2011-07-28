@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -198,9 +198,9 @@ public class Lang {
      * @return the language that the word originates from or {@link Languages#ANY} if there was no unique match
      */
     public String guessLanguage(String text) {
-        Set<String> ls = guessLanguages(text);
-        if (ls.size() == 1) {
-            return ls.iterator().next();
+        Languages.LanguageSet ls = guessLanguages(text);
+        if (ls.isSingleton()) {
+            return ls.getAny();
         } else {
             return Languages.ANY;
         }
@@ -209,11 +209,11 @@ public class Lang {
     /**
      * Guesses the languages of a word.
      * 
-     * @param text
+     * @param input
      *            the word
-     * @return a Set of Strings of language names that are potential matches for the word
+     * @return a Set of Strings of language names that are potential matches for the input word
      */
-    public Set<String> guessLanguages(String input) {
+    public Languages.LanguageSet guessLanguages(String input) {
         String text = input.toLowerCase(); // todo: locale?
         // System.out.println("Testing text: '" + text + "'");
 
@@ -234,6 +234,6 @@ public class Lang {
             }
         }
 
-        return langs;
+        return Languages.LanguageSet.from(langs);
     }
 }
