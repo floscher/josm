@@ -93,7 +93,7 @@ public class Lang {
 
     static {
         for (NameType s : NameType.values()) {
-            Langs.put(s, loadFromResource(LANGUAGE_RULES_RN, Languages.instance(s)));
+            Langs.put(s, loadFromResource(LANGUAGE_RULES_RN, Languages.getInstance(s)));
         }
     }
 
@@ -199,11 +199,7 @@ public class Lang {
      */
     public String guessLanguage(String text) {
         Languages.LanguageSet ls = guessLanguages(text);
-        if (ls.isSingleton()) {
-            return ls.getAny();
-        } else {
-            return Languages.ANY;
-        }
+        return ls.isSingleton() ? ls.getAny() : Languages.ANY; 
     }
 
     /**
@@ -235,10 +231,6 @@ public class Lang {
         }
 
         Languages.LanguageSet ls = Languages.LanguageSet.from(langs);
-        if (ls.equals(Languages.NO_LANGUAGES)) {
-            return Languages.ANY_LANGUAGE;
-        } else {
-            return ls;
-        }
+        return ls.equals(Languages.NO_LANGUAGES) ? Languages.ANY_LANGUAGE : ls;
     }
 }

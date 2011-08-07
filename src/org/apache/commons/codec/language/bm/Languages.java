@@ -58,12 +58,9 @@ public class Languages {
      * A set of languages.
      */
     public static abstract class LanguageSet {
+        
         public static LanguageSet from(Set<String> langs) {
-            if (langs.isEmpty()) {
-                return NO_LANGUAGES;
-            } else {
-                return new SomeLanguages(langs);
-            }
+            return langs.isEmpty() ? NO_LANGUAGES : new SomeLanguages(langs);  
         }
 
         public abstract boolean contains(String language);
@@ -138,15 +135,15 @@ public class Languages {
 
     static {
         for (NameType s : NameType.values()) {
-            LANGUAGES.put(s, instance(langResourceName(s)));
+            LANGUAGES.put(s, getInstance(langResourceName(s)));
         }
     }
 
-    public static Languages instance(NameType nameType) {
+    public static Languages getInstance(NameType nameType) {
         return LANGUAGES.get(nameType);
     }
 
-    public static Languages instance(String languagesResourceName) {
+    public static Languages getInstance(String languagesResourceName) {
         // read languages list
         Set<String> ls = new HashSet<String>();
         InputStream langIS = Languages.class.getClassLoader().getResourceAsStream(languagesResourceName);
