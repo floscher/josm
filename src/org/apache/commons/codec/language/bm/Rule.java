@@ -81,7 +81,7 @@ import java.util.regex.Pattern;
 public class Rule {
 
     private static class AppendableCharSeqeuence implements CharSequence {
-        
+
         private final CharSequence left;
         private final CharSequence right;
         private final int length;
@@ -210,14 +210,30 @@ public class Rule {
      * A minimal wrapper around the functionality of Matcher that we use, to allow for alternate implementations.
      */
     public static interface RMatcher {
-        public boolean find();
+        boolean find();
+    }
+
+    /**
+     * Always returns true.
+     */
+    private static class TrueRMatcher implements RMatcher {
+
+        private static TrueRMatcher INSTANCE = new TrueRMatcher();
+
+        /**
+         * Always returns true.
+         */
+        public boolean find() {
+            return true;
+        }
+
     }
 
     /**
      * A minimal wrapper around the functionality of Pattern that we use, to allow for alternate implementations.
      */
     public static interface RPattern {
-        public RMatcher matcher(CharSequence input);
+        RMatcher matcher(CharSequence input);
     }
 
     public static final String ALL = "ALL";
@@ -456,7 +472,7 @@ public class Rule {
     }
 
     /**
-     * Attempt to compile the regex into direct string ops, falling back to Pattern and Matcher in the worst case.
+     * Attempts to compile the regex into direct string ops, falling back to Pattern and Matcher in the worst case.
      * 
      * @param regex
      *            the regular expression to compile
@@ -497,11 +513,7 @@ public class Rule {
                 // matches every string
                 return new RPattern() {
                     public RMatcher matcher(CharSequence input) {
-                        return new RMatcher() {
-                            public boolean find() {
-                                return true;
-                            }
-                        };
+                        return TrueRMatcher.INSTANCE;
                     }
                 };
             } else if (startsWith) {
@@ -692,8 +704,9 @@ public class Rule {
      * @return true if the pattern and left/right context match, false otherwise
      */
     public boolean patternAndContextMatches(CharSequence input, int i) {
-        if (i < 0)
+        if (i < 0) {
             throw new IndexOutOfBoundsException("Can not match pattern at negative indexes");
+        }
 
         int patternLength = this.pattern.length();
         int ipl = i + patternLength;
