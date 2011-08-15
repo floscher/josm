@@ -262,10 +262,20 @@ public class ColognePhonetic implements StringEncoder {
         }
     }
 
-    private static final char[][] PREPROCESS_MAP = new char[][]{{'\u00C4', 'A'}, // Ã„
-        {'\u00DC', 'U'}, // Ãœ
-        {'\u00D6', 'O'}, // Ã–
-        {'\u00DF', 'S'} // ÃŸ
+    /**
+     * Maps some Germanic characters to plain for internal processing. The following characters are mapped:
+     * <ul>
+     * <li>capital a, umlaut mark</li>
+     * <li>capital u, umlaut mark</li>
+     * <li>capital o, umlaut mark</li>
+     * <li>small sharp s, German</li>
+     * </ul>
+     */
+    private static final char[][] PREPROCESS_MAP = new char[][]{
+        {'\u00C4', 'A'}, // capital a, umlaut mark
+        {'\u00DC', 'U'}, // capital u, umlaut mark
+        {'\u00D6', 'O'}, // capital o, umlaut mark
+        {'\u00DF', 'S'} // small sharp s, German
     };
 
     /*
@@ -289,7 +299,7 @@ public class ColognePhonetic implements StringEncoder {
      * </p>
      * 
      * @param text
-     * @return the corresponding encoding according to the <i>KÃ¶lner Phonetik</i> algorithm
+     * @return the corresponding encoding according to the <i>K&ouml;lner Phonetik</i> algorithm
      */
     public String colognePhonetic(String text) {
         if (text == null) {
@@ -379,7 +389,7 @@ public class ColognePhonetic implements StringEncoder {
 
     public Object encode(Object object) throws EncoderException {
         if (!(object instanceof String)) {
-            throw new EncoderException("This methodâ€™s parameter was expected to be of the type " +
+            throw new EncoderException("This method's parameter was expected to be of the type " +
                 String.class.getName() +
                 ". But actually it was of the type " +
                 object.getClass().getName() +
@@ -396,8 +406,8 @@ public class ColognePhonetic implements StringEncoder {
         return colognePhonetic(text1).equals(colognePhonetic(text2));
     }
 
-    /*
-     * Converts the string to upper case and replaces germanic umlauts, and the â€œÃŸâ€�.
+    /**
+     * Converts the string to upper case and replaces germanic characters as defined in {@link #PREPROCESS_MAP}.
      */
     private String preprocess(String text) {
         text = text.toUpperCase(Locale.GERMAN);
