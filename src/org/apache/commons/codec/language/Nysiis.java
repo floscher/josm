@@ -95,7 +95,7 @@ public class Nysiis implements StringEncoder {
      * 
      * @param c
      *            the character to test
-     * @return <code>true</code> if the character is a vowel, <code>false</code> otherwise
+     * @return {@code true} if the character is a vowel, {@code false} otherwise
      */
     private static boolean isVowel(final char c) {
         return c == 'A' || c == 'E' || c == 'I' || c == 'O' || c == 'U';
@@ -182,8 +182,8 @@ public class Nysiis implements StringEncoder {
      * Create an instance of the {@link Nysiis} encoder with the specified strict mode:
      *
      * <ul>
-     *  <li><code>true</code>: encoded strings have a maximum length of 6</li>
-     *  <li><code>false</code>: encoded strings may have arbitrary length</li>
+     *  <li>{@code true}: encoded strings have a maximum length of 6</li>
+     *  <li>{@code false}: encoded strings may have arbitrary length</li>
      * </ul>
      *
      * @param strict
@@ -198,7 +198,7 @@ public class Nysiis implements StringEncoder {
      * Encoder interface, and will throw an {@link EncoderException} if the supplied object is not of type
      * {@link String}.
      *
-     * @param pObject
+     * @param obj
      *            Object to encode
      * @return An object (or a {@link String}) containing the NYSIIS code which corresponds to the given String.
      * @throws EncoderException
@@ -206,30 +206,32 @@ public class Nysiis implements StringEncoder {
      * @throws IllegalArgumentException
      *            if a character is not mapped
      */
-    public Object encode(Object pObject) throws EncoderException {
-        if (!(pObject instanceof String)) {
+    @Override
+    public Object encode(Object obj) throws EncoderException {
+        if (!(obj instanceof String)) {
             throw new EncoderException("Parameter supplied to Nysiis encode is not of type java.lang.String");
         }
-        return this.nysiis((String) pObject);
+        return this.nysiis((String) obj);
     }
 
     /**
      * Encodes a String using the NYSIIS algorithm.
      *
-     * @param pString
+     * @param str
      *            A String object to encode
      * @return A Nysiis code corresponding to the String supplied
      * @throws IllegalArgumentException
      *            if a character is not mapped
      */
-    public String encode(String pString) {
-        return this.nysiis(pString);
+    @Override
+    public String encode(String str) {
+        return this.nysiis(str);
     }
 
     /**
      * Indicates the strict mode for this {@link Nysiis} encoder.
      *
-     * @return <code>true</code> if the encoder is configured for strict mode, <code>false</code> otherwise
+     * @return {@code true} if the encoder is configured for strict mode, {@code false} otherwise
      */
     public boolean isStrict() {
         return this.strict;

@@ -33,6 +33,7 @@ import org.apache.commons.codec.StringEncoder;
  * @since 1.4
  * @deprecated 1.5 Replaced by {@link Caverphone2}, will be removed in 2.0.
  */
+@Deprecated
 public class Caverphone implements StringEncoder {
 
     /**
@@ -62,29 +63,31 @@ public class Caverphone implements StringEncoder {
      * Encodes an Object using the caverphone algorithm. This method is provided in order to satisfy the requirements of
      * the Encoder interface, and will throw an EncoderException if the supplied object is not of type java.lang.String.
      * 
-     * @param pObject
+     * @param obj
      *            Object to encode
      * @return An object (or type java.lang.String) containing the caverphone code which corresponds to the String
      *         supplied.
      * @throws EncoderException
      *             if the parameter supplied is not of type java.lang.String
      */
-    public Object encode(Object pObject) throws EncoderException {
-        if (!(pObject instanceof String)) {
+    @Override
+    public Object encode(Object obj) throws EncoderException {
+        if (!(obj instanceof String)) {
             throw new EncoderException("Parameter supplied to Caverphone encode is not of type java.lang.String");
         }
-        return this.caverphone((String) pObject);
+        return this.caverphone((String) obj);
     }
 
     /**
      * Encodes a String using the Caverphone algorithm.
      * 
-     * @param pString
+     * @param str
      *            String object to encode
      * @return The caverphone code corresponding to the String supplied
      */
-    public String encode(String pString) {
-        return this.caverphone(pString);
+    @Override
+    public String encode(String str) {
+        return this.caverphone(str);
     }
 
     /**
@@ -94,7 +97,7 @@ public class Caverphone implements StringEncoder {
      *            First of two strings to compare
      * @param str2
      *            Second of two strings to compare
-     * @return <code>true</code> if the caverphones of these strings are identical, <code>false</code> otherwise.
+     * @return {@code true} if the caverphones of these strings are identical, {@code false} otherwise.
      */
     public boolean isCaverphoneEqual(String str1, String str2) {
         return this.caverphone(str1).equals(this.caverphone(str2));

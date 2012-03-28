@@ -61,6 +61,7 @@ public class Soundex implements StringEncoder {
      * 
      * @deprecated This feature is not needed since the encoding size must be constant. Will be removed in 2.0.
      */
+    @Deprecated
     private int maxLength = 4;
 
     /**
@@ -133,7 +134,7 @@ public class Soundex implements StringEncoder {
      * Encodes an Object using the soundex algorithm. This method is provided in order to satisfy the requirements of
      * the Encoder interface, and will throw an EncoderException if the supplied object is not of type java.lang.String.
      * 
-     * @param pObject
+     * @param obj
      *                  Object to encode
      * @return An object (or type java.lang.String) containing the soundex code which corresponds to the String
      *             supplied.
@@ -142,24 +143,26 @@ public class Soundex implements StringEncoder {
      * @throws IllegalArgumentException
      *                  if a character is not mapped
      */
-    public Object encode(Object pObject) throws EncoderException {
-        if (!(pObject instanceof String)) {
+    @Override
+    public Object encode(Object obj) throws EncoderException {
+        if (!(obj instanceof String)) {
             throw new EncoderException("Parameter supplied to Soundex encode is not of type java.lang.String");
         }
-        return soundex((String) pObject);
+        return soundex((String) obj);
     }
 
     /**
      * Encodes a String using the soundex algorithm.
      * 
-     * @param pString
+     * @param str
      *                  A String object to encode
      * @return A Soundex code corresponding to the String supplied
      * @throws IllegalArgumentException
      *                  if a character is not mapped
      */
-    public String encode(String pString) {
-        return soundex(pString);
+    @Override
+    public String encode(String str) {
+        return soundex(str);
     }
 
     /**
@@ -198,6 +201,7 @@ public class Soundex implements StringEncoder {
      * @deprecated This feature is not needed since the encoding size must be constant. Will be removed in 2.0.
      * @return int
      */
+    @Deprecated
     public int getMaxLength() {
         return this.maxLength;
     }
@@ -235,6 +239,7 @@ public class Soundex implements StringEncoder {
      * @param maxLength
      *                  The maxLength to set
      */
+    @Deprecated
     public void setMaxLength(int maxLength) {
         this.maxLength = maxLength;
     }
@@ -262,10 +267,10 @@ public class Soundex implements StringEncoder {
         out[0] = str.charAt(0);
         // getMappingCode() throws IllegalArgumentException
         last = getMappingCode(str, 0);
-        while ((incount < str.length()) && (count < out.length)) {
+        while (incount < str.length() && count < out.length) {
             mapped = getMappingCode(str, incount++);
             if (mapped != 0) {
-                if ((mapped != '0') && (mapped != last)) {
+                if (mapped != '0' && mapped != last) {
                     out[count++] = mapped;
                 }
                 last = mapped;

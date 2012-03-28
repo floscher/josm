@@ -258,17 +258,17 @@ public abstract class BaseNCodec implements BinaryEncoder, BinaryDecoder {
      * Encodes an Object using the Base-N algorithm. This method is provided in order to satisfy the requirements of the
      * Encoder interface, and will throw an EncoderException if the supplied object is not of type byte[].
      *
-     * @param pObject
+     * @param obj
      *            Object to encode
      * @return An object (of type byte[]) containing the Base-N encoded data which corresponds to the byte[] supplied.
      * @throws EncoderException
      *             if the parameter supplied is not of type byte[]
      */
-    public Object encode(Object pObject) throws EncoderException {
-        if (!(pObject instanceof byte[])) {
+    public Object encode(Object obj) throws EncoderException {
+        if (!(obj instanceof byte[])) {
             throw new EncoderException("Parameter supplied to Base-N encode is not a byte[]");
         }
-        return encode((byte[]) pObject);
+        return encode((byte[]) obj);
     }
 
     /**
@@ -286,17 +286,17 @@ public abstract class BaseNCodec implements BinaryEncoder, BinaryDecoder {
      * Decodes an Object using the Base-N algorithm. This method is provided in order to satisfy the requirements of the
      * Decoder interface, and will throw a DecoderException if the supplied object is not of type byte[] or String.
      *
-     * @param pObject
+     * @param obj
      *            Object to decode
      * @return An object (of type byte[]) containing the binary data which corresponds to the byte[] or String supplied.
      * @throws DecoderException
      *             if the parameter supplied is not of type byte[]
      */
-    public Object decode(Object pObject) throws DecoderException {        
-        if (pObject instanceof byte[]) {
-            return decode((byte[]) pObject);
-        } else if (pObject instanceof String) {
-            return decode((String) pObject);
+    public Object decode(Object obj) throws DecoderException {        
+        if (obj instanceof byte[]) {
+            return decode((byte[]) obj);
+        } else if (obj instanceof String) {
+            return decode((String) obj);
         } else {
             throw new DecoderException("Parameter supplied to Base-N decode is not a byte[] or a String");
         }
@@ -372,7 +372,7 @@ public abstract class BaseNCodec implements BinaryEncoder, BinaryDecoder {
      *
      * @param value The value to test
      *
-     * @return <code>true</code> if the value is defined in the current alphabet, <code>false</code> otherwise.
+     * @return {@code true} if the value is defined in the current alphabet, {@code false} otherwise.
      */
     protected abstract boolean isInAlphabet(byte value);
     
@@ -381,10 +381,10 @@ public abstract class BaseNCodec implements BinaryEncoder, BinaryDecoder {
      * The method optionally treats whitespace and pad as valid.
      *
      * @param arrayOctet byte array to test
-     * @param allowWSPad if <code>true</code>, then whitespace and PAD are also allowed
+     * @param allowWSPad if {@code true}, then whitespace and PAD are also allowed
      *
-     * @return <code>true</code> if all bytes are valid characters in the alphabet or if the byte array is empty;
-     *         <code>false</code>, otherwise
+     * @return {@code true} if all bytes are valid characters in the alphabet or if the byte array is empty;
+     *         {@code false}, otherwise
      */    
     public boolean isInAlphabet(byte[] arrayOctet, boolean allowWSPad) {
         for (int i = 0; i < arrayOctet.length; i++) {
@@ -401,8 +401,8 @@ public abstract class BaseNCodec implements BinaryEncoder, BinaryDecoder {
      * The method treats whitespace and PAD as valid.
      *
      * @param basen String to test
-     * @return <code>true</code> if all characters in the String are valid characters in the alphabet or if
-     *         the String is empty; <code>false</code>, otherwise
+     * @return {@code true} if all characters in the String are valid characters in the alphabet or if
+     *         the String is empty; {@code false}, otherwise
      * @see #isInAlphabet(byte[], boolean)
      */
     public boolean isInAlphabet(String basen) {
@@ -416,7 +416,7 @@ public abstract class BaseNCodec implements BinaryEncoder, BinaryDecoder {
      *
      * @param arrayOctet
      *            byte array to test
-     * @return <code>true</code> if any byte is a valid character in the alphabet or PAD; <code>false</code> otherwise
+     * @return {@code true} if any byte is a valid character in the alphabet or PAD; {@code false} otherwise
      */
     protected boolean containsAlphabetOrPad(byte[] arrayOctet) {
         if (arrayOctet == null) {
