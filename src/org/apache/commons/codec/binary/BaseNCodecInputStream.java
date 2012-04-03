@@ -23,8 +23,6 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.codec.binary.BaseNCodec.Context;
-
 /**
  * Abstract superclass for Base-N input streams.
  * 
@@ -37,8 +35,6 @@ public class BaseNCodecInputStream extends FilterInputStream {
     private final boolean doEncode;
 
     private final byte[] singleByte = new byte[1];
-
-    private Context context = new Context();
 
     protected BaseNCodecInputStream(InputStream in, BaseNCodec baseNCodec, boolean doEncode) {
         super(in);
@@ -59,18 +55,31 @@ public class BaseNCodecInputStream extends FilterInputStream {
         //       data available. As we do not know for sure how much data is left,
         //       just return 1 as a safe guess.
 
-        return context.eof ? 0 : 1;
+        // use the EOF flag of the underlying codec instance
+        return baseNCodec.eof ? 0 : 1;
+    }
+
+    /**
+     * Marks the current position in this input stream.
+     * <p>The {@link #mark} method of {@link BaseNCodecInputStream} does nothing.</p>
+     *
+     * @param readLimit the maximum limit of bytes that can be read before the mark position becomes invalid.
+     *  @since 1.7
+     */
+    @Override
+    public synchronized void mark(int readLimit) {
     }
 
     /**
      * {@inheritDoc}
-     * 
-     * @return false
+     *
+     * @return always returns <code>false</code>
      */
     @Override
     public boolean markSupported() {
         return false; // not an easy job to support marks
     }
+
     /**
      * Reads one <code>byte</code> from this input stream.
      * 
@@ -139,19 +148,31 @@ public class BaseNCodecInputStream extends FilterInputStream {
              This is a fix for CODEC-101
             */
             while (readLen == 0) {
-                if (!baseNCodec.hasData(context)) {
+                if (!baseNCodec.hasData()) {
                     byte[] buf = new byte[doEncode ? 4096 : 8192];
                     int c = in.read(buf);
                     if (doEncode) {
-                        baseNCodec.encode(buf, 0, c, context);
+                        baseNCodec.encode(buf, 0, c);
                     } else {
-                        baseNCodec.decode(buf, 0, c, context);
+                        baseNCodec.decode(buf, 0, c);
                     }
                 }
-                readLen = baseNCodec.readResults(b, offset, len, context);
+                readLen = baseNCodec.readResults(b, offset, len);
             }
             return readLen;
         }
+    }
+
+    /**
+     * Repositions this stream to the position at the time the mark method was last called on this input stream.
+     * <p>The {@link #reset} method of {@link BaseNCodecInputStream} does nothing except throw an {@link IOException}.</p>
+     *
+     * @throws IOException if this method is invoked
+     * @since 1.7
+     */
+    @Override
+    public synchronized void reset() throws IOException {
+        throw new IOException("mark/reset not supported");
     }
 
     /**
