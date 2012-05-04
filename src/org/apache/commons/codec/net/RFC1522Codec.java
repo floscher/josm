@@ -41,6 +41,8 @@ import org.apache.commons.codec.binary.StringUtils;
  * Message Header Extensions for Non-ASCII Text</a>
  * </p>
  * 
+ * This class is immutable and thread-safe.
+ * 
  * @since 1.3
  * @version $Id$
  */
@@ -82,7 +84,7 @@ abstract class RFC1522Codec {
         if (text == null) {
             return null;
         }
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(PREFIX); 
         buffer.append(charset);
         buffer.append(SEP);

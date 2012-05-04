@@ -61,6 +61,8 @@ import org.apache.commons.codec.StringEncoder;
  * 9. Add original first character of name as first character of key
  * </pre></p>
  *
+ * This class is immutable and thread-safe.
+ * 
  * @see <a href="http://en.wikipedia.org/wiki/NYSIIS">NYSIIS on Wikipedia</a>
  * @see <a href="http://www.dropby.com/NYSIIS.html">NYSIIS on dropby.com</a>
  * @see Soundex
@@ -270,7 +272,7 @@ public class Nysiis implements StringEncoder {
         str = PAT_DT_ETC.matcher(str).replaceFirst("D");
 
         // First character of key = first character of name.
-        StringBuffer key = new StringBuffer(str.length());
+        StringBuilder key = new StringBuilder(str.length());
         key.append(str.charAt(0));
 
         // Transcode remaining characters, incrementing by one character each time
