@@ -17,6 +17,7 @@
 package org.apache.commons.codec.digest;
 
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,57 +28,54 @@ import org.apache.commons.codec.Charsets;
  * The libc crypt() "$1$" and Apache "$apr1$" MD5-based hash algorithm.
  * <p>
  * Based on the public domain ("beer-ware") C implementation from Poul-Henning Kamp which was found at:
- * </p>
+ * <a href="http://www.freebsd.org/cgi/cvsweb.cgi/src/lib/libcrypt/crypt-md5.c?rev=1.1;content-type=text%2Fplain">
+ * crypt-md5.c @ freebsd.org</a><br/>
  * <p>
- * http://www.freebsd.org/cgi/cvsweb.cgi/src/lib/libcrypt/crypt-md5.c?rev=1.1;content-type=text%2Fplain</br>
- * Source: $FreeBSD: src/lib/libcrypt/crypt-md5.c,v 1.1 1999/01/21 13:50:09 brandon Exp $
- * </p>
+ * Source:
+ * <pre>$FreeBSD: src/lib/libcrypt/crypt-md5.c,v 1.1 1999/01/21 13:50:09 brandon Exp $</pre>
  * <p>
  * Conversion to Kotlin and from there to Java in 2012.
- * </p>
  * <p>
  * The C style comments are from the original C code, the ones with "//" from the port.
- * </p>
- *
- * <p>This class is immutable and thread-safe.</p>
+ * <p>
+ * This class is immutable and thread-safe.
  *
  * @version $Id$
  * @since 1.7
  */
 public class Md5Crypt {
 
-    /**
-     * The Identifier of the Apache variant.
-     */
+    /** The Identifier of the Apache variant. */
     static final String APR1_PREFIX = "$apr1$";
 
-    /**
-     * The number of bytes of the final hash.
-     */
+    /** The number of bytes of the final hash. */
     private static final int BLOCKSIZE = 16;
 
-    /**
-     * The MessageDigest MD5_ALGORITHM.
-     */
+    /** The MessageDigest MD5_ALGORITHM. */
     private static final String MD5_ALGORITHM = "MD5";
 
-    /**
-     * The Identifier of this crypt() variant.
-     */
+    /** The Identifier of this crypt() variant. */
     static final String MD5_PREFIX = "$1$";
 
-    /**
-     * The number of rounds of the big loop.
-     */
+    /** The number of rounds of the big loop. */
     private static final int ROUNDS = 1000;
 
-    /** See {@link #apr1Crypt(String, String)} for details. */
-    public static String apr1Crypt(byte[] keyBytes) throws Exception {
+    /**
+     * See {@link #apr1Crypt(String, String)} for details.
+     *
+     * @throws NoSuchAlgorithmException if no "MD5" algorithm implementation is available
+     */
+    public static String apr1Crypt(byte[] keyBytes) throws NoSuchAlgorithmException {
         return apr1Crypt(keyBytes, APR1_PREFIX + B64.getRandomSalt(8));
     }
 
-    /** See {@link #apr1Crypt(String, String)} for details. */
-    public static String apr1Crypt(byte[] keyBytes, String salt) throws Exception {
+    /**
+     * See {@link #apr1Crypt(String, String)} for details.
+     *
+     * @throws IllegalArgumentException if the salt does not match the allowed pattern
+     * @throws NoSuchAlgorithmException if no "MD5" algorithm implementation is available
+     */
+    public static String apr1Crypt(byte[] keyBytes, String salt) throws NoSuchAlgorithmException {
         // to make the md5Crypt regex happy
         if (salt != null && !salt.startsWith(APR1_PREFIX)) {
             salt = APR1_PREFIX + salt;
@@ -85,57 +83,73 @@ public class Md5Crypt {
         return Md5Crypt.md5Crypt(keyBytes, salt, APR1_PREFIX);
     }
 
-    /** See {@link #apr1Crypt(String, String)} for details. */
-    public static String apr1Crypt(String keyBytes) throws Exception {
+    /**
+     * See {@link #apr1Crypt(String, String)} for details.
+     *
+     * @throws NoSuchAlgorithmException if no "MD5" algorithm implementation is available
+     */
+    public static String apr1Crypt(String keyBytes) throws NoSuchAlgorithmException {
         return apr1Crypt(keyBytes.getBytes(Charsets.UTF_8));
     }
 
     /**
-     * Generates an Apache htpasswd compatible "$apr1$" MD5 based hash value. *
-     *
-     * The algorithm is identical to the crypt(3) "$1$" one but produces different outputs due to the different salt
-     * prefix.
+     * Generates an Apache htpasswd compatible "$apr1$" MD5 based hash value.
+     * <p>
+     * The algorithm is identical to the crypt(3) "$1$" one but produces different
+     * outputs due to the different salt prefix.
      *
      * @param keyBytes
-     *            The plaintext string that should be hashed.
+     *            plaintext string that should be hashed.
      * @param salt
-     *            Salt string including the prefix and optionally garbage at the end. Will be generated randomly if
-     *            null.
+     *            salt string including the prefix and optionally garbage at the end.
+     *            Will be generated randomly if null.
+     * @return computed hash value
+     * @throws IllegalArgumentException if the salt does not match the allowed pattern
+     * @throws NoSuchAlgorithmException if no "MD5" algorithm implementation is available
      */
-    public static String apr1Crypt(String keyBytes, String salt) throws Exception {
+    public static String apr1Crypt(String keyBytes, String salt) throws NoSuchAlgorithmException {
         return apr1Crypt(keyBytes.getBytes(Charsets.UTF_8), salt);
     }
 
     /**
      * Generates a libc6 crypt() compatible "$1$" hash value.
-     *
+     * <p>
      * See {@link Crypt#crypt(String, String)} for details.
+     *
+     * @throws NoSuchAlgorithmException if no "MD5" algorithm implementation is available
      */
-    public static String md5Crypt(final byte[] keyBytes) throws Exception {
+    public static String md5Crypt(final byte[] keyBytes) throws NoSuchAlgorithmException {
         return md5Crypt(keyBytes, MD5_PREFIX + B64.getRandomSalt(8));
     }
 
     /**
      * Generates a libc crypt() compatible "$1$" MD5 based hash value.
-     *
+     * <p>
      * See {@link Crypt#crypt(String, String)} for details.
      *
      * @param keyBytes
-     *            The plaintext string that should be hashed.
+     *            plaintext string that should be hashed.
      * @param salt
-     *            Salt string including the prefix and optionally garbage at the end. Will be generated randomly if
-     *            null.
+     *            salt string including the prefix and optionally garbage at the end.
+     *            Will be generated randomly if null.
+     * @return computed hash value
+     * @throws IllegalArgumentException if the salt does not match the allowed pattern
+     * @throws NoSuchAlgorithmException if no "MD5" algorithm implementation is available
      */
-    public static String md5Crypt(byte[] keyBytes, String salt) throws Exception {
+    public static String md5Crypt(byte[] keyBytes, String salt) throws NoSuchAlgorithmException {
         return md5Crypt(keyBytes, salt, MD5_PREFIX);
     }
 
     /**
      * Generates a libc6 crypt() "$1$" or Apache htpasswd "$apr1$" hash value.
-     *
+     * <p>
      * See {@link Crypt#crypt(String, String)} or {@link #apr1Crypt(String, String)} for details.
+     *
+     * @throws IllegalArgumentException if the salt does not match the allowed pattern
+     * @throws NoSuchAlgorithmException if no "MD5" algorithm implementation is available
      */
-    public static String md5Crypt(final byte[] keyBytes, final String salt, final String prefix) throws Exception {
+    public static String md5Crypt(final byte[] keyBytes, final String salt, final String prefix)
+            throws NoSuchAlgorithmException {
         int keyLen = keyBytes.length;
 
         // Extract the real salt from the given string which can be a complete hash string.
@@ -143,8 +157,8 @@ public class Md5Crypt {
         if (salt == null) {
             saltString = B64.getRandomSalt(8);
         } else {
-            Pattern p = Pattern.compile("^" + prefix.replace("$", "\\$") + "([\\.\\/a-zA-Z0-9]{1,8}).*");
-            Matcher m = p.matcher(salt);
+            final Pattern p = Pattern.compile("^" + prefix.replace("$", "\\$") + "([\\.\\/a-zA-Z0-9]{1,8}).*");
+            final Matcher m = p.matcher(salt);
             if (m == null || !m.find()) {
                 throw new IllegalArgumentException("Invalid salt value: " + salt);
             }
