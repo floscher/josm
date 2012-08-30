@@ -36,8 +36,9 @@ import java.math.BigInteger;
  * </ul>
  * </p>
  * <p>
- * Since this class operates directly on byte streams, and not character streams, it is hard-coded to only encode/decode
- * character encodings which are compatible with the lower 127 ASCII chart (ISO-8859-1, Windows-1252, UTF-8, etc).
+ * Since this class operates directly on byte streams, and not character streams, it is hard-coded to only
+ * encode/decode character encodings which are compatible with the lower 127 ASCII chart (ISO-8859-1, Windows-1252,
+ * UTF-8, etc).
  * </p>
  * <p>
  * This class is thread-safe.
@@ -98,8 +99,8 @@ public class Base64 extends BaseNCodec {
     };
 
     /**
-     * This array is a lookup table that translates Unicode characters drawn from the "Base64 Alphabet" (as specified in
-     * Table 1 of RFC 2045) into their 6-bit positive integer equivalents. Characters that are not in the Base64
+     * This array is a lookup table that translates Unicode characters drawn from the "Base64 Alphabet" (as specified
+     * in Table 1 of RFC 2045) into their 6-bit positive integer equivalents. Characters that are not in the Base64
      * alphabet but fall within the bounds of the array are translated to -1.
      *
      * Note: '+' and '-' both decode to 62. '/' and '_' both decode to 63. This means decoder seamlessly handles both
@@ -172,7 +173,8 @@ public class Base64 extends BaseNCodec {
     /**
      * Creates a Base64 codec used for decoding (all modes) and encoding in the given URL-safe mode.
      * <p>
-     * When encoding the line length is 76, the line separator is CRLF, and the encoding table is STANDARD_ENCODE_TABLE.
+     * When encoding the line length is 76, the line separator is CRLF, and the encoding table is
+     * STANDARD_ENCODE_TABLE.
      * </p>
      *
      * <p>
@@ -180,8 +182,7 @@ public class Base64 extends BaseNCodec {
      * </p>
      *
      * @param urlSafe
-     *            if {@code true}, URL-safe encoding is used. In most cases this should be set to
-     *            {@code false}.
+     *            if {@code true}, URL-safe encoding is used. In most cases this should be set to {@code false}.
      * @since 1.4
      */
     public Base64(boolean urlSafe) {
@@ -202,8 +203,9 @@ public class Base64 extends BaseNCodec {
      * </p>
      *
      * @param lineLength
-     *            Each line of encoded data will be at most of the given length (rounded down to nearest multiple of 4).
-     *            If lineLength <= 0, then the output will not be divided into lines (chunks). Ignored when decoding.
+     *            Each line of encoded data will be at most of the given length (rounded down to nearest multiple of
+     *            4). If lineLength <= 0, then the output will not be divided into lines (chunks). Ignored when
+     *            decoding.
      * @since 1.4
      */
     public Base64(int lineLength) {
@@ -224,8 +226,9 @@ public class Base64 extends BaseNCodec {
      * </p>
      *
      * @param lineLength
-     *            Each line of encoded data will be at most of the given length (rounded down to nearest multiple of 4).
-     *            If lineLength <= 0, then the output will not be divided into lines (chunks). Ignored when decoding.
+     *            Each line of encoded data will be at most of the given length (rounded down to nearest multiple of
+     *            4). If lineLength <= 0, then the output will not be divided into lines (chunks). Ignored when
+     *            decoding.
      * @param lineSeparator
      *            Each line of encoded data will end with this sequence of bytes.
      * @throws IllegalArgumentException
@@ -250,8 +253,9 @@ public class Base64 extends BaseNCodec {
      * </p>
      *
      * @param lineLength
-     *            Each line of encoded data will be at most of the given length (rounded down to nearest multiple of 4).
-     *            If lineLength <= 0, then the output will not be divided into lines (chunks). Ignored when decoding.
+     *            Each line of encoded data will be at most of the given length (rounded down to nearest multiple of
+     *            4). If lineLength <= 0, then the output will not be divided into lines (chunks). Ignored when
+     *            decoding.
      * @param lineSeparator
      *            Each line of encoded data will end with this sequence of bytes.
      * @param urlSafe
@@ -315,7 +319,8 @@ public class Base64 extends BaseNCodec {
      *            Position to start reading data from.
      * @param inAvail
      *            Amount of bytes available from input for encoding.
-     * @param context the context to be used
+     * @param context
+     *            the context to be used
      */
     @Override
     void encode(byte[] in, int inPos, int inAvail, Context context) {
@@ -329,38 +334,40 @@ public class Base64 extends BaseNCodec {
             if (0 == context.modulus && lineLength == 0) {
                 return; // no leftovers to process and not using chunking
             }
-            ensureBufferSize(encodeSize, context);
-            int savedPos = context.pos;
+            final byte[] buffer = ensureBufferSize(encodeSize, context);
+            final int savedPos = context.pos;
             switch (context.modulus) { // 0-2
                 case 1 : // 8 bits = 6 + 2
-                    context.buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 2) & MASK_6BITS]; // top 6 bits
-                    context.buffer[context.pos++] = encodeTable[(context.ibitWorkArea << 4) & MASK_6BITS]; // remaining 2
+                    // top 6 bits:
+                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 2) & MASK_6BITS];
+                    // remaining 2:
+                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea << 4) & MASK_6BITS];
                     // URL-SAFE skips the padding to further reduce size.
                     if (encodeTable == STANDARD_ENCODE_TABLE) {
-                        context.buffer[context.pos++] = PAD;
-                        context.buffer[context.pos++] = PAD;
+                        buffer[context.pos++] = PAD;
+                        buffer[context.pos++] = PAD;
                     }
                     break;
 
                 case 2 : // 16 bits = 6 + 6 + 4
-                    context.buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 10) & MASK_6BITS];
-                    context.buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 4) & MASK_6BITS];
-                    context.buffer[context.pos++] = encodeTable[(context.ibitWorkArea << 2) & MASK_6BITS];
+                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 10) & MASK_6BITS];
+                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 4) & MASK_6BITS];
+                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea << 2) & MASK_6BITS];
                     // URL-SAFE skips the padding to further reduce size.
                     if (encodeTable == STANDARD_ENCODE_TABLE) {
-                        context.buffer[context.pos++] = PAD;
+                        buffer[context.pos++] = PAD;
                     }
                     break;
             }
             context.currentLinePos += context.pos - savedPos; // keep track of current line position
             // if currentPos == 0 we are at the start of a line, so don't add CRLF
             if (lineLength > 0 && context.currentLinePos > 0) {
-                System.arraycopy(lineSeparator, 0, context.buffer, context.pos, lineSeparator.length);
+                System.arraycopy(lineSeparator, 0, buffer, context.pos, lineSeparator.length);
                 context.pos += lineSeparator.length;
             }
         } else {
             for (int i = 0; i < inAvail; i++) {
-                ensureBufferSize(encodeSize, context);
+                final byte[] buffer = ensureBufferSize(encodeSize, context);
                 context.modulus = (context.modulus+1) % BYTES_PER_UNENCODED_BLOCK;
                 int b = in[inPos++];
                 if (b < 0) {
@@ -368,13 +375,13 @@ public class Base64 extends BaseNCodec {
                 }
                 context.ibitWorkArea = (context.ibitWorkArea << 8) + b; //  BITS_PER_BYTE
                 if (0 == context.modulus) { // 3 bytes = 24 bits = 4 * 6 bits to extract
-                    context.buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 18) & MASK_6BITS];
-                    context.buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 12) & MASK_6BITS];
-                    context.buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 6) & MASK_6BITS];
-                    context.buffer[context.pos++] = encodeTable[context.ibitWorkArea & MASK_6BITS];
+                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 18) & MASK_6BITS];
+                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 12) & MASK_6BITS];
+                    buffer[context.pos++] = encodeTable[(context.ibitWorkArea >> 6) & MASK_6BITS];
+                    buffer[context.pos++] = encodeTable[context.ibitWorkArea & MASK_6BITS];
                     context.currentLinePos += BYTES_PER_ENCODED_BLOCK;
                     if (lineLength > 0 && lineLength <= context.currentLinePos) {
-                        System.arraycopy(lineSeparator, 0, context.buffer, context.pos, lineSeparator.length);
+                        System.arraycopy(lineSeparator, 0, buffer, context.pos, lineSeparator.length);
                         context.pos += lineSeparator.length;
                         context.currentLinePos = 0;
                     }
@@ -405,7 +412,8 @@ public class Base64 extends BaseNCodec {
      *            Position to start reading data from.
      * @param inAvail
      *            Amount of bytes available from input for encoding.
-     * @param context the context to be used
+     * @param context
+     *            the context to be used
      */
     @Override
     void decode(byte[] in, int inPos, int inAvail, Context context) {
@@ -416,22 +424,22 @@ public class Base64 extends BaseNCodec {
             context.eof = true;
         }
         for (int i = 0; i < inAvail; i++) {
-            ensureBufferSize(decodeSize, context);
-            byte b = in[inPos++];
+            final byte[] buffer = ensureBufferSize(decodeSize, context);
+            final byte b = in[inPos++];
             if (b == PAD) {
                 // We're done.
                 context.eof = true;
                 break;
             } else {
                 if (b >= 0 && b < DECODE_TABLE.length) {
-                    int result = DECODE_TABLE[b];
+                    final int result = DECODE_TABLE[b];
                     if (result >= 0) {
                         context.modulus = (context.modulus+1) % BYTES_PER_ENCODED_BLOCK;
                         context.ibitWorkArea = (context.ibitWorkArea << BITS_PER_ENCODED_BYTE) + result;
                         if (context.modulus == 0) {
-                            context.buffer[context.pos++] = (byte) ((context.ibitWorkArea >> 16) & MASK_8BITS);
-                            context.buffer[context.pos++] = (byte) ((context.ibitWorkArea >> 8) & MASK_8BITS);
-                            context.buffer[context.pos++] = (byte) (context.ibitWorkArea & MASK_8BITS);
+                            buffer[context.pos++] = (byte) ((context.ibitWorkArea >> 16) & MASK_8BITS);
+                            buffer[context.pos++] = (byte) ((context.ibitWorkArea >> 8) & MASK_8BITS);
+                            buffer[context.pos++] = (byte) (context.ibitWorkArea & MASK_8BITS);
                         }
                     }
                 }
@@ -442,7 +450,7 @@ public class Base64 extends BaseNCodec {
         // EOF (-1) and first time '=' character is encountered in stream.
         // This approach makes the '=' padding characters completely optional.
         if (context.eof && context.modulus != 0) {
-            ensureBufferSize(decodeSize, context);
+            final byte[] buffer = ensureBufferSize(decodeSize, context);
 
             // We have some spare bits remaining
             // Output all whole multiples of 8 bits and ignore the rest
@@ -451,12 +459,12 @@ public class Base64 extends BaseNCodec {
            //       break;
                 case 2 : // 12 bits = 8 + 4
                     context.ibitWorkArea = context.ibitWorkArea >> 4; // dump the extra 4 bits
-                    context.buffer[context.pos++] = (byte) ((context.ibitWorkArea) & MASK_8BITS);
+                    buffer[context.pos++] = (byte) ((context.ibitWorkArea) & MASK_8BITS);
                     break;
                 case 3 : // 18 bits = 8 + 8 + 2
                     context.ibitWorkArea = context.ibitWorkArea >> 2; // dump 2 bits
-                    context.buffer[context.pos++] = (byte) ((context.ibitWorkArea >> 8) & MASK_8BITS);
-                    context.buffer[context.pos++] = (byte) ((context.ibitWorkArea) & MASK_8BITS);
+                    buffer[context.pos++] = (byte) ((context.ibitWorkArea >> 8) & MASK_8BITS);
+                    buffer[context.pos++] = (byte) ((context.ibitWorkArea) & MASK_8BITS);
                     break;
             }
         }
