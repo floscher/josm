@@ -78,26 +78,55 @@ public class DigestUtils {
      *            names.
      * @return An MD5 digest instance.
      * @see MessageDigest#getInstance(String)
-     * @throws RuntimeException
-     *             when a {@link java.security.NoSuchAlgorithmException} is caught.
+     * @throws IllegalArgumentException
+     *             when a {@link NoSuchAlgorithmException} is caught.
      */
     public static MessageDigest getDigest(String algorithm) {
         try {
             return MessageDigest.getInstance(algorithm);
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         }
+    }
+
+    /**
+     * Returns an MD2 MessageDigest.
+     *
+     * @return An MD2 digest instance.
+     * @throws IllegalArgumentException
+     *             when a {@link NoSuchAlgorithmException} is caught, which should never happen because MD2 is a
+     *             built-in algorithm
+     * @see MessageDigestAlgorithms#MD2
+     */
+    public static MessageDigest getMd2Digest() {
+        return getDigest(MessageDigestAlgorithms.MD2);
     }
 
     /**
      * Returns an MD5 MessageDigest.
      *
      * @return An MD5 digest instance.
-     * @throws RuntimeException
-     *             when a {@link java.security.NoSuchAlgorithmException} is caught.
+     * @throws IllegalArgumentException
+     *             when a {@link NoSuchAlgorithmException} is caught, which should never happen because MD5 is a
+     *             built-in algorithm
+     * @see MessageDigestAlgorithms#MD5
      */
     public static MessageDigest getMd5Digest() {
         return getDigest(MessageDigestAlgorithms.MD5);
+    }
+
+    /**
+     * Returns an SHA-1 digest.
+     *
+     * @return An SHA-1 digest instance.
+     * @throws IllegalArgumentException
+     *             when a {@link NoSuchAlgorithmException} is caught, which should never happen because SHA-1 is a
+     *             built-in algorithm
+     * @see MessageDigestAlgorithms#SHA_1
+     * @since 1.7
+     */
+    public static MessageDigest getSha1Digest() {
+        return getDigest(MessageDigestAlgorithms.SHA_1);
     }
 
     /**
@@ -107,8 +136,10 @@ public class DigestUtils {
      * </p>
      *
      * @return An SHA-256 digest instance.
-     * @throws RuntimeException
-     *             when a {@link java.security.NoSuchAlgorithmException} is caught.
+     * @throws IllegalArgumentException
+     *             when a {@link NoSuchAlgorithmException} is caught, which should never happen because SHA-256 is a
+     *             built-in algorithm
+     * @see MessageDigestAlgorithms#SHA_256
      */
     public static MessageDigest getSha256Digest() {
         return getDigest(MessageDigestAlgorithms.SHA_256);
@@ -121,8 +152,10 @@ public class DigestUtils {
      * </p>
      *
      * @return An SHA-384 digest instance.
-     * @throws RuntimeException
-     *             when a {@link java.security.NoSuchAlgorithmException} is caught.
+     * @throws IllegalArgumentException
+     *             when a {@link NoSuchAlgorithmException} is caught, which should never happen because SHA-384 is a
+     *             built-in algorithm
+     * @see MessageDigestAlgorithms#SHA_384
      */
     public static MessageDigest getSha384Digest() {
         return getDigest(MessageDigestAlgorithms.SHA_384);
@@ -135,8 +168,10 @@ public class DigestUtils {
      * </p>
      *
      * @return An SHA-512 digest instance.
-     * @throws RuntimeException
-     *             when a {@link java.security.NoSuchAlgorithmException} is caught.
+     * @throws IllegalArgumentException
+     *             when a {@link NoSuchAlgorithmException} is caught, which should never happen because SHA-512 is a
+     *             built-in algorithm
+     * @see MessageDigestAlgorithms#SHA_512
      */
     public static MessageDigest getSha512Digest() {
         return getDigest(MessageDigestAlgorithms.SHA_512);
@@ -146,11 +181,87 @@ public class DigestUtils {
      * Returns an SHA-1 digest.
      *
      * @return An SHA-1 digest instance.
-     * @throws RuntimeException
-     *             when a {@link java.security.NoSuchAlgorithmException} is caught.
+     * @throws IllegalArgumentException
+     *             when a {@link NoSuchAlgorithmException} is caught
      */
     public static MessageDigest getShaDigest() {
         return getDigest("SHA");
+    }
+
+    /**
+     * Calculates the MD2 digest and returns the value as a 16 element <code>byte[]</code>.
+     *
+     * @param data
+     *            Data to digest
+     * @return MD2 digest
+     * @since 1.7
+     */
+    public static byte[] md2(byte[] data) {
+        return getMd2Digest().digest(data);
+    }
+
+    /**
+     * Calculates the MD2 digest and returns the value as a 16 element <code>byte[]</code>.
+     *
+     * @param data
+     *            Data to digest
+     * @return MD2 digest
+     * @throws IOException
+     *             On error reading from the stream
+     * @since 1.7
+     */
+    public static byte[] md2(InputStream data) throws IOException {
+        return digest(getMd2Digest(), data);
+    }
+
+    /**
+     * Calculates the MD2 digest and returns the value as a 16 element <code>byte[]</code>.
+     *
+     * @param data
+     *            Data to digest
+     * @return MD2 digest
+     * @since 1.7
+     */
+    public static byte[] md2(String data) {
+        return md2(getBytesUtf8(data));
+    }
+
+    /**
+     * Calculates the MD2 digest and returns the value as a 32 character hex string.
+     *
+     * @param data
+     *            Data to digest
+     * @return MD2 digest as a hex string
+     * @since 1.7
+     */
+    public static String md2Hex(byte[] data) {
+        return Hex.encodeHexString(md2(data));
+    }
+
+    /**
+     * Calculates the MD2 digest and returns the value as a 32 character hex string.
+     *
+     * @param data
+     *            Data to digest
+     * @return MD2 digest as a hex string
+     * @throws IOException
+     *             On error reading from the stream
+     * @since 1.7
+     */
+    public static String md2Hex(InputStream data) throws IOException {
+        return Hex.encodeHexString(md2(data));
+    }
+
+    /**
+     * Calculates the MD2 digest and returns the value as a 32 character hex string.
+     *
+     * @param data
+     *            Data to digest
+     * @return MD2 digest as a hex string
+     * @since 1.7
+     */
+    public static String md2Hex(String data) {
+        return Hex.encodeHexString(md2(data));
     }
 
     /**
@@ -231,7 +342,9 @@ public class DigestUtils {
      * @param data
      *            Data to digest
      * @return SHA-1 digest
+     * @deprecated Use {@link #sha1(byte[])}
      */
+    @Deprecated
     public static byte[] sha(byte[] data) {
         return getShaDigest().digest(data);
     }
@@ -245,7 +358,9 @@ public class DigestUtils {
      * @throws IOException
      *             On error reading from the stream
      * @since 1.4
+     * @deprecated Use {@link #sha1(InputStream)}
      */
+    @Deprecated
     public static byte[] sha(InputStream data) throws IOException {
         return digest(getShaDigest(), data);
     }
@@ -256,9 +371,86 @@ public class DigestUtils {
      * @param data
      *            Data to digest
      * @return SHA-1 digest
+     * @deprecated Use {@link #sha1(String)}
      */
+    @Deprecated
     public static byte[] sha(String data) {
         return sha(getBytesUtf8(data));
+    }
+
+    /**
+     * Calculates the SHA-1 digest and returns the value as a <code>byte[]</code>.
+     *
+     * @param data
+     *            Data to digest
+     * @return SHA-1 digest
+     * @since 1.7
+     */
+    public static byte[] sha1(byte[] data) {
+        return getSha1Digest().digest(data);
+    }
+
+    /**
+     * Calculates the SHA-1 digest and returns the value as a <code>byte[]</code>.
+     *
+     * @param data
+     *            Data to digest
+     * @return SHA-1 digest
+     * @throws IOException
+     *             On error reading from the stream
+     * @since 1.7
+     */
+    public static byte[] sha1(InputStream data) throws IOException {
+        return digest(getSha1Digest(), data);
+    }
+
+    /**
+     * Calculates the SHA-1 digest and returns the value as a <code>byte[]</code>.
+     *
+     * @param data
+     *            Data to digest
+     * @return SHA-1 digest
+     */
+    public static byte[] sha1(String data) {
+        return sha1(getBytesUtf8(data));
+    }
+
+    /**
+     * Calculates the SHA-1 digest and returns the value as a hex string.
+     *
+     * @param data
+     *            Data to digest
+     * @return SHA-1 digest as a hex string
+     * @since 1.7
+     */
+    public static String sha1Hex(byte[] data) {
+        return Hex.encodeHexString(sha1(data));
+    }
+
+    /**
+     * Calculates the SHA-1 digest and returns the value as a hex string.
+     *
+     * @param data
+     *            Data to digest
+     * @return SHA-1 digest as a hex string
+     * @throws IOException
+     *             On error reading from the stream
+     * @since 1.7
+     */
+    public static String sha1Hex(InputStream data) throws IOException {
+        return Hex.encodeHexString(sha1(data));
+    }
+
+    /**
+     * Calculates the SHA-1 digest and returns the value as a hex string.
+     *
+     * @param data
+     *            Data to digest
+     * @return SHA-1 digest as a hex string
+     * @since 1.7
+     */
+    public static String sha1Hex(String data) {
+        return Hex.encodeHexString(sha1(data));
     }
 
     /**
@@ -549,7 +741,9 @@ public class DigestUtils {
      * @param data
      *            Data to digest
      * @return SHA-1 digest as a hex string
+     * @deprecated Use {@link #sha1Hex(byte[])}
      */
+    @Deprecated
     public static String shaHex(byte[] data) {
         return Hex.encodeHexString(sha(data));
     }
@@ -563,7 +757,9 @@ public class DigestUtils {
      * @throws IOException
      *             On error reading from the stream
      * @since 1.4
+     * @deprecated Use {@link #sha1Hex(InputStream)}
      */
+    @Deprecated
     public static String shaHex(InputStream data) throws IOException {
         return Hex.encodeHexString(sha(data));
     }
@@ -574,7 +770,9 @@ public class DigestUtils {
      * @param data
      *            Data to digest
      * @return SHA-1 digest as a hex string
+     * @deprecated Use {@link #sha1Hex(String)}
      */
+    @Deprecated
     public static String shaHex(String data) {
         return Hex.encodeHexString(sha(data));
     }
@@ -589,8 +787,8 @@ public class DigestUtils {
      * @return the updated {@link MessageDigest}
      * @since 1.7
      */
-    public static MessageDigest updateDigest(final MessageDigest messageDigest, final String valueToDigest) {
-        messageDigest.update(getBytesUtf8(valueToDigest));
+    public static MessageDigest updateDigest(final MessageDigest messageDigest, byte[] valueToDigest) {
+        messageDigest.update(valueToDigest);
         return messageDigest;
     }
 
@@ -604,8 +802,8 @@ public class DigestUtils {
      * @return the updated {@link MessageDigest}
      * @since 1.7
      */
-    public static MessageDigest updateDigest(final MessageDigest messageDigest, byte[] valueToDigest) {
-        messageDigest.update(valueToDigest);
+    public static MessageDigest updateDigest(final MessageDigest messageDigest, final String valueToDigest) {
+        messageDigest.update(getBytesUtf8(valueToDigest));
         return messageDigest;
     }
 }
