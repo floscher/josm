@@ -2,20 +2,14 @@ package org.openstreetmap.gui.jmapviewer;
 
 //License: GPL. Copyright 2008 by Jan Peter Stotz
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.awt.font.TextAttribute;
-import java.awt.geom.Rectangle2D;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -68,6 +62,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
     protected boolean mapPolygonsVisible;
 
     protected boolean tileGridVisible;
+    protected boolean scrollWrapEnabled;
 
     protected TileController tileController;
 
@@ -85,6 +80,12 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
     protected JSlider zoomSlider;
     protected JButton zoomInButton;
     protected JButton zoomOutButton;
+        
+    public static enum ZOOM_BUTTON_STYLE {
+        HORIZONTAL,
+        VERTICAL
+    }
+    protected ZOOM_BUTTON_STYLE zoomButtonStyle;
 
     private TileSource tileSource;
 
@@ -98,12 +99,13 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
      * retrieving the tiles.
      */
     public JMapViewer() {
-        this(new MemoryTileCache(), 4);
+        this(new MemoryTileCache(), 8);
         new DefaultMapController(this);
     }
 
     public JMapViewer(TileCache tileCache, int downloadThreadCount) {
         super();
+        JobDispatcher.setMaxWorkers(downloadThreadCount);
         tileSource = new OsmTileSource.Mapnik();
         tileController = new TileController(tileSource, tileCache, this);
         mapMarkerList = new LinkedList<MapMarker>();
@@ -514,6 +516,9 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
         int y_min = -tilesize;
         int x_max = getWidth();
         int y_max = getHeight();
+        
+        // calculate the length of the grid (number of squares per edge)
+        int gridLength = 1 << zoom;
 
         // paint the tiles in a spiral, starting from center of the map
         boolean painted = true;
@@ -527,14 +532,21 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
                 for (int j = 0; j < x; j++) {
                     if (x_min <= posx && posx <= x_max && y_min <= posy && posy <= y_max) {
                         // tile is visible
-                        Tile tile = tileController.getTile(tilex, tiley, zoom);
+                        Tile tile;
+                        if (scrollWrapEnabled) {
+                            // in case tilex is out of bounds, grab the tile to use for wrapping
+                            int tilexWrap = (((tilex % gridLength) + gridLength) % gridLength);
+                            tile = tileController.getTile(tilexWrap, tiley, zoom);
+                        } else {
+                            tile = tileController.getTile(tilex, tiley, zoom);
+                        }
                         if (tile != null) {
-                            painted = true;
                             tile.paint(g, posx, posy);
                             if (tileGridVisible) {
                                 g.drawRect(posx, posy, tilesize, tilesize);
                             }
                         }
+                        painted = true;
                     }
                     Point p = move[iMove];
                     posx += p.x * tilesize;
@@ -547,10 +559,20 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
         }
         // outer border of the map
         int mapSize = tilesize << zoom;
-        g.drawRect(w2 - center.x, h2 - center.y, mapSize, mapSize);
+        if (scrollWrapEnabled) {
+            g.drawLine(0, h2 - center.y, getWidth(), h2 - center.y);
+            g.drawLine(0, h2 - center.y + mapSize, getWidth(), h2 - center.y + mapSize);
+        } else {
+            g.drawRect(w2 - center.x, h2 - center.y, mapSize, mapSize);
+        }
 
         // g.drawString("Tiles in cache: " + tileCache.getTileCount(), 50, 20);
 
+        // keep x-coordinates from growing without bound if scroll-wrap is enabled
+        if (scrollWrapEnabled) {
+            center.x = center.x % mapSize;
+        }
+        
         if (mapPolygonsVisible && mapPolygonList != null) {
             for (MapPolygon polygon : mapPolygonList) {
                 paintPolygon(g, polygon);
@@ -577,8 +599,29 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
      */
     protected void paintMarker(Graphics g, MapMarker marker) {
         Point p = getMapPosition(marker.getLat(), marker.getLon());
-        if (p != null) {
+        if (scrollWrapEnabled) {
+            int tilesize = tileSource.getTileSize();
+            int mapSize = tilesize << zoom;
+            if (p == null) {
+                p = getMapPosition(marker.getLat(), marker.getLon(), false);
+            }
             marker.paint(g, p);
+            int xSave = p.x;
+            int xWrap = xSave;
+            // overscan of 15 allows up to 30-pixel markers to gracefully scroll off the edge of the panel
+            while ((xWrap -= mapSize) >= -15) {
+                p.x = xWrap;
+                marker.paint(g, p);
+            }
+            xWrap = xSave;
+            while ((xWrap += mapSize) <= getWidth() + 15) {
+                p.x = xWrap;
+                marker.paint(g, p);
+            }
+        } else {
+            if (p != null) {
+                marker.paint(g, p);
+            }
         }
     }
 
@@ -593,6 +636,29 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
             Point pBottomRight = getMapPosition(bottomRight, false);
             if (pTopLeft != null && pBottomRight != null) {
                 rectangle.paint(g, pTopLeft, pBottomRight);
+                if (scrollWrapEnabled) {
+                    int tilesize = tileSource.getTileSize();
+                    int mapSize = tilesize << zoom;
+                    int xTopLeftSave = pTopLeft.x;
+                    int xTopLeftWrap = xTopLeftSave;
+                    int xBottomRightSave = pBottomRight.x;
+                    int xBottomRightWrap = xBottomRightSave;
+                    while ((xBottomRightWrap -= mapSize) >= 0) {
+                        xTopLeftWrap -= mapSize;
+                        pTopLeft.x = xTopLeftWrap;
+                        pBottomRight.x = xBottomRightWrap;
+                        rectangle.paint(g, pTopLeft, pBottomRight);
+                    }
+                    xTopLeftWrap = xTopLeftSave;
+                    xBottomRightWrap = xBottomRightSave;
+                    while ((xTopLeftWrap += mapSize) <= getWidth()) {
+                        xBottomRightWrap += mapSize;
+                        pTopLeft.x = xTopLeftWrap;
+                        pBottomRight.x = xBottomRightWrap;
+                        rectangle.paint(g, pTopLeft, pBottomRight);
+                    }
+                    
+                }
             }
         }
     }
@@ -612,6 +678,32 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
                 points.add(p);
             }
             polygon.paint(g, points);
+            if (scrollWrapEnabled) {
+                int tilesize = tileSource.getTileSize();
+                int mapSize = tilesize << zoom;
+                List<Point> pointsWrapped = new LinkedList<Point>(points);
+                boolean keepWrapping = true;
+                while (keepWrapping) {
+                    for (Point p : pointsWrapped) {
+                        p.x -= mapSize;
+                        if (p.x < 0) {
+                            keepWrapping = false;
+                        }
+                    }
+                    polygon.paint(g, pointsWrapped);
+                }
+                pointsWrapped = new LinkedList<Point>(points);
+                keepWrapping = true;
+                while (keepWrapping) {
+                    for (Point p : pointsWrapped) {
+                        p.x += mapSize;
+                        if (p.x > getWidth()) {
+                            keepWrapping = false;
+                        }
+                    }
+                    polygon.paint(g, pointsWrapped);
+                }
+            }
         }
     }
 
@@ -624,6 +716,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
      *            vertical movement in pixel
      */
     public void moveMap(int x, int y) {
+        tileController.cancelOutstandingJobs(); // Clear outstanding load
         center.x += x;
         center.y += y;
         repaint();
@@ -868,6 +961,44 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
      */
     public void setMapPolygonsVisible(boolean mapPolygonsVisible) {
         this.mapPolygonsVisible = mapPolygonsVisible;
+        repaint();
+    }
+    
+    public boolean isScrollWrapEnabled() {
+        return scrollWrapEnabled;
+    }
+    
+    public void setScrollWrapEnabled(boolean scrollWrapEnabled) {
+        this.scrollWrapEnabled = scrollWrapEnabled;
+        repaint();
+    }
+    
+    public ZOOM_BUTTON_STYLE getZoomButtonStyle() {
+        return zoomButtonStyle;
+    }
+    
+    public void setZoomButtonStyle(ZOOM_BUTTON_STYLE style) {
+        zoomButtonStyle = style;
+        if (zoomSlider == null || zoomInButton == null || zoomOutButton == null) {
+            return;
+        }
+        switch (style) {
+            case HORIZONTAL:
+                zoomSlider.setBounds(10, 10, 30, 150);
+                zoomInButton.setBounds(4, 155, 18, 18);
+                zoomOutButton.setBounds(26, 155, 18, 18);
+                break;
+            case VERTICAL:
+                zoomSlider.setBounds(10, 27, 30, 150);
+                zoomInButton.setBounds(14, 8, 20, 20);
+                zoomOutButton.setBounds(14, 176, 20, 20);
+                break;
+            default:
+                zoomSlider.setBounds(10, 10, 30, 150);
+                zoomInButton.setBounds(4, 155, 18, 18);
+                zoomOutButton.setBounds(26, 155, 18, 18);
+                break;
+        }
         repaint();
     }
 
