@@ -6,7 +6,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.Stroke;
 
 import org.openstreetmap.gui.jmapviewer.interfaces.MapRectangle;
@@ -20,6 +19,9 @@ public class MapRectangleImpl extends MapObjectImpl implements MapRectangle {
     private Coordinate topLeft;
     private Coordinate bottomRight;
 
+    public MapRectangleImpl(Coordinate topLeft, Coordinate bottomRight) {
+        this(null, null, topLeft, bottomRight);
+    }
     public MapRectangleImpl(String name, Coordinate topLeft, Coordinate bottomRight) {
         this(null, name, topLeft, bottomRight);
     }
@@ -82,6 +84,6 @@ public class MapRectangleImpl extends MapObjectImpl implements MapRectangle {
     }
     @Override
     public String toString() {
-        return "MapRectangle from " + topLeft + " to " + bottomRight;
+        return "MapRectangle from " + getTopLeft() + " to " + getBottomRight();
     }
 }
