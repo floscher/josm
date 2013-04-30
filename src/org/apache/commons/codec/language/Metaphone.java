@@ -29,15 +29,20 @@ import org.apache.commons.codec.StringEncoder;
  * <CITE>Hanging on the Metaphone</CITE> by <CITE>Lawrence Philips</CITE> in <CITE>Computer Language of Dec. 1990,
  * p 39.</CITE>
  * <p>
- * Note, that this does not match the algorithm that ships with PHP, or the algorithm found in the Perl
- * <a href="http://search.cpan.org/~mschwern/Text-Metaphone-1.96/Metaphone.pm">Text:Metaphone-1.96</a>.
+ * Note, that this does not match the algorithm that ships with PHP, or the algorithm found in the Perl implementations:
+ * </p>
+ * <ul>
+ * <li><a href="http://search.cpan.org/~mschwern/Text-Metaphone-1.96/Metaphone.pm">Text:Metaphone-1.96</a> (broken link 4/30/2013) </li>
+ * <li><a href="https://metacpan.org/source/MSCHWERN/Text-Metaphone-1.96//Metaphone.pm">Text:Metaphone-1.96</a> (link checked 4/30/2013) </li>
+ * </ul>
+ * <p>
  * They have had undocumented changes from the originally published algorithm.
  * For more information, see <a href="https://issues.apache.org/jira/browse/CODEC-57">CODEC-57</a>.
  * <p>
  * This class is conditionally thread-safe.
  * The instance field {@link #maxCodeLen} is mutable {@link #setMaxCodeLen(int)}
- * but is not volatile, and accesses are not synchronised.
- * If an instance of the class is shared between threads, the caller needs to ensure that suitable synchronisation
+ * but is not volatile, and accesses are not synchronized.
+ * If an instance of the class is shared between threads, the caller needs to ensure that suitable synchronization
  * is used to ensure safe publication of the value between threads, and must not invoke {@link #setMaxCodeLen(int)}
  * after initial setup.
  *
