@@ -42,7 +42,7 @@ public class DigestUtils {
      *            The MessageDigest to use (e.g. MD5)
      * @param data
      *            Data to digest
-     * @return MD5 digest
+     * @return the digest
      * @throws IOException
      *             On error reading from the stream
      */
@@ -58,7 +58,7 @@ public class DigestUtils {
      *            href="http://java.sun.com/j2se/1.3/docs/guide/security/CryptoSpec.html#AppA">Appendix A in the Java
      *            Cryptography Architecture API Specification & Reference</a> for information about standard algorithm
      *            names.
-     * @return An MD5 digest instance.
+     * @return A digest instance.
      * @see MessageDigest#getInstance(String)
      * @throws IllegalArgumentException
      *             when a {@link NoSuchAlgorithmException} is caught.
@@ -203,7 +203,7 @@ public class DigestUtils {
      * Calculates the MD2 digest and returns the value as a 16 element <code>byte[]</code>.
      *
      * @param data
-     *            Data to digest
+     *            Data to digest; converted to bytes using {@link StringUtils#getBytesUtf8(String)}
      * @return MD2 digest
      * @since 1.7
      */
@@ -278,7 +278,7 @@ public class DigestUtils {
      * Calculates the MD5 digest and returns the value as a 16 element <code>byte[]</code>.
      *
      * @param data
-     *            Data to digest
+     *            Data to digest; converted to bytes using {@link StringUtils#getBytesUtf8(String)}
      * @return MD5 digest
      */
     public static byte[] md5(final String data) {
@@ -393,7 +393,7 @@ public class DigestUtils {
      * Calculates the SHA-1 digest and returns the value as a <code>byte[]</code>.
      *
      * @param data
-     *            Data to digest
+     *            Data to digest; converted to bytes using {@link StringUtils#getBytesUtf8(String)}
      * @return SHA-1 digest
      */
     public static byte[] sha1(final String data) {
@@ -477,7 +477,7 @@ public class DigestUtils {
      * </p>
      *
      * @param data
-     *            Data to digest
+     *            Data to digest; converted to bytes using {@link StringUtils#getBytesUtf8(String)}
      * @return SHA-256 digest
      * @since 1.4
      */
@@ -571,7 +571,7 @@ public class DigestUtils {
      * </p>
      *
      * @param data
-     *            Data to digest
+     *            Data to digest; converted to bytes using {@link StringUtils#getBytesUtf8(String)}
      * @return SHA-384 digest
      * @since 1.4
      */
@@ -665,7 +665,7 @@ public class DigestUtils {
      * </p>
      *
      * @param data
-     *            Data to digest
+     *            Data to digest; converted to bytes using {@link StringUtils#getBytesUtf8(String)}
      * @return SHA-512 digest
      * @since 1.4
      */
@@ -784,7 +784,7 @@ public class DigestUtils {
      *            The MessageDigest to use (e.g. MD5)
      * @param data
      *            Data to digest
-     * @return MD5 digest
+     * @return the digest
      * @throws IOException
      *             On error reading from the stream
      * @since 1.8
@@ -807,7 +807,7 @@ public class DigestUtils {
      * @param messageDigest
      *            the {@link MessageDigest} to update
      * @param valueToDigest
-     *            the value to update the {@link MessageDigest} with
+     *            the value to update the {@link MessageDigest} with; converted to bytes using {@link StringUtils#getBytesUtf8(String)}
      * @return the updated {@link MessageDigest}
      * @since 1.7
      */
