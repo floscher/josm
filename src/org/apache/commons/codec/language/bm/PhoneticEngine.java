@@ -78,7 +78,7 @@ public class PhoneticEngine {
             this.phonemes = new LinkedHashSet<Rule.Phoneme>();
             this.phonemes.add(phoneme);
         }
-        
+
         private PhonemeBuilder(final Set<Rule.Phoneme> phonemes) {
             this.phonemes = phonemes;
         }
@@ -95,34 +95,34 @@ public class PhoneticEngine {
         }
 
         /**
-         * Creates a new phoneme builder containing the application of the expression to all phonemes in this builder.
+         * Applies the given phoneme expression to all phonemes in this phoneme builder.
          * <p>
          * This will lengthen phonemes that have compatible language sets to the expression, and drop those that are
          * incompatible.
          *
          * @param phonemeExpr   the expression to apply
          * @param maxPhonemes   the maximum number of phonemes to build up
-         * @return  a new phoneme builder containing the results of <code>phonemeExpr</code> applied to each phoneme
-         *      in turn
          */
-        public PhonemeBuilder apply(final Rule.PhonemeExpr phonemeExpr, final int maxPhonemes) {
-            final Set<Rule.Phoneme> newPhonemes = new LinkedHashSet<Rule.Phoneme>();
+        public void apply(final Rule.PhonemeExpr phonemeExpr, final int maxPhonemes) {
+            final List<Rule.Phoneme> newPhonemes = new ArrayList<Rule.Phoneme>(maxPhonemes);
 
             EXPR: for (final Rule.Phoneme left : this.phonemes) {
                 for (final Rule.Phoneme right : phonemeExpr.getPhonemes()) {
-                	LanguageSet languages = left.getLanguages().restrictTo(right.getLanguages());
-                	if (!languages.isEmpty()) {
-                		final Rule.Phoneme join = new Phoneme(left, right, languages);
+                    final LanguageSet languages = left.getLanguages().restrictTo(right.getLanguages());
+                    if (!languages.isEmpty()) {
+                        final Rule.Phoneme join = new Phoneme(left, right, languages);
                         if (newPhonemes.size() < maxPhonemes) {
                             newPhonemes.add(join);
-                        } else {
-                            break EXPR;
+                            if (newPhonemes.size() >= maxPhonemes) {
+                                break EXPR;
+                            }
                         }
                     }
                 }
             }
 
-            return new PhonemeBuilder(newPhonemes);
+            this.phonemes.clear();
+            this.phonemes.addAll(newPhonemes);
         }
 
         /**
@@ -212,7 +212,7 @@ public class PhoneticEngine {
                     final String pattern = rule.getPattern();
                     patternLength = pattern.length();
                     if (rule.patternAndContextMatches(this.input, this.i)) {
-                        this.phonemeBuilder = this.phonemeBuilder.apply(rule.getPhoneme(), maxPhonemes);
+                        this.phonemeBuilder.apply(rule.getPhoneme(), maxPhonemes);
                         this.found = true;
                         break;
                     }
@@ -326,7 +326,8 @@ public class PhoneticEngine {
      * @param finalRules the final rules to apply
      * @return the resulting phonemes
      */
-    private PhonemeBuilder applyFinalRules(final PhonemeBuilder phonemeBuilder, final Map<String, List<Rule>> finalRules) {
+    private PhonemeBuilder applyFinalRules(final PhonemeBuilder phonemeBuilder,
+                                           final Map<String, List<Rule>> finalRules) {
         if (finalRules == null) {
             throw new NullPointerException("finalRules can not be null");
         }
@@ -382,11 +383,11 @@ public class PhoneticEngine {
      *   of the input
      */
     public String encode(String input, final Languages.LanguageSet languageSet) {
-        final Map<String, List<Rule>> rules = Rule.getInstance(this.nameType, RuleType.RULES, languageSet);
+        final Map<String, List<Rule>> rules = Rule.getInstanceMap(this.nameType, RuleType.RULES, languageSet);
         // rules common across many (all) languages
-        final Map<String, List<Rule>> finalRules1 = Rule.getInstance(this.nameType, this.ruleType, "common");
+        final Map<String, List<Rule>> finalRules1 = Rule.getInstanceMap(this.nameType, this.ruleType, "common");
         // rules that apply to a specific language that may be ambiguous or wrong if applied to other languages
-        final Map<String, List<Rule>> finalRules2 = Rule.getInstance(this.nameType, this.ruleType, languageSet);
+        final Map<String, List<Rule>> finalRules2 = Rule.getInstanceMap(this.nameType, this.ruleType, languageSet);
 
         // tidy the input
         // lower case is a locale-dependent operation
