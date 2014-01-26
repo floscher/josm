@@ -1,3 +1,4 @@
+// License: BSD or GPL. For details, see Readme.txt file.
 package org.openstreetmap.gui.jmapviewer.tilesources;
 
 import java.util.Random;
