@@ -526,7 +526,7 @@ public class Base32 extends BaseNCodec {
     }
 
     /**
-     * Returns whether or not the <code>octet</code> is in the Base32 alphabet.
+     * Returns whether or not the {@code octet} is in the Base32 alphabet.
      *
      * @param octet
      *            The value to test
