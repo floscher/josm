@@ -23,7 +23,7 @@ package org.apache.commons.codec.binary;
  * <p>
  * Copied from Apache Commons Lang r1586295 on April 10, 2014 (day of 3.3.2 release).
  * </p>
- * 
+ *
  * @see CharSequence
  * @since 1.10
  */
@@ -31,7 +31,7 @@ public class CharSequenceUtils {
 
     /**
      * Green implementation of regionMatches.
-     * 
+     *
      * @param cs
      *            the <code>CharSequence</code> to be processed
      * @param ignoreCase
@@ -68,8 +68,8 @@ public class CharSequenceUtils {
             }
 
             // The same check as in String.regionMatches():
-            if (Character.toUpperCase(c1) != Character.toUpperCase(c2)
-                    && Character.toLowerCase(c1) != Character.toLowerCase(c2)) {
+            if (Character.toUpperCase(c1) != Character.toUpperCase(c2) &&
+                    Character.toLowerCase(c1) != Character.toLowerCase(c2)) {
                 return false;
             }
         }
