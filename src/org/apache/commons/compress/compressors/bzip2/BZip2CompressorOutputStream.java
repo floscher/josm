@@ -1,40 +1,35 @@
 /*
- *  Licensed to the Apache Software Foundation (ASF) under one or more
- *  contributor license agreements.  See the NOTICE file distributed with
- *  this work for additional information regarding copyright ownership.
- *  The ASF licenses this file to You under the Apache License, Version 2.0
- *  (the "License"); you may not use this file except in compliance with
- *  the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-
-/*
- * This package is based on the work done by Keiron Liddle, Aftex Software
- * <keiron@aftexsw.com> to whom the Ant project is very grateful for his
- * great code.
- */
-
-package org.apache.tools.bzip2;
+package org.apache.commons.compress.compressors.bzip2;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.commons.compress.compressors.CompressorOutputStream;
+
 /**
- * An output stream that compresses into the BZip2 format (without the file
- * header chars) into another stream.
+ * An output stream that compresses into the BZip2 format into another stream.
  *
  * <p>
  * The compression requires large amounts of memory. Thus you should call the
  * {@link #close() close()} method as soon as possible, to force
- * <tt>CBZip2OutputStream</tt> to release the allocated memory.
+ * {@code BZip2CompressorOutputStream} to release the allocated memory.
  * </p>
  *
  * <p> You can shrink the amount of allocated memory and maybe raise
@@ -51,15 +46,13 @@ import java.io.OutputStream;
  * </pre>
  *
  * <p> To get the memory required for decompression by {@link
- * CBZip2InputStream CBZip2InputStream} use </p>
+ * BZip2CompressorInputStream} use </p>
  *
  * <pre>
  * &lt;code&gt;65k + (5 * blocksize)&lt;/code&gt;.
  * </pre>
  *
- * <table width="100%" border="1">
- * <colgroup> <col width="33%" /> <col width="33%" /> <col width="33%" />
- * </colgroup>
+ * <table width="100%" border="1" summary="Memory usage by blocksize">
  * <tr>
  * <th colspan="3">Memory usage by blocksize</th>
  * </tr>
@@ -116,7 +109,7 @@ import java.io.OutputStream;
  * </table>
  *
  * <p>
- * For decompression <tt>CBZip2InputStream</tt> allocates less memory if the
+ * For decompression {@code BZip2CompressorInputStream} allocates less memory if the
  * bzipped input is smaller than one block.
  * </p>
  *
@@ -127,250 +120,23 @@ import java.io.OutputStream;
  * <p>
  * TODO: Update to BZip2 1.0.1
  * </p>
- *
+ * @NotThreadSafe
  */
-public class CBZip2OutputStream extends OutputStream
+public class BZip2CompressorOutputStream extends CompressorOutputStream
     implements BZip2Constants {
 
     /**
-     * The minimum supported blocksize <tt> == 1</tt>.
+     * The minimum supported blocksize {@code  == 1}.
      */
     public static final int MIN_BLOCKSIZE = 1;
 
     /**
-     * The maximum supported blocksize <tt> == 9</tt>.
+     * The maximum supported blocksize {@code  == 9}.
      */
     public static final int MAX_BLOCKSIZE = 9;
 
-    /**
-     * This constant is accessible by subclasses for historical
-     * purposes. If you don't know what it means then you don't need
-     * it.
-     */
-    protected static final int SETMASK = (1 << 21);
-
-    /**
-     * This constant is accessible by subclasses for historical
-     * purposes. If you don't know what it means then you don't need
-     * it.
-     */
-    protected static final int CLEARMASK = (~SETMASK);
-
-    /**
-     * This constant is accessible by subclasses for historical
-     * purposes. If you don't know what it means then you don't need
-     * it.
-     */
-    protected static final int GREATER_ICOST = 15;
-
-    /**
-     * This constant is accessible by subclasses for historical
-     * purposes. If you don't know what it means then you don't need
-     * it.
-     */
-    protected static final int LESSER_ICOST = 0;
-
-    /**
-     * This constant is accessible by subclasses for historical
-     * purposes. If you don't know what it means then you don't need
-     * it.
-     */
-    protected static final int SMALL_THRESH = 20;
-
-    /**
-     * This constant is accessible by subclasses for historical
-     * purposes. If you don't know what it means then you don't need
-     * it.
-     */
-    protected static final int DEPTH_THRESH = 10;
-
-    /**
-     * This constant is accessible by subclasses for historical
-     * purposes. If you don't know what it means then you don't need
-     * it.
-     */
-    protected static final int WORK_FACTOR = 30;
-
-    /**
-     * This constant is accessible by subclasses for historical
-     * purposes. If you don't know what it means then you don't need
-     * it.
-     * <p> If you are ever unlucky/improbable enough to get a stack
-     * overflow whilst sorting, increase the following constant and
-     * try again. In practice I have never seen the stack go above 27
-     * elems, so the following limit seems very generous.  </p>
-     */
-    protected static final int QSORT_STACK_SIZE = 1000;
-
-    /**
-     * Knuth's increments seem to work better than Incerpi-Sedgewick here.
-     * Possibly because the number of elems to sort is usually small, typically
-     * &lt;= 20.
-     */
-    private static final int[] INCS = { 1, 4, 13, 40, 121, 364, 1093, 3280,
-                                        9841, 29524, 88573, 265720, 797161,
-                                        2391484 };
-
-    /**
-     * This method is accessible by subclasses for historical
-     * purposes. If you don't know what it does then you don't need
-     * it.
-     */
-    protected static void hbMakeCodeLengths(char[] len, int[] freq,
-                                            int alphaSize, int maxLen) {
-        /*
-         * Nodes and heap entries run from 1. Entry 0 for both the heap and
-         * nodes is a sentinel.
-         */
-        final int[] heap = new int[MAX_ALPHA_SIZE * 2];
-        final int[] weight = new int[MAX_ALPHA_SIZE * 2];
-        final int[] parent = new int[MAX_ALPHA_SIZE * 2];
-
-        for (int i = alphaSize; --i >= 0;) {
-            weight[i + 1] = (freq[i] == 0 ? 1 : freq[i]) << 8;
-        }
-
-        for (boolean tooLong = true; tooLong;) {
-            tooLong = false;
-
-            int nNodes = alphaSize;
-            int nHeap = 0;
-            heap[0] = 0;
-            weight[0] = 0;
-            parent[0] = -2;
-
-            for (int i = 1; i <= alphaSize; i++) {
-                parent[i] = -1;
-                nHeap++;
-                heap[nHeap] = i;
-
-                int zz = nHeap;
-                int tmp = heap[zz];
-                while (weight[tmp] < weight[heap[zz >> 1]]) {
-                    heap[zz] = heap[zz >> 1];
-                    zz >>= 1;
-                }
-                heap[zz] = tmp;
-            }
-
-            // assert (nHeap < (MAX_ALPHA_SIZE + 2)) : nHeap;
-
-            while (nHeap > 1) {
-                int n1 = heap[1];
-                heap[1] = heap[nHeap];
-                nHeap--;
-
-                int yy = 0;
-                int zz = 1;
-                int tmp = heap[1];
-
-                while (true) {
-                    yy = zz << 1;
-
-                    if (yy > nHeap) {
-                        break;
-                    }
-
-                    if ((yy < nHeap)
-                        && (weight[heap[yy + 1]] < weight[heap[yy]])) {
-                        yy++;
-                    }
-
-                    if (weight[tmp] < weight[heap[yy]]) {
-                        break;
-                    }
-
-                    heap[zz] = heap[yy];
-                    zz = yy;
-                }
-
-                heap[zz] = tmp;
-
-                int n2 = heap[1];
-                heap[1] = heap[nHeap];
-                nHeap--;
-
-                yy = 0;
-                zz = 1;
-                tmp = heap[1];
-
-                while (true) {
-                    yy = zz << 1;
-
-                    if (yy > nHeap) {
-                        break;
-                    }
-
-                    if ((yy < nHeap)
-                        && (weight[heap[yy + 1]] < weight[heap[yy]])) {
-                        yy++;
-                    }
-
-                    if (weight[tmp] < weight[heap[yy]]) {
-                        break;
-                    }
-
-                    heap[zz] = heap[yy];
-                    zz = yy;
-                }
-
-                heap[zz] = tmp;
-                nNodes++;
-                parent[n1] = parent[n2] = nNodes;
-
-                final int weight_n1 = weight[n1];
-                final int weight_n2 = weight[n2];
-                weight[nNodes] = (((weight_n1 & 0xffffff00)
-                                   + (weight_n2 & 0xffffff00))
-                                  |
-                                  (1 + (((weight_n1 & 0x000000ff)
-                                         > (weight_n2 & 0x000000ff))
-                                        ? (weight_n1 & 0x000000ff)
-                                        : (weight_n2 & 0x000000ff))
-                                   ));
-
-                parent[nNodes] = -1;
-                nHeap++;
-                heap[nHeap] = nNodes;
-
-                tmp = 0;
-                zz = nHeap;
-                tmp = heap[zz];
-                final int weight_tmp = weight[tmp];
-                while (weight_tmp < weight[heap[zz >> 1]]) {
-                    heap[zz] = heap[zz >> 1];
-                    zz >>= 1;
-                }
-                heap[zz] = tmp;
-
-            }
-
-            // assert (nNodes < (MAX_ALPHA_SIZE * 2)) : nNodes;
-
-            for (int i = 1; i <= alphaSize; i++) {
-                int j = 0;
-                int k = i;
-
-                for (int parent_k; (parent_k = parent[k]) >= 0;) {
-                    k = parent_k;
-                    j++;
-                }
-
-                len[i - 1] = (char) j;
-                if (j > maxLen) {
-                    tooLong = true;
-                }
-            }
-
-            if (tooLong) {
-                for (int i = 1; i < alphaSize; i++) {
-                    int j = weight[i] >> 8;
-                    j = 1 + (j >> 1);
-                    weight[i] = j << 8;
-                }
-            }
-        }
-    }
+    private static final int GREATER_ICOST = 15;
+    private static final int LESSER_ICOST = 0;
 
     private static void hbMakeCodeLengths(final byte[] len, final int[] freq,
                                           final Data dat, final int alphaSize,
@@ -562,12 +328,12 @@ public class CBZip2OutputStream extends OutputStream
      *
      * @return The blocksize, between {@link #MIN_BLOCKSIZE} and
      *         {@link #MAX_BLOCKSIZE} both inclusive. For a negative
-     *         <tt>inputLength</tt> this method returns <tt>MAX_BLOCKSIZE</tt>
+     *         {@code inputLength} this method returns {@code MAX_BLOCKSIZE}
      *         always.
      *
      * @param inputLength
      *            The length of the data which will be compressed by
-     *            <tt>CBZip2OutputStream</tt>.
+     *            {@code BZip2CompressorOutputStream}.
      */
     public static int chooseBlockSize(long inputLength) {
         return (inputLength > 0) ? (int) Math
@@ -575,15 +341,9 @@ public class CBZip2OutputStream extends OutputStream
     }
 
     /**
-     * Constructs a new <tt>CBZip2OutputStream</tt> with a blocksize of 900k.
+     * Constructs a new {@code BZip2CompressorOutputStream} with a blocksize of 900k.
      *
-     * <p>
-     * <b>Attention: </b>The caller is responsible to write the two BZip2 magic
-     * bytes <tt>"BZ"</tt> to the specified stream prior to calling this
-     * constructor.
-     * </p>
-     *
-     * @param out *
+     * @param out 
      *            the destination stream.
      *
      * @throws IOException
@@ -591,19 +351,13 @@ public class CBZip2OutputStream extends OutputStream
      * @throws NullPointerException
      *             if <code>out == null</code>.
      */
-    public CBZip2OutputStream(final OutputStream out) throws IOException {
+    public BZip2CompressorOutputStream(final OutputStream out)
+        throws IOException {
         this(out, MAX_BLOCKSIZE);
     }
 
     /**
-     * Constructs a new <tt>CBZip2OutputStream</tt> with specified blocksize.
-     *
-     * <p>
-     * <b>Attention: </b>The caller is responsible to write the two BZip2 magic
-     * bytes <tt>"BZ"</tt> to the specified stream prior to calling this
-     * constructor.
-     * </p>
-     *
+     * Constructs a new {@code BZip2CompressorOutputStream} with specified blocksize.
      *
      * @param out
      *            the destination stream.
@@ -613,35 +367,29 @@ public class CBZip2OutputStream extends OutputStream
      * @throws IOException
      *             if an I/O error occurs in the specified stream.
      * @throws IllegalArgumentException
-     *             if <code>(blockSize < 1) || (blockSize > 9)</code>.
+     *             if <code>(blockSize &lt; 1) || (blockSize &gt; 9)</code>.
      * @throws NullPointerException
      *             if <code>out == null</code>.
      *
      * @see #MIN_BLOCKSIZE
      * @see #MAX_BLOCKSIZE
      */
-    public CBZip2OutputStream(final OutputStream out, final int blockSize)
-        throws IOException {
-        super();
-
+    public BZip2CompressorOutputStream(final OutputStream out, final int blockSize) throws IOException {
         if (blockSize < 1) {
-            throw new IllegalArgumentException("blockSize(" + blockSize
-                                               + ") < 1");
+            throw new IllegalArgumentException("blockSize(" + blockSize + ") < 1");
         }
         if (blockSize > 9) {
-            throw new IllegalArgumentException("blockSize(" + blockSize
-                                               + ") > 9");
+            throw new IllegalArgumentException("blockSize(" + blockSize + ") > 9");
         }
 
         this.blockSize100k = blockSize;
         this.out = out;
 
         /* 20 is just a paranoia constant */
-        this.allowableBlockSize = (this.blockSize100k * BZip2Constants.baseBlockSize) - 20;
+        this.allowableBlockSize = (this.blockSize100k * BZip2Constants.BASEBLOCKSIZE) - 20;
         init();
     }
 
-    /** {@inheritDoc} */
     @Override
     public void write(final int b) throws IOException {
         if (this.out != null) {
@@ -719,7 +467,7 @@ public class CBZip2OutputStream extends OutputStream
     }
 
     /**
-     * Overridden to close the stream.
+     * Overriden to close the stream.
      */
     @Override
     protected void finalize() throws Throwable {
@@ -762,18 +510,20 @@ public class CBZip2OutputStream extends OutputStream
         }
     }
 
+    /**
+     * Writes magic bytes like BZ on the first position of the stream
+     * and bytes indiciating the file-format, which is 
+     * huffmanised, followed by a digit indicating blockSize100k.
+     * @throws IOException if the magic bytes could not been written
+     */
     private void init() throws IOException {
-        // write magic: done by caller who created this stream
-        // this.out.write('B');
-        // this.out.write('Z');
+        bsPutUByte('B');
+        bsPutUByte('Z');
 
         this.data = new Data(this.blockSize100k);
         this.blockSorter = new BlockSort(this.data);
 
-        /*
-         * Write `magic' bytes h indicating file-format == huffmanised, followed
-         * by a digit indicating blockSize100k.
-         */
+        // huffmanised magic bytes
         bsPutUByte('h');
         bsPutUByte('0' + this.blockSize100k);
 
@@ -791,6 +541,7 @@ public class CBZip2OutputStream extends OutputStream
         for (int i = 256; --i >= 0;) {
             inUse[i] = false;
         }
+
     }
 
     private void endBlock() throws IOException {
@@ -1517,7 +1268,7 @@ public class CBZip2OutputStream extends OutputStream
         this.nMTF = wr + 1;
     }
 
-    static final class Data extends Object {
+    static final class Data {
 
         // with blockSize 900k
         /* maps unsigned byte => "does it occur in block" */
@@ -1567,9 +1318,7 @@ public class CBZip2OutputStream extends OutputStream
         int origPtr;
 
         Data(int blockSize100k) {
-            super();
-
-            final int n = blockSize100k * BZip2Constants.baseBlockSize;
+            final int n = blockSize100k * BZip2Constants.BASEBLOCKSIZE;
             this.block = new byte[(n + 1 + NUM_OVERSHOOT_BYTES)];
             this.fmap = new int[n];
             this.sfmap = new char[2 * n];
