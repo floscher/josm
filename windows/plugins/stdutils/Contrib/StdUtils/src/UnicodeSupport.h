@@ -19,8 +19,29 @@
 // http://www.gnu.org/licenses/lgpl-2.1.txt
 ///////////////////////////////////////////////////////////////////////////////
 
-bool get_real_os_version(unsigned int *major, unsigned int *minor, unsigned int *spack, bool *pbOverride);
-bool get_real_os_buildNo(unsigned int *buildNo, bool *pbOverride);
-const TCHAR *get_os_friendly_name(const DWORD major, const DWORD minor);
+wchar_t *ansi_to_utf16(const char *input);
+wchar_t *utf8_to_utf16(const char *input);
 
-/*eof*/
+char *strtrim(char* input, bool trim_left = true, bool trim_right = true);
+wchar_t *wcstrim(wchar_t* input, bool trim_left = true, bool trim_right = true);
+
+#ifdef UNICODE
+	#define STRLEN wcslen	
+	#define STRICMP _wcsicmp
+	#define STRNCPY wcsncpy
+	#define STRCHR wcschr
+	#define STRTRIM wcstrim
+	#define SNPRINTF _snwprintf
+	#define SSCANF swscanf
+	#define __T__(X) L##X
+	#define T(X) __T__(X)
+#else
+	#define STRLEN strlen
+	#define STRICMP _stricmp
+	#define STRNCPY strncpy
+	#define STRCHR strchr
+	#define STRTRIM strtrim
+	#define SNPRINTF _snprintf
+	#define SSCANF sscanf
+	#define T(X) X
+#endif
