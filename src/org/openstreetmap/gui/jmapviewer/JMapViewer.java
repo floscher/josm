@@ -92,6 +92,8 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
 
     protected transient AttributionSupport attribution = new AttributionSupport();
 
+    protected EventListenerList evtListenerList = new EventListenerList();
+
     /**
      * Creates a standard {@link JMapViewer} instance that can be controlled via
      * mouse: hold right mouse button for moving, double click left mouse button
@@ -138,6 +140,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
         zoomSlider.setBounds(10, 10, 30, 150);
         zoomSlider.setOpaque(false);
         zoomSlider.addChangeListener(new ChangeListener() {
+            @Override
             public void stateChanged(ChangeEvent e) {
                 setZoom(zoomSlider.getValue());
             }
@@ -156,6 +159,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
         zoomInButton.setBounds(4, 155, size, size);
         zoomInButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 zoomIn();
             }
@@ -173,6 +177,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
         zoomOutButton.setBounds(8 + size, 155, size, size);
         zoomOutButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 zoomOut();
             }
@@ -367,7 +372,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
      * @return latitude / longitude
      */
     public ICoordinate getPosition() {
-        return tileSource.XYToLatLon(center, zoom);
+        return tileSource.xyToLatLon(center, zoom);
     }
 
     /**
@@ -394,7 +399,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
     public ICoordinate getPosition(int mapPointX, int mapPointY) {
         int x = center.x + mapPointX - getWidth() / 2;
         int y = center.y + mapPointY - getHeight() / 2;
-        return tileSource.XYToLatLon(x, y, zoom);
+        return tileSource.xyToLatLon(x, y, zoom);
     }
 
     /**
@@ -541,8 +546,8 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
         int tilesize = tileSource.getTileSize();
         int tilex = center.x / tilesize;
         int tiley = center.y / tilesize;
-        int off_x = (center.x % tilesize);
-        int off_y = (center.y % tilesize);
+        int off_x = center.x % tilesize;
+        int off_y = center.y % tilesize;
 
         int w2 = getWidth() / 2;
         int h2 = getHeight() / 2;
@@ -593,7 +598,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
                         Tile tile;
                         if (scrollWrapEnabled) {
                             // in case tilex is out of bounds, grab the tile to use for wrapping
-                            int tilexWrap = (((tilex % gridLength) + gridLength) % gridLength);
+                            int tilexWrap = ((tilex % gridLength) + gridLength) % gridLength;
                             tile = tileController.getTile(tilexWrap, tiley, zoom);
                         } else {
                             tile = tileController.getTile(tilex, tiley, zoom);
@@ -999,6 +1004,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
         repaint();
     }
 
+    @Override
     public void tileLoadingFinished(Tile tile, boolean success) {
         tile.setLoaded(success);
         repaint();
@@ -1094,8 +1100,6 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
         return attribution;
     }
 
-    protected EventListenerList evtListenerList = new EventListenerList();
-
     /**
      * @param listener listener to set
      */
@@ -1115,7 +1119,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
      *
      * @param evt event to dispatch
      */
-    void fireJMVEvent(JMVCommandEvent evt) {
+    private void fireJMVEvent(JMVCommandEvent evt) {
         Object[] listeners = evtListenerList.getListenerList();
         for (int i = 0; i < listeners.length; i += 2) {
             if (listeners[i] == JMapViewerEventListener.class) {
