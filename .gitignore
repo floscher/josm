@@ -6,3 +6,5 @@
 /findbugs-josm.xml
 /javadoc
 /checkstyle-josm.xml
+/taginfo_*.json
+/taginfo-img
