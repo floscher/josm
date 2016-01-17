@@ -1,3 +1,4 @@
 /build
 /report
 /jacoco.exec
+/jacocoIT.exec

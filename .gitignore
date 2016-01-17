@@ -9,3 +9,5 @@
 /taginfo_*.json
 /taginfo-img
 /build2
+/junit*.properties
+/foobar
