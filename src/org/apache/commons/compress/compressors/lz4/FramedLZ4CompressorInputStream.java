@@ -35,12 +35,14 @@ import org.apache.commons.compress.utils.IOUtils;
  *
  * @see <a href="http://lz4.github.io/lz4/lz4_Frame_format.html">LZ4 Frame Format Description</a>
  * @since 1.14
+ * @NotThreadSafe
  */
 public class FramedLZ4CompressorInputStream extends CompressorInputStream {
     /*
      * TODO before releasing 1.14:
      *
      * + xxhash32 checksum validation
+     * + skippable frames
      * + decompressConcatenated
      * + block dependence
      */
@@ -168,6 +170,7 @@ public class FramedLZ4CompressorInputStream extends CompressorInputStream {
         int realLen = (int) (len & (~UNCOMPRESSED_FLAG_MASK));
         if (realLen == 0) {
             endReached = true;
+            verifyContentChecksum();
             return;
         }
         InputStream capped = new BoundedInputStream(in, realLen);
@@ -175,7 +178,7 @@ public class FramedLZ4CompressorInputStream extends CompressorInputStream {
             inUncompressed = true;
             currentBlock = capped;
         } else {
-            inUncompressed = true;
+            inUncompressed = false;
             currentBlock = new BlockLZ4CompressorInputStream(capped);
         }
     }
@@ -190,6 +193,16 @@ public class FramedLZ4CompressorInputStream extends CompressorInputStream {
                 if (4 != skipped) {
                     throw new IOException("Premature end of stream while reading block checksum");
                 }
+            }
+        }
+    }
+
+    private void verifyContentChecksum() throws IOException {
+        if (expectContentChecksum) {
+            int skipped = (int) IOUtils.skip(in, 4);
+            count(skipped);
+            if (4 != skipped) {
+                throw new IOException("Premature end of stream while reading content checksum");
             }
         }
     }
