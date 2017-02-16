@@ -19,6 +19,7 @@
 package org.apache.commons.compress.compressors.lz77support;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Helper class for compression algorithms that use the ideas of LZ77.
@@ -37,9 +38,9 @@ import java.io.IOException;
  * back-references - so it can be re-used. It follows the algorithm
  * explained in section 4 of RFC 1951 (DEFLATE) and currently doesn't
  * implement the "lazy match" optimization. The three-byte hash
- * function used in this class is the same used by zlib and InfoZIP's
- * ZIP implementation of DEFLATE. Strongly inspired by InfoZIP's
- * implementation.</p>
+ * function used in this class is the same as the one used by zlib and
+ * InfoZIP's ZIP implementation of DEFLATE. The whole class is
+ * strongly inspired by InfoZIP's implementation.</p>
  *
  * <p>LZ77 is used vaguely here (as well as many other places that
  * talk about it :-), LZSS would likely be closer to the truth but
@@ -48,7 +49,7 @@ import java.io.IOException;
  * <p>The API consists of a compressor that is fed <code>byte</code>s
  * and emits {@link Block}s to a registered callback where the blocks
  * represent either {@link LiteralBlock literal blocks}, {@link
- * BackReference back references} or {@link EOD end of data
+ * BackReference back-references} or {@link EOD end of data
  * markers}. In order to ensure the callback receives all information,
  * the {@code #finish} method must be used once all data has been fed
  * into the compressor.</p>
@@ -219,7 +220,9 @@ public class LZ77Compressor {
     private int blockStart = 0;
     // position of the current match
     private int matchStart = NO_MATCH;
-    // number of insertString calls for the up to three last bytes of the last match
+    // number of missed insertString calls for the up to three last
+    // bytes of the last match that can only be performed once more
+    // data has been read
     private int missedInserts = 0;
 
     /**
@@ -242,9 +245,7 @@ public class LZ77Compressor {
         window = new byte[wSize * 2];
         wMask = wSize - 1;
         head = new int[HASH_SIZE];
-        for (int i = 0; i < HASH_SIZE; i++) {
-            head[i] = NO_MATCH;
-        }
+        Arrays.fill(head, NO_MATCH);
         prev = new int[wSize];
     }
 
@@ -270,7 +271,7 @@ public class LZ77Compressor {
      */
     public void compress(byte[] data, int off, int len) throws IOException {
         final int wSize = params.getWindowSize();
-        while (len > wSize) {
+        while (len > wSize) { // chop into windowSize sized chunks
             doCompress(data, off, wSize);
             off += wSize;
             len -= wSize;
@@ -295,6 +296,39 @@ public class LZ77Compressor {
             flushLiteralBlock();
         }
         callback.accept(THE_EOD);
+    }
+
+    /**
+     * Adds some initial data to fill the window with.
+     *
+     * <p>This is used if the stream has been cut into blocks and
+     * back-references of one block may refer to data of the previous
+     * block(s). One such example is the LZ4 frame format using block
+     * dependency.</p>
+     *
+     * @param data the data to fill the window with.
+     * @throws IllegalStateException if the compressor has already started to accept data
+     */
+    public void prefill(byte[] data) {
+        if (currentPosition != 0 || lookahead != 0) {
+            throw new IllegalStateException("the compressor has already started to accept data, can't prefill anymore");
+        }
+
+        // don't need more than windowSize for back-references
+        final int len = Math.min(params.getWindowSize(), data.length);
+        System.arraycopy(data, data.length - len, window, 0, len);
+
+        if (len >= NUMBER_OF_BYTES_IN_HASH) {
+            initialize();
+            final int stop = len - NUMBER_OF_BYTES_IN_HASH + 1;
+            for (int i = 0; i < stop; i++) {
+                insertString(i);
+            }
+            missedInserts = NUMBER_OF_BYTES_IN_HASH - 1;
+        } else { // not enough data to hash anything
+            missedInserts = len;
+        }
+        blockStart = currentPosition = len;
     }
 
     // we use a 15 bit hashcode as calculated in updateHash
@@ -394,7 +428,7 @@ public class LZ77Compressor {
 
     /**
      * Inserts the current three byte sequence into the dictionary and
-     * returns the previous previous head of the hash-chain.
+     * returns the previous head of the hash-chain.
      *
      * <p>Updates <code>insertHash</code> and <code>prev</code> as a
      * side effect.</p>
@@ -456,6 +490,10 @@ public class LZ77Compressor {
             if (currentLength > longestMatchLength) {
                 longestMatchLength = currentLength;
                 matchStart = matchHead;
+                if (currentLength == maxPossibleLength) {
+                    // no need to search any further
+                    break;
+                }
             }
             matchHead = prev[matchHead & wMask];
         }
