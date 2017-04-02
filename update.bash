@@ -3,8 +3,8 @@
 git config --global credential.helper store
 echo "https://${GH_USERNAME}:${GH_TOKEN}@github.com" > $HOME/.git-credentials
 
-# If the GitHub repo is not already there (it should be cached between builds)
-if [ ! -f  "$FULL_CLONE_DIR" ]; then
+# If the GitHub repo is not already cloned (it should be cached between builds), clone it now
+if [ ! -f "$FULL_CLONE_DIR/.git/config" ]; then
   git clone "https://github.com/$TRAVIS_REPO_SLUG.git" "$FULL_CLONE_DIR"
   cat << 'EOF' >> "$FULL_CLONE_DIR/.git/config"
 [svn-remote "svn"]
