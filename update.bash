@@ -15,8 +15,20 @@ EOF
 fi
 
 cd "$FULL_CLONE_DIR"
+
+# Create the remote tracking branches for git-svn
+originSvnBranches=`git branch -r --no-color --list "origin/svn/*"`
+readarray -t originSvnBranchLines <<<"$originSvnBranches"
+for originSvnBranch in "${originSvnBranchLines[@]}"; do
+  # Trim the string and throw away the `origin/` prefix
+  originSvnBranch=`echo "$originSvnBranch" | xargs echo | cut -c8-`
+  mkdir -p $(dirname ".git/refs/remotes/$originSvnBranch")
+  git rev-parse "origin/$originSvnBranch" > ".git/refs/remotes/$originSvnBranch"
+done
+
 git svn fetch
 
+# Push all SVN branches to the GitHub repository
 svnBranches=`git branch -r --no-color --list "svn/*"`
 readarray -t lines <<<"$svnBranches"
 for svnBranch in "${lines[@]}"; do
