@@ -1,11 +1,5 @@
-// License: GPL. For details, see LICENSE file.
-package org.openstreetmap.josm.gui.layer.imagery;
-
-import java.util.function.Function;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import org.openstreetmap.gui.jmapviewer.TileXY;
+// License: GPL. For details, see Readme.txt file.
+package org.openstreetmap.gui.jmapviewer;
 
 /**
  * This is a rectangular range of tiles.
@@ -41,18 +35,5 @@ public class TileRange {
         int ySpan = maxY - minY + 1;
         return xSpan * ySpan;
     }
-
-    /**
-     * Gets a stream of all tile positions in this set
-     * @return A stream of all positions
-     */
-    public Stream<TilePosition> tilePositions() {
-        if (zoom == 0) {
-            return Stream.empty();
-        } else {
-            return IntStream.rangeClosed(minX, maxX).mapToObj(
-                    x -> IntStream.rangeClosed(minY, maxY).mapToObj(y -> new TilePosition(x, y, zoom))
-                    ).flatMap(Function.identity());
-        }
-    }
 }
+
