@@ -1,5 +1,5 @@
-// License: GPL. For details, see Readme.txt file.
-package org.openstreetmap.gui.jmapviewer;
+// License: GPL. For details, see LICENSE file.
+package org.openstreetmap.josm.gui.layer.imagery;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -75,4 +75,3 @@ public class TileAnchor {
         return new AffineTransform(scaleX, 0, 0, scaleY, offsetX0, offsetY0);
     }
 }
-
