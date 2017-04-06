@@ -16,6 +16,7 @@ addons:
   apt:
     packages:
     - git-svn
+    - subversion
 
 script:
 - "./update.bash"

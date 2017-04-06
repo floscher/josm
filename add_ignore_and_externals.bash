@@ -39,8 +39,8 @@ if [ $? != 0 ]; then
   exit 1
 fi
 
-# The first 50 of the revisions that are on the svn/trunk branch but not on the trunk branch
-newRevisions=`git rev-list --reverse trunk..refs/remotes/svn/trunk | head -50`
+# The first 20 of the revisions that are on the svn/trunk branch but not on the trunk branch
+newRevisions=`git rev-list --reverse trunk..refs/remotes/svn/trunk | head -20`
 git merge-base --is-ancestor trunk refs/remotes/svn/trunk
 if [ $? == 0 ]; then
   newRevisions=`git rev-list -1 trunk`$'\n'"$newRevisions"
@@ -163,6 +163,10 @@ while read -r newRevision; do
     git checkout -b trunk HEAD
     git reset --soft "$tmpCommit"
     GIT_COMMITTER_DATE="$commitDate" GIT_COMMITTER_NAME="$commitName" GIT_COMMITTER_EMAIL="$commitEmail" git commit --amend -m "$commitMessage" --allow-empty
+    if [ $? != 0 ]; then
+      echo "██ Could not amend the commit. Aborting now."
+      exit 1
+    fi
   fi
 done <<< "$newRevisions"
 
