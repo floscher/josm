@@ -137,7 +137,7 @@ while read -r newRevision; do
         # Fetch newest version of SVN external
         cd "$externalDir"
         echo "██ Update the local clone of the SVN external with the latest changes."
-        git svn fetch
+        timeout 30m git svn fetch
         if [ $? != 0 ]; then
           echo "██ Could not fetch new commits for SVN external $externalURL in directory $externalDir for commit $newRevision"
           exit 1

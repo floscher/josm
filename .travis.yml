@@ -20,4 +20,4 @@ addons:
 
 script:
 - "./update.bash"
-- "./add_ignore_and_externals.bash"
+- "timeout 40m ./add_ignore_and_externals.bash"
