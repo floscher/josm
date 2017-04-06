@@ -23,9 +23,6 @@ echo "██ FULL_CLONE_DIR = $FULL_CLONE_DIR"
 SVN_EXTERNALS_CLONE_DIR=`readlink -f "$SVN_EXTERNALS_CLONE_DIR"`
 echo "██ SVN_EXTERNALS_CLONE_DIR = $SVN_EXTERNALS_CLONE_DIR"
 
-git config user.name "Bash script"
-git config user.email "bash@example.org"
-
 cd "$FULL_CLONE_DIR"
 
 if [ $(git status --short -uno | wc -l) != 0 ]; then
@@ -65,10 +62,14 @@ while read -r newRevision; do
     git merge-base --is-ancestor HEAD $newRevision
     if [ $? == 0 ]; then
       # Branch off the svn/trunk branch if we are on it
-      GIT_AUTHOR_DATE="$commitDate" GIT_AUTHOR_NAME="$commitName" GIT_AUTHOR_EMAIL="$commitEmail" git commit -m "WIP" --allow-empty
+      GIT_AUTHOR_DATE="$commitDate" GIT_AUTHOR_NAME="$commitName" GIT_AUTHOR_EMAIL="$commitEmail" GIT_COMMITTER_NAME="$commitName" GIT_COMMITTER_EMAIL="$commitEmail" git commit -m "WIP" --allow-empty
     else
       # Merge the new commit from the svn/trunk branch otherwise
-      GIT_AUTHOR_DATE="$commitDate" GIT_AUTHOR_NAME="$commitName" GIT_AUTHOR_EMAIL="$commitEmail" git merge $newRevision -s ours -m "WIP"
+      GIT_AUTHOR_DATE="$commitDate" GIT_AUTHOR_NAME="$commitName" GIT_AUTHOR_EMAIL="$commitEmail" GIT_COMMITTER_NAME="$commitName" GIT_COMMITTER_EMAIL="$commitEmail" git merge $newRevision -s ours -m "WIP"
+    fi
+    if [ $? != 0 ]; then
+      echo "██ Could not commit the base commit. Aborting now."
+      exit 1
     fi
 
     # Create the .gitignore file(s)
