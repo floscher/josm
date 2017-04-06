@@ -30,9 +30,11 @@ if [ $(git status --short -uno | wc -l) != 0 ]; then
   exit 1
 fi
 
-git remote prune origin
-git fetch origin trunk
-git checkout -B trunk refs/remotes/origin/trunk
+if [ "$FETCH_FROM_ORIGIN" = true ]; then
+  git remote prune origin
+  git fetch origin trunk
+  git checkout -B trunk refs/remotes/origin/trunk
+fi
 git rev-parse --verify trunk
 if [ $? != 0 ]; then
   echo "██ Branch trunk does not exist, aborting now."
@@ -167,10 +169,12 @@ while read -r newRevision; do
       echo "██ Could not amend the commit. Aborting now."
       exit 1
     fi
+
+    if [ "$PUSH_TO_ORIGIN" = true ]; then
+      git push origin trunk
+    fi
   fi
 done <<< "$newRevisions"
-
-git push origin trunk
 
 echo "██ List of SVN externals that are locally available as git-svn clones:"
 find "$SVN_EXTERNALS_CLONE_DIR" -mindepth 2 -maxdepth 2 -type d -exec printf "{}\n  " \; -exec git config -f "{}/.git/config" svn-remote.svn.url \;
