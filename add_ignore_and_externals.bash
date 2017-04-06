@@ -40,6 +40,7 @@ if [ $? != 0 ]; then
   echo "██ Branch trunk does not exist, aborting now."
   exit 1
 fi
+git checkout trunk
 
 # The first 20 of the revisions that are on the svn/trunk branch but not on the trunk branch
 newRevisions=`git rev-list --reverse trunk..refs/remotes/svn/trunk | head -20`
