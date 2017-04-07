@@ -178,4 +178,4 @@ while read -r newRevision; do
 done <<< "$newRevisions"
 
 echo "██ List of SVN externals that are locally available as git-svn clones:"
-find "$SVN_EXTERNALS_CLONE_DIR" -mindepth 2 -maxdepth 2 -type d -exec printf "{}\n  " \; -exec git config -f "{}/.git/config" svn-remote.svn.url \;
+find "$SVN_EXTERNALS_CLONE_DIR" -maxdepth 2 -type d -exec test -d "{}/.git" \; -and -exec printf "{}\n  " \; -and -exec git config -f "{}/.git/config" svn-remote.svn.url \;
