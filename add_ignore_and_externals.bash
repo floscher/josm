@@ -3,7 +3,7 @@
 # This script updates the branch trunk with all the commits to refs/remotes/svn/trunk, that are not ancestors of the trunk branch.
 
 # RESET_TRUNK_TO_ORIGIN_STATE denotes, if the local trunk branch should be reset to the current refs/remotes/origin/trunk commit
-if [ -z "$RESET_TRUNK_TO_ORIGIN_STATE"]; then
+if [ -z "$RESET_TRUNK_TO_ORIGIN_STATE" ]; then
   RESET_TRUNK_TO_ORIGIN_STATE=false
 fi
 echo "██ RESET_TRUNK_TO_ORIGIN_STATE = $RESET_TRUNK_TO_ORIGIN_STATE"
@@ -137,7 +137,7 @@ while read -r newRevision; do
         # Fetch newest version of SVN external
         cd "$externalDir"
         echo "██ Update the local clone of the SVN external with the latest changes."
-        timeout 30m git svn fetch
+        timeout 30m git svn fetch -q
         if [ $? != 0 ]; then
           echo "██ Could not fetch new commits for SVN external $externalURL in directory $externalDir for commit $newRevision"
           exit 1
