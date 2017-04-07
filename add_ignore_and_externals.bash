@@ -112,8 +112,8 @@ while read -r newRevision; do
         # the SHA1 hash of the URL, primarily used to get a string that can be used as directory name, is not too long and is different for different URLs
         externalURLSha=`echo -n "$externalURL" | sha1sum | cut -c-40`
         # the UUID of the repository, also used as directory name to group the URLs by repository
-        externalUUID=`svn info --show-item repos-uuid "$externalURL" | tail -1`
-        if [ $? != 0 ]; then
+        externalUUID=`svn info "$externalURL" --xml | grep -oE "<uuid>.{36}</uuid>" | cut -c7-42`
+        if [ $? != 0 ] || [ "$externalUUID" == "" ]; then
           echo "██ Could not get the UUID of the SVN external repository."
           exit 1
         fi
