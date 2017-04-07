@@ -2,11 +2,11 @@
 
 # This script updates the branch trunk with all the commits to refs/remotes/svn/trunk, that are not ancestors of the trunk branch.
 
-# FETCH_FROM_ORIGIN denotes, if the local trunk branch should be reset to the current refs/remotes/origin/trunk commit
+# RESET_TRUNK_TO_ORIGIN_STATE denotes, if the local trunk branch should be reset to the current refs/remotes/origin/trunk commit
 if [ -z "$RESET_TRUNK_TO_ORIGIN_STATE"]; then
-  FETCH_FROM_ORIGIN=false
+  RESET_TRUNK_TO_ORIGIN_STATE=false
 fi
-echo "██ FETCH_FROM_ORIGIN = $FETCH_FROM_ORIGIN"
+echo "██ RESET_TRUNK_TO_ORIGIN_STATE = $RESET_TRUNK_TO_ORIGIN_STATE"
 # PUSH_TO_ORIGIN denotes, if this script should push the end result (the updated trunk branch) to the remote called "origin"
 if [ -z "$PUSH_TO_ORIGIN" ]; then
   PUSH_TO_ORIGIN=false
@@ -30,7 +30,7 @@ if [ $(git status --short -uno | wc -l) != 0 ]; then
   exit 1
 fi
 
-if [ "$FETCH_FROM_ORIGIN" = true ]; then
+if [ "$RESET_TRUNK_TO_ORIGIN_STATE" = true ]; then
   git remote prune origin
   git fetch origin trunk
   git checkout -B trunk refs/remotes/origin/trunk
