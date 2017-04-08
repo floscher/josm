@@ -21,4 +21,4 @@ addons:
 
 script:
 - "./update.bash"
-- "timeout 40m ./add_ignore_and_externals.bash"
+- "travis_wait 40 timeout 40m ./add_ignore_and_externals.bash"
