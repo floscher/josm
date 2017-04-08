@@ -2,6 +2,11 @@
 
 # This script updates the branch trunk with all the commits to refs/remotes/svn/trunk, that are not ancestors of the trunk branch.
 
+# DISCARD_UNCOMMITTED_CHANGES denotes, if the script should discard changes, that are currently in the repo on top of the HEAD (either staged or unstaged).
+if [ -z "$DISCARD_UNCOMMITTED_CHANGES" ]; then
+  DISCARD_UNCOMMITTED_CHANGES=false
+fi
+echo "██ DISCARD_UNCOMMITTED_CHANGES = $DISCARD_UNCOMMITTED_CHANGES"
 # RESET_TRUNK_TO_ORIGIN_STATE denotes, if the local trunk branch should be reset to the current refs/remotes/origin/trunk commit
 if [ -z "$RESET_TRUNK_TO_ORIGIN_STATE" ]; then
   RESET_TRUNK_TO_ORIGIN_STATE=false
@@ -25,7 +30,7 @@ echo "██ SVN_EXTERNALS_CLONE_DIR = $SVN_EXTERNALS_CLONE_DIR"
 
 cd "$FULL_CLONE_DIR"
 
-if [ $(git status --short -uno | wc -l) != 0 ]; then
+if [ "$DISCARD_UNCOMMITTED_CHANGES" = false ] && [ $(git status --short -uno | wc -l) != 0 ]; then
   echo "██ You have uncommitted changes, aborting now."
   exit 1
 fi
