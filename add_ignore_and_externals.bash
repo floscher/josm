@@ -124,7 +124,7 @@ while read -r newRevision; do
         while [ `echo "$tmpURL" | grep -o "/" | wc -l` -ge 2 ]; do
           if [ -z "$externalUUID" ]; then
             echo "██ Try to get UUID for URL $tmpURL"
-            tmpUUID=`svn info "$tmpURL" --xml | grep -oE "<uuid>.{36}</uuid>" | cut -c7-42 2>/dev/null`
+            tmpUUID=`svn info "$tmpURL" --xml 2>/dev/null | grep -oE "<uuid>.{36}</uuid>" | cut -c7-42`
             if [ $? == 0 ] && [ "$tmpUUID" != "" ]; then
               externalUUID="$tmpUUID"
               tmpURL=""
