@@ -46,6 +46,10 @@ if [ $? != 0 ]; then
   exit 1
 fi
 git checkout trunk
+if [ $? != 0 ]; then
+  echo "██ Could not checkout branch trunk."
+  exit 1
+fi
 
 # The first 20 of the revisions that are on the svn/trunk branch but not on the trunk branch
 newRevisions=`git rev-list --reverse trunk..refs/remotes/svn/trunk | head -20`
