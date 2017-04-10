@@ -116,19 +116,36 @@ while read -r newRevision; do
         fi
         # the SHA1 hash of the URL, primarily used to get a string that can be used as directory name, is not too long and is different for different URLs
         externalURLSha=`echo -n "$externalURL" | sha1sum | cut -c-40`
+
         # the UUID of the repository, also used as directory name to group the URLs by repository
-        externalUUID=`svn info "$externalURL" --xml | grep -oE "<uuid>.{36}</uuid>" | cut -c7-42`
-        if [ $? != 0 ] || [ "$externalUUID" == "" ]; then
+        externalUUID=
+        tmpURL="$externalURL"
+        # Shorten the URL if the full path is no longer present in the current revision
+        while [ `echo "$tmpURL" | grep -o "/" | wc -l` -ge 2 ]; do
+          if [ -z "$externalUUID" ]; then
+            echo "██ Try to get UUID for URL $tmpURL"
+            tmpUUID=`svn info "$tmpURL" --xml | grep -oE "<uuid>.{36}</uuid>" | cut -c7-42 2>/dev/null`
+            if [ $? == 0 ] && [ "$tmpUUID" != "" ]; then
+              externalUUID="$tmpUUID"
+              tmpURL=""
+            fi
+          fi
+          tmpURL=`echo "$tmpURL" | sed -re "s~^(.*)/.*~\1~"`
+        done
+        if [ -z "$externalUUID" ]; then
           echo "██ Could not get the UUID of the SVN external repository."
           exit 1
         fi
+
         # directory into which the external is cloned
         externalDir="$SVN_EXTERNALS_CLONE_DIR/$externalUUID/$externalURLSha"
 
         echo "██ Found external:"
-        echo "██ Path: $externalPath"
-        echo "██ URL: $externalURL"
-        echo "██ Local repo directory: $externalDir"
+        echo "█ Path: $externalPath"
+        echo "█ URL: $externalURL"
+        echo "█ URL-SHA1: $externalURLSha"
+        echo "█ UUID: $externalUUID"
+        echo "█ Local repo directory: $externalDir"
 
         if [ ! -f "$externalDir/.git/config" ]; then
           echo "██ Initialize the SVN external in $externalDir."
@@ -142,7 +159,7 @@ while read -r newRevision; do
         # Fetch newest version of SVN external
         cd "$externalDir"
         echo "██ Update the local clone of the SVN external with the latest changes."
-        timeout 30m git svn fetch -q
+        git svn fetch -q
         if [ $? != 0 ]; then
           echo "██ Could not fetch new commits for SVN external $externalURL in directory $externalDir for commit $newRevision"
           exit 1
@@ -168,7 +185,7 @@ while read -r newRevision; do
     # Take the the current working copy (the new revision/commit plus its .gitignore(s) plus its externals) and amend the current head of the trunk branch to the very same state
     tmpCommit=`git rev-parse trunk`
     git branch -D trunk
-    git checkout -b trunk HEAD
+    git checkout -qb trunk HEAD
     git reset --soft "$tmpCommit"
     GIT_COMMITTER_DATE="$commitDate" GIT_COMMITTER_NAME="$commitName" GIT_COMMITTER_EMAIL="$commitEmail" git commit --amend -m "$commitMessage" --allow-empty
     if [ $? != 0 ]; then
