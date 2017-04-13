@@ -108,21 +108,53 @@ while read -r newRevision; do
     else
       # Iterate all externals
       while read -r external; do
-        # Path from the root of this repo where the contents of the external should be put
-        externalPath=`echo "$external" | cut -d" " -f1 | sed 's~^/*~~'`
-        # URL where on the web you can find the SVN repo that is used as an external (can be a path to a subdirectory of that repo)
-        # If the specified URL is redirected, resolves to the final URL (see http://stackoverflow.com/a/3077316)
-        externalURL=`echo "$external" | cut -d" " -f2`
-        externalURL=`curl -Ls -o /dev/null -w '%{url_effective}' "$externalURL"`
-        if [ $? != 0 ]; then
-          echo "██ Failed to resolve URL $externalURL"
+        external=" $external "
+        externalPath=
+        externalRevision=
+        externalURL=
+        externalURLSha=
+        externalUUID=
+
+        revisionRegex="[[:space:]]-r[[:space:]]*([[:digit:]]+)[[:space:]]"
+        if [[ $external =~ $revisionRegex ]]; then
+          externalRevision="${BASH_REMATCH[1]}"
+        fi
+        external=`echo -n "$external" | sed -re "s~$revisionRegex~ ~"`
+
+        urlRegex="(https?://[[:graph:]]+)[[:space:]]+"
+        if [[ $external =~ $urlRegex ]]; then
+          externalURL="${BASH_REMATCH[1]}"
+          if [[ $externalURL =~ "(.*)@([[:digit:]]+)$" ]]; then
+            # Special case where the version is given as @1234 at the end of the URL
+            externalURL="${BASH_REMATCH[1]}"
+            externalRevision="${BASH_REMATCH[2]}"
+          fi
+          # URL where on the web you can find the SVN repo that is used as an external (can be a path to a subdirectory of that repo)
+          # If the specified URL is redirected, resolves to the final URL (see http://stackoverflow.com/a/3077316)
+          externalURL=`curl -Ls -o /dev/null -w '%{url_effective}' "$externalURL"`
+          if [ $? != 0 ]; then
+            echo "██ Failed to resolve URL ${BASH_REMATCH[1]}"
+            exit 1
+          fi
+        else
+          echo "██ No URL found for external"
           exit 1
         fi
+        external=`echo -n "$external" | sed -re "s~$urlRegex~~" | sed -re "s~^[[:space:]]*/?([[:graph:]]*)[[:space:]]*$~\1~"`
+
+        pathRegex="^([[:graph:]]+)$"
+        if [[ $external =~ $pathRegex ]]; then
+          # Path from the root of this repo where the contents of the external should be put
+          externalPath="${BASH_REMATCH[1]}"
+        else
+          echo "██ Could not find external path"
+          exit 1
+        fi
+
         # the SHA1 hash of the URL, primarily used to get a string that can be used as directory name, is not too long and is different for different URLs
         externalURLSha=`echo -n "$externalURL" | sha1sum | cut -c-40`
 
         # the UUID of the repository, also used as directory name to group the URLs by repository
-        externalUUID=
         tmpURL="$externalURL"
         # Shorten the URL if the full path is no longer present in the current revision
         while [ `echo "$tmpURL" | grep -o "/" | wc -l` -ge 2 ]; do
@@ -149,6 +181,7 @@ while read -r newRevision; do
         echo "█ URL: $externalURL"
         echo "█ URL-SHA1: $externalURLSha"
         echo "█ UUID: $externalUUID"
+        echo "█ Revision: $externalRevision"
         echo "█ Local repo directory: $externalDir"
 
         if [ ! -f "$externalDir/.git/config" ]; then
@@ -169,14 +202,22 @@ while read -r newRevision; do
           exit 1
         fi
 
-        externalCommit=`git rev-list -n 1 --before="$commitDate" refs/remotes/git-svn`
-        externalRevision=`git svn find-rev "$externalCommit"`
+        if [ -z $externalRevision ]; then
+          externalCommit=`git rev-list -n 1 --before="$commitDate" refs/remotes/git-svn`
+          externalRevision=`git svn find-rev "$externalCommit"`
+        else
+          externalCommit=`git svn find-rev "r$externalRevision"`
+        fi
         echo "██ Checking out to $FULL_CLONE_DIR/$externalPath"
         cd "$FULL_CLONE_DIR"
         git rm -r "$externalPath"
         mkdir -p "$externalPath"
         cd "$externalDir"
         GIT_WORK_TREE="$FULL_CLONE_DIR/$externalPath" git checkout -f "$externalCommit"
+        if [ $? != 0 ]; then
+          echo "██ Could not checkout revision $externalRevision of external."
+          exit 1
+        fi
 
         commitMessage+=$'\n'"$externalURL@$externalRevision → $externalPath"
 
