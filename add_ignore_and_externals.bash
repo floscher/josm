@@ -38,6 +38,7 @@ fi
 if [ "$RESET_TRUNK_TO_ORIGIN_STATE" = true ]; then
   git remote prune origin
   git fetch origin trunk
+  git reset --hard refs/remotes/origin/trunk
   git checkout -B trunk refs/remotes/origin/trunk
 fi
 git rev-parse --verify trunk
