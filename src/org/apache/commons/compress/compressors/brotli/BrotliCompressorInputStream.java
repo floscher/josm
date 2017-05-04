@@ -24,7 +24,7 @@ import java.io.InputStream;
 import org.apache.commons.compress.compressors.CompressorInputStream;
 
 /**
- * {@link FilterInputStream} implementation to decode Brotli encoded stream.
+ * {@link CompressorInputStream} implementation to decode Brotli encoded stream.
  * Library relies on <a href="https://github.com/google/brotli">Google brotli</a>
  * 
  * @since 1.14
@@ -143,18 +143,5 @@ public class BrotliCompressorInputStream extends CompressorInputStream {
     public void reset() throws IOException {
         decIS.reset();
     }
-    
 
-    /**
-     * There is no magic for Brotli
-     * 
-     * @param signature
-     *            the bytes to check
-     * @param length
-     *            the number of bytes to check
-     * @return true
-     */
-    static boolean matches(final byte[] signature, final int length) {
-        return true;
-    }
 }
