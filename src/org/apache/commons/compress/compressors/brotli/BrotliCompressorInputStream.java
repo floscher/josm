@@ -17,7 +17,6 @@
 
 package org.apache.commons.compress.compressors.brotli;
 
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -48,18 +47,8 @@ public class BrotliCompressorInputStream extends CompressorInputStream {
     }
 
     @Override
-    public int hashCode() {
-        return decIS.hashCode();
-    }
-
-    @Override
     public int read(final byte[] b) throws IOException {
         return decIS.read(b);
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        return decIS.equals(obj);
     }
 
     @Override
