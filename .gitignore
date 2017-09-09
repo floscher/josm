@@ -3,13 +3,12 @@
 /dist
 /build
 /plugin-check
-/findbugs-josm.xml
+/*-josm.xml
 /javadoc
-/checkstyle-josm.xml
 /taginfo_*.json
 /taginfo-img
 /build2
 /junit*.properties
 /foobar
-/pmd-josm.xml
 /imagery_*
+/validator-*
