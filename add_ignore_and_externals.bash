@@ -94,7 +94,7 @@ while read -r newRevision; do
     fi
     echo "██ Created .gitignore(s)"
 
-    commitMessage="[r$svnRevisionNumber] Add svn:ignore and svn:external"$'\n\n'`git status -uno --short`$'\n'
+    commitMessage="[r$svnRevisionNumber] Add svn:ignore and svn:externals"$'\n\n'`git status -uno --short`$'\n'
 
     externals=`git svn show-externals --revision "$svnRevisionNumber"`
     if [ $? != 0 ]; then
